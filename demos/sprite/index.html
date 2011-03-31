@@ -1,0 +1,77 @@
+<!-- ChromeFrame Support -->
+<meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+   /**
+    * The Render Engine
+    * SpriteTest
+    *
+    * This example tests the sprite engine and its capabilities.  It also
+    * shows off the scrolling background context.  The example is a simple
+    * implementation of the first level of Super Mario Bros (c)Nintendo
+    * Corporation.  The images used in this example were acquired via the
+    * Internet.
+    *
+    *
+    * @author: Brett Fattori (brettf@renderengine.com)
+    *
+    * @author: $Author: bfattori@gmail.com $
+    * @version: $Revision: 1557 $
+    *
+    * Copyright (c) 2008 Brett Fattori (brettf@renderengine.com)
+    *
+    * Permission is hereby granted, free of charge, to any person obtaining a copy
+    * of this software and associated documentation files (the "Software"), to deal
+    * in the Software without restriction, including without limitation the rights
+    * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    * copies of the Software, and to permit persons to whom the Software is
+    * furnished to do so, subject to the following conditions:
+    *
+    * The above copyright notice and this permission notice shall be included in
+    * all copies or substantial portions of the Software.
+    *
+    * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    * THE SOFTWARE.
+    *
+    */
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+   <head>
+      <title>The Render Engine - Super Mario Brothers Clone</title>
+
+      <!-- Supporting Libraries -->
+      <script type="text/javascript" src="../../engine/libs/base.js"></script>
+      <script type="text/javascript" src="../../engine/libs/jquery.js"></script>
+      <script type="text/javascript" src="../../engine/libs/jquery.ext.engine.js"></script>
+      <script type="text/javascript" src="../../engine/libs/sylvester.js"></script>
+
+      <!-- Load the main engine script -->
+      <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
+   </head>
+   <body>
+      <script type="text/javascript">
+      	$(document).ready(function() {
+	         // Load the game script
+	         R.Engine.loadGame('game.js','SpriteDemo', 'Sprite Game Demo');
+			});
+      </script>
+
+      <!-- Track demo views via Google Analytics -->
+      <script type="text/javascript">
+         var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+         document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+         var pageTracker = _gat._getTracker("UA-3494542-3");
+         pageTracker._initData();
+         pageTracker._trackPageview();
+      </script>
+   </body>
+</html>

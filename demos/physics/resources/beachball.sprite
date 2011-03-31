@@ -1,0 +1,10 @@
+{
+	// Beachball sprites
+   "bitmapImage": "beachball.png",
+   "bitmapSize": [120,60],
+	"version": 2,
+   "sprites": {
+      "ball": [0, 0, 60, 60],
+      "over": [60, 0, 60, 60]
+   }
+}

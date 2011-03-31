@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gameObjects>
+   <object name="player" playable="true">
+      <actions>
+         <collision state="small" with="goomba,koopa,shell" direction="horizontal" do="killPlayer()"/>
+         <collision state="large" with="goomba,koopa,shell" direction="horizontal" do="pauseEnemies(true); shrinkPlayer(); pauseEnemies(false)"/>
+         <collision with="goomba,koopa,shell" direction="vertical" do="killTarget(this)"/>
+         <collision state="small" with="brick" do="bounceTarget(0,-1)"/>
+         <collision state="large" with="brick" do="shatter(this); destroy()"/>
+         <collision repeat="1" with="mushroomBlock" do="bounce(0,-1); spawn('mushroom',0,-32); changeState('block')"/>
+         <collision repeat="1" with="coinBlock" do="bounce(0,-1); spawn('coin',0,-32); changeState('block')"/>
+         <collision repeat="5" with="coinBrick" do="bounce(0,-1); spawn('coin',0,-32); changeState('block')"/>
+         <collision state="small" with="mushroom" do="growPlayer(); destroy()"/>
+         <collision state="large" with="mushroom" do="destroy()"/>
+         <gravity/>
+      </actions>
+      <states>
+         <state name="small" default="true">
+            <sprites>
+               <sprite name="stand" spriteResource="smbtiles" sprite="mario_stand"/>
+               <sprite name="walk" spriteResource="smbtiles" sprite="mario_walk"/>
+               <sprite name="jump" spriteResource="smbtiles" sprite="mario_jump"/>
+               <sprite name="stop" spriteResource="smbtiles" sprite="mario_skid"/>
+               <sprite name="die" spriteResource="smbtiles" sprite="mario_die"/>
+            </sprites>
+         </state>
+         <state name="large">
+            <sprites>
+               <sprite name="stand" spriteResource="smbtiles" sprite="super_stand"/>
+               <sprite name="walk" spriteResource="smbtiles" sprite="super_walk"/>
+               <sprite name="jump" spriteResource="smbtiles" sprite="super_jump"/>
+               <sprite name="stop" spriteResource="smbtiles" sprite="super_skid"/>
+               <sprite name="duck" spriteResource="smbtiles" sprite="super_duck"/>
+            </sprites>
+         </state>
+      </states>
+   </object>
+   <object name="goomba">
+      <actions>
+         <move do="move(-1,0)"/>
+         <collision with="world" direction="horizontal" do="reverseDirection(this)"/>
+         <gravity/>
+      </actions>
+      <states>
+         <state name="default" default="true">
+            <sprites>
+               <sprite name="walk" spriteResource="smbtiles" sprite="goomba"/>
+               <sprite name="dead" spriteResource="smbtiles" sprite="goomba" frame="0" scale="1.0,0.25"/>
+            </sprites>
+         </state>
+      </states>
+   </object>
+   <object name="koopa">
+      <actions>
+         <move do="move(-2,0)"/>
+         <collision with="world" direction="horizontal" do="reverseDirection(this)"/>
+         <gravity/>
+      </actions>
+      <states>
+         <state name="green" default="true">
+            <sprites>
+               <sprite name="walk" spriteResource="smbtiles" sprite="green_koopa"/>
+               <sprite name="dead" spriteResource="smbtiles" sprite="green_shell"/>
+            </sprites>
+         </state>
+         <state name="red">
+            <sprites>
+               <sprite name="walk" spriteResource="smbtiles" sprite="red_koopa"/>
+               <sprite name="dead" spriteResource="smbtiles" sprite="red_shell"/>
+            </sprites>
+         </state>
+      </states>
+   </object>
+   <object name="shell">
+      <actions>
+         <move do="move(5,0)"/>
+         <collision with="world" direction="horizontal" do="reverseDirection(this)"/>
+         <gravity/>
+      </actions>
+      <states>
+         <state name="green" default="true">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="green_shell"/>
+            </sprites>
+         </state>
+         <state name="red">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="red_shell"/>
+            </sprites>
+         </state>
+      </states>
+   </object>
+   <object name="brick">
+      <states>
+         <state name="default" default="true">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="brick"/>
+            </sprites>
+         </state>
+      </states>
+   </object>
+   <object name="mushroomBlock">
+      <states>
+         <state name="default" default="true">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="q_block"/>
+            </sprites>
+         </state>
+         <state name="block">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="coin_block"/>
+            </sprites>
+         </state>
+      </states>
+   </object>
+   <object name="coinBlock">
+      <states>
+         <state name="default" default="true">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="q_block"/>
+            </sprites>
+         </state>
+         <state name="block">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="coin_block"/>
+            </sprites>
+         </state>
+      </states>
+   </object>
+   <object name="coinBrick">
+      <states>
+         <state name="default" default="true">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="brick"/>
+            </sprites>
+         </state>
+         <state name="block">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="coin_block"/>
+            </sprites>
+         </state>
+      </states>
+   </object>
+   <object name="mushroom">
+      <states>
+         <state name="default" default="true">
+            <sprites>
+               <sprite name="default" spriteResource="smbtiles" sprite="mushroom"/>
+            </sprites>
+         </state>
+      </states>
+   </object>
+</gameObjects>

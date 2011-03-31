@@ -1,0 +1,17 @@
+{
+   // Gem sprites
+   "bitmapImage": "gems.png",
+   "bitmapSize": [135,135],
+   "version": 2,
+   "sprites": {
+      "football":   [0,0,45,45],
+      "soccer":     [45,0,45,45],
+      "squash":     [90,0,45,45],
+      "basketball": [0,45,45,45],
+      "tennis":     [45,45,45,45],
+      "baseball":   [90,45,45,45],
+      "select":     [0,90,45,45],
+      "bomb":       [45,90,45,45],
+      "bolt":       [90,90,45,45]
+   }
+}

@@ -1,0 +1,23 @@
+{
+   // Ragdoll sprites
+   "bitmapImage": "ragdoll.png",
+   "bitmapSize": [264, 114],
+   "version": 2,
+   "sprites": {
+      "head": [0, 0, 51, 62],
+      "pelvis": [0, 62, 67, 37],
+      "torso": [63, 0, 69,94],
+      "rightupperarm": [132, 70, 49, 24],
+      "rightlowerarm": [132, 94, 40, 20],
+      "righthand": [181, 37, 15, 18],
+      "leftupperarm": [181, 70, 49, 24],
+      "leftlowerarm": [181, 94, 40, 20],
+      "lefthand": [181, 37, 15, 18],
+      "leftupperleg": [132, 0, 29, 70],
+      "leftlowerleg": [161, 0, 20, 52],
+      "leftfoot": [181, 0, 34, 19],
+      "rightupperleg": [215, 0, 29, 70],
+      "rightlowerleg": [244, 0, 20, 52],
+      "rightfoot": [181, 19, 34, 19]
+   }
+}
