@@ -1,0 +1,10 @@
+{
+   // Tutorial 8 sprites
+   "bitmapImage": "tutorial8.png",
+   "bitmapSize": [179,102],
+	"version": 2,
+   "sprites": {
+      "stand": [40,0,40,62],
+      "walk": [0,0,40,62,3,150,"toggle"]
+   }
+}

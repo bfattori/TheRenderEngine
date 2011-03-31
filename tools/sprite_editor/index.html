@@ -1,0 +1,292 @@
+<!-- ChromeFrame Support -->
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+   /**
+    * The Render Engine
+    * SpriteEditor
+    *
+    * Needed a way to create sprites for games.
+    *
+    *
+    * @author: Brett Fattori (brettf@renderengine.com)
+    *
+    * @author: $Author: bfattori $
+    * @version: $Revision: 1555 $
+    *
+    * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+    *
+    * Permission is hereby granted, free of charge, to any person obtaining a copy
+    * of this software and associated documentation files (the "Software"), to deal
+    * in the Software without restriction, including without limitation the rights
+    * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    * copies of the Software, and to permit persons to whom the Software is
+    * furnished to do so, subject to the following conditions:
+    *
+    * The above copyright notice and this permission notice shall be included in
+    * all copies or substantial portions of the Software.
+    *
+    * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    * THE SOFTWARE.
+    *
+    */
+-->
+
+<html>
+   <head>
+      <title>The Render Engine - Sprite Editor</title>
+
+       <!-- Supporting Libraries -->
+      <script type="text/javascript" src="../../engine/libs/base.js"></script>
+      <script type="text/javascript" src="../../engine/libs/jquery.js"></script>
+      <script type="text/javascript" src="../../engine/libs/jquery.ext.engine.js"></script>
+      <script type="text/javascript" src="../../engine/libs/sylvester.js"></script>
+
+      <!-- Load the main engine script -->
+      <script type="text/javascript" src="../support/editor_support.js"></script>
+      <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
+
+      <style type="text/css">
+      	body {
+      		font: 10pt Arial;
+      	}
+
+			div.loadbox {
+				width: 325px;
+				height: 30px;
+				padding: 10px;
+				font: 10px Arial;
+				border: 1px outset gray;
+				-moz-border-radius: 10px;
+				-webkit-border-radius: 10px;				
+			}
+
+         #engine-load-progress {
+            position: relative;
+            border: 1px inset gray;
+            width: 300px;
+            height: 5px;
+         }
+
+         #engine-load-progress .bar {
+            background: silver;
+         }
+      </style>
+   </head>
+   <body>
+      <span id="loading">
+      	<table border="0" style="width:100%;height:100%;">
+      		<tr>
+      			<td style="width:100%;height:100%;" valign="middle" align="center">
+						<div class="loadbox">
+							Loading Sprite Editor...
+		         		<div id="engine-load-progress"></div>
+							<span id="engine-load-info"></span>
+						</div>
+					</td>
+      		</tr>
+      	</table>
+      </span>
+      <script type="text/javascript">
+         // Load the game script
+         R.Engine.loadGame('game.js','SpriteEditor');
+      </script>
+
+		<div id="menuBar" style="display: none;">
+			<div class="menuItem">File
+				<div class="menu">
+					<div class="item" func="SpriteEditor.actionNew">New</div>
+					<div class="item disabled" func="SpriteEditor.actionOpen">Open</div>
+					<div class="item disabled" func="SpriteEditor.actionSave">Save</div>
+					<div class="sep"><!-- --></div>
+					<div class="item" func="SpriteEditor.actionExportSpriteSheet">Export Sprite Sheet</div>
+					<div class="item" func="SpriteEditor.actionImportSpriteSheet">Import Sprite Sheet</div>
+					<div class="sep"><!-- --></div>
+					<div class="item" func="SpriteEditor.actionExit">Exit</div>
+				</div>
+			</div>
+			<div class="menuItem">Edit
+				<div class="menu">
+					<div class="item disabled" func="SpriteEditor.actionUndo">Undo</div>
+					<div class="item disabled" func="SpriteEditor.actionRedo">Redo</div>
+					<div class="sep"><!-- --></div>
+					<div class="item disabled" func="SpriteEditor.actionCopy">Copy</div>
+					<div class="item disabled" func="SpriteEditor.actionPaste">Paste</div>
+					<div class="sep"><!-- --></div>
+					<div class="item" func="SpriteEditor.flipHorizontal">Flip Horizontal</div>
+					<div class="item" func="SpriteEditor.flipVertical">Flip Vertical</div>
+					<div class="sep"><!-- --></div>
+					<div class="item" func="SpriteEditor.shiftUp">Shift Up</div>
+					<div class="item" func="SpriteEditor.shiftDown">Shift Down</div>
+					<div class="item" func="SpriteEditor.shiftLeft">Shift Left</div>
+					<div class="item" func="SpriteEditor.shiftRight">Shift Right</div>
+				</div>
+			</div>
+			<div class="menuItem">Options
+				<div class="menu">
+					<div class="item toggle" func="SpriteEditor.actionVMirrorToggle">Vertical Mirror</div>
+					<div class="item toggle" func="SpriteEditor.actionHMirrorToggle">Horizontal Mirror</div>
+					<div class="sep"><!-- --></div>
+					<div class="item toggle checked" func="SpriteEditor.actionToggleGrid">Show Grid</div>
+				</div>
+			</div>
+			<div class="menuItem">Frames
+				<div class="menu">
+					<div class="item" func="SpriteEditor.actionClearFrame">Clear Frame</div>
+					<div class="sep"><!-- --></div>
+					<div class="item" func="SpriteEditor.actionNewFrame">New Frame</div>
+					<div class="item" func="SpriteEditor.actionDuplicateFrame">Duplicate Frame</div>
+					<div class="item" func="SpriteEditor.actionDeleteFrame">Delete Frame</div>
+					<div class="sep"><!-- --></div>
+					<div class="item" func="SpriteEditor.actionPreviousFrame">Previous Frame</div>
+					<div class="item" func="SpriteEditor.actionNextFrame">Next Frame</div>
+					<div class="sep"><!-- --></div>
+					<div class="item" func="SpriteEditor.actionAnimateFrames">Animate Frames</div>
+				</div>
+			</div>
+			<div class="menuItem">Help
+				<div class="menu">
+					<div class="item" func="SpriteEditor.actionHelp">Help Contents</div>
+					<div class="sep"><!-- --></div>
+					<div class="item" func="SpriteEditor.actionAbout">About Sprite Editor</div>
+				</div>
+			</div>
+		</div>
+
+      <div id="controls" style="display: none;">
+         <div class="tool colors">
+            <h5>Color</h5>
+            <table class="colorTable" border="1" cellspacing="2">
+               <tr>
+                  <td class="preColor" style="background: white"><!-- --></td>
+                  <td class="preColor" style="background: black"><!-- --></td>
+                  <td class="preColor" style="background: silver"><!-- --></td>
+                  <td class="preColor" style="background: gray"><!-- --></td>
+                  <td class="selectedColor" rowspan="2" title="Foreground Color"><!-- --></td>
+               </tr>
+               <tr>
+                  <td class="preColor" style="background: red"><!-- --></td>
+                  <td class="preColor" style="background: maroon"><!-- --></td>
+                  <td class="preColor" style="background: yellow"><!-- --></td>
+                  <td class="preColor" style="background: olive"><!-- --></td>
+               </tr>
+               <tr>
+                  <td class="preColor" style="background: blue"><!-- --></td>
+                  <td class="preColor" style="background: navy"><!-- --></td>
+                  <td class="preColor" style="background: fuchsia"><!-- --></td>
+                  <td class="preColor" style="background: purple"><!-- --></td>
+                  <td class="backgroundColor" rowspan="2" title="Background Color"><!-- --></td>
+               </tr>
+               <tr>
+                  <td class="preColor" style="background: lime"><!-- --></td>
+                  <td class="preColor" style="background: green"><!-- --></td>
+                  <td class="preColor" style="background: aqua"><!-- --></td>
+                  <td class="preColor" style="background: teal"><!-- --></td>
+               </tr>
+            </table>
+            <input type="text" size="8" id="curColor" value="#FFFFFF"/>
+         </div>
+         <div class="tool grid">
+            <h5>Grid</h5>
+            <input type="radio" id="grid8" name="gridsize" value="8"/>8&nbsp;
+            <input type="radio" id="grid16" name="gridsize" value="16"/>16&nbsp;
+            <input type="radio" id="grid32" name="gridsize" value="32"/>32&nbsp;
+            <input type="radio" id="grid64" name="gridsize" value="64"/>64&nbsp;<br/>
+            <input type="checkbox" id="gridVis" checked/>Draw Grid
+         </div>
+         <div class="tool drawmode">
+            <h5>Drawmode</h5>
+            <div class="stateful button on drawicon paintbrush" func="SpriteEditor.setDrawMode" title="Draw Pixels"><!-- --></div>
+            <div class="stateful button drawicon eraser" func="SpriteEditor.setDrawMode" title="Erase Pixels"><!-- --></div>
+            <div class="stateful button drawicon dropper" func="SpriteEditor.setDrawMode" title="Get Pixel Color"><!-- --></div>
+         </div>
+         <div style="clear: both"><!-- --></div>
+         <div class="tool brushsize">
+            <h5>Brush Size</h5>
+            <table class="brushTable" border="1" cellspacing="2" style="border: 1px solid;">
+               <tr>
+                  <td class="brushPix enabled"><!-- --></td>
+                  <td class="brushPix"><!-- --></td>
+                  <td class="brushPix"><!-- --></td>
+               </tr>
+               <tr>
+                  <td class="brushPix"><!-- --></td>
+                  <td class="brushPix"><!-- --></td>
+                  <td class="brushPix"><!-- --></td>
+               </tr>
+               <tr>
+                  <td class="brushPix"><!-- --></td>
+                  <td class="brushPix"><!-- --></td>
+                  <td class="brushPix"><!-- --></td>
+               </tr>
+            </table>
+         </div>
+         <div class="tool preview">
+            <h5>Sprite Preview</h5>
+            <img id="spritePreview" width="64" height="64" src="resources/b64.gif">
+         </div>
+         <div style="clear: both"><!-- --></div>
+         <div class="tool shift">
+            <h5>Shift</h5>
+            <div class="button shift-left" func="SpriteEditor.shiftLeft" title="Shift Left 1 Pixel"><!-- --></div>
+            <div class="button shift-up" func="SpriteEditor.shiftUp" title="Shift Up 1 Pixel"><!-- --></div>
+            <div class="button shift-down" func="SpriteEditor.shiftDown" title="Shift Down 1 Pixel"><!-- --></div>
+            <div class="button shift-right" func="SpriteEditor.shiftRight" title="Shift Right 1 Pixel"><!-- --></div>
+         </div>
+         <div class="tool flip-mirror">
+            <h5>Flip/Mirror</h5>
+            <div class="button flip-vertical" func="SpriteEditor.flipVertical" title="Flip Vertically"><!-- --></div>
+            <div class="button flip-horizontal" func="SpriteEditor.flipHorizontal" title="Flip Horizontally"><!-- --></div>
+            <div class="stateful button mirror-vertical" func="SpriteEditor.vMirrorToggle" title="Mirror Vertically"><!-- --></div>
+            <div class="stateful button mirror-horizontal" func="SpriteEditor.hMirrorToggle" title="Mirror Horizontally"><!-- --></div>
+         </div>
+         <div style="clear: both"><!-- --></div>
+         <div class="tool frames">
+            <h5>Frames</h5>
+            <ul><li class="currentFrame"><img src="" class="frame" width="16" height="16"/></li></ul>
+         </div>
+      </div>
+
+		<!-- Export Dialog Template -->
+		<script type="text/html" id="export_dialog">
+			<div class="dialog">
+				<div class="title">Export Sprite Sheet</div>
+				<div class="section">
+					<h5>Sprites per Row</h5>
+					<input type="text" id="exportAcross" value="5"/>
+				</div>
+				<div class="buttons">
+					<div class="button" func="SpriteEditor.exportOk">Ok</div>
+					<div class="button" func="SpriteEditor.exportCancel">Cancel</div>
+				</div>
+			</div>
+		</script>
+
+		<!-- Import Dialog Template -->
+		<script type="text/html" id="import_dialog">
+			<div class="dialog">
+				<div class="title">Import Sprite Sheet</div>
+				<div class="section">
+					<h5>URL</h5>
+					<input type="text" id="importURL" value="http://" size="30"/>
+				</div>
+				<div class="section">
+					<h5>Dimensions</h5>
+					<span class="label">Sprites Across: </span><input type="text" id="importAcross" value="5"/><br/>
+					<span class="label">Sprites Down: </span><input type="text" id="importAcross" value="1"/><br/>
+				</div>
+				<div class="buttons">
+					<div class="button" func="SpriteEditor.importOk">Ok</div>
+					<div class="button" func="SpriteEditor.importCancel">Cancel</div>
+				</div>
+			</div>
+		</script>
+
+   </body>
+</html>

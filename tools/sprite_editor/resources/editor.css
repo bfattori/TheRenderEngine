@@ -1,0 +1,292 @@
+#controls {
+   position: absolute;
+   background: silver;
+   width: 400px;
+   top: 0;
+   height: 514px;
+   left: 512px;
+   border: 1px outset white;
+   padding: 10px;
+}
+
+.tool {
+   font: 11pt "Lucida Console",Verdana,Arial,Helvetica;
+   background: #a0a0a0;
+}
+
+.tool H5 {
+   font-weight: bold;
+   background: maroon;
+   color: white;
+   margin: 1px 1px 2px 1px;
+   padding:2px;
+}
+
+.colors {
+   width: 170px;
+   height: 142px;
+   border: 1px inset white;
+   float: left;
+}
+
+.colors input {
+   margin-left: 5px;
+}
+
+.preColor {
+   width: 16px;
+   height: 18px;
+}
+
+.colorTable {
+   margin-top: 2px;
+   margin-left: 5px;
+   clear: none;
+}
+
+.selectedColor {
+   background-color: white;
+   width: 50px;
+}
+
+.backgroundColor {
+   background-color: black;
+   width: 50px;
+}
+
+.grid {
+   width: 220px;
+   height: 70px;
+   border: 1px inset white;
+   float: right;
+}
+
+.drawmode {
+   margin-top: 10px;
+   width: 220px;
+   height: 60px;
+   border: 1px inset white;
+   float: right;
+}
+
+.brushsize {
+   margin-top: 10px;
+   width: 170px;
+   height: 102px;
+   border: 1px inset white;
+   float: left;
+}
+
+.brushTable {
+   margin-top: 2px;
+   margin-left: 5px;
+   clear: none;
+   border: none;
+}
+
+.brushTable .brushPix {
+   width: 16px;
+   height: 18px;
+   border: 1px solid white;
+   background: paleGoldenrod;
+}
+
+.brushTable .brushPix.enabled {
+   background: navy;
+}
+
+.preview {
+   margin-top: 10px;
+   width: 220px;
+   height: 102px;
+   border: 1px inset white;
+   float: left;
+   margin-left: 5px;
+}
+
+.preview img {
+   background: black;
+   margin-left: 20px;
+   margin-top: 5px;
+   border: 1px solid white;
+   width: 64px;
+   height: 64px;
+}
+
+div.drawicon {
+   width: 32px;
+   height: 32px;
+   float: left;
+}
+
+div.drawicon.paintbrush {
+   background-image: url(resources/paint.png);
+}
+
+div.drawicon.eraser {
+   background-image: url(resources/erase.png);
+}
+
+div.drawicon.dropper {
+   background-image: url(resources/dropper.png);
+}
+
+.drawmode input {
+   float: left;
+}
+
+.shift {
+   margin-top: 10px;
+   width: 170px;
+   height: 62px;
+   border: 1px inset white;
+   float: left;
+}
+
+div.button {
+   width: 32px;
+   height: 32px;
+   border: 1px outset silver;
+   margin: 2px;
+   float: left;
+   background-position: 50% 50%;
+   background-repeat: no-repeat;
+}
+
+div.button.on {
+	border: 1px inset silver;
+	background-color: gray;
+}
+
+div.button.mouseover {
+   background-color: silver;
+}
+
+div.button.shift-up {
+   background-image: url(resources/arrowup.png);
+}
+
+div.button.shift-down {
+   background-image: url(resources/arrowdn.png);
+}
+
+div.button.shift-left {
+   background-image: url(resources/arrowlt.png);
+}
+
+div.button.shift-right {
+   background-image: url(resources/arrowrt.png);
+}
+
+.flip-mirror {
+   margin-top: 10px;
+   width: 220px;
+   height: 62px;
+   border: 1px inset white;
+   float: left;
+	margin-left: 5px;
+}
+
+div.button.flip-vertical {
+   background-image: url(resources/flipv.png);
+}
+
+div.button.flip-horizontal {
+   background-image: url(resources/fliph.png);
+}
+
+div.button.mirror-vertical {
+   background-image: url(resources/mirrorv.png);
+}
+
+div.button.mirror-horizontal {
+   background-image: url(resources/mirrorh.png);
+}
+
+.frames {
+   margin-top: 10px;
+   width: 397px;
+   height: 140px;
+   border: 1px inset white;
+}
+
+.frames ul {
+	list-style: none;
+	margin-left: -30px;
+}
+
+.frames ul li {
+	float: left;
+	width: 16px;
+	height: 16px;
+	margin-left: 5px;
+	border: 1px solid transparent;
+}
+
+.frames ul li.currentFrame {
+	border: 1px solid white;
+}
+
+.frames ul li img.frame {
+}
+
+
+#menuBar {
+   position: relative;
+   width: 800px;
+   height: 24px;
+   background: silver;
+   font: 9pt Verdana, Arial, Helvetica, sans-serif;
+   color: black;
+   cursor: pointer;
+}
+
+#menuBar .menuItem {
+   float: left;
+   margin-top: 5px;
+   margin-left: 3px;
+   margin-right: 15px;
+}
+
+#menuBar .menuItem.open,#menuBar .menuItem.mouseover {
+   background: navy;
+   color: white;
+}
+
+#menuBar .menu {
+   position: absolute;
+   display: none;
+   background: silver;
+   border: 1px solid gray;
+   min-width: 100px;
+   padding: 5px;
+}
+
+#menuBar .menuItem.open .menu {
+   display: block;
+}
+
+#menuBar .menu .sep {
+   margin-top: 3px;
+   margin-bottom: 4px;
+   border-top: 1px solid gray;
+   width: 100%
+}
+
+#menuBar .menu .item {
+   color: black;
+}
+
+#menuBar .menu .item.disabled {
+   color: gray;
+}
+
+#menuBar .menu .item.mouseover {
+   background: navy;
+   color: white;
+}
+
+#menuBar .menu .item.mouseover.disabled {
+   color: gray;
+   background: navy;
+}

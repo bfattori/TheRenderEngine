@@ -1,0 +1,15 @@
+{
+   // Tutorial 9 sprites
+   "bitmapImage": "tutorial9.png",
+   "bitmapSize": [232,170],
+	"version": 2,
+   "sprites": {
+      "stand": [40,0,40,62],
+      "walk": [0,0,40,62,3,150,"toggle"],
+		"dead": [180,0,40,62],
+      "powerup": [9,67,33,35,4,100,"loop"],
+		"shield": [0,108,40,62,4,100,"loop"],
+      "bomb": [124,0,25,46,2,50,"loop"],
+		"boom": [167,71,64,58]
+   }
+}

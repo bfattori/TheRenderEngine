@@ -1,0 +1,1 @@
+You need to run the Ant task "engine.runtime" if you make modifications to any of the engine files in the "engine/build/" folder.  When you run the task, the "engine.js" will be built into this folder.
