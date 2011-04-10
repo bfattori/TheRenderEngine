@@ -122,7 +122,7 @@ R.resources.loaders.SoundLoader = function(){
 		},
 		
 		/**
-		 * Unload a sound, calling the proper methods in SoundManager2.
+		 * Unload a sound, calling the proper methods in the sound system.
 		 *
 		 * @param sound {String} The name of the sound to unload
 		 */
@@ -134,7 +134,6 @@ R.resources.loaders.SoundLoader = function(){
 		/**
 		 * Creates a {@link R.resources.types.Sound} object representing the named sound.
 		 *
-		 * @param resource {String} A loaded sound resource
 		 * @param sound {String} The name of the sound from the resource
 		 * @return {R.resources.types.Sound} A {@link R.resources.types.Sound} instance
 		 */
@@ -169,4 +168,4 @@ R.resources.loaders.SoundLoader = function(){
 		}
 	});
 	
-}
+};

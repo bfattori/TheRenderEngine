@@ -159,4 +159,4 @@ var SpaceroidsBullet = function() {
 
 	COLLISION_MASK: R.lang.Math2.parseBin("100")
 });
-}
+};

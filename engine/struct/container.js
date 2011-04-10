@@ -223,7 +223,7 @@ R.struct.Container = function() {
     */
    replace: function(oldObj, newObj) {
 		var i = R.engine.Support.indexOf(this.objects, oldObj);
-      this.objects(i) = newObj;
+      this.objects[i] = newObj;
       return oldObj;
    },
    
