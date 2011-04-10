@@ -31,69 +31,70 @@
  *
  */
 
-R.Engine.requires("/rendercontexts/context.canvascontext.js");
-
-R.Engine.initObject("SpritePreview", "CanvasContext", function() {
+R.Engine.define({
+	"class": "SpritePreview",
+	"requires": [
+		"R.rendercontexts.CanvasContext"
+	]
+});
 
 /**
  * @class The canvas upon which the preview sprite is displayed.
  */
-var SpritePreview = CanvasContext.extend({
+var SpritePreview = function() {
+   return R.rendercontexts.CanvasContext.extend({
 
-	imgData: null,
+      imgData: null,
 
-   constructor: function() {
-      this.base("Preview", 64, 64);
-		$(this.getSurface()).css("display", "none");
-   },
+      constructor: function() {
+         this.base("Preview", 64, 64);
+         $(this.getSurface()).css("display", "none");
+      },
 
-	/**
-	 * Clear the canvas
-	 * @private
-	 */
-   clear: function() {
-      var cRect = this.getViewport();
-      this.get2DContext().clearRect(cRect.getTopLeft().x, cRect.getTopLeft().y, cRect.getDims().x, cRect.getDims().y);
-   },
+      /**
+       * Clear the canvas
+       * @private
+       */
+      clear: function() {
+         var cRect = this.getViewport();
+         this.get2DContext().clearRect(cRect.getTopLeft().x, cRect.getTopLeft().y, cRect.getDims().x, cRect.getDims().y);
+      },
 
-	/**
-	 * @private
-	 */
-	reset: function(rect) {
-		// Overloaded so the rectangle doesn't clear
-	},
+      /**
+       * @private
+       */
+      reset: function(rect) {
+         // Overloaded so the rectangle doesn't clear
+      },
 
-   /**
-    * Update the preview context.
-    *
-    * @param renderContext {RenderContext} The rendering context
-    * @param time {Number} The engine time in milliseconds
-    */
-   update: function(renderContext, time) {
-      renderContext.pushTransform();
-      this.base(renderContext, time);
+      /**
+       * Update the preview context.
+       *
+       * @param renderContext {RenderContext} The rendering context
+       * @param time {Number} The engine time in milliseconds
+       */
+      update: function(renderContext, time) {
+         renderContext.pushTransform();
+         this.base(renderContext, time);
 
-		//this.get2DContext().putImageData(this.imgData, 0, 0);
+         //this.get2DContext().putImageData(this.imgData, 0, 0);
 
-		// Now copy across the image to the preview in the editor
-		SpriteEditor.previewImage.attr("src", this.getDataURL());
-		$(".frames ul li.currentFrame img").attr("src", this.getDataURL());
+         // Now copy across the image to the preview in the editor
+         SpriteEditor.previewImage.attr("src", this.getDataURL());
+         $(".frames ul li.currentFrame img").attr("src", this.getDataURL());
 
-      renderContext.popTransform();
-   }
+         renderContext.popTransform();
+      }
 
-}, { // Static
+   }, { // Static
 
-   /**
-    * Get the class name of this object
-    * @return The string <tt>SpritePreview</tt>
-    * @type String
-    */
-   getClassName: function() {
-      return "SpritePreview";
-   }
-});
-
-return SpritePreview;
-
-});
+      /**
+       * Get the class name of this object
+       * @return The string <tt>SpritePreview</tt>
+       * @type String
+       */
+      getClassName: function() {
+         return "SpritePreview";
+      }
+   });
+};

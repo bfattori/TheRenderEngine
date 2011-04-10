@@ -1,4 +1,10 @@
 
+R.Engine.define({
+	"class": "ColorSelector",
+	"requires": []
+});
+
+
 /**
  * Derived from the color selector located @ http://www.daltonlp.com/view/174
  * (c)2007 Lloyd Dalton
@@ -536,7 +542,7 @@ var ColorSelector = Base.extend(/** @scope ColorSelector.prototype */{
 
 		// Calculate saturation: saturation is 0 if r, g and b are all 0
 	  if (v == 0)
-		 s = 0
+		 s = 0;
 	  else
 		 s = delta / v;
 

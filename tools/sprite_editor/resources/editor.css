@@ -1,3 +1,4 @@
+
 #controls {
    position: absolute;
    background: silver;
@@ -120,15 +121,15 @@ div.drawicon {
 }
 
 div.drawicon.paintbrush {
-   background-image: url(resources/paint.png);
+   background-image: url(paint.png);
 }
 
 div.drawicon.eraser {
-   background-image: url(resources/erase.png);
+   background-image: url(erase.png);
 }
 
 div.drawicon.dropper {
-   background-image: url(resources/dropper.png);
+   background-image: url(dropper.png);
 }
 
 .drawmode input {
@@ -163,19 +164,19 @@ div.button.mouseover {
 }
 
 div.button.shift-up {
-   background-image: url(resources/arrowup.png);
+   background-image: url(arrowup.png);
 }
 
 div.button.shift-down {
-   background-image: url(resources/arrowdn.png);
+   background-image: url(arrowdn.png);
 }
 
 div.button.shift-left {
-   background-image: url(resources/arrowlt.png);
+   background-image: url(arrowlt.png);
 }
 
 div.button.shift-right {
-   background-image: url(resources/arrowrt.png);
+   background-image: url(arrowrt.png);
 }
 
 .flip-mirror {
@@ -188,19 +189,19 @@ div.button.shift-right {
 }
 
 div.button.flip-vertical {
-   background-image: url(resources/flipv.png);
+   background-image: url(flipv.png);
 }
 
 div.button.flip-horizontal {
-   background-image: url(resources/fliph.png);
+   background-image: url(fliph.png);
 }
 
 div.button.mirror-vertical {
-   background-image: url(resources/mirrorv.png);
+   background-image: url(mirrorv.png);
 }
 
 div.button.mirror-horizontal {
-   background-image: url(resources/mirrorh.png);
+   background-image: url(mirrorh.png);
 }
 
 .frames {

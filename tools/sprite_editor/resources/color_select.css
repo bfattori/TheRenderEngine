@@ -1,3 +1,4 @@
+
 .color_select_icon {
   border:outset 2px;
   line-height:18px;
@@ -6,7 +7,7 @@
   margin:0px;
   background-color:transparent;
   background-repeat:no-repeat;
-  background-image:url(resources/color_select_icon.jpg);
+  background-image:url(color_select_icon.jpg);
 }
 
 .color_select_icon:active {
@@ -43,7 +44,7 @@ border:inset 2px;
 
 /* IE ignores css styles with [attributes], so it will skip the following. */
 .sv_select_box[class] {
-  background:url(resources/sv_blend.png) top left no-repeat;
+  background:url(sv_blend.png) top left no-repeat;
 }
 
 .h_select_box {
@@ -55,7 +56,7 @@ border:inset 2px;
   margin:0px;
   margin-left:5px;
   float:left;
-  background-image:url(resources/hue_blend.png);
+  background-image:url(hue_blend.png);
 }
 
 .hue_cursor {

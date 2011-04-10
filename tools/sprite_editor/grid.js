@@ -31,137 +31,143 @@
  *
  */
 
-R.Engine.requires("/engine.object2d.js");
+R.Engine.define({
+	"class": "SpriteGrid",
+	"requires": [
+		"R.engine.Object2D",
+		"R.struct.Container",
+		"R.lang.Iterator",
 
-R.Engine.initObject("SpriteGrid", "Object2D", function() {
+		// Math objects
+		"R.math.Math2D",
+		"R.math.Point2D",
+		"R.math.Vector2D",
+		"R.math.Rectangle2D"
+	]
+});
 
 /**
  * @class The grid.
  */
-var SpriteGrid = Object2D.extend({
+var SpriteGrid = function() {
+   return R.engine.Object2D.extend({
 
-	pixels: null,
+      pixels: null,
+      visible: true,
+      color: null,
+      mirror: [false, false],
 
-	visible: true,
+      constructor: function() {
+         this.base("Grid");
+         this.setZIndex(1000);
+         this.visible = true;
+         this.color = "#c0c0c0";
+      },
 
-	color: null,
-	
-	mirror: [false, false],
+      /**
+       * Set the color of the grid lines
+       * @param colr {String} Hexadecimal color for the grid lines
+       */
+      setGridColor: function(colr) {
+         this.color = colr;
+      },
 
-   constructor: function() {
-      this.base("Grid");
-      this.setZIndex(1000);
-		this.visible = true;
-		this.color = "#c0c0c0";
-   },
+      /**
+       * Update the grid within the rendering context.  This draws
+       * the shape to the context, after updating the transform of the
+       * object.  If the player is thrusting, draw the thrust flame
+       * under the ship.
+       *
+       * @param renderContext {RenderContext} The rendering context
+       * @param time {Number} The engine time in milliseconds
+       */
+      update: function(renderContext, time) {
 
-	/**
-	 * Set the color of the grid lines
-	 * @param colr {String} Hexadecimal color for the grid lines
-	 */
-	setGridColor: function(colr) {
-		this.color = colr;
-	},
+         // Before we draw the grid, let's capture the canvas to the preview window
+         SpriteEditor.previewContext.clear();
+         SpriteEditor.previewContext.drawImage(R.math.Rectangle2D.create(0, 0, 64, 64),
+               renderContext.getSurface());
 
-   /**
-    * Update the grid within the rendering context.  This draws
-    * the shape to the context, after updating the transform of the
-    * object.  If the player is thrusting, draw the thrust flame
-    * under the ship.
-    *
-    * @param renderContext {RenderContext} The rendering context
-    * @param time {Number} The engine time in milliseconds
-    */
-   update: function(renderContext, time) {
+         renderContext.pushTransform();
+         this.base(renderContext, time);
 
-		// Before we draw the grid, let's capture the canvas to the preview window
-		SpriteEditor.previewContext.clear();
-		SpriteEditor.previewContext.drawImage(null, Rectangle2D.create(0, 0, 64, 64),
-			renderContext.getSurface());
+         if (!this.visible) {
+            return;
+         }
 
-      renderContext.pushTransform();
-      this.base(renderContext, time);
+         renderContext.setLineStyle(this.color);
+         renderContext.setLineWidth(0.5);
+         var sT = R.math.Point2D.create(0,0);
+         var eD = R.math.Point2D.create(0,0);
+         for (var x=0; x < SpriteEditor.editorSize; x += SpriteEditor.pixSize)
+         {
+            // X-Lines
+            sT.set(x, 0);
+            eD.set(x, SpriteEditor.editorSize);
+            renderContext.drawLine(sT, eD);
+         }
 
-		if (!this.visible) {
-			return;
-		}
+         for (var y=0; y < SpriteEditor.editorSize; y += SpriteEditor.pixSize)
+         {
+            // Y-Lines
+            sT.set(0, y);
+            eD.set(SpriteEditor.editorSize, y);
+            renderContext.drawLine(sT, eD);
+         }
 
-		renderContext.setLineStyle(this.color);
-		renderContext.setLineWidth(0.25);
-		var sT = Point2D.create(0,0);
-		var eD = Point2D.create(0,0);
-		for (var x=0; x < SpriteEditor.editorSize; x += SpriteEditor.pixSize)
-		{
-			// X-Lines
-			sT.set(x, 0);
-			eD.set(x, SpriteEditor.editorSize);
-			renderContext.drawLine(sT, eD);
-		}
+         // Mirror Lines
+         if (this.mirror[0]) {
+            // Horizontal
+            renderContext.setLineWidth(0.75);
+            sT.set(256, 0);
+            eD.set(256, 512);
+            renderContext.drawLine(sT, eD);
+         }
 
-		for (var y=0; y < SpriteEditor.editorSize; y += SpriteEditor.pixSize)
-		{
-			// Y-Lines
-			sT.set(0, y);
-			eD.set(SpriteEditor.editorSize, y);
-			renderContext.drawLine(sT, eD);
-		}
+         if (this.mirror[1]) {
+            // Vertical
+            renderContext.setLineWidth(0.75);
+            sT.set(0, 256);
+            eD.set(512, 256);
+            renderContext.drawLine(sT, eD);
+         }
 
-		// Mirror Lines
-		if (this.mirror[0]) {
-			// Horizontal
-			renderContext.setLineWidth(0.75);
-			sT.set(256, 0);
-			eD.set(256, 512);
-			renderContext.drawLine(sT, eD);
-		}
+         renderContext.popTransform();
+      },
 
-		if (this.mirror[1]) {
-			// Vertical
-			renderContext.setLineWidth(0.75);
-			sT.set(0, 256);
-			eD.set(512, 256);
-			renderContext.drawLine(sT, eD);
-		}
+      /**
+       * Set the visibility state of the grid
+       * @param state {Boolean} <code>true</code> to show the grid, <code>false</code> to hide it
+       */
+      setVisible: function(state)  {
+         this.visible = state;
+      },
 
-      renderContext.popTransform();
-   },
+      /**
+       * Set the vertical mirror state
+       * @param state {Boolean} <code>true</code> to enable vertical mirroring
+       */
+      setMirrorVertical: function(state) {
+         this.mirror[1] = state;
+      },
 
-	/**
-	 * Set the visibility state of the grid
-	 * @param state {Boolean} <code>true</code> to show the grid, <code>false</code> to hide it
-	 */
-	setVisible: function(state)  {
-		this.visible = state;
-	},
-	
-	/**
-	 * Set the vertical mirror state
-	 * @param state {Boolean} <code>true</code> to enable vertical mirroring
-	 */
-	setMirrorVertical: function(state) {
-		this.mirror[1] = state;
-	},
-	
-	/**
-	 * Set the horizontal mirror state
-	 * @param state {Boolean} <code>true</code> to enable horizontal mirroring
-	 */
-	setMirrorHorizontal: function(state) {
-		this.mirror[0] = state;	
-	}
+      /**
+       * Set the horizontal mirror state
+       * @param state {Boolean} <code>true</code> to enable horizontal mirroring
+       */
+      setMirrorHorizontal: function(state) {
+         this.mirror[0] = state;
+      }
 
-}, { // Static
+   }, { // Static
 
-   /**
-    * Get the class name of this object
-    * @return The string <tt>SpriteTest.Actor</tt>
-    * @type String
-    */
-   getClassName: function() {
-      return "SpriteGrid";
-   }
-});
-
-return SpriteGrid;
-
-});
+      /**
+       * Get the class name of this object
+       * @return The string <tt>SpriteTest.Actor</tt>
+       * @type String
+       */
+      getClassName: function() {
+         return "SpriteGrid";
+      }
+   });
+};
