@@ -63,8 +63,10 @@
    </head>
    <body>
       <script type="text/javascript">
-         // Load the game script
-         R.Engine.loadGame('sprite_editor.js','SpriteEditor', 'The Render Engine - Sprite Editor');
+         $(document).ready(function() {
+            // Load the game script
+            R.Engine.loadGame('sprite_editor.js','SpriteEditor', 'The Render Engine - Sprite Editor');
+         });
       </script>
 
 		<div id="menuBar" style="display: none;">
@@ -76,8 +78,6 @@
 					<div class="sep"><!-- --></div>
 					<div class="item" func="SpriteEditor.actionExportSpriteSheet">Export Sprite Sheet</div>
 					<div class="item" func="SpriteEditor.actionImportSpriteSheet">Import Sprite Sheet</div>
-					<div class="sep"><!-- --></div>
-					<div class="item" func="SpriteEditor.actionExit">Exit</div>
 				</div>
 			</div>
 			<div class="menuItem">Edit
@@ -129,6 +129,14 @@
 		</div>
 
       <div id="controls" style="display: none;">
+         <div class="tool nav">
+            <div class="button add-frame" func="SpriteEditor.actionNewFrame" title="Add new frame"><!-- --></div>
+            <div class="button dupe-frame" func="SpriteEditor.actionDuplicateFrame" title="Duplicate current frame"><!-- --></div>
+            <div class="button delete-frame" func="SpriteEditor.actionDeleteFrame" title="Delete current frame"><!-- --></div>
+            <div class="button clear-frame" func="SpriteEditor.actionClearFrame" title="Clear current frame"><!-- --></div>
+            <div class="button prev-frame" func="SpriteEditor.actionPreviousFrame" title="Previous frame"><!-- --></div>
+            <div class="button next-frame" func="SpriteEditor.actionNextFrame" title="Next frame"><!-- --></div>
+         </div>
          <div class="tool colors">
             <h5>Color</h5>
             <table class="colorTable" border="1" cellspacing="2">
@@ -217,8 +225,8 @@
          </div>
          <div style="clear: both"><!-- --></div>
          <div class="tool frames">
-            <h5>Frames</h5>
-            <ul><li class="currentFrame"><img src="" class="frame" width="16" height="16"/></li></ul>
+            <h5>Frames Manager</h5>
+            <ul><li class="currentFrame"><img src="" class="frame" width="32" height="32"/></li></ul>
          </div>
       </div>
 

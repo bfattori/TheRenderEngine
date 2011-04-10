@@ -23,6 +23,13 @@
    padding:2px;
 }
 
+.nav {
+   margin-top: 10px;
+   width: 397px;
+   height: 39px;
+   border: 1px inset white;
+}
+
 .colors {
    width: 170px;
    height: 142px;
@@ -204,10 +211,34 @@ div.button.mirror-horizontal {
    background-image: url(mirrorh.png);
 }
 
+div.button.add-frame {
+   background-image: url(add_frame.png);
+}
+
+div.button.delete-frame {
+   background-image: url(delete_frame.png);
+}
+
+div.button.dupe-frame {
+   background-image: url(dupe_frame.png);
+}
+
+div.button.clear-frame {
+   background-image: url(clear_frame.png);
+}
+
+div.button.next-frame {
+   background-image: url(next_frame.png);
+}
+
+div.button.prev-frame {
+   background-image: url(prev_frame.png);
+}
+
 .frames {
    margin-top: 10px;
    width: 397px;
-   height: 140px;
+   height: 128px;
    border: 1px inset white;
 }
 
@@ -218,14 +249,15 @@ div.button.mirror-horizontal {
 
 .frames ul li {
 	float: left;
-	width: 16px;
-	height: 16px;
+	width: 32px;
+	height: 32px;
 	margin-left: 5px;
-	border: 1px solid transparent;
+	border: 2px solid transparent;
+   outline: 1px solid silver;
 }
 
 .frames ul li.currentFrame {
-	border: 1px solid white;
+	border: 2px solid yellow;
 }
 
 .frames ul li img.frame {

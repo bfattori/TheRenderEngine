@@ -81,7 +81,6 @@ var SpriteEditor = function() {
       editorSize: 512,
       currentColor: "white",
       currentLayer: null,
-      renderFrame: null,
       mouseBtn: 0,
       drawMode: 0,
       colorSelector: null,
@@ -120,13 +119,15 @@ var SpriteEditor = function() {
          this.editorContext = R.rendercontexts.CanvasContext.create("editor", this.editorSize, this.editorSize);
          this.editorContext.setWorldScale(1);
          R.Engine.getDefaultContext().add(this.editorContext);
-         this.editorContext.setBackgroundColor("black");
+
+         var backColor = this.pStore.load("backgroundColor", "black");
+         this.editorContext.setBackgroundColor(backColor);
 
          // The place where previews will be generated
          this.previewContext = SpritePreview.create();
          this.previewContext.setWorldScale(1);
-         this.previewContext.setBackgroundColor("black");
          R.Engine.getDefaultContext().add(this.previewContext);
+         this.previewContext.setBackgroundColor(backColor);
 
          // Set some event handlers
          var self = this;
@@ -160,13 +161,13 @@ var SpriteEditor = function() {
          });
 
          // Add the first frame
-         this.renderFrame = this.addFrame();
-         this.editorContext.add(this.renderFrame);
-         this.currentLayer = this.renderFrame;
+         this.currentLayer = this.addFrame();
+         this.currentLayer.setDrawMode(SpriteLayer.DRAW);
+         this.editorContext.add(this.currentLayer);
 
          // Set a click event for the first frame in the frame manager
-         $(".frames ul li.currentFrame").click(function() {
-            SpriteEditor.setCurrentFrame($(".frames ul li").index(this));
+         $(".frames ul li").eq(0).click(function() {
+            SpriteEditor.setCurrentFrame(0);
          });
 
          // Generate the grid
@@ -176,6 +177,12 @@ var SpriteEditor = function() {
 
          // Finally, add the controls
          this.addControls();
+
+         // Make sure the background color is in all of the right places
+         $(".colorTable .backgroundColor").css("background", backColor);
+         $(".preview img").css("background", backColor);
+         $(SpriteEditor.editorContext.getSurface()).css("background", backColor);
+         SpriteEditor.grid.setGridColor(SpriteEditor.getContrast(backColor));
       },
 
       /**
@@ -200,12 +207,16 @@ var SpriteEditor = function() {
        * @param [frameIdx] {Number} The frame index, or <tt>null</tt> for the current frame
        */
       setCurrentFrame: function(frameIdx) {
-         frameIdx = frameIdx || this.frameIdx;
-         this.currentLayer = this.frames[frameIdx];
-         this.editorContext.replace(this.renderFrame, this.currentLayer);
-         this.renderFrame = this.currentLayer;
+         frameIdx = frameIdx === undefined ? this.frameIdx : frameIdx;
+
+         SpriteEditor.currentLayer.setDrawMode(SpriteLayer.NO_DRAW);
+         SpriteEditor.currentLayer = SpriteEditor.frames[frameIdx];
+         SpriteEditor.currentLayer.setDrawMode(SpriteLayer.DRAW);
+         
          $(".frames ul li.currentFrame").removeClass("currentFrame");
          $(".frames ul li:eq(" + frameIdx + ")").addClass("currentFrame");
+
+         this.frameIdx = frameIdx;
       },
 
       /**
@@ -226,6 +237,13 @@ var SpriteEditor = function() {
       deleteFrame: function(frameIdx) {
          frameIdx = frameIdx || this.frameIdx;
          this.frames.splice(frameIdx, 1);
+
+         // If there aren't any frames, we'll need to create one for them
+         if (this.frames.length == 0) {
+            var frame = this.addFrame();
+            SpriteEditor.editorContext.add(frame);
+         }
+
          this.setCurrentFrame();
       },
 
@@ -434,6 +452,9 @@ var SpriteEditor = function() {
             SpriteEditor.currentColor = hexColor;
             $(".colorTable .selectedColor").css("background", hexColor);
          } else {
+            // Store the color
+            SpriteEditor.pStore.save("backgroundColor", hexColor);
+
             $(".colorTable .backgroundColor").css("background", hexColor);
             $(".preview img").css("background", hexColor);
             $(SpriteEditor.editorContext.getSurface()).css("background", hexColor);
@@ -592,13 +613,33 @@ var SpriteEditor = function() {
        * @private
        */
       actionNewFrame: function() {
-         var f = $("<li>").append("<img width='16' height='16'/>");
+         var f = $("<li>").append("<img width='32' height='32'/>");
          f.click(function() {
             SpriteEditor.setCurrentFrame($(".frames ul li").index(this));
          });
          $(".frames ul").append(f);
-         this.addFrame();
+         var frame = this.addFrame();
+         this.editorContext.add(frame);
+
          this.setCurrentFrame(this.frames.length - 1);
+      },
+
+      actionDeleteFrame: function() {
+         function $$doDelete() {
+            // Remove the frame
+            SpriteEditor.currentLayer.setDrawMode(SpriteLayer.NO_DRAW);
+            SpriteEditor.currentLayer.destroy();
+
+            // Remove the frame preview
+            $(".frames ul li").eq(SpriteEditor.frameIdx).remove();
+
+            // Delete the frame
+            SpriteEditor.deleteFrame();
+         }
+
+         if (confirm("Are you sure you want to delete the current frame?")) {
+            $$doDelete();
+         }
       },
 
       /**
@@ -606,14 +647,15 @@ var SpriteEditor = function() {
        * @private
        */
       actionDuplicateFrame: function() {
-         var f = $("<li>").append("<img width='16' height='16'/>");
+         var f = $("<li>").append("<img width='32' height='32'/>");
          f.click(function() {
             SpriteEditor.setCurrentFrame($(".frames ul li").index(this));
          });
          $(".frames ul").append(f);
-         var f = this.addFrame();
-         f.setPixels(this.currentLayer.getPixels());
-         this.setCurrentFrame(this.frames.length - 1);
+         var frame = SpriteEditor.addFrame();
+         SpriteEditor.editorContext.add(frame);
+         frame.setPixels(SpriteEditor.currentLayer.getPixels());
+         this.setCurrentFrame(SpriteEditor.frames.length - 1);
       },
 
       /**
@@ -646,7 +688,7 @@ var SpriteEditor = function() {
        * @private
        */
       actionAbout: function() {
-         alert("SpriteEditor [alpha 1]\n\nCopyright (c) 2011 Brett Fattori\nPart of The Render Engine project\nMIT Licensed");
+         alert("SpriteEditor [v0.0.5]\n\nCopyright (c) 2011 Brett Fattori\nPart of The Render Engine project\nMIT Licensed");
       },
 
       /**

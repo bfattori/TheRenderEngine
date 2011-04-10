@@ -54,6 +54,7 @@ var SpriteLayer = function() {
 
       pixels: null,
       buffSize: 0,
+      drawMode: 0,
 
       constructor: function() {
          this.base("Layer");
@@ -65,11 +66,16 @@ var SpriteLayer = function() {
 
          //this.pixels = HashContainer.create();
          this.mirror = [false, false];
+         this.drawMode = SpriteLayer.DRAW;
       },
 
       release: function() {
          this.base();
          this.pixels = null;
+      },
+
+      setDrawMode: function(state) {
+         this.drawMode = state;
       },
 
       /**
@@ -80,6 +86,10 @@ var SpriteLayer = function() {
        * @param time {Number} The engine time in milliseconds
        */
       update: function(renderContext, time) {
+         if (this.drawMode == SpriteLayer.NO_DRAW) {
+            return;
+         }
+
          renderContext.pushTransform();
          this.base(renderContext, time);
 
@@ -258,6 +268,10 @@ var SpriteLayer = function() {
        */
       getClassName: function() {
          return "SpriteLayer";
-      }
+      },
+
+      DRAW: 1,
+
+      NO_DRAW: 0
    });
 };
