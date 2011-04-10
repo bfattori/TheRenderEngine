@@ -56,7 +56,8 @@ R.resources.types.Sound = function(){
 		muted: false,
 		soundObj: null,
 		soundSystem: null,
-		
+      supportedType: false,
+
 		/** @private */
 		constructor: function(soundSystem, soundObj){
 			this.volume = 50;
@@ -65,6 +66,8 @@ R.resources.types.Sound = function(){
 			this.muted = false;
 			this.soundObj = soundObj;
 			this.soundSystem = soundSystem;
+         this.supportedType = true;
+         this.loop = false;
 			return this.base(name);
 		},
 		
@@ -88,7 +91,23 @@ R.resources.types.Sound = function(){
 			this.soundObj = null;
 			this.soundSystem = null;
 		},
-		
+
+      /**
+       * Set a boolean flag indicating if the sound type is supported by the browser
+       * @param state {Boolean} <code>true</code> indicates the sound type is supported
+       */
+      setSupportedTypeFlag: function(state) {
+         this.supportedType = state;
+      },
+
+      /**
+       * Returns a boolean indicating if the sound type is supported by the browser
+       * @return {Boolean}
+       */
+      getSupportedTypeFlag: function() {
+         return this.supportedType;
+      },
+
 		/**
 		 * Get the native sound object which was created by the subclassed sound system.
 		 * @return {Object}

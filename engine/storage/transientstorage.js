@@ -93,4 +93,4 @@ R.storage.TransientStorage = function(){
 		
 	});
 	
-}
+};

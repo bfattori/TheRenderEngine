@@ -173,4 +173,4 @@ R.storage.AbstractDBStorage = function(){
 
 	});
 
-}
+};

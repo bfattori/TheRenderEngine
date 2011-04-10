@@ -43,7 +43,8 @@ R.Engine.define({
 });
 
 /**
- * @class Initializes the SoundManager2 sound system.
+ * @class Initializes the SoundManager2 sound system.  The SoundManager2 sound system will only
+ *    render MP3 audio as supported by Flash.
  *
  * @constructor
  * @extends R.sound.AbstractSoundSystem
@@ -121,28 +122,49 @@ R.sound.SM2 = function(){
 			this.soundManager.destruct();
 		},
 		
+      /**
+       * Retrieve the sound from the network, when the sound system is ready, and create the sound object.
+       * @param resourceLoader {R.resources.loades.SoundLoader} The sound resource loader
+       * @param name {String} The name of the sound object
+       * @param url {String} The URL of the sound to load
+       * @return {R.resources.types.Sound} The sound object
+       * @private
+       */
 		retrieveSound: function(resourceLoader, name, url){
-			var sound = this.base(resourceLoader, name, url);
-			
-			// Only MP3 files are supported
-			Assert(url.indexOf(".mp3") > 0, "Only MP3 sound format is supported!");
-			
-			if (!this.init) {
-				return sound;
-			}
-			
-			// Create the sound object
-			var sm2sound = this.soundManager.createSound({
-				"id": name,
-				"url": url,
-				"autoPlay": false,
-				"autoLoad": true,
-				"volume": 50
-			});
-			sound.setSoundObject(sm2sound);
+			// See if the sound object is already cached by the given name
+         var sound = this.base(resourceLoader, name, url);
+
+         if (sound.getSoundObject() == null) {
+            // Nope, this is a new sound object
+         
+            // Only MP3 files are supported
+            if (url.indexOf(".mp3") == -1) {
+               sound.setSupportedTypeFlag(false);
+               return sound;
+            }
+
+            if (!this.init) {
+               return sound;
+            }
+
+            // Create the sound object
+            var sm2sound = this.soundManager.createSound({
+               "id": name,
+               "url": url,
+               "autoPlay": false,
+               "autoLoad": true,
+               "volume": 50
+            });
+            sound.setSoundObject(sm2sound);
+         }
+
 			return sound;
 		},
 		
+      /**
+       * Destroy the given sound object
+       * @param sound {R.resources.types.Sound} The sound object
+       */
 		destroySound: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -150,6 +172,10 @@ R.sound.SM2 = function(){
 			sound.unload();
 		},
 		
+      /**
+       * Play the given sound object
+       * @param sound {R.resources.types.Sound} The sound object
+       */
 		playSound: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -157,6 +183,10 @@ R.sound.SM2 = function(){
 			sound.play();
 		},
 		
+      /**
+       * Stop the given sound object
+       * @param sound {R.resources.types.Sound} The sound object
+       */
 		stopSound: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -164,6 +194,10 @@ R.sound.SM2 = function(){
 			sound.stop();
 		},
 		
+      /**
+       * Pause the given sound object
+       * @param sound {R.resources.types.Sound} The sound object
+       */
 		pauseSound: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -171,6 +205,10 @@ R.sound.SM2 = function(){
 			sound.pause();
 		},
 		
+      /**
+       * Resume the given sound object
+       * @param sound {R.resources.types.Sound} The sound object
+       */
 		resumeSound: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -178,6 +216,10 @@ R.sound.SM2 = function(){
 			sound.resume();
 		},
 		
+      /**
+       * Mute the given sound object
+       * @param sound {R.resources.types.Sound} The sound object
+       */
 		muteSound: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -185,6 +227,10 @@ R.sound.SM2 = function(){
 			sound.mute();
 		},
 		
+      /**
+       * Unmute the given sound object
+       * @param sound {R.resources.types.Sound} The sound object
+       */
 		unmuteSound: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -192,6 +238,11 @@ R.sound.SM2 = function(){
 			sound.unmute();
 		},
 		
+      /**
+       * Set the volume of the given sound object
+       * @param sound {R.resources.types.Sound} The sound object
+       * @param volume {Number} A value between 0 and 100, with 0 being muted
+       */
 		setSoundVolume: function(sound, volume){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -199,6 +250,12 @@ R.sound.SM2 = function(){
 			sound.setVolume(volume);
 		},
 		
+      /**
+       * Pan the given sound object from left to right
+       * @param sound {R.resources.types.Sound} The sound object
+       * @param pan {Number} A value between -100 and 100, with -100 being full left
+       * 		and zero being center
+       */
 		setSoundPan: function(sound, pan){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -206,6 +263,12 @@ R.sound.SM2 = function(){
 			sound.setPan(pan);
 		},
 		
+      /**
+       * Set the position, within the sound's length, to play at
+       * @param sound {R.resources.types.Sound} The sound object
+       * @param millisecondOffset {Number} The millisecond offset from the start of
+       * 		the sounds duration
+       */
 		setSoundPosition: function(sound, millisecondOffset){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return;
@@ -213,6 +276,11 @@ R.sound.SM2 = function(){
 			sound.setPosition(millisecondOffset);
 		},
 		
+      /**
+       * Get the position, in milliseconds, within a playing or paused sound
+       * @param sound {R.resources.types.Sound} The sound object
+       * @return {Number}
+       */
 		getSoundPosition: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return 0;
@@ -220,6 +288,11 @@ R.sound.SM2 = function(){
 			return sound.position;
 		},
 		
+      /**
+       * Get the size of the sound object, in bytes
+       * @param sound {R.resources.types.Sound} The sound object
+       * @return {Number}
+       */
 		getSoundSize: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return 0;
@@ -227,6 +300,11 @@ R.sound.SM2 = function(){
 			return sound.bytesTotal;
 		},
 		
+      /**
+       * Get the length (duration) of the sound object, in milliseconds
+       * @param sound {R.resources.types.Sound} The sound object
+       * @return {Number}
+       */
 		getSoundDuration: function(sound){
 			if (!(this.init || this.getSoundReadyState(sound))) {
 				return 0;
@@ -234,6 +312,11 @@ R.sound.SM2 = function(){
 			return sound.duration;
 		},
 		
+      /**
+       * Determine if the sound object is ready to be used
+       * @param sound {R.resources.types.Sound} The sound object
+       * @return {Boolean} <code>true</code> if the sound is ready
+       */
 		getSoundReadyState: function(sound){
 			if (!this.init) {
 				return true;
@@ -250,4 +333,4 @@ R.sound.SM2 = function(){
 		LOAD_SUCCESS: 3
 	});
 	
-}
+};

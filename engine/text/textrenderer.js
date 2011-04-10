@@ -321,4 +321,4 @@ R.text.TextRenderer = function() {
    BASE_TEXT_PIXELSIZE: 12
 });
 
-}
+};

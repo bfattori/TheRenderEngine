@@ -59,14 +59,25 @@ R.sound.AbstractSoundSystem = function(){
 			this.ready = false, this.queuedSounds = [];
 			this.loadingSounds = {};
 		},
-		
+
+      /**
+       * [ABSTRACT] Shut down the sound system
+       */
 		shutdown: function(){
 		},
-		
+
+      /**
+       * Returns a flag indicating if the sound system is ready
+       * @return {Boolean}
+       */
 		isReady: function(){
 			return this.ready;
 		},
-		
+
+      /**
+       * Sets the ready state of the sound system.
+       * @private
+       */
 		makeReady: function(){
 			// Retrieve queued sounds
 			var self = this;
@@ -82,7 +93,16 @@ R.sound.AbstractSoundSystem = function(){
 			});
 			this.ready = true;
 		},
-		
+
+      /**
+       * Load a sound using the sound system.  If the sound system isn't ready,
+       * sounds will be queued until it is ready.
+       *
+       * @param resourceLoader {R.resources.loades.SoundLoader} The sound resource loader
+       * @param name {String} The name of the sound object
+       * @param url {String} The URL of the sound to load
+       * @return {R.resources.types.Sound} The sound object
+       */
 		loadSound: function(resourceLoader, name, url){
 			if (!this.ready) {
 				this.queuedSounds.push({
@@ -96,7 +116,15 @@ R.sound.AbstractSoundSystem = function(){
 				return this.retrieveSound(resourceLoader, name, url);
 			}
 		},
-		
+
+      /**
+       * Retrieve the sound from the network, when the sound system is ready, and create the sound object.
+       * @param resourceLoader {R.resources.loades.SoundLoader} The sound resource loader
+       * @param name {String} The name of the sound object
+       * @param url {String} The URL of the sound to load
+       * @return {R.resources.types.Sound} The sound object
+       * @private
+       */
 		retrieveSound: function(resourceLoader, name, url){
 			// See if the resource loader has a sound object for us already
 			var sound = resourceLoader.get(name);

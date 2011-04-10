@@ -432,18 +432,9 @@ var Spaceroids = function() {
 
       // Back to attract mode in 10sec
       R.lang.OneShotTimeout.create("gameover", 10000, function() {
-			// See if a high score exists
-			var sql = "SELECT HighScore.* FROM HighScore";
-			var result = Spaceroids.pStore.execSql(sql);
-			if (result.length != 0) {
-				sql = "UPDATE HighScore SET score=" + Spaceroids.hiScore + " WHERE HighScore.id==0";	
-			} else {
-				sql = "INSERT INTO HighScore (score, id) VALUES (" + Spaceroids.hiScore + ",0)";
-			}
-			// Store the high score
-			Spaceroids.pStore.execSql(sql);
-			
-			Spaceroids.attractMode(); 
+			// Overwrite the high score
+         Spaceroids.pStore.save("highScore", Spaceroids.hiScore);
+			Spaceroids.attractMode();
 		});
    },
 
@@ -491,18 +482,8 @@ var Spaceroids = function() {
 		// Use persistent storage to keep the high score
 		this.pStore = R.storage.PersistentStorage.create("AsteroidsEvolutionStorage");
 
-		// See if the high score table exists
-		if (!this.pStore.tableExists("HighScore")) {
-			// Create it
-			this.pStore.createTable("HighScore", ["id","score"], ["Number","Number"]);
-		} else {
-			// See if there's a high score already saved
-			var sql = "SELECT HighScore.* FROM HighScore WHERE HighScore.id==0";
-			var result = Spaceroids.pStore.execSql(sql);
-			if (result.length != 0) {
-				this.hiScore = result[0].score;	
-		 	} 
-		}
+		// See if a high score has been saved in persistent storage
+      this.hiScore = this.pStore.load("highScore") || 0;
 
       // Start up a particle engine
       this.pEngine = R.particles.ParticleEngine.create();

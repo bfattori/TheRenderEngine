@@ -97,7 +97,12 @@ R.storage.CookieStorage = function(){
 			return window.document.cookie;
 		},
 
-      set: function(key, value) {
+      /**
+       * Save a value to cookie storage.
+       * @param key {String} The key to store the data with
+       * @param value {Object} The value to store with the key
+       */
+      save: function(key, value) {
          if (!this.enabled) {
             return;
          }
@@ -111,7 +116,12 @@ R.storage.CookieStorage = function(){
          this.saveData(JSON.stringify(this.hash));
       },
 
-      get: function(key) {
+      /**
+       * Get the value associated with the key from cookie storage.
+       * @param key {String} The key to retrieve data for
+       * @return {Object} The value that was stored with the key, or <tt>null</tt>
+       */
+      load: function(key) {
          if (!this.enabled) {
             return null;
          }
@@ -122,6 +132,9 @@ R.storage.CookieStorage = function(){
          return this.hash[key];
       },
 
+      /**
+       * Dispose of the cookie (remove it from the user's browser).
+       */
       dispose: function() {
          if (!this.enabled) {
             return;
@@ -137,6 +150,9 @@ R.storage.CookieStorage = function(){
          });
       },
 
+      /**
+       * Clear all of the data stored in the cookie.
+       */
       clear: function() {
          if (!this.enabled) {
             return;
@@ -145,6 +161,11 @@ R.storage.CookieStorage = function(){
          this.saveData("{}");
       },
 
+      /**
+       * Saves the data object into the cookie.
+       * @param data
+       * @private
+       */
       saveData: function(data) {
          AssertWarn(data.length < R.engine.Support.sysInfo().support.storage.cookie.maxLength,
                "Data to save to cookie is larger than supported size - will be truncated");
@@ -166,6 +187,10 @@ R.storage.CookieStorage = function(){
          this.getStorageObject() = this.cookieName + "=" + data + ";" + p;
       },
 
+      /**
+       * Loads the data object from the cookie
+       * @private
+       */
       loadData: function() {
          if (!this.enabled) {
             return null;

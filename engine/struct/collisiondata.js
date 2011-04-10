@@ -64,7 +64,8 @@ R.struct.CollisionData = function() {
 		shape1: null,
 		shape2: null,
 		impulseVector: null,
-		
+
+      /** @private */
 		constructor: function(o,u,s1,s2,i) {
 			this.overlap = o;
 			this.unitVector = u;
@@ -73,13 +74,19 @@ R.struct.CollisionData = function() {
 			this.impulseVector = i;
 			this.base("CollisionData");
 		},
-		
+
+      /**
+       * Destroy the collision data object.
+       */
 		destroy: function() {
 			this.impulseVector.destroy();
 			this.unitVector.destroy();
 			this.base();
 		},
-		
+
+      /**
+       * Release the collision data object back into the pool for reuse.
+       */
 		release: function() {
 			this.base();
 			this.overlap = 0;
@@ -89,4 +96,4 @@ R.struct.CollisionData = function() {
 			this.impulseVector = null;
 		}
 	});
-}
+};

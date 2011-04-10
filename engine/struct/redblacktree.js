@@ -333,4 +333,4 @@ R.struct.RedBlackTree = function(){
 		}
 	});
 	
-}
+};

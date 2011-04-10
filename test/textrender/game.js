@@ -32,23 +32,30 @@
  */
 
 // Load all required engine components
-R.Engine.requires("/rendercontexts/context.canvascontext.js");
-R.Engine.requires("/rendercontexts/context.htmldivcontext.js");
-R.Engine.requires("/textrender/text.vector.js");
-R.Engine.requires("/textrender/text.bitmap.js");
-R.Engine.requires("/textrender/text.context.js");
-R.Engine.requires("/textrender/text.renderer.js");
-R.Engine.requires("/resourceloaders/loader.bitmapfont.js");
-R.Engine.requires("/engine.timers.js");
+R.Engine.define({
+	"class": "FontTest",
+	"requires": [
+		"R.engine.Game",
+		"R.rendercontexts.CanvasContext",
+		"R.rendercontexts.HTMLDivContext",
+		"R.text.VectorText",
+		"R.text.BitmapText",
+		"R.text.ContextText",
+		"R.text.TextRenderer",
+		"R.resources.loaders.BitmapFontLoader",
+		"R.lang.Timeout",
+      "R.math.Rectangle2D",
+      "R.math.Point2D"
+	]
+});
 
-R.Engine.initObject("FontTest", "Game", function(){
-
-   /**
-    * @class Wii ball bounce game.  Press the A button over a ball
-    *        to make it bounce.  Press A when not over a ball to create
-    *        another ball.
-    */
-   var FontTest = Game.extend({
+/**
+ * @class Wii ball bounce game.  Press the A button over a ball
+ *        to make it bounce.  Press A when not over a ball to create
+ *        another ball.
+ */
+var FontTest = function() {
+   return R.engine.Game.extend({
    
       constructor: null,
       
@@ -71,34 +78,25 @@ R.Engine.initObject("FontTest", "Game", function(){
          // Set the FPS of the game
          R.Engine.setFPS(this.engineFPS);
 			
-			FontTest.fontLoader = BitmapFontLoader.create();
+			FontTest.fontLoader = R.resources.loaders.BitmapFontLoader.create();
 			FontTest.fontLoader.load("lucida", "lucida_sans_36.font");
 			FontTest.fontLoader.load("century", "century_gothic_36.font");
 			FontTest.fontLoader.load("times", "times_36.font");
 			
          // Don't start until all of the resources are loaded
-         FontTest.loadTimeout = Timeout.create("wait", 250, FontTest.waitForResources);
-         this.waitForResources();
+         R.lang.Timeout.create("wait", 250, function(){
+            if (FontTest.fontLoader.isReady("lucida") &&
+                FontTest.fontLoader.isReady("century") &&
+                FontTest.fontLoader.isReady("times")) {
+                  FontTest.run();
+                  this.destroy();
+            } else {
+               // Continue waiting
+               this.restart();
+            }
+         });
       },
 
-      /**
-       * Wait for resources to become available before starting the game
-       * @private
-       */
-      waitForResources: function(){
-         if (FontTest.fontLoader.isReady("lucida") &&
-				 FontTest.fontLoader.isReady("century") &&
-				 FontTest.fontLoader.isReady("times")) {
-               FontTest.loadTimeout.destroy();
-               FontTest.run();
-               return;
-         }
-         else {
-            // Continue waiting
-            FontTest.loadTimeout.restart();
-         }
-      },
-      
       /**
        * Called when a game is being shut down to allow it to clean up
        * any objects, remove event handlers, destroy the rendering context, etc.
@@ -116,72 +114,75 @@ R.Engine.initObject("FontTest", "Game", function(){
          
          // Create the render context
          this.fieldWidth = R.Engine.getDebugMode() ? 400 : this.fieldWidth;
-         this.fieldBox = Rectangle2D.create(0, 0, this.fieldWidth, this.fieldHeight);
+         this.fieldBox = R.math.Rectangle2D.create(0, 0, this.fieldWidth, this.fieldHeight);
          this.centerPoint = this.fieldBox.getCenter();
 			var ctx = R.engine.Support.getNumericParam("context", 1);
 			if (ctx == 1) {
-				this.renderContext = CanvasContext.create("Playfield", this.fieldWidth, this.fieldHeight);
+				this.renderContext = R.rendercontexts.CanvasContext.create("Playfield", this.fieldWidth, this.fieldHeight);
 			} else {
-				this.renderContext = HTMLDivContext.create("Playfield", this.fieldWidth, this.fieldHeight);
+				this.renderContext = R.rendercontexts.HTMLDivContext.create("Playfield", this.fieldWidth, this.fieldHeight);
 			}
 			
 	      this.renderContext.setBackgroundColor("#000000");
          R.Engine.getDefaultContext().add(this.renderContext);
 
 		 	// Vector Text
-			var vector1 = TextRenderer.create(VectorText.create(), "ABCxyz123!@#$%^&*()", 1);
-			vector1.setPosition(Point2D.create(20, 20));
+			var vector1 = R.text.TextRenderer.create(R.text.VectorText.create(), "ABCxyz123!@#$%^&*()", 1);
+			vector1.setPosition(R.math.Point2D.create(20, 20));
 			vector1.setTextWeight(1);
 			vector1.setColor("#ffffff");
 			this.renderContext.add(vector1);
 			
-			var vector2 = TextRenderer.create(VectorText.create(), "ABCxyz123!@#$%^&*()", 2);
-			vector2.setPosition(Point2D.create(20, 43));
+			var vector2 = R.text.TextRenderer.create(R.text.VectorText.create(), "ABCxyz123!@#$%^&*()", 2);
+			vector2.setPosition(R.math.Point2D.create(20, 43));
 			vector2.setTextWeight(1);
 			vector2.setColor("#ffffff");
 			this.renderContext.add(vector2);
 			
-			var vector3 = TextRenderer.create(VectorText.create(), "ABCxyz123!@#$%^&*()", 2.5);
-			vector3.setPosition(Point2D.create(20, 80));
+			var vector3 = R.text.TextRenderer.create(R.text.VectorText.create(), "ABCxyz123!@#$%^&*()", 2.5);
+			vector3.setPosition(R.math.Point2D.create(20, 80));
 			vector3.setTextWeight(1);
 			vector3.setColor("#ffffff");
 			this.renderContext.add(vector3);
 			
 			// Bitmap Text
-			var bitmap1 = TextRenderer.create(BitmapText.create(FontTest.fontLoader.get("century")), "ABCxyz123!@#$%^&*()", 0.75);
-			bitmap1.setPosition(Point2D.create(10, 120));
+			var bitmap1 = R.text.TextRenderer.create(R.text.BitmapText.create(FontTest.fontLoader.get("century")),
+               "ABCxyz123!@#$%^&*()", 0.75);
+			bitmap1.setPosition(R.math.Point2D.create(10, 120));
 			bitmap1.setTextWeight(1);
 			bitmap1.setColor("#ff0000");
 			this.renderContext.add(bitmap1);
 			
-			var bitmap2 = TextRenderer.create(BitmapText.create(FontTest.fontLoader.get("lucida")), "ABCxyz123!@#$%^&*()", 1);
-			bitmap2.setPosition(Point2D.create(10, 143));
+			var bitmap2 = R.text.TextRenderer.create(R.text.BitmapText.create(FontTest.fontLoader.get("lucida")),
+               "ABCxyz123!@#$%^&*()", 1);
+			bitmap2.setPosition(R.math.Point2D.create(10, 143));
 			bitmap2.setTextWeight(1);
 			bitmap2.setColor("#ff0000");
 			this.renderContext.add(bitmap2);
 			
-			var bitmap3 = TextRenderer.create(BitmapText.create(FontTest.fontLoader.get("times")), "ABCxyz123!@#$%^&*()", 1.5);
-			bitmap3.setPosition(Point2D.create(10, 175));
+			var bitmap3 = R.text.TextRenderer.create(R.text.BitmapText.create(FontTest.fontLoader.get("times")),
+               "ABCxyz123!@#$%^&*()", 1.5);
+			bitmap3.setPosition(R.math.Point2D.create(10, 175));
 			bitmap3.setTextWeight(1);
 			bitmap3.setColor("#ff0000");
 			this.renderContext.add(bitmap3);
 			
 			// Context Render
-	      var context1 = TextRenderer.create(ContextText.create(), "ABCxyz123!@#$%^&*()", 1);
-	      context1.setPosition(Point2D.create(10, 260));
+	      var context1 = R.text.TextRenderer.create(R.text.ContextText.create(), "ABCxyz123!@#$%^&*()", 1);
+	      context1.setPosition(R.math.Point2D.create(10, 260));
 	      context1.setColor("#8888ff");
 	      this.renderContext.add(context1);
 
-	      var context2 = TextRenderer.create(ContextText.create(), "ABCxyz123!@#$%^&*()", 2);
-	      context2.setPosition(Point2D.create(10, 288));
+	      var context2 = R.text.TextRenderer.create(R.text.ContextText.create(), "ABCxyz123!@#$%^&*()", 2);
+	      context2.setPosition(R.math.Point2D.create(10, 288));
 			context2.setTextFont("Times New Roman");
 	      context2.setColor("#8888ff");
 	      this.renderContext.add(context2);
 
-	      var context3 = TextRenderer.create(ContextText.create(), "ABCxyz123!@#$%^&*()", 2.5);
-	      context3.setPosition(Point2D.create(10, 320));
+	      var context3 = R.text.TextRenderer.create(R.text.ContextText.create(), "ABCxyz123!@#$%^&*()", 2.5);
+	      context3.setPosition(R.math.Point2D.create(10, 320));
 			context3.setTextFont("Courier New");
-			context3.setTextWeight(RenderContext2D.FONT_WEIGHT_BOLD);
+			context3.setTextWeight(R.rendercontexts.RenderContext2D.FONT_WEIGHT_BOLD);
 	      context3.setColor("#8888ff");
 	      this.renderContext.add(context3);
 
@@ -202,7 +203,4 @@ R.Engine.initObject("FontTest", "Game", function(){
       }
       
    });
-   
-   return FontTest;
-   
-});
+};

@@ -535,4 +535,4 @@ R.struct.Container = function() {
 	
 });
 
-}
+};

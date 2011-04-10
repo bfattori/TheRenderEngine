@@ -245,4 +245,4 @@ R.text.BitmapText = function(){
 		}
 	});
 	
-}
+};

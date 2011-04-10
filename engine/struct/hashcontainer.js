@@ -221,4 +221,4 @@ R.struct.HashContainer = function(){
 		
 	});
 	
-}
+};

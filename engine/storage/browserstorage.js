@@ -44,7 +44,9 @@ R.Engine.define({
 
 /**
  * @class <tt>R.storage.BrowserStorage</tt> is a generalized class for browser-based
- * 	storage mechanisms.
+ * 	storage mechanisms.  Either of the browser storage objects can be accessed using
+ *    a SQL-like syntax, with table creation and data manipulation, or using simple
+ *    keys and values.
  * 
  * @param name {String} The name of the object
  * @extends R.storage.AbstractDBStorage
@@ -87,6 +89,24 @@ R.storage.BrowserStorage = function(){
       getTableUID: function(name){
          var uid = this.fnv.getHash(this.getName() + name);
          return uid + "PS";
+      },
+
+      /**
+       * Save a value to the browser storage object.
+       * @param key {String} The key to store the data with
+       * @param value {Object} The value to store with the key
+       */
+      save: function(key, value) {
+         this.getStorageObject().setItem(this.getTableUID(key) + ":" + key, JSON.stringify(value));
+      },
+
+      /**
+       * Get the value associated with the key from the browser storage object.
+       * @param key {String} The key to retrieve data for
+       * @return {Object} The value that was stored with the key, or <tt>null</tt>
+       */
+      load: function(key) {
+         return JSON.parse(this.getStorageObject().getItem(this.getTableUID(key) + ":" + key));
       },
 
 		/**
@@ -260,7 +280,9 @@ R.storage.BrowserStorage = function(){
 
       /**
        * Execute SQL on the storage object, which may be one of <tt>SELECT</tt>,
-       * <tt>UPDATE</tt>, <tt>INSERT</tt>, or <tt>DELETE</tt>.
+       * <tt>UPDATE</tt>, <tt>INSERT</tt>, or <tt>DELETE</tt>.  This mechanism allows for
+       * joining  of data, querying across multiple tables, and more.
+       * 
        * @param sqlString {String} The SQL to execute
        * @param bindings {Array} An optional array of bindings
        * @return {Object} If the SQL is a <tt>SELECT</tt>, the object will be the result of
@@ -319,4 +341,4 @@ R.storage.BrowserStorage = function(){
 		
 	});
 	
-}
+};

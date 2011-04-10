@@ -122,4 +122,4 @@ R.text.ContextText = function(){
 			return "R.text.ContextText";
 		}
 	});
-}
+};

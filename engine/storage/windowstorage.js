@@ -45,7 +45,8 @@ R.Engine.define({
  *
  * @extends R.storage.AbstractStorage
  * @constructor
- * @description This class of storage is used to persist data in a cookie.
+ * @description This class of storage is used to persist data on the window object's <tt>name</tt>
+ *    attribute.
  */
 R.storage.WindowStorage = function(){
 	return R.storage.AbstractStorage.extend(/** @scope R.storage.WindowStorage.prototype */{
@@ -80,7 +81,12 @@ R.storage.WindowStorage = function(){
 			return window.name;
 		},
 
-      set: function(key, value) {
+      /**
+       * Save a value to the window's <tt>name</tt> attribute storage.
+       * @param key {String} The key to store the data with
+       * @param value {Object} The value to store with the key
+       */
+      save: function(key, value) {
          if (!this.enabled) {
             return;
          }
@@ -94,7 +100,12 @@ R.storage.WindowStorage = function(){
          this.saveData(JSON.stringify(this.hash));
       },
 
-      get: function(key) {
+      /**
+       * Get the value associated with the key from the window's <tt>name</tt> attribute storage.
+       * @param key {String} The key to retrieve data for
+       * @return {Object} The value that was stored with the key, or <tt>null</tt>
+       */
+      load: function(key) {
          if (!this.enabled) {
             return null;
          }
@@ -105,6 +116,9 @@ R.storage.WindowStorage = function(){
          return this.hash[key];
       },
 
+      /**
+       * Dispose of all of the data
+       */
       dispose: function() {
          if (!this.enabled) {
             return;
@@ -113,6 +127,9 @@ R.storage.WindowStorage = function(){
          this.saveData("");
       },
 
+      /**
+       * Clear all of the data
+       */
       clear: function() {
          if (!this.enabled) {
             return;
@@ -121,11 +138,20 @@ R.storage.WindowStorage = function(){
          this.saveData("{}");
       },
 
+      /**
+       * Save the data to the window's <tt>name</tt> attribute
+       * @param data
+       * @private
+       */
       saveData: function(data) {
          // Save the cookie
          this.getStorageObject() = data;
       },
 
+      /**
+       * Load the data from the window's <tt>name</tt> attribute
+       * @private
+       */
       loadData: function() {
          return JSON.parse(this.getStorageObject());
       }

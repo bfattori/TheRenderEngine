@@ -263,4 +263,4 @@ R.text.AbstractTextRenderer = function() {
 
 });
 
-}
+};

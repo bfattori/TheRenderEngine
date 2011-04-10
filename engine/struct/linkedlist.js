@@ -585,4 +585,4 @@ R.struct.LinkedList = function() {
 
 });
 
-}
+};
