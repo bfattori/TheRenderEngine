@@ -103,10 +103,15 @@ R.storage.BrowserStorage = function(){
       /**
        * Get the value associated with the key from the browser storage object.
        * @param key {String} The key to retrieve data for
+       * @param [defaultValue] {Object} If the value isn't found in storage, use this default value
        * @return {Object} The value that was stored with the key, or <tt>null</tt>
        */
-      load: function(key) {
-         return JSON.parse(this.getStorageObject().getItem(this.getTableUID(key) + ":" + key));
+      load: function(key, defaultValue) {
+         var value = JSON.parse(this.getStorageObject().getItem(this.getTableUID(key) + ":" + key));
+         if (value === null || value === undefined) {
+            value = defaultValue;
+         }
+         return value;
       },
 
 		/**
