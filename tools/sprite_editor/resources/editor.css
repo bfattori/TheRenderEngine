@@ -242,16 +242,24 @@ div.button.prev-frame {
    border: 1px inset white;
 }
 
+.frames div.frames-container {
+   overflow-y: auto;
+   height: 107px;
+   width: 395px;
+}
+
 .frames ul {
 	list-style: none;
 	margin-left: -30px;
 }
 
 .frames ul li {
+   position: relative;
 	float: left;
 	width: 32px;
 	height: 32px;
-	margin-left: 5px;
+	margin-right: 8px;
+   margin-bottom: 8px;
 	border: 2px solid transparent;
    outline: 1px solid silver;
 }
@@ -261,6 +269,20 @@ div.button.prev-frame {
 }
 
 .frames ul li img.frame {
+}
+
+.frames ul li div.tag {
+   position: absolute;
+   right: 0;
+   bottom: 0;
+   font-size: 8pt;
+   background: #cecece;
+   color: gray;
+   display: none;
+}
+
+.frames ul li.mouseover div.tag {
+   display: block;
 }
 
 

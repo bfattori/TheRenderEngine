@@ -82,8 +82,8 @@
 			</div>
 			<div class="menuItem">Edit
 				<div class="menu">
-					<div class="item disabled" func="SpriteEditor.actionUndo">Undo</div>
-					<div class="item disabled" func="SpriteEditor.actionRedo">Redo</div>
+					<div class="item" func="SpriteEditor.actionUndo">Undo</div>
+					<div class="item" func="SpriteEditor.actionRedo">Redo</div>
 					<div class="sep"><!-- --></div>
 					<div class="item disabled" func="SpriteEditor.actionCopy">Copy</div>
 					<div class="item disabled" func="SpriteEditor.actionPaste">Paste</div>
@@ -226,9 +226,20 @@
          <div style="clear: both"><!-- --></div>
          <div class="tool frames">
             <h5>Frames Manager</h5>
-            <ul><li class="currentFrame"><img src="" class="frame" width="32" height="32"/></li></ul>
+            <div class="frames-container">
+               <ul><li class="currentFrame"><img src="" class="frame" width="32" height="32"/><div class="tag">0</div></li></ul>
+            </div>
          </div>
       </div>
+
+      <script type="text/javascript">
+         $(document).ready(function() {
+            $(".frames ul li").hover(function() {
+               $("div.tag", this).text($(".frames ul li").index(this));
+               $(this).addClass("mouseover");
+            }, function() { $(this).removeClass("mouseover"); });
+         });
+      </script>
 
 		<!-- Export Dialog Template -->
 		<script type="text/html" id="export_dialog">

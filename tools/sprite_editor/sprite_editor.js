@@ -47,7 +47,9 @@ R.Engine.define({
       "R.math.Math2D",
       "R.math.Point2D",
       "R.math.Vector2D",
-      "R.math.Rectangle2D"
+      "R.math.Rectangle2D",
+
+      "R.util.RenderUtil"
    ],
 
    // Game class dependencies
@@ -95,6 +97,8 @@ var SpriteEditor = function() {
       pixOffset: [],
       noPixels: true,
       pStore: null,
+      undoHistory: [],
+      redoHistory: [],
 
       /**
        * Called to set up the editor, download any resources, and initialize
@@ -120,7 +124,7 @@ var SpriteEditor = function() {
          this.editorContext.setWorldScale(1);
          R.Engine.getDefaultContext().add(this.editorContext);
 
-         var backColor = this.pStore.load("backgroundColor", "black");
+         var backColor = this.pStore.load("backgroundColor", "#000000");
          this.editorContext.setBackgroundColor(backColor);
 
          // The place where previews will be generated
@@ -132,6 +136,9 @@ var SpriteEditor = function() {
          // Set some event handlers
          var self = this;
          this.editorContext.addEvent(this, "mousedown", function(evt) {
+            // Grab the current layer's pixels and store them in undo history
+            SpriteEditor.undoHistory.push(SpriteEditor.currentLayer.getPixels());
+            
             self.mouseBtn = true;
             switch (self.drawMode) {
                case SpriteEditor.PAINT : self.setPixel(evt.pageX + self.pixOffset[0], evt.pageY + self.pixOffset[1]);
@@ -207,6 +214,10 @@ var SpriteEditor = function() {
        * @param [frameIdx] {Number} The frame index, or <tt>null</tt> for the current frame
        */
       setCurrentFrame: function(frameIdx) {
+         // Clear the undo and redo history
+         SpriteEditor.undoHistory = [];
+         SpriteEditor.redoHistory = [];
+
          frameIdx = frameIdx === undefined ? this.frameIdx : frameIdx;
 
          SpriteEditor.currentLayer.setDrawMode(SpriteLayer.NO_DRAW);
@@ -242,6 +253,10 @@ var SpriteEditor = function() {
          if (this.frames.length == 0) {
             var frame = this.addFrame();
             SpriteEditor.editorContext.add(frame);
+         }
+
+         if (frameIdx == this.frames.length) {
+            this.frameIdx--;
          }
 
          this.setCurrentFrame();
@@ -600,6 +615,7 @@ var SpriteEditor = function() {
        */
       actionClearFrame: function() {
          function $$doNew() {
+            SpriteEditor.undoHistory.push(SpriteEditor.currentLayer.getPixels());
             SpriteEditor.currentLayer.clear();
          }
 
@@ -613,15 +629,18 @@ var SpriteEditor = function() {
        * @private
        */
       actionNewFrame: function() {
-         var f = $("<li>").append("<img width='32' height='32'/>");
+         var f = $("<li>").append("<img width='32' height='32'/>").append("<div class='tag'>" + SpriteEditor.frames.length + "</div>");
          f.click(function() {
             SpriteEditor.setCurrentFrame($(".frames ul li").index(this));
-         });
+         }).hover(function() {
+            $("div.tag", this).text($(".frames ul li").index(this));
+            $(this).addClass("mouseover");
+         }, function() { $(this).removeClass("mouseover"); });
          $(".frames ul").append(f);
          var frame = this.addFrame();
-         this.editorContext.add(frame);
+         SpriteEditor.editorContext.add(frame);
 
-         this.setCurrentFrame(this.frames.length - 1);
+         SpriteEditor.setCurrentFrame(SpriteEditor.frames.length - 1);
       },
 
       actionDeleteFrame: function() {
@@ -637,7 +656,7 @@ var SpriteEditor = function() {
             SpriteEditor.deleteFrame();
          }
 
-         if (confirm("Are you sure you want to delete the current frame?")) {
+         if (SpriteEditor.frames.length > 1 && confirm("Are you sure you want to delete the current frame?")) {
             $$doDelete();
          }
       },
@@ -647,10 +666,13 @@ var SpriteEditor = function() {
        * @private
        */
       actionDuplicateFrame: function() {
-         var f = $("<li>").append("<img width='32' height='32'/>");
+         var f = $("<li>").append("<img width='32' height='32'/>").append("<div class='tag'>" + SpriteEditor.frames.length + "</div>");
          f.click(function() {
             SpriteEditor.setCurrentFrame($(".frames ul li").index(this));
-         });
+         }).hover(function() {
+            $("div.tag", this).text($(".frames ul li").index(this));
+            $(this).addClass("mouseover");
+         }, function() { $(this).removeClass("mouseover"); });
          $(".frames ul").append(f);
          var frame = SpriteEditor.addFrame();
          SpriteEditor.editorContext.add(frame);
@@ -721,6 +743,66 @@ var SpriteEditor = function() {
          }
       },
 
+      actionUndo: function() {
+         if (SpriteEditor.undoHistory.length > 0) {
+            var pixels = SpriteEditor.undoHistory.pop();
+            SpriteEditor.redoHistory.push(SpriteEditor.currentLayer.getPixels());
+            SpriteEditor.currentLayer.setPixels(pixels);
+         }
+      },
+
+      actionRedo: function() {
+         if (SpriteEditor.redoHistory.length > 0) {
+            var pixels = SpriteEditor.redoHistory.pop();
+            SpriteEditor.undoHistory.push(pixels);
+            SpriteEditor.undoHistory.push(SpriteEditor.currentLayer.getPixels());
+            SpriteEditor.currentLayer.setPixels(pixels);
+         }
+      },
+
+      actionExportSpriteSheet: function() {
+         // Create a canvas that will store our frames
+         var sW = (512 / SpriteEditor.pixSize) * SpriteEditor.frames.length,
+             sH = (512 / SpriteEditor.pixSize),
+             spriteSheet = R.util.RenderUtil.getTempContext(R.rendercontexts.CanvasContext, sW, sH);
+
+         // Render out each frame to a temporary image
+         var iS = (512 / SpriteEditor.pixSize),
+             pixBuf = spriteSheet.get2DContext().createImageData(iS, iS), pt = R.math.Point2D.create(0,0);
+
+         // For each frame, render out to the image, then copy that data to the temporary canvas
+         for (var f = 0; f < SpriteEditor.frames.length; f++) {
+            var pixels = SpriteEditor.frames[f].getPixels();
+
+            for (var x = 0; x < iS; x++) {
+               for (var y = 0; y < iS; y++) {
+                  var pixIdx = (x + y * iS), pix, alpha;
+                  if (pixels[pixIdx] == null) {
+                     pix = 0;
+                     alpha = 0;
+                  } else {
+                     pix = parseInt("0x" + pixels[pixIdx].substring(1));
+                     alpha = 255;
+                  }
+                  var bufIdx = pixIdx * 4;
+                  pixBuf.data[bufIdx] = (pix >> 16) & 0x0000ff;
+                  pixBuf.data[bufIdx + 1] = (pix >> 8) & 0x0000ff;
+                  pixBuf.data[bufIdx + 2] = (pix & 0x0000ff);
+                  pixBuf.data[bufIdx + 3] = alpha;
+               }
+            }
+
+            // Add the image data to the canvas at the frames position
+            pt.set(f * iS, 0);
+            spriteSheet.putImage(pixBuf, pt);
+         }
+
+         // Now, open a new window and put our sprite sheet into it for them to capture
+         var w = window.open("about:blank", "spriteSheet", "width=640,height=480,toolbar=no,resizable=yes,scrolling=yes");
+         var img = $("<img src='" + spriteSheet.getDataURL("image/png") + "' width='" + sW + "' height='" + sH + "' style='border: 1px solid'/>");
+         $("body", w.document).append("<span>Right-click on the image below and select 'Save As'<br/><br/></span>").append(img);
+      },
+
       /**
        * MENU - basic color pallette
        * @private
@@ -773,6 +855,7 @@ var SpriteEditor = function() {
        * @type Number
        */
       COLOR_BACKGROUND: 1
+
    });
 };
 
