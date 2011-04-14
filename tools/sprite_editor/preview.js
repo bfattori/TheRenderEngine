@@ -80,8 +80,10 @@ var SpritePreview = function() {
          //this.get2DContext().putImageData(this.imgData, 0, 0);
 
          // Now copy across the image to the preview in the editor
-         SpriteEditor.previewImage.attr("src", this.getDataURL());
-         $(".frames ul li.currentFrame img").attr("src", this.getDataURL());
+         var dataUrl = this.getDataURL();
+         SpriteEditor.previewImage.attr("src", dataUrl);
+         $(".frames ul li.currentFrame img").attr("src", dataUrl);
+         $(".animations ul li img.currentAnimation").attr("src", dataUrl);
 
          renderContext.popTransform();
       }

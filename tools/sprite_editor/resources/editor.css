@@ -11,7 +11,7 @@
 }
 
 .tool {
-   font: 11pt "Lucida Console",Verdana,Arial,Helvetica;
+   font: 11pt Arial,Helvetica,sans-serif;
    background: #a0a0a0;
 }
 
@@ -277,7 +277,7 @@ div.button.prev-frame {
    bottom: 0;
    font-size: 8pt;
    background: #cecece;
-   color: gray;
+   color: black;
    display: none;
 }
 
@@ -285,6 +285,54 @@ div.button.prev-frame {
    display: block;
 }
 
+#bottom {
+   background: silver;
+   position: absolute;
+   top: 536px;
+   width: 912px;
+   height: 114px;
+   border: 1px outset white;
+   padding: 10px;
+}
+
+.animations {
+   border: 1px inset white;
+   width: 911px;
+}
+
+.animations div.animations-container {
+   overflow-x: auto;
+   height: 88px;
+   width: 921px;
+}
+
+.animations ul {
+	list-style: none;
+	margin-left: -15px;
+}
+
+.animations ul li {
+   position: relative;
+	float: left;
+	margin-right: 8px;
+	border: 2px solid transparent;
+   text-align: center;
+}
+
+.animations ul li img {
+   border: 2px solid transparent;
+}
+
+.animations ul li img.currentAnimation {
+	border: 2px solid yellow;
+}
+
+.animations ul li div.tag {
+   font-size: 8pt;
+   background: #cecece;
+   color: black;
+   margin-top: 5px;
+}
 
 #menuBar {
    position: relative;
