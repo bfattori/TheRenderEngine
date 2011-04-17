@@ -1,0 +1,11 @@
+{
+   "bitmapImage":"rgb.png",
+   "bitmapSize":[320,120],
+   "version":2,
+   "sprites":{
+      "animation0":[0,0,8,8],
+      "red":[0,8,16,16,100,"loop"],
+      "blue":[0,24,32,32,100,"loop"],
+      "green":[0,56,64,64,100,"loop"]
+   }
+}

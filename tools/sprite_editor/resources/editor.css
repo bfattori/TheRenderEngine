@@ -125,18 +125,19 @@ div.drawicon {
    width: 32px;
    height: 32px;
    float: left;
+   background: url(buttons.png) no-repeat;
 }
 
 div.drawicon.paintbrush {
-   background-image: url(paint.png);
+   background-position: 0 0;
 }
 
 div.drawicon.eraser {
-   background-image: url(erase.png);
+   background-position: -32px 0;
 }
 
 div.drawicon.dropper {
-   background-image: url(dropper.png);
+   background-position: -64px 0;
 }
 
 .drawmode input {
@@ -157,8 +158,7 @@ div.button {
    border: 1px outset silver;
    margin: 2px;
    float: left;
-   background-position: 50% 50%;
-   background-repeat: no-repeat;
+   background: url(buttons.png) no-repeat;
 }
 
 div.button.on {
@@ -171,19 +171,19 @@ div.button.mouseover {
 }
 
 div.button.shift-up {
-   background-image: url(arrowup.png);
+   background-position: 0 -64px;
 }
 
 div.button.shift-down {
-   background-image: url(arrowdn.png);
+   background-position: -64px -64px;
 }
 
 div.button.shift-left {
-   background-image: url(arrowlt.png);
+   background-position: -96px -64px;
 }
 
 div.button.shift-right {
-   background-image: url(arrowrt.png);
+   background-position: -32px -64px;
 }
 
 .flip-mirror {
@@ -196,43 +196,43 @@ div.button.shift-right {
 }
 
 div.button.flip-vertical {
-   background-image: url(flipv.png);
+   background-position: -128px -64px;
 }
 
 div.button.flip-horizontal {
-   background-image: url(fliph.png);
+   background-position: -128px -32px;
 }
 
 div.button.mirror-vertical {
-   background-image: url(mirrorv.png);
+   background-position: -32px -96px;
 }
 
 div.button.mirror-horizontal {
-   background-image: url(mirrorh.png);
+   background-position: 0 -96px;
 }
 
 div.button.add-frame {
-   background-image: url(add_frame.png);
+   background-position: 0 -32px;
 }
 
 div.button.delete-frame {
-   background-image: url(delete_frame.png);
+   background-position: -32px -32px;
 }
 
 div.button.dupe-frame {
-   background-image: url(dupe_frame.png);
+   background-position: -64px -32px;
 }
 
 div.button.clear-frame {
-   background-image: url(clear_frame.png);
+   background-position: -96px -32px;
 }
 
 div.button.next-frame {
-   background-image: url(next_frame.png);
+   background-position: -128px 0;
 }
 
 div.button.prev-frame {
-   background-image: url(prev_frame.png);
+   background-position: -96px 0;
 }
 
 .frames {

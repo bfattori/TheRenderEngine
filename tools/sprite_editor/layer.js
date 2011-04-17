@@ -55,12 +55,14 @@ var SpriteLayer = function() {
       pixels: null,
       buffSize: 0,
       drawMode: 0,
+      pixSize: 0,
 
-      constructor: function() {
+      constructor: function(pixelSize) {
          this.base("Layer");
 
          this.pixels = [];
-         this.buffSize = (SpriteEditor.editorSize / SpriteEditor.pixSize);
+         this.pixSize = pixelSize;
+         this.buffSize = (SpriteEditor.editorSize / this.pixSize);
          this.buffSize *= this.buffSize;
          R.engine.Support.fillArray(this.pixels, this.buffSize, null);
 
@@ -95,8 +97,8 @@ var SpriteLayer = function() {
 
          var rect = R.math.Rectangle2D.create(0, 0, 8, 8);
          var pt = R.math.Point2D.create(0, 0);
-         var t = SpriteEditor.editorSize / SpriteEditor.pixSize;
-         renderContext.setScale(SpriteEditor.pixSize / 8);
+         var t = SpriteEditor.editorSize / this.pixSize;
+         renderContext.setScale(this.pixSize / 8);
          for (var p = 0; p < this.buffSize; p++) {
             if (this.pixels[p]) {
                renderContext.pushTransform();
@@ -118,7 +120,7 @@ var SpriteLayer = function() {
        * @return {Array} An array containing the X and Y grid-normalized components
        */
       getGridPixel: function(x, y) {
-         var pSize = SpriteEditor.pixSize;
+         var pSize = this.pixSize;
          x /= pSize;
          y /= pSize;
          x = Math.round(x);
@@ -133,7 +135,7 @@ var SpriteLayer = function() {
        */
       addPixel: function(x, y) {
          var gP = this.getGridPixel(x, y);
-         var t = SpriteEditor.editorSize / SpriteEditor.pixSize;
+         var t = SpriteEditor.editorSize / this.pixSize;
          this.pixels[gP[1] * t + gP[0]] = SpriteEditor.currentColor;
       },
 
@@ -144,7 +146,7 @@ var SpriteLayer = function() {
        */
       clearPixel: function(x, y) {
          var gP = this.getGridPixel(x, y);
-         var t = SpriteEditor.editorSize / SpriteEditor.pixSize;
+         var t = SpriteEditor.editorSize / this.pixSize;
          this.pixels[gP[1] * t + gP[0]] = null;
       },
 
@@ -178,15 +180,59 @@ var SpriteLayer = function() {
        */
       getPixel: function(x, y) {
          var gP = this.getGridPixel(x, y);
-         var t = SpriteEditor.editorSize / SpriteEditor.pixSize;
+         var t = SpriteEditor.editorSize / this.pixSize;
          return this.pixels[gP[1] * t + gP[0]];
+      },
+
+      /**
+       * Get an <tt>ImageData</tt> structure which represents this frame
+       * @return {ImageData}
+       */
+      getImageData: function() {
+         // Render out the frame to image data
+         var iS = (512 / this.pixSize),
+             pixBuf = this.getRenderContext().get2DContext().createImageData(iS, iS), pt = R.math.Point2D.create(0,0);
+
+         var pixels = this.getPixels();
+
+         for (var x = 0; x < iS; x++) {
+            for (var y = 0; y < iS; y++) {
+               var pixIdx = (x + y * iS), pix, alpha;
+               if (pixels[pixIdx] == null) {
+                  pix = 0;
+                  alpha = 0;
+               } else {
+                  pix = parseInt("0x" + pixels[pixIdx].substring(1));
+                  alpha = 255;
+               }
+               var bufIdx = pixIdx * 4;
+               pixBuf.data[bufIdx] = (pix >> 16) & 0x0000ff;
+               pixBuf.data[bufIdx + 1] = (pix >> 8) & 0x0000ff;
+               pixBuf.data[bufIdx + 2] = (pix & 0x0000ff);
+               pixBuf.data[bufIdx + 3] = alpha;
+            }
+         }
+
+         return pixBuf;
+      },
+
+      /**
+       * Get the base64 encoded source which represents this layer as a PNG.
+       * @return {String}
+       */
+      getImgSrc: function() {
+         var imgData = this.getImageData();
+         var t = SpriteEditor.editorSize / this.pixSize;
+         var tempContext = R.util.RenderUtil.getTempContext(R.rendercontexts.CanvasContext, t, t);
+         tempContext.putImage(imgData, R.math.Point2D.ZERO);
+         return tempContext.getDataURL("image/png");
       },
 
       /**
        * Flip the layer vertically
        */
       flipVertical: function() {
-         var rowSize = SpriteEditor.editorSize / SpriteEditor.pixSize;
+         var rowSize = SpriteEditor.editorSize / this.pixSize;
          var flip = [];
          for (var y = rowSize + 1; y >= 0; y--) {
             var row = this.pixels.splice(y * rowSize, rowSize);
@@ -201,7 +247,7 @@ var SpriteLayer = function() {
       flipHorizontal: function() {
          var flip = [];
          R.engine.Support.fillArray(flip, this.buffSize, null);
-         var rowSize = SpriteEditor.editorSize / SpriteEditor.pixSize;
+         var rowSize = SpriteEditor.editorSize / this.pixSize;
          for (var x = 0; x < rowSize; x++) {
             for (var y = 0; y < rowSize; y++) {
                flip[(y * rowSize) + (rowSize - x)] = this.pixels[(y * rowSize) + x];
@@ -216,7 +262,7 @@ var SpriteLayer = function() {
       shiftLeft: function() {
          // Remove the first pixel of each row and insert it into the
          // last pixel
-         var i = SpriteEditor.editorSize / SpriteEditor.pixSize;
+         var i = SpriteEditor.editorSize / this.pixSize;
          for (var r = 0; r < this.buffSize; r += i) {
             var pix = this.pixels.splice(r,1);
             this.pixels.splice(r + (i - 1), 0, pix[0]);
@@ -229,7 +275,7 @@ var SpriteLayer = function() {
       shiftRight: function() {
          // Remove the last pixel of each row and insert it into the
          // first pixel
-         var i = SpriteEditor.editorSize / SpriteEditor.pixSize;
+         var i = SpriteEditor.editorSize / this.pixSize;
          for (var r = (i-1); r < this.buffSize; r += i) {
             var pix = this.pixels.splice(r,1);
             this.pixels.splice(r - (i - 1), 0, pix[0]);
@@ -242,7 +288,7 @@ var SpriteLayer = function() {
       shiftUp: function() {
          // Remove the top row of pixels and add to the bottom
          var start = 0;
-         var end = SpriteEditor.editorSize / SpriteEditor.pixSize;
+         var end = SpriteEditor.editorSize / this.pixSize;
          //var topRow = this.pixels.slice(start, end);
          var topRow = this.pixels.splice(start, end);
          this.pixels = this.pixels.concat(topRow);
@@ -253,8 +299,8 @@ var SpriteLayer = function() {
        */
       shiftDown: function() {
          // Remove the bottom row of pixels and add to the top
-         var start = this.buffSize - (SpriteEditor.editorSize / SpriteEditor.pixSize);
-         var end = SpriteEditor.editorSize / SpriteEditor.pixSize;
+         var start = this.buffSize - (SpriteEditor.editorSize / this.pixSize);
+         var end = SpriteEditor.editorSize / this.pixSize;
          var botRow = this.pixels.splice(start, end);
          this.pixels = botRow.concat(this.pixels);
       }

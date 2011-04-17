@@ -1,0 +1,8 @@
+{
+   "bitmapImage":"ship.png",
+   "bitmapSize":[64,64],
+   "version":2,
+   "sprites":{
+      "ship":[0,0,64,64]
+   }
+}

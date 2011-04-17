@@ -73,11 +73,11 @@
 			<div class="menuItem">File
 				<div class="menu">
 					<div class="item" func="SpriteEditor.actionNew">New</div>
-					<div class="item disabled" func="SpriteEditor.actionOpen">Open</div>
-					<div class="item disabled" func="SpriteEditor.actionSave">Save</div>
 					<div class="sep"><!-- --></div>
+               <div class="item disabled" func="SpriteEditor.actionImportSpriteSheet">Import Sprite Sheet</div>
 					<div class="item" func="SpriteEditor.actionExportSpriteSheet">Export Sprite Sheet</div>
-					<div class="item" func="SpriteEditor.actionImportSpriteSheet">Import Sprite Sheet</div>
+               <div class="sep"><!-- --></div>
+               <div class="item disabled" func="SpriteEditor.actionImportFrames">Import Frames</div>
 				</div>
 			</div>
 			<div class="menuItem">Edit
@@ -105,18 +105,21 @@
 					<div class="item toggle checked" func="SpriteEditor.actionToggleGrid">Show Grid</div>
 				</div>
 			</div>
-			<div class="menuItem">Frames
+			<div class="menuItem">Animation
 				<div class="menu">
+               <div class="item" func="SpriteEditor.actionNewAnimation">New Animation</div>
+               <div class="item" func="SpriteEditor.actionRenameAnimation">Rename Animation</div>
+               <div class="sep"><!-- --></div>
+               <div class="item" func="SpriteEditor.actionDeleteAnimation">Delete Animation</div>
+               <div class="sep"><!-- --></div>
 					<div class="item" func="SpriteEditor.actionClearFrame">Clear Frame</div>
+               <div class="item" func="SpriteEditor.actionDeleteFrame">Delete Frame</div>
 					<div class="sep"><!-- --></div>
 					<div class="item" func="SpriteEditor.actionNewFrame">New Frame</div>
 					<div class="item" func="SpriteEditor.actionDuplicateFrame">Duplicate Frame</div>
-					<div class="item" func="SpriteEditor.actionDeleteFrame">Delete Frame</div>
 					<div class="sep"><!-- --></div>
 					<div class="item" func="SpriteEditor.actionPreviousFrame">Previous Frame</div>
 					<div class="item" func="SpriteEditor.actionNextFrame">Next Frame</div>
-					<div class="sep"><!-- --></div>
-					<div class="item" func="SpriteEditor.actionAnimateFrames">Animate Frames</div>
 				</div>
 			</div>
 			<div class="menuItem">Help
@@ -235,19 +238,10 @@
          <div class="tool animations">
             <h5>Animations Manager</h5>
             <div class="animations-container">
-               <ul><li><img src="" class="currentAnimation" width="32" height="32"/><div class="tag">animation0</div></li></ul>
+               <ul><li aname='animation0'><img src="" class="currentAnimation" width="32" height="32"/><div class="tag">animation0</div></li></ul>
             </div>
          </div>
       </div>
-
-      <script type="text/javascript">
-         $(document).ready(function() {
-            $(".frames ul li").hover(function() {
-               $("div.tag", this).text($(".frames ul li").index(this));
-               $(this).addClass("mouseover");
-            }, function() { $(this).removeClass("mouseover"); });
-         });
-      </script>
 
 		<!-- Export Dialog Template -->
 		<script type="text/html" id="export_dialog">

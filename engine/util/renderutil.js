@@ -53,8 +53,9 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 	tempContexts: {},
 
 	/**
-	 * Get a temporary context for rendering to.
-	 * @param type {R.rendercontexts.RenderContext2D} The type of context desired
+	 * Get a temporary context to render into.  Only one context will ever be created for the type
+    * specified, and cached for repeated use.  It will be cleaned up when the engine is shut down.
+	 * @param type {R.rendercontexts.RenderContext2D} The context class to mimic
 	 * @param width {Number} The width of the temporary context
 	 * @param height {Number} The height of the temporary context
 	 * @return {R.rendercontexts.RenderContext2D}
@@ -75,8 +76,8 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 		
 		// Prepare the temporary context
 		var ctx = R.util.RenderUtil.tempContexts[type.getClassName()];
-		ctx.getElement().width = width + 1;		// Add one pixel to account for clipping
-		ctx.getElement().height = height + 1;	// ...
+		ctx.getElement().width = width;
+		ctx.getElement().height = height;
 		ctx.reset();
 		
 		return ctx;

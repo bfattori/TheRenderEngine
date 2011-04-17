@@ -171,7 +171,8 @@ var SpriteEditor = function() {
 
          // Create the animations container
          this.animations[this.currentAnimation] = {
-            frames: []
+            frames: [],
+            size: SpriteEditor.pixSize
          };
 
          // Add the first frame
@@ -182,6 +183,13 @@ var SpriteEditor = function() {
          // Set a click event for the first frame in the frame manager
          $(".frames ul li").eq(0).click(function() {
             SpriteEditor.setCurrentFrame(0);
+         }).hover(function() {
+            $("div.tag", this).text($(".frames ul li").index(this));
+            $(this).addClass("mouseover");
+         }, function() { $(this).removeClass("mouseover"); });
+
+         $(".animations ul li").eq(0).click(function() {
+            SpriteEditor.setCurrentAnimation($(this).attr("aname"));   
          });
 
          // Generate the grid
@@ -238,14 +246,53 @@ var SpriteEditor = function() {
       },
 
       /**
+       * Set the current animation
+       * @param animationName {String}
+       */
+      setCurrentAnimation: function(animationName) {
+         // Clear the undo and redo history
+         SpriteEditor.undoHistory = [];
+         SpriteEditor.redoHistory = [];
+
+         SpriteEditor.currentAnimation = animationName;
+
+         // Get the pixel size for the animation
+         SpriteEditor.pixSize = SpriteEditor.animations[animationName].size;
+         SpriteEditor.recalcOffset();
+
+         // Load up the frames for the animation
+         var frames = SpriteEditor.animations[animationName].frames;
+         $(".frames ul li").remove();
+         $.each(frames, function(i, frame) {
+            var f = $("<li>").append("<img width='32' height='32'/>").append("<div class='tag'>" + i + "</div>");
+            f.click(function() {
+               SpriteEditor.setCurrentFrame($(".frames ul li").index(this));
+            }).hover(function() {
+               $("div.tag", this).text($(".frames ul li").index(this));
+               $(this).addClass("mouseover");
+            }, function() { $(this).removeClass("mouseover"); });
+            $("img", f).attr("src", frame.getImgSrc());
+            $(".frames ul").append(f);
+         });
+
+         // Set the current frame to the first frame
+         SpriteEditor.setCurrentFrame(0);
+
+         $(".animations ul li img.currentAnimation").removeClass("currentAnimation");
+         $(".animations ul li[aname=" + animationName + "] img").addClass("currentAnimation");
+
+      },
+
+      /**
        * Add a new, empty frame to the set of frames in the sprite.
        * @return {SpriteLayer} The newly added frame layer
        */
       addFrame: function() {
-         var frame = SpriteLayer.create();
+         var frame = SpriteLayer.create(SpriteEditor.pixSize);
          SpriteEditor.animations[SpriteEditor.currentAnimation].frames.push(frame);
          return frame;
       },
+
 
       /**
        * Delete the frame at the given index, or the currently selected frame.
@@ -450,6 +497,7 @@ var SpriteEditor = function() {
 
          if (doIt) {
             SpriteEditor.animations[SpriteEditor.currentAnimation].frames = [];
+            SpriteEditor.animations[SpriteEditor.currentAnimation].size = size;
             SpriteEditor.frameIdx = 0;
             SpriteEditor.pixSize = size;
             SpriteEditor.recalcOffset();
@@ -617,6 +665,49 @@ var SpriteEditor = function() {
       // MENUBAR ACTIONS
 
       /**
+       * MENU - Start fresh, clearing all animations.
+       * @private
+       */
+      actionNew: function() {
+         var c = 0;
+         for (var i in SpriteEditor.animations) {
+            c++;
+         }
+         if (c == 0) {
+            return;
+         }
+         var doIt = confirm("Are you sure you want to delete all animations and start new?");
+         if (doIt) {
+            for (var a in SpriteEditor.animations) {
+               var frames = SpriteEditor.animations[a].frames;
+               for (var f in frames) {
+                  frames[f].destroy();
+               }
+            }
+            SpriteEditor.animations = {
+               "animation0": {
+                  frames:[],
+                  size:SpriteEditor.pixSize
+               }
+            };
+            $(".animations ul").empty();
+
+            SpriteEditor.noPixels = true;
+
+            var frame = SpriteLayer.create(SpriteEditor.pixSize);
+            SpriteEditor.animations["animation0"].frames.push(frame);
+            SpriteEditor.editorContext.add(frame);
+
+            var f = $("<li aname='animation0'>").append("<img width='32' height='32'/>").append("<div class='tag'>animation0</div>");
+            f.click(function() {
+               SpriteEditor.setCurrentAnimation($(this).attr("aname"));
+            });
+            $(".animations ul").append(f);
+            SpriteEditor.setCurrentAnimation("animation0");
+         }
+      },
+
+      /**
        * MENU - clear the current frame
        * @private
        */
@@ -650,6 +741,65 @@ var SpriteEditor = function() {
          SpriteEditor.setCurrentFrame(SpriteEditor.animations[SpriteEditor.currentAnimation].frames.length - 1);
       },
 
+      /**
+       * MENU - add a new animation
+       * @private
+       */
+      actionNewAnimation: function() {
+         var animationName = prompt("Enter a name for the animation:", "animation");
+         if (SpriteEditor.animations[animationName] != null) {
+            alert("There is already an animation with that name");
+            return;
+         }
+
+         SpriteEditor.animations[animationName] = {
+            frames: [],
+            size: SpriteEditor.pixSize
+         };
+         SpriteEditor.noPixels = true;
+
+         var frame = SpriteLayer.create(SpriteEditor.pixSize);
+         SpriteEditor.animations[animationName].frames.push(frame);
+         SpriteEditor.editorContext.add(frame);
+
+         var f = $("<li aname='" + animationName + "'>").append("<img width='32' height='32'/>").append("<div class='tag'>" + animationName + "</div>");
+         f.click(function() {
+            SpriteEditor.setCurrentAnimation($(this).attr("aname"));
+         });
+         $(".animations ul").append(f);
+         $(".animations ul li img.currentAnimation").removeClass("currentAnimation");
+         $("img",f).addClass("currentAnimation");
+         SpriteEditor.setCurrentAnimation(animationName);
+      },
+
+      /**
+       * MENU - Rename the current animation
+       * @private
+       */
+      actionRenameAnimation: function() {
+         var newAnimationName = prompt("Enter a new name for the animation:", SpriteEditor.currentAnimation);
+         if (newAnimationName == null || newAnimationName == "") {
+            return;
+         }
+         if (SpriteEditor.animations[newAnimationName] != null) {
+            alert("There is already an animation with that name");
+            return;
+         }
+
+         SpriteEditor.animations[newAnimationName] = {};
+         SpriteEditor.animations[newAnimationName].size = SpriteEditor.animations[SpriteEditor.currentAnimation].size;
+         SpriteEditor.animations[newAnimationName].frames = SpriteEditor.animations[SpriteEditor.currentAnimation].frames;
+         var oldAnimation = SpriteEditor.currentAnimation;
+         SpriteEditor.currentAnimation = newAnimationName;
+         delete SpriteEditor.animations[oldAnimation];
+
+         $(".animations ul li[aname=" + oldAnimation + "]").attr("aname", newAnimationName).find("div.tag").html(newAnimationName);
+      },
+
+      /**
+       * MENU - Delete an frame from an animation
+       * @private
+       */
       actionDeleteFrame: function() {
          function $$doDelete() {
             // Remove the frame
@@ -665,6 +815,49 @@ var SpriteEditor = function() {
 
          if (SpriteEditor.animations[SpriteEditor.currentAnimation].frames.length > 1 && confirm("Are you sure you want to delete the current frame?")) {
             $$doDelete();
+         }
+      },
+
+      /**
+       * MENU - Delete the current animation
+       * @private
+       */
+      actionDeleteAnimation: function() {
+         var doIt = confirm("Are you sure you want to delete animation '" + SpriteEditor.currentAnimation + "'?");
+         if (doIt) {
+            var del = SpriteEditor.currentAnimation;
+            delete SpriteEditor.animations[del];
+            $(".animations ul li[aname=" + del + "]").remove();
+
+            var next = del, c = 0;
+            for (var i in SpriteEditor.animations) {
+               // Get the first animation
+               next = i;
+               break;
+            }
+
+            if (c == 0) {
+               next = "animation0";
+
+               // All animations deleted, start fresh
+               SpriteEditor.animations[next] = {
+                  frames: [],
+                  size: SpriteEditor.pixSize
+               };
+               SpriteEditor.noPixels = true;
+
+               var frame = SpriteLayer.create(SpriteEditor.pixSize);
+               SpriteEditor.animations[next].frames.push(frame);
+               SpriteEditor.editorContext.add(frame);
+
+               var f = $("<li aname='" + next + "'>").append("<img width='32' height='32'/>").append("<div class='tag'>" + next + "</div>");
+               f.click(function() {
+                  SpriteEditor.setCurrentAnimation($(this).attr("aname"));
+               });
+               $(".animations ul").append(f);
+            }
+
+            SpriteEditor.setCurrentAnimation(next);
          }
       },
 
@@ -713,11 +906,19 @@ var SpriteEditor = function() {
       },
 
       /**
+       * MENU - Show the help contents
+       * @private
+       */
+      actionHelp: function() {
+         window.open("resources/help/index.html", "helpWindow");
+      },
+
+      /**
        * MENU - display "about" alert
        * @private
        */
       actionAbout: function() {
-         alert("SpriteEditor [v0.0.5]\n\nCopyright (c) 2011 Brett Fattori\nPart of The Render Engine project\nMIT Licensed");
+         alert("SpriteEditor [v1.0.0]\n\nCopyright (c) 2011 Brett Fattori\nPart of The Render Engine project\nMIT Licensed");
       },
 
       /**
@@ -769,8 +970,9 @@ var SpriteEditor = function() {
 
       actionExportSpriteSheet: function() {
          // Create a canvas that will store all the frames of each animation
-         var aW, sheetHeight = 0, sheetWidth = 0, blockSize = (512 / SpriteEditor.pixSize), animation;
+         var aW, sheetHeight = 0, sheetWidth = 0, blockSize, animation;
          for (animation in SpriteEditor.animations) {
+            blockSize = (512 / SpriteEditor.animations[animation].size);
             // Find the widest animation while finding the number of animations
             aW = blockSize * SpriteEditor.animations[animation].frames.length;
             if (aW > sheetWidth) {
@@ -778,46 +980,44 @@ var SpriteEditor = function() {
             }
             sheetHeight += blockSize;
          }
-         spriteSheet = R.util.RenderUtil.getTempContext(R.rendercontexts.CanvasContext, sheetWidth, sheetHeight);
+         var spriteSheet = R.util.RenderUtil.getTempContext(R.rendercontexts.CanvasContext, sheetWidth, sheetHeight),
+             top = 0, sheetInfo = {
+               "bitmapImage": "[PNG FILE NAME]",
+               "bitmapSize": [sheetWidth, sheetHeight],
+               "version": 2,
+               "sprites": {}
+             };
 
          // Export the different animations
+         var  pt = R.math.Point2D.create(0,0);
          for (animation in SpriteEditor.animations) {
             // Render out each frame to image data
-            var iS = (512 / SpriteEditor.pixSize),
-                pixBuf = spriteSheet.get2DContext().createImageData(iS, iS), pt = R.math.Point2D.create(0,0);
+            var iS = (512 / SpriteEditor.animations[animation].size), pixBuf;
+
+            sheetInfo.sprites[animation] = [0,top,iS,iS];
+            if (SpriteEditor.animations[animation].frames.length > 1) {
+               sheetInfo.sprites[animation].push(100);
+               sheetInfo.sprites[animation].push("loop");
+            }
 
             // For each frame, render out to the image, then copy that data to the temporary canvas
             for (var f = 0; f < SpriteEditor.animations[animation].frames.length; f++) {
-               var pixels = SpriteEditor.animations[animation].frames[f].getPixels();
-
-               for (var x = 0; x < iS; x++) {
-                  for (var y = 0; y < iS; y++) {
-                     var pixIdx = (x + y * iS), pix, alpha;
-                     if (pixels[pixIdx] == null) {
-                        pix = 0;
-                        alpha = 0;
-                     } else {
-                        pix = parseInt("0x" + pixels[pixIdx].substring(1));
-                        alpha = 255;
-                     }
-                     var bufIdx = pixIdx * 4;
-                     pixBuf.data[bufIdx] = (pix >> 16) & 0x0000ff;
-                     pixBuf.data[bufIdx + 1] = (pix >> 8) & 0x0000ff;
-                     pixBuf.data[bufIdx + 2] = (pix & 0x0000ff);
-                     pixBuf.data[bufIdx + 3] = alpha;
-                  }
-               }
+               pixBuf = SpriteEditor.animations[animation].frames[f].getImageData();
 
                // Add the image data to the canvas at the frames position
-               pt.set(f * iS, 0);
+               pt.set(f * iS, top);
                spriteSheet.putImage(pixBuf, pt);
             }
-
-            // Now, open a new window and put our sprite sheet into it for them to capture
-            var w = window.open("about:blank", "spriteSheet", "width=640,height=480,toolbar=no,resizable=yes,scrolling=yes");
-            var img = $("<img src='" + spriteSheet.getDataURL("image/png") + "' width='" + sheetWidth + "' height='" + sheetHeight + "' style='border: 1px solid'/>");
-            $("body", w.document).append("<span>Right-click on the image below and select 'Save As'<br/><br/></span>").append(img);
+            top += iS;
          }
+         pt.destroy();
+
+         // Now, open a new window and put our sprite sheet into it for them to capture
+         var w = window.open("about:blank", "spriteSheet", "width=640,height=480,toolbar=no,resizable=yes,scrolling=yes");
+         var img = $("<img src='" + spriteSheet.getDataURL("image/png") + "' width='" + sheetWidth + "' height='" + sheetHeight + "' style='border: 1px solid'/>");
+         var info = $("<textarea cols='70' rows='20'>").val(JSON.stringify(sheetInfo,null,2));
+         $("body", w.document).append("<span>Right-click on the image below and select 'Save As'.  Then copy the sheet info into a sprite file.<br/><br/></span>")
+               .append(img).append("<br/><br/><span>Sheet info:</span><br/>").append(info);
       },
 
       /**
