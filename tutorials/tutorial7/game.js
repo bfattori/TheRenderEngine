@@ -6,6 +6,12 @@ R.Engine.define({
 		"R.rendercontexts.CanvasContext",
       "R.collision.broadphase.SpatialGrid",
       "R.math.Math2D"
+	],
+
+	// Game class dependencies
+	"depends": [
+		"GameObject",
+      "TouchObject"
 	]
 });
 

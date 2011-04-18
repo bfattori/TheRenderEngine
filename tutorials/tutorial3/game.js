@@ -4,6 +4,11 @@ R.Engine.define({
 	"requires": [
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext"
+	],
+
+	// Game class dependencies
+	"depends": [
+		"GameObject"
 	]
 });
 

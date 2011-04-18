@@ -36,7 +36,7 @@ $.extend(jQuery.browser, {
 	firefox: /firefox/.test( userAgent ),
    Wii: /nintendo wii/.test( userAgent ),
 	android: /android/.test( userAgent ) && /AppleWebKit/.test( userAgent ),
-   iPhone: /iphone/.test( userAgent) && /safari/.test( userAgent ),
+   safariMobile: /iphone|ipad|ipod/.test( userAgent) && /safari/.test( userAgent ),
 	WiiMote: ((window.opera && window.opera.wiiremote) ? window.opera.wiiremote : null),
 	WiiScreenWidth: 800,
 	WiiScreenHeight: 460

@@ -36,8 +36,7 @@ R.Engine.define({
 		"R.components.render.Sprite",
 		"R.components.Collider",
 		"R.objects.PhysicsActor",
-		"R.math.Point2D",
-		"R.math.Vector2D"
+		"R.math.Math2D"
 	]
 });
 

@@ -39,10 +39,8 @@ R.Engine.define({
 		"R.components.render.Billboard2D",
 		"R.components.collision.Convex",
 		"R.engine.Object2D",
-		"R.lang.OneShotTimeout",
 		"R.struct.Container",
-		"R.math.Point2D",
-		"R.math.Vector2D"
+		"R.math.Math2D"
 	]
 });
 

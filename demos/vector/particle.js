@@ -35,10 +35,7 @@ R.Engine.define({
 	"class": "SimpleParticle",
 	"requires": [
 		"R.particles.AbstractParticle",
-		"R.math.Point2D",
-		"R.math.Vector2D",
-		"R.math.Math2D",
-		"R.math.Rectangle2D"
+		"R.math.Math2D"
 	]
 });
 
@@ -129,8 +126,6 @@ R.Engine.define({
 	"class": "TrailParticle",
 	"requires": [
 		"R.particles.AbstractParticle",
-		"R.math.Point2D",
-		"R.math.Vector2D",
 		"R.math.Math2D"
 	]
 });

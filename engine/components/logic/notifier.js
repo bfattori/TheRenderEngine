@@ -36,7 +36,7 @@ R.Engine.define({
 	"class": "R.components.logic.Notifier",
 	"requires": [
 		"R.components.Logic",
-		"R.lang.FNV1Hash",
+		"R.util.FNV1Hash",
 		"R.struct.HashContainer"
 	]
 });
@@ -73,7 +73,7 @@ R.components.logic.Notifier = function() {
    constructor: function(name, priority) {
       this.base(name, priority || 1.0);
       this.notifyLists = {};
-      this.hasher = R.lang.FNV1Hash.create();
+      this.hasher = R.util.FNV1Hash.create();
    },
 
 	/**

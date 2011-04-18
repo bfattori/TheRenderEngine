@@ -7,6 +7,11 @@ R.Engine.define({
       "R.resources.loaders.ImageLoader",
       "R.resources.loaders.SoundLoader",
       "R.sound.SM2"
+	],
+
+	// Game class dependencies
+	"depends": [
+		"PianoKeys"
 	]
 });
 

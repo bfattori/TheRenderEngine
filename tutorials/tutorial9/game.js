@@ -6,6 +6,13 @@ R.Engine.define({
 		"R.rendercontexts.CanvasContext",
       "R.collision.broadphase.SpatialGrid",
       "R.resources.loaders.SpriteLoader"
+	],
+
+	// Game class dependencies
+	"depends": [
+		"Player",
+      "Bomb",
+      "Powerup"
 	]
 });
 

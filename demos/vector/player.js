@@ -40,16 +40,9 @@ R.Engine.define({
 		"R.components.input.Keyboard",
 		"R.components.collision.Convex",
 		"R.engine.Object2D",
-		"R.lang.Timeout",
-		"R.lang.OneShotTimeout",
-		"R.lang.MultiTimeout",
 		"R.struct.Container",
-		"R.math.Point2D",
-		"R.math.Vector2D",
 		"R.math.Math2D",
-		"R.math.Rectangle2D",
 		"R.engine.Events"
-		
 	]
 });
 

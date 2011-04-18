@@ -41,9 +41,6 @@ R.Engine.define({
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext",
 		"R.collision.broadphase.SpatialGrid",
-		"R.lang.Timeout",
-		"R.lang.OneShotTimeout",
-		"R.lang.IntervalTimer",
 		"R.text.TextRenderer",
 		"R.text.AbstractTextRenderer",
 		"R.text.VectorText",
@@ -52,8 +49,6 @@ R.Engine.define({
 		"R.storage.PersistentStorage",
 		"R.engine.Events",
 		"R.math.Math2D",
-		"R.math.Point2D",
-		"R.math.Rectangle2D",
 		"R.particles.ParticleEngine"
 	],
 	

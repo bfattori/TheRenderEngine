@@ -35,7 +35,7 @@ R.Engine.define({
 	"class": "R.storage.BrowserStorage",
 	"requires": [
 		"R.storage.AbstractDBStorage",
-		"R.lang.FNV1Hash"
+		"R.util.FNV1Hash"
 	],
 	"includes": [
 		"/libs/trimpath-query-1.1.14.js"
@@ -63,7 +63,7 @@ R.storage.BrowserStorage = function(){
 		/** @private */
 		constructor: function(name){
 			this.setStorageObject(this.initStorageObject());
-         this.fnv = R.lang.FNV1Hash.create();
+         this.fnv = R.util.FNV1Hash.create();
 			this.base(name);
 
 			// See if a table schema exists for the given name

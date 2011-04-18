@@ -37,7 +37,6 @@ R.Engine.define({
 	"class": "SpriteDemo",
 	"requires": [
 		"R.engine.Game",
-		"R.lang.Timeout",
 		"R.engine.Events",
 
 		// The render context
@@ -55,8 +54,6 @@ R.Engine.define({
 
 		"R.storage.PersistentStorage",
 		"R.math.Math2D",
-		"R.math.Point2D",
-		"R.math.Rectangle2D",
 		
 		// Game objects
 		"R.objects.SpriteActor",

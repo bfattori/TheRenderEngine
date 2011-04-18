@@ -34,8 +34,7 @@ R.Engine.define({
 	"class": "Crate",
 	"requires": [
 		"R.components.physics.BoxBody",
-		"R.math.Math2D",
-		"R.math.Point2D"
+		"R.math.Math2D"
 	],
 	
 	"depends": [

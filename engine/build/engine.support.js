@@ -407,19 +407,19 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
 	checkOS: function() {
 		// Scrape the userAgent to get the OS
 		var uA = navigator.userAgent.toLowerCase();
-		OS = /windows nt 6\.0/.test (userAgent) ? "Windows Vista" :
-				/windows nt 6\.1/.test (userAgent) ? "Windows 7" :
-				/windows nt 5\.1/.test (userAgent) ? "Windows XP" :
-				/windows/.test(userAgent) ? "Windows" :
-				/android 1\./.test(userAgent) ? "Android 1.x" :
-				/android 2\./.test(userAgent) ? "Android 2.x" :
-				/android/.test(userAgent) ? "Android" :
-				/x11/.test(userAgent) ? "X11" :
-				/linux/.test(userAgent) ? "Linux" :
-				/Mac OS X/.test(userAgent) ? "Mac OS X" :
-				/macintosh/.test(userAgent) ? "Macintosh" :
-				"unknown"; 
-		return OS;
+		return /windows nt 6\.0/.test (uA) ? "Windows Vista" :
+				 /windows nt 6\.1/.test (uA) ? "Windows 7" :
+				 /windows nt 5\.1/.test (uA) ? "Windows XP" :
+				 /windows/.test(uA) ? "Windows" :
+				 /android 1\./.test(uA) ? "Android 1.x" :
+				 /android 2\./.test(uA) ? "Android 2.x" :
+				 /android/.test(uA) ? "Android" :
+				 /x11/.test(uA) ? "X11" :
+				 /linux/.test(uA) ? "Linux" :
+				 /Mac OS X/.test(uA) ? "Mac OS X" :
+				 /macintosh/.test(uA) ? "Macintosh" :
+             /iphone|ipad|ipod/.test(uA) ? "iOS" :
+				 "unknown";
 	},
 
    /**
@@ -432,6 +432,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * <li>agent - The user agent</li>
     * <li>platform - The platform the browser is running on</li>
     * <li>cpu - The CPU on the machine the browser is running on</li>
+    * <li>OS - The operating system the browser is running on</li>
     * <li>language - The browser's language</li>
     * <li>online - If the browser is running in online mode</li>
     * <li>cookies - If the browser supports cookies</li>
@@ -552,8 +553,8 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
             "browser" : $.browser.chrome ? "chrome" :
 				           ($.browser.android ? "android" :
                        ($.browser.Wii ? "wii" : 
-                       ($.browser.iPhone ? "iphone" :
-                       ($.browser.safari ? "safari" : 
+                       ($.browser.safariMobile ? "safarimobile" :
+                       ($.browser.safari ? "safari" :
 							  ($.browser.firefox ? "firefox" : 
                        ($.browser.mozilla ? "mozilla" :
                        ($.browser.opera ? "opera" : 

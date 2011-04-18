@@ -39,11 +39,7 @@ R.Engine.define({
 		"R.components.render.Vector2D",
 		"R.components.collision.Convex",
 		"R.engine.Object2D",
-		"R.math.Point2D",
-		"R.math.Vector2D",
-		"R.math.Math2D",
-		"R.math.Rectangle2D"
-		
+		"R.math.Math2D"
 	]
 });
 

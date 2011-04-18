@@ -38,15 +38,11 @@ R.Engine.define({
 		"R.rendercontexts.CanvasContext",
 		"R.rendercontexts.HTMLDivContext",
 		"R.collision.broadphase.SpatialGrid",
-		"R.lang.Timeout",
-		"R.lang.MultiTimeout",
 		"R.physics.Simulation",
 		"R.resources.loaders.SpriteLoader",
 		"R.resources.types.Sprite",
 		"R.engine.Events",
-		"R.math.Math2D",
-		"R.math.Point2D",
-		"R.math.Rectangle2D"
+		"R.math.Math2D"
 	],
 	
 	// Game class dependencies
@@ -74,19 +70,9 @@ R.engine.Game.load("/crate.js");
 var PhysicsDemo =  function() {
 	return R.engine.Game.extend({
    
-   constructor: null,
-   
    // The rendering context
    renderContext: null,
    
-   // Engine frames per second
-   engineFPS: 30,
-   
-   // The play field
-   fieldBox: null,
-   fieldWidth: 800,
-   fieldHeight: 460,
-
    // Sprite resource loader
    spriteLoader: null,
    
@@ -137,17 +123,14 @@ var PhysicsDemo =  function() {
     * @private
     */
    run: function(){
-      // Set up the playfield dimensions
-      this.fieldWidth = R.engine.Support.sysInfo().viewWidth;
-		this.fieldHeight = R.engine.Support.sysInfo().viewHeight;
-      this.fieldBox = R.math.Rectangle2D.create(0, 0, this.fieldWidth, this.fieldHeight);
-      
       // Create the game context
-		this.renderContext = R.rendercontexts.CanvasContext.create("Playfield", this.fieldWidth, this.fieldHeight);
+		this.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 800, 460);
       this.renderContext.setBackgroundColor("#FFFFFF");
 
 		// Set up the physics simulation
-      this.simulation = R.physics.Simulation.create("simulation", this.fieldBox, R.math.Point2D.create(0,40));
+      this.simulation = R.physics.Simulation.create("simulation",
+            this.renderContext.getViewport(), R.math.Point2D.create(0,40));
+
 		this.simulation.setIntegrations(3);
       this.setupWorld();
       
@@ -167,7 +150,7 @@ var PhysicsDemo =  function() {
       R.Engine.getDefaultContext().add(this.renderContext);
 
       // Create the collision model with 8x8 divisions
-      this.cModel = R.collision.broadphase.SpatialGrid.create(this.fieldWidth, this.fieldHeight, 8);
+      this.cModel = R.collision.broadphase.SpatialGrid.create(800, 460, 8);
 
       // Add some toys to play around with
 		R.lang.MultiTimeout.create("ballmaker", 6, 150, function() {
@@ -193,7 +176,7 @@ var PhysicsDemo =  function() {
    	var pos = R.math.Point2D.create(0,0), ext = R.math.Point2D.create(0,0);
    	
    	// Ground
-   	pos.set(0, this.fieldBox.get().h);
+   	pos.set(0, this.renderContext.getViewport().h);
    	ext.set(3000, 30);
    	this.simulation.addSimpleBoxBody(pos, ext, {
    		restitution: 0.2,
@@ -202,12 +185,12 @@ var PhysicsDemo =  function() {
 		
 		// Left wall
 		pos.set(-10, 100);
-		ext.set(20, this.fieldBox.get().h + 850);
+		ext.set(20, this.renderContext.getViewport().h + 850);
 		this.simulation.addSimpleBoxBody(pos, ext);
 
 		// Right wall
-		pos.set(this.fieldBox.get().w, 100);
-		ext.set(20, this.fieldBox.get().h + 850);
+		pos.set(this.renderContext.getViewport().w, 100);
+		ext.set(20, this.renderContext.getViewport().h + 850);
 		this.simulation.addSimpleBoxBody(pos, ext);
 		
       // Clean up temporary objects
@@ -245,19 +228,11 @@ var PhysicsDemo =  function() {
    },
    
    /**
-    * Returns a reference to the render context
-    * @return {RenderContext}
-    */
-   getRenderContext: function(){
-      return this.renderContext;
-   },
-   
-   /**
     * Returns a reference to the playfield box
     * @return {Rectangle2D}
     */
-   getFieldBox: function() {
-      return this.fieldBox;
+   getFieldRect: function() {
+      return this.renderContext.getViewport();
    },
    
    /**

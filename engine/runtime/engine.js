@@ -1723,19 +1723,19 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
 	checkOS: function() {
 		// Scrape the userAgent to get the OS
 		var uA = navigator.userAgent.toLowerCase();
-		OS = /windows nt 6\.0/.test (userAgent) ? "Windows Vista" :
-				/windows nt 6\.1/.test (userAgent) ? "Windows 7" :
-				/windows nt 5\.1/.test (userAgent) ? "Windows XP" :
-				/windows/.test(userAgent) ? "Windows" :
-				/android 1\./.test(userAgent) ? "Android 1.x" :
-				/android 2\./.test(userAgent) ? "Android 2.x" :
-				/android/.test(userAgent) ? "Android" :
-				/x11/.test(userAgent) ? "X11" :
-				/linux/.test(userAgent) ? "Linux" :
-				/Mac OS X/.test(userAgent) ? "Mac OS X" :
-				/macintosh/.test(userAgent) ? "Macintosh" :
-				"unknown"; 
-		return OS;
+		return /windows nt 6\.0/.test (uA) ? "Windows Vista" :
+				 /windows nt 6\.1/.test (uA) ? "Windows 7" :
+				 /windows nt 5\.1/.test (uA) ? "Windows XP" :
+				 /windows/.test(uA) ? "Windows" :
+				 /android 1\./.test(uA) ? "Android 1.x" :
+				 /android 2\./.test(uA) ? "Android 2.x" :
+				 /android/.test(uA) ? "Android" :
+				 /x11/.test(uA) ? "X11" :
+				 /linux/.test(uA) ? "Linux" :
+				 /Mac OS X/.test(uA) ? "Mac OS X" :
+				 /macintosh/.test(uA) ? "Macintosh" :
+             /iphone|ipad|ipod/.test(uA) ? "iOS" :
+				 "unknown";
 	},
 
    /**
@@ -1748,6 +1748,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * <li>agent - The user agent</li>
     * <li>platform - The platform the browser is running on</li>
     * <li>cpu - The CPU on the machine the browser is running on</li>
+    * <li>OS - The operating system the browser is running on</li>
     * <li>language - The browser's language</li>
     * <li>online - If the browser is running in online mode</li>
     * <li>cookies - If the browser supports cookies</li>
@@ -1868,8 +1869,8 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
             "browser" : $.browser.chrome ? "chrome" :
 				           ($.browser.android ? "android" :
                        ($.browser.Wii ? "wii" : 
-                       ($.browser.iPhone ? "iphone" :
-                       ($.browser.safari ? "safari" : 
+                       ($.browser.safariMobile ? "safarimobile" :
+                       ($.browser.safari ? "safari" :
 							  ($.browser.firefox ? "firefox" : 
                        ($.browser.mozilla ? "mozilla" :
                        ($.browser.opera ? "opera" : 
@@ -3224,7 +3225,9 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
    scriptRatio: 0,            // Ratio between processed/queued
    queuePaused:false,         // Script queue paused flag
    pauseReps: 0,              // Queue run repetitions while paused
-   
+   gameOptionsLoaded: false,  // Whether the game options have loaded yet
+   gameOptionsObject: {},     // Options object for the game
+
    callbacks: {},					// Script callbacks
    
    /**
@@ -3589,6 +3592,17 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     *     Engine.loadGame('game.js','Spaceroids');
     *  &lt;/script&gt;
     * </pre>
+    * <p/>
+    * The game can provide configuration files which will be loaded and passed to the
+    * game's <tt>setup()</tt> method.  The name of the configuration file is the game
+    * as the game's main JavaScript file.  If your JavaScript file is "game.js", the
+    * format for the config files are:
+    * <ul>
+    *    <li><tt>game.config</tt> - General game configuration</li>
+    *    <li><tt>game_[browser].config</tt> - Browser specific configuration</li>
+    *    <li><tt>game_[browser]_[platform].config</tt> - Platform specific configuration</li>
+    * </ul>
+    * Examples: <tt>game_mobilesafari.config</tt>, <tt>game_mobilesafari_ipad.config</tt>
     *
     * @param gameSource {String} The URL of the game script.
     * @param gameObjectName {String} The string name of the game object to execute.  When
@@ -3622,8 +3636,12 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 		// Load engine options for browsers
 		R.engine.Script.loadEngineOptions();
 
+      // Load the config object for the game, if it exists
+      R.engine.Script.loadGameOptions(gameSource);
+
       R.engine.Script.gameLoadTimer = setInterval(function() {
-         if (R.engine.Script.optionsLoaded && 
+         if (R.engine.Script.optionsLoaded &&
+             R.engine.Script.gameOptionsLoaded &&
 				 R.rendercontexts.DocumentContext &&
 				 R.rendercontexts.DocumentContext.started) {
 
@@ -3651,7 +3669,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
                      $("#loading.intrinsic").remove();
                      
                      // Start the game
-                     window[gameObjectName].setup();
+                     window[gameObjectName].setup(R.engine.Script.gameOptionsObject);
                   }
                }, 100);
             }
@@ -3665,14 +3683,13 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 	 * @private
 	 */
 	loadEngineOptions: function() {
-		
-		// Load the default configuration for all browsers, then load one specific to the browser type
+		// Load the specific config for the browser type
 		R.engine.Script.optionsLoaded = false;
 	
 		// Load the options specific to the browser.  Whether they load, or not,
 		// the game will continue to load.
 		R.engine.Script.loadJSON(R.Engine.getEnginePath() + "/configs/" + R.engine.Support.sysInfo().browser + ".config", function(bData, status) {
-			if (status == 200) {
+			if (status == 200 || status == 304) {
 				R.debug.Console.debug("Engine options loaded for: " + R.engine.Support.sysInfo().browser);
 				R.Engine.setOptions(bData);
 			} else {
@@ -3684,6 +3701,47 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 		});
 		
 	},
+
+   /**
+    * Load the the options object for the current game being loaded.
+    * @param gameSource {String} The game source file
+    * @memberOf R.engine.Script
+    * @private
+    */
+   loadGameOptions: function(gameSource) {
+      var file = gameSource.split(".")[0];
+      R.engine.Script.gameOptionsLoaded = false;
+
+      // Attempt three loads for game options... First for the game in general, then
+      // for the browser, and finally for the browser and platform.  The objects will be
+      // merged together and passed to the setup() method of the game.
+      R.engine.Script.loadJSON(file + ".config", function(bData, status) {
+         if (status == 200 || status == 304) {
+            R.debug.Console.debug("Game options loaded from '" + file + ".config'");
+            R.engine.Script.gameOptionsObject = bData;
+         }
+
+         // Now try to load a browser specific object
+         file += "_" + R.engine.Support.sysInfo().browser;
+         R.engine.Script.loadJSON(file + ".config", function(bData, status) {
+            if (status == 200 || status == 304) {
+               R.debug.Console.debug("Browser specific game options loaded from '" + file + ".config'");
+               R.engine.Script.gameOptionsObject = $.extend(R.engine.Script.gameOptionsObject, bData);
+            }
+
+            // Finally try to load a browser and platform specific object
+            file += "_" + R.engine.Support.sysInfo().platform;
+            R.engine.Script.loadJSON(file + ".config", function(bData, status) {
+               if (status == 200 || status == 304) {
+                  R.debug.Console.debug("Platform specific game options loaded from '" + file + ".config'");
+                  R.engine.Script.gameOptionsObject = $.extend(R.engine.Script.gameOptionsObject, bData);
+               }
+
+               R.engine.Script.gameOptionsLoaded = true;
+            });
+         });
+      });
+   },
 
    /**
     * Load a script relative to the engine path.  A simple helper method which calls
