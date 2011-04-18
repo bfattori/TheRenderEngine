@@ -1,170 +1,157 @@
-// Load the components and engine objects
-R.Engine.requires("/components/component.transform2d.js");
-R.Engine.requires("/components/component.keyboardinput.js");
-R.Engine.requires("/engine.object2d.js");
+// Load all required engine components
+R.Engine.define({
+	"class": "GameObject",
+	"requires": [
+		"R.engine.Object2D",
+      "R.math.Math2D",
+      "R.engine.Events",
 
-R.Engine.initObject("GameObject", "Object2D", function() {
+      "R.components.input.Keyboard"
+	]
+});
 
-   var GameObject = Object2D.extend({
+var GameObject = function() {
+   return R.engine.Object2D.extend({
 
-		// The width of the object
-		width: 50,				// The width of the object
-		height: 50,				// The height of the object
-		color: "#ffff00",		// The color of the object
-		moveVec: null,			// The movement vector
-		shape: null,			// Our object's shape
+      // The width of the object
+      width: 50,				// The width of the object
+      height: 50,				// The height of the object
+      color: "#ffff00",		// The color of the object
+      moveVec: null,			// The movement vector
+      shape: null,			// Our object's shape
 
       constructor: function() {
          this.base("GameObject");
 
-         // Add the component to move the object
-         this.add(Transform2DComponent.create("move"));
-			
-			// Add the component which handles keyboard input
-			this.add(KeyboardInputComponent.create("input"));
+         // Add the component which handles keyboard input
+         this.add(R.components.input.Keyboard.create("input"));
+
+         // Set our object's shape
+         this.shape = R.math.Rectangle2D.create(0, 0, 50, 50);
 
          // Start at the center of the playfield
-         var start = Tutorial3.getFieldBox().getCenter();
-			start.sub(Point2D.create(25, 25));
-			
-			// Set our object's shape
-			this.shape = Rectangle2D.create(0, 0, this.width, this.height);
-			
+         var start = Tutorial3.getFieldRect().getCenter();
+         start.sub(Point2D.create(25, 25));
+
          // Position the object
          this.setPosition(start);
-			
-			// Set the velocity to zero
-			this.moveVec = Vector2D.create(0,0);
+
+         // Set the velocity to zero
+         this.moveVec = Vector2D.create(0,0);
       },
-		
+
       /**
        * Update the object within the rendering context.  This calls the transform
        * components to position the object on the playfield.
        *
-       * @param renderContext {RenderContext} The rendering context
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
        * @param time {Number} The engine time in milliseconds
        */
       update: function(renderContext, time) {
-			renderContext.pushTransform();
-			
-			// The the "update" method of the super class
-			this.base(renderContext, time);
-			
-			// Move the object, according to the keyboard
-			this.move();
-			
-			// Draw the object on the render context
-			this.draw(renderContext);
+         renderContext.pushTransform();
 
-			renderContext.popTransform();
-      },
-		
-		/**
-		 * Handle a "keydown" event from the <tt>KeyboardInputComponent</tt>.
-		 * @param charCode {Number} Unused
-		 * @param keyCode {Number} The key which was pressed down.
-		 */
-		onKeyDown: function(charCode, keyCode) {
-	      switch (charCode) {
-	         case EventEngine.KEYCODE_LEFT_ARROW:
-	            this.moveVec.setX(-4);
-	            break;
-	         case EventEngine.KEYCODE_RIGHT_ARROW:
-	            this.moveVec.setX(4);
-	            break;
-	         case EventEngine.KEYCODE_UP_ARROW:
-	            this.moveVec.setY(-4);
-	            break;
-	         case EventEngine.KEYCODE_DOWN_ARROW:
-	            this.moveVec.setY(4);
-	            break;
-	      }
-			return false;
-		},
-		
-		/**
-		 * Handle a "keyup" event from the <tt>KeyboardInputComponent</tt>.
-		 * @param charCode {Number} Unused
-		 * @param keyCode {Number} The key which was released
-		 */
-		onKeyUp: function(charCode, keyCode) {
-	      switch (charCode) {
-	         case EventEngine.KEYCODE_LEFT_ARROW:
-	         case EventEngine.KEYCODE_RIGHT_ARROW:
-	            this.moveVec.setX(0);
-	            break;
-	         case EventEngine.KEYCODE_UP_ARROW:
-	         case EventEngine.KEYCODE_DOWN_ARROW:
-	            this.moveVec.setY(0);
-	            break;
-	      }
-			return false;
-		},
+         // The the "update" method of the super class
+         this.base(renderContext, time);
 
-      /**
-       * Get the position of the object from the transform component.
-       * @return {Point2D}
-       */
-      getPosition: function() {
-         return this.getComponent("move").getPosition();
+         // Move the object, according to the keyboard
+         this.move();
+
+         // Draw the object on the render context
+         this.draw(renderContext);
+
+         renderContext.popTransform();
       },
 
       /**
-       * Set the position of the object through transform component
-       * @param point {Point2D} The position to draw the text in the playfield
+       * Handle a "keydown" event from <tt>R.components.input.Keyboard</tt>.
+       * @param charCode {Number} Unused
+       * @param keyCode {Number} The key which was pressed down.
        */
-      setPosition: function(point) {
-         this.base(point);
-         this.getComponent("move").setPosition(point);
+      onKeyDown: function(charCode, keyCode) {
+         switch (charCode) {
+            case R.engine.Events.KEYCODE_LEFT_ARROW:
+               this.moveVec.setX(-4);
+               break;
+            case R.engine.Events.KEYCODE_RIGHT_ARROW:
+               this.moveVec.setX(4);
+               break;
+            case R.engine.Events.KEYCODE_UP_ARROW:
+               this.moveVec.setY(-4);
+               break;
+            case R.engine.Events.KEYCODE_DOWN_ARROW:
+               this.moveVec.setY(4);
+               break;
+         }
+         return false;
       },
 
-		/**
-		 * Calculate and perform a move for our object.  We'll use
-		 * the field dimensions from our playfield to determine when to
-		 * "bounce".
-		 */
-		move: function() {
-			var pos = this.getPosition();
+      /**
+       * Handle a "keyup" event from <tt>R.components.input.Keyboard</tt>.
+       * @param charCode {Number} Unused
+       * @param keyCode {Number} The key which was released
+       */
+      onKeyUp: function(charCode, keyCode) {
+         switch (charCode) {
+            case R.engine.Events.KEYCODE_LEFT_ARROW:
+            case R.engine.Events.KEYCODE_RIGHT_ARROW:
+               this.moveVec.setX(0);
+               break;
+            case R.engine.Events.KEYCODE_UP_ARROW:
+            case R.engine.Events.KEYCODE_DOWN_ARROW:
+               this.moveVec.setY(0);
+               break;
+         }
+         return false;
+      },
 
-			// Determine if we hit a "wall" of our playfield
-			var fieldBox = Tutorial3.getFieldBox().get();
-			if ((pos.x + this.width > fieldBox.r) || (pos.x < 0)) {
-				// Stop X movement and back off
-				this.moveVec.setX(0);
-				if (pos.x + this.width > fieldBox.r) {
-					pos.setX(fieldBox.r - this.width - 1);
-				}
-				if (pos.x < 0) {
-					pos.setX(1);
-				}
-			}	
-			if ((pos.y + this.height > fieldBox.b) || (pos.y < 0)) {
-				// Stop Y movement and back off
-				this.moveVec.setY(0);
-				if (pos.y + this.height > fieldBox.b) {
-					pos.setY(fieldBox.b - this.height - 1);
-				}
-				if (pos.y < 0) {
-					pos.setY(1);
-				}
-			}
+      /**
+       * Calculate and perform a move for our object.  We'll use
+       * the field dimensions from our playfield to determine when to
+       * "bounce".
+       */
+      move: function() {
+         var pos = this.getPosition();
 
-			pos.add(this.moveVec);
-			this.setPosition(pos);
-		},
+         // Determine if we hit a "wall" of our playfield
+         var playfield = Tutorial3.getFieldRect();
 
-		/**
-		 * Draw our game object onto the specified render context.
-		 * @param renderContext {RenderContext} The context to draw onto
-		 */
-		draw: function(renderContext) {
-			// Generate a rectangle to represent our object
-			var pos = this.getPosition();
-			
-			// Set the color to draw with
-			renderContext.setFillStyle(this.color);
+         if ((pos.x + this.width > playfield.r) || (pos.x < 0)) {
+            // Stop X movement and back off
+            this.moveVec.setX(0);
+            if (pos.x + this.width > playfield.r) {
+               pos.setX(playfield.r - this.width - 1);
+            }
+            if (pos.x < 0) {
+               pos.setX(1);
+            }
+         }
+         if ((pos.y + this.height > playfield.b) || (pos.y < 0)) {
+            // Stop Y movement and back off
+            this.moveVec.setY(0);
+            if (pos.y + this.height > playfield.b) {
+               pos.setY(playfield.b - this.height - 1);
+            }
+            if (pos.y < 0) {
+               pos.setY(1);
+            }
+         }
+
+         pos.add(this.moveVec);
+         this.setPosition(pos);
+      },
+
+      /**
+       * Draw our game object onto the specified render context.
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to draw onto
+       */
+      draw: function(renderContext) {
+         // Generate a rectangle to represent our object
+         var pos = this.getPosition();
+
+         // Set the color to draw with
+         renderContext.setFillStyle("#ffff00");
          renderContext.drawFilledRectangle(this.shape);
-		}
+      }
 
    }, { // Static
 
@@ -176,7 +163,4 @@ R.Engine.initObject("GameObject", "Object2D", function() {
          return "GameObject";
       }
    });
-
-return GameObject;
-
-});
+};

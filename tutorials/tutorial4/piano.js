@@ -1,41 +1,44 @@
-// Load the components and engine objects
-R.Engine.requires("/components/component.keyboardinput.js");
-R.Engine.requires("/components/component.transform2d.js");
-R.Engine.requires("/components/component.image.js");
-R.Engine.requires("/engine.object2d.js");
+// Load all required engine components
+R.Engine.define({
+	"class": "PianoKeys",
+	"requires": [
+		"R.engine.Object2D",
+      "R.math.Math2D",
+      "R.engine.Events",
 
-R.Engine.initObject("PianoKeys", "Object2D", function() {
+      "R.components.render.Image",
+      "R.components.input.Keyboard"
+	]
+});
 
-   var PianoKeys = Object2D.extend({
+var PianoKeys = function() {
+   return R.engine.Object2D.extend({
 
-      sounds: [],
-      dots: [],
+      sounds: null,
+      dots: null,
 
       constructor: function() {
          this.base("PianoKeys");
 
          // Add the component which handles keyboard input
-         this.add(KeyboardInputComponent.create("input"));
-         this.add(Transform2DComponent.create("move"));
-         this.add(ImageComponent.create("draw", Tutorial4.imageLoader.getImage("keys")));
+         this.add(R.components.input.Keyboard.create("input"));
+         this.add(R.components.render.Image.create("draw", Tutorial4.imageLoader.getImage("keys")));
 
          // Position the object
-         this.getComponent("move").setPosition(Point2D.create(20, 25));
-         
-         // Get the sounds into the array
-         this.sounds.push(Tutorial4.soundLoader.get("c1"));
-         this.sounds.push(Tutorial4.soundLoader.get("d1"));
-         this.sounds.push(Tutorial4.soundLoader.get("e1"));
-         this.sounds.push(Tutorial4.soundLoader.get("f1"));
-         this.sounds.push(Tutorial4.soundLoader.get("g1"));
-         this.sounds.push(Tutorial4.soundLoader.get("a1"));
-         this.sounds.push(Tutorial4.soundLoader.get("b1"));
-         this.sounds.push(Tutorial4.soundLoader.get("c2"));
-         
-         // Initialize the indicators
-         this.dots = [false,false,false,false,false,false,false];
+         this.setPosition(Point2D.create(20, 25));
+
+         // Get the sounds into an array
+         var self = this;
+         this.sounds = [];
+         $.each(["c1","d1","e1","f1","g1","a1","b1","c2"], function() {
+            self.sounds.push(Tutorial4.soundLoader.get(this));
+         });
+
+         // Initialize the "dot" indicators array
+         this.dots = [];
+         R.engine.Support.fillArray(this.dots, 8, false);
       },
-      
+
       /**
        * Update the object within the rendering context.  This calls the transform
        * components to position the object on the playfield.
@@ -45,18 +48,18 @@ R.Engine.initObject("PianoKeys", "Object2D", function() {
        */
       update: function(renderContext, time) {
          renderContext.pushTransform();
-         
+
          // The the "update" method of the super class
          this.base(renderContext, time);
-         
+
          // Draw a dot on the key being pressed
          this.draw(renderContext);
 
          renderContext.popTransform();
       },
-      
+
       /**
-       * Handle a "keypress" event from the <tt>KeyboardInputComponent</tt>.
+       * Handle a "keydown" event from <tt>R.components.input.Keyboard</tt>.
        * @param keyCode {Number} The key which was pressed.
        */
       onKeyDown: function(charCode) {
@@ -67,9 +70,9 @@ R.Engine.initObject("PianoKeys", "Object2D", function() {
          }
          return false;
       },
-      
+
       /**
-       * Handle a "keypress" event from the <tt>KeyboardInputComponent</tt>.
+       * Handle a "keyup" event from <tt>R.components.input.Keyboard</tt>.
        * @param keyCode {Number} The key which was pressed.
        */
       onKeyUp: function(charCode) {
@@ -79,17 +82,15 @@ R.Engine.initObject("PianoKeys", "Object2D", function() {
          }
          return false;
       },
-      
+
       /**
        * Draw the dots onto the keyboard when a key is pressed.
-       * @param renderContext {RenderContext} The context to draw onto
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to draw onto
        */
       draw: function(renderContext) {
-         // At some point, we'll draw something where the key being
-         // pressed is located to give some feedback...
          for (var key = 0; key < 8; key++) {
             var keyColor = this.dots[key] ? "#ff0000" : "#ffffff";
-            var dotShape = Rectangle2D.create(15 + (26 * key), 108, 10, 10); 
+            var dotShape = Rectangle2D.create(15 + (26 * key), 108, 10, 10);
             renderContext.setFillStyle(keyColor);
             renderContext.drawFilledRectangle(dotShape);
          }
@@ -105,7 +106,4 @@ R.Engine.initObject("PianoKeys", "Object2D", function() {
          return "PianoKeys";
       }
    });
-
-return PianoKeys;
-
-});
+};

@@ -7,8 +7,8 @@
  * http://www.renderengine.com for more information.
  *
  * author: Brett Fattori (brettf@renderengine.com)
- * version: v2.0.0.8a
- * date: 2/19/2011
+ * version: v2.0.0
+ * date: 4/18/2011
  *
  * Copyright (c) 2011 Brett Fattori
  *
@@ -2379,7 +2379,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
  * @static
  */
 R.Engine = Base.extend(/** @scope R.Engine.prototype */{
-   version: "v2.0.0.8a",
+   version: "v2.0.0",
    HOME_URL: "http://www.renderengine.com",
    REF_NAME: "The Render Engine",
 
@@ -2790,10 +2790,19 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
       // The basics needed by the engine to get started
 		R.engine.Linker._doLoad("R.engine.Game");
 		R.engine.Linker._doLoad("R.engine.PooledObject");
+      R.engine.Linker._doLoad("R.lang.Iterator");
 		R.engine.Linker._doLoad("R.rendercontexts.AbstractRenderContext");
 		R.engine.Linker._doLoad("R.rendercontexts.RenderContext2D");
 		R.engine.Linker._doLoad("R.rendercontexts.HTMLElementContext");
 		R.engine.Linker._doLoad("R.rendercontexts.DocumentContext");
+
+      // Load the timers so that we don't require developers to do it
+      R.engine.Linker._doLoad("R.lang.AbstractTimer");
+      R.engine.Linker._doLoad("R.lang.IntervalTimer");
+      R.engine.Linker._doLoad("R.lang.MultiTimeout");
+      R.engine.Linker._doLoad("R.lang.OneShotTimeout");
+      R.engine.Linker._doLoad("R.lang.OneShotTrigger");
+      R.engine.Linker._doLoad("R.lang.Timeout");
    },
 
    /**
