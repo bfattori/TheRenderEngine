@@ -313,42 +313,13 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
    /**
     * Returns specified object as a JavaScript Object Notation (JSON) string.
     *
-    * Code to handle "undefined" type was delibrately not implemented, being that it is not part of JSON.
-    * "undefined" type is casted to "null".
-    *
     * @param object {Object} Must not be undefined or contain undefined types and variables.
     * @return String
     * @memberOf R.engine.Support
+    * @deprecated Use <tt>JSON.stringify()</tt>
     */
-   toJSON: function(o)
-   {
-      if (typeof window.JSON !== "undefined") {
-         return window.JSON.stringify(o);
-      } else {
-         return null;
-      }
-   },
-
-   /**
-    * Cleans up incoming source by stripping single-line comments,
-    * multi-line comments, blank lines, new lines, and trims lines.
-    * In other words, this is a simplification of minification.
-    * 
-    * /(([\"'])(\\\2|.*:\/\/|[^\/\n\r])*\2)|(//.*$)/gm
-    * @param inString {String} The source to clean
-    * @memberOf R.engine.Support
-    */
-   cleanSource: function(inString, keepNewLines) {
-      var s = inString.replace(/((["'])[^;\n\r]*\2)|(\/\/.*$)/gm, "$1")  // Remove single line comments
-                     .replace(/\/\*(\n|.)*?\*\//gm, "")           // Remove multi line comments
-                     .replace(/^[ \t]*(.*?)[ \t]*$/gm, "$1")      // Trim lines
-                     .replace(/\s*\n$/gm, "");                    // Remove blank lines
-     
-      if (!keepNewLines) {
-         s = s.replace(/(\n|\r)/gm, "");                   // Remove new lines
-      }
-      
-      return s;
+   toJSON: function(o) {
+      return window.JSON.stringify(o);
    },
 
    /**
@@ -358,47 +329,13 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @return Object
     * @see http://www.json.org
     * @memberOf R.engine.Support
+    * @deprecated Use <tt>JSON.parse()</tt> instead
     */
    parseJSON: function(jsonString)
    {
-      jsonString = R.engine.Support.cleanSource(jsonString);
-      if (typeof window.JSON !== "undefined") {
-         try {
-            return window.JSON.parse(jsonString, function (key, value) {
-                      var a;
-                      if (typeof value === 'string') {
-                          a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
-                          if (a) {
-                              return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4], +a[5], +a[6]));
-                          }
-                      }
-                      return value;
-                  });
-         } catch (ex) {
-            R.debug.Console.warn("Cannot parse JSON: " + ex.message);
-            return null;
-         }
-      } else {
-         return R.engine.Support.evalJSON(jsonString);
-      }
+      return JSON.parse(jsonString);
    },
    
-   /**
-    * Return a string, enclosed in quotes.
-    *
-    * @param text {String} The string to quote
-    * @return {String} The string in quotes
-    * @memberOf R.engine.Support
-    */
-   quoteString: function(text)
-   {
-      if (typeof window.JSON !== "undefined") {
-         return window.JSON.quote(text);
-      } else {
-         return null;
-      }
-   },
-
 	/**
 	 * Determine the OS platform from the user agent string, if possible
 	 * @private
