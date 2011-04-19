@@ -216,8 +216,8 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
     */
    randomPoint: function(rect) {
       var r = rect.get();
-      return R.math.Point2D.create(Math.floor(r.x + Math2.random() * r.w),
-                    					  Math.floor(r.y + Math2.random() * r.h));
+      return R.math.Point2D.create(Math.floor(r.x + R.lang.Math2.random() * r.w),
+                    					  Math.floor(r.y + R.lang.Math2.random() * r.h));
    },
 
 	/**
