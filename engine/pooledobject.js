@@ -233,6 +233,14 @@ R.engine.PooledObject = function() {
    isPooledObject: true,
 
    /**
+    * The maximum number of objects, per class, that can be pooled.  This value can
+    * be tweaked, per class, which extends from <tt>R.engine.PooledObject</tt>.
+    * <i>(default: 50)</i>
+    * @type {Number}
+    */
+   MAX_POOL_COUNT: 50,
+
+   /**
     * Number of new objects put into the pool
     * @type {Number}
     */
@@ -307,19 +315,22 @@ R.engine.PooledObject = function() {
          R.engine.PooledObject.objectPool[obj.constructor.getClassName()] = [];
       }
 
-      // Push this object into the pool
-      R.engine.PooledObject.poolSize++;
-      R.engine.PooledObject.objectPool[obj.constructor.getClassName()].push(obj);
+      // We'll only add elements to the pool if the pool for objects is
+      // smaller than the defined limit per class (MAX_POOL_COUNT)
+      if (R.engine.PooledObject.objectPool[obj.constructor.getClassName()].length < obj.constructor.MAX_POOL_COUNT) {
+         // Push this object into the pool
+         R.engine.PooledObject.poolSize++;
+         R.engine.PooledObject.objectPool[obj.constructor.getClassName()].push(obj);
 
-      /* pragma:DEBUG_START */
-      if (R.engine.PooledObject.classPool[obj.constructor.getClassName()][1] != 0) {
-         R.engine.PooledObject.classPool[obj.constructor.getClassName()][1]--;
+         /* pragma:DEBUG_START */
+         if (R.engine.PooledObject.classPool[obj.constructor.getClassName()][1] != 0) {
+            R.engine.PooledObject.classPool[obj.constructor.getClassName()][1]--;
+         }
+         R.engine.PooledObject.classPool[obj.constructor.getClassName()][2]++;
+         /* pragma:DEBUG_END */
+
+         R.debug.Metrics.add("pooledObjects", R.engine.PooledObject.poolSize, false, "#");
       }
-      R.engine.PooledObject.classPool[obj.constructor.getClassName()][2]++;
-      /* pragma:DEBUG_END */
-         
-
-      R.debug.Metrics.add("pooledObjects", R.engine.PooledObject.poolSize, false, "#");
    },
 
    /**
