@@ -84,11 +84,19 @@ R.resources.loaders.ObjectLoader = function(){
 			}
 			else {
 				// The object has been loaded and is ready for use
-				this.base(name, obj);
-				this.setReady(name, true);
+            this.afterLoad(name, this.base(name, obj, true));
 			}
 		},
-		
+
+      /**
+       * [ABSTRACT] Allow a subclass to handle the data, potentially loading additional
+       * resources and preparing for use.
+       * @param name {String} The name of the object
+       * @param obj {Object} The object which was loaded
+       */
+      afterLoad: function(name, obj) {
+      },
+
 		/**
 		 * The name of the resource this loader will get.
 		 * @returns {String} The string "object"

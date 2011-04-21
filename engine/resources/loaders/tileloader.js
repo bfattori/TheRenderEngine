@@ -43,15 +43,15 @@ R.Engine.define({
 /**
  * @class Loads tile resources and makes them available to the system.  Tiles are
  *        defined by an external JSON resource file.  A tile definition file 
- *        is a JSON file which can support single-line comments.  The format 
- *        describes the image which contains the bitmap, the size of the bitmap,
- *        the version of the file, and the tiles.  Tiles can be either single
+ *        is a JSON file which is nearly identical to sprite sheets.  The format
+ *        describes the image which contains the sprites, the dimensions of the image,
+ *        the version of the file, and the tile definitions.  Tiles can be either single
  *        frames or animations.  Animations are expected to be sequentially organized
  *        in the bitmap from left to right.  Each frame of an animation must be the exact
  *        same dimensions.
  *        <p/>
  *        A frame is simply defined by the upper left corner of the tile and the
- *        width and height of the frame.  For an animation, the first four arguments are
+ *        width and height of the frame.  For an animation, the first four entries are
  *        the same as a frame, followed by the frame count, the millisecond delay between
  *        frames, and the type of animation (either "loop" or "toggle").  A looped animation
  *        will play all frames, indicated by the frame count, and then start again from the
@@ -60,9 +60,9 @@ R.Engine.define({
  *        first and last frame will not be repeated in a toggled animation.  Thus, if
  *        the frames are A, B, C, then the toggle will play as A, B, C, B, A, B...
  *        <p/>
- *        The sparsity value is used to reduce each tile's solidity map so that the map
- *        will consist of averaged pixels, resulting in smaller solidity maps.  The 
- *        transparencyThreshold determines above what alpha value a pixel is no longer
+ *        The sparsity value is used to produce each tile's solidity map so that the map
+ *        will consist of averaged pixels, resulting in a simplified map for collisions.
+ *        The transparencyThreshold determines above what alpha value a pixel is no longer
  *        considered transparent, but solid.
  * <pre>
  * {

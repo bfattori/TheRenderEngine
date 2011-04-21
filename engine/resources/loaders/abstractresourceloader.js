@@ -95,6 +95,7 @@ R.resources.loaders.AbstractResourceLoader = function() {
       this.cache[name] = obj;
       this.length++;
       R.debug.Console.log("Loading " + this.getResourceType() + ": " + name);
+      return obj.data;
    },
 
    /**
