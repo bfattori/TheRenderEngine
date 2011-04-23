@@ -79,7 +79,6 @@ R.Engine.define({
 var LevelEditor = function() {
 	return Base.extend({
 
-   nextZ: 0,
    gridSize: 16,
    currentSelectedObject: null,
 	LEVEL_VERSION_NUMBER: 1,
@@ -214,7 +213,8 @@ var LevelEditor = function() {
 	 */
 	getWritablePropertiesObject: function(obj) {
 		var bean = obj.getProperties(),
-			 propObj = {};
+			 propObj = {},
+          val;
 		
 		// Defaults for object properties which can be skipped if no different
 		var defs = {
@@ -228,7 +228,7 @@ var LevelEditor = function() {
 		
 		for (var p in bean) {
 			if (bean[p][1]) {
-				var val = bean[p][0]();
+				val = bean[p][0]();
 				if (val != defs[p]) {
 					propObj[p] = bean[p][0]();
 				}
@@ -244,7 +244,7 @@ var LevelEditor = function() {
 			};
 			
 			for (var c in obj.getConfig()) {
-				var val = obj.getConfig()[c] == "var" ? obj.getVariable(c) : (obj.getActorEvent(c) && obj.getActorEvent(c).script ? obj.getActorEvent(c).script : "")
+				val = obj.getConfig()[c] == "var" ? obj.getVariable(c) : (obj.getActorEvent(c) && obj.getActorEvent(c).script ? obj.getActorEvent(c).script : "")
 				if (val) {
 					aCfg[c] = val;
 				}
@@ -1023,7 +1023,7 @@ var LevelEditor = function() {
 
       // Check to see if this object falls on top of an object
       var pt = R.math.Point2D.create(x,y);
-      var itr = R.lang.Iterator.create(ctx);
+      var itr = ctx.iterator();
       itr.reverse();
       while (itr.hasNext()) {
          var obj = itr.next();
@@ -1034,6 +1034,7 @@ var LevelEditor = function() {
             break;
          }
       }
+      itr.destroy();
       pt.destroy();
    },
 
@@ -1074,7 +1075,7 @@ var LevelEditor = function() {
             LevelEditor.currentSelectedObject = null;
          }
       } else {
-			objId = obj.getId()
+			objId = obj.getId();
          this.getGame().getRenderContext().remove(obj);
          obj.destroy();
       }
@@ -1632,4 +1633,4 @@ var LevelEditor = function() {
 	}
 
 });
-}
+};

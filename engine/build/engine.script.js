@@ -560,7 +560,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             }
 
             // Finally try to load a browser and platform specific object
-            file += "_" + R.engine.Support.sysInfo().platform;
+            file += "_" + R.engine.Support.sysInfo().platform.toLowerCase();
             R.engine.Script.loadJSON(file + ".config", function(bData, status) {
                if (status == 200 || status == 304) {
                   R.debug.Console.debug("Platform specific game options loaded from '" + file + ".config'");

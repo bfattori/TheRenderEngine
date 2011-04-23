@@ -100,6 +100,7 @@ var SpriteEditor = function() {
       pStore: null,
       undoHistory: [],
       redoHistory: [],
+      clipboard: null,
 
       /**
        * Called to set up the editor, download any resources, and initialize
@@ -965,6 +966,20 @@ var SpriteEditor = function() {
             SpriteEditor.undoHistory.push(pixels);
             SpriteEditor.undoHistory.push(SpriteEditor.currentLayer.getPixels());
             SpriteEditor.currentLayer.setPixels(pixels);
+         }
+      },
+
+      actionCopy: function() {
+         SpriteEditor.clipboard = {
+            pix: SpriteEditor.currentLayer.getPixels(),
+            size: SpriteEditor.currentLayer.pixSize
+         };
+         $("div.menu div.paste").removeClass("disabled");
+      },
+
+      actionPaste: function() {
+         if (SpriteEditor.clipboard != null && SpriteEditor.pixSize == SpriteEditor.clipboard.size) {
+            SpriteEditor.currentLayer.setPixels(SpriteEditor.clipboard.pix);
          }
       },
 

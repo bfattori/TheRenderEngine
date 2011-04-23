@@ -31,7 +31,7 @@
  */
 
 R.Engine.define({
-	"class": "Toy",
+	"class": "Player",
 	"requires": [
       "R.engine.Object2D",
 		"R.components.Collider",

@@ -2,7 +2,7 @@
  * The Render Engine
  * Tile
  *
- * @fileoverview A class for working with sprites.
+ * @fileoverview A single tile, similar to a sprite but with a solidity map for collision.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  * @author: $Author: bfattori $
@@ -52,10 +52,10 @@ R.Engine.define({
  * @param tileResource {Object} The tile resource loaded by the {@link R.resources.loaders.TileLoader}
  * @description A tile is a sprite with the addition of a solidity map, computed from the
  * 	pixels of the sprite.
- * @extends R.engine.PooledObject
+ * @extends R.resources.types.Sprite
  */
 R.resources.types.Tile = function() {
-	return R.engine.PooledObject.extend(/** @scope R.resources.types.Tile.prototype */{
+	return R.resources.types.Sprite.extend(/** @scope R.resources.types.Tile.prototype */{
 
       solidityMap: null,
       status: null,

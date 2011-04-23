@@ -36,9 +36,9 @@ R.Engine.define({
 	"class": "R.objects.SpriteActor",
 	"requires": [
 		"R.engine.Object2D",
-		"R.components.Sprite",
-		"R.components.KeyboardInput",
-		"R.components.ConvexCollider",
+		"R.components.render.Sprite",
+		"R.components.input.Keyboard",
+		"R.components.collision.Convex",
 		"R.collision.OBBHull"
 	]
 });
@@ -77,7 +77,7 @@ R.objects.SpriteActor = function(){
 			this.collidable = false;
 			
 			// Add sprite component to draw the player
-			this.add(R.components.Sprite.create("draw"));
+			this.add(R.components.render.Sprite.create("draw"));
 		},
 		
 		/**

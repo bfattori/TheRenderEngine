@@ -2,7 +2,6 @@
  Base, version 1.0.2
  Copyright 2006, Dean Edwards
  License: http://creativecommons.org/licenses/LGPL/2.1/
- Modified by Brett Fattori for The Render Engine (2008-2011)
  */
 
 var Base = function() {
@@ -27,20 +26,17 @@ Base.prototype = {
          if ((ancestor instanceof Function) && (value instanceof Function) &&
                ancestor.valueOf() != value.valueOf() && /\bbase\b/.test(value)) {
             var method = value;
+            // var _prototype = this.constructor.prototype;
+            // var fromPrototype = !Base._prototyping && _prototype[source] == ancestor;
             value = function() {
                var previous = this.base;
                var previousClass = this;
+               // this.base = fromPrototype ? _prototype[source] : ancestor;
                this.base = ancestor;
                this.baseClass = ancestorClass;
-               try{
-                  // Fix insidious bug from http://dean.edwards.name/weblog/2006/05/prototype-and-base/
-                  var returnValue = method.apply(this, arguments);
-               }
-               catch(ex) { throw ex; }
-               finally {
-                  this.base = previous;
-                  this.baseClass = previousClass;
-               }
+               var returnValue = method.apply(this, arguments);
+               this.base = previous;
+               this.baseClass = previousClass;
                return returnValue;
             };
             // point to the underlying method
@@ -88,61 +84,41 @@ Base.extend = function(_instance, _static) {
    var constructor = _prototype.constructor;
    _prototype.constructor = this;
    delete Base._prototyping;
-
    // create the wrapper for the constructor function
    var klass = function() {
       if (!Base._prototyping) constructor.apply(this, arguments);
-      this.className = klass.getClassName ? klass.getClassName() : "Base";
       this.constructor = klass;
    };
    klass.prototype = _prototype;
-
    // build the class interface
    klass.extend = this.extend;
-   //klass.implement = this.implement;
+   klass.implement = this.implement;
    klass.create = this.create;
    klass.getClassName = this.getClassName;
-
    klass.toString = function() {
       return String(constructor);
    };
 
-   /* Use "instanceof" - thanks
    klass.isInstance = function(obj) {
       return obj instanceof klass;
    };
-   */
    extend.call(klass, _static);
-
-   // single instance == _prototype
+   // single instance
    var object = constructor ? klass : _prototype;
-
    // class initialisation
    if (object.init instanceof Function) object.init();
 
-   /*
-   if (!klass.__ancestors) {
-      klass.__ancestors = {};
-      klass.__ancestors[klass.getClassName()] = true;
-      var chain = function(k) {
-         if (k.prototype && k.prototype.constructor && k.prototype.constructor.getClassName) {
-            klass.__ancestors[k.prototype.constructor.getClassName()] = true;
-            chain(k.prototype.constructor);
-         }
-      };
-      chain(klass);
+   if (klass.getClassName) {
+      // remember the class name
+      object.className = klass.getClassName();
    }
-   */
 
    return object;
 };
 
-/* Don't need or want multiple-inheritance
 Base.implement = function(_interface) {
-   if (_interface instanceof Function) _interface = _interface.prototype;
-   this.prototype.extend(_interface);
+   // Does nothing
 };
-*/
 
 Base.create = function() {
 };
@@ -151,7 +127,5 @@ Base.getClassName = function() {
    return "Base";
 };
 
-/* No longer want people to use this (use instance of instead)
 Base.isInstance = function() {
 };
-*/

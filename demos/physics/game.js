@@ -163,7 +163,7 @@ var PhysicsDemo =  function() {
       
       // Add the player object
       var player = Player.create();
-      this.getRenderContext().add(player);
+      this.renderContext.add(player);
    },
    
    /**
@@ -220,7 +220,7 @@ var PhysicsDemo =  function() {
       var v = R.math.Vector2D.create(1 + (R.lang.Math2.random() * 80), 2);
       toyObject.applyForce(v, p);
 
-      this.getRenderContext().add(toyObject);
+      this.renderContext.add(toyObject);
       
       // Clean up temporary objects
       v.destroy();

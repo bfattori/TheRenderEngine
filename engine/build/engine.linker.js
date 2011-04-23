@@ -360,6 +360,11 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
 	 * @private
 	 */
 	_initClass: function(className) {
+      if (R.engine.Linker.resolvedClasses[className]) {
+         // This is all set, no need to run through this again
+         return;
+      }
+
 		// Get the class object
 		var pkg = R.global, clazz = className.split(".");
 		while (clazz.length > 1) {

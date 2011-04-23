@@ -649,4 +649,4 @@ R.rendercontexts.CanvasContext = function() {
 		
 });
 
-}
+};

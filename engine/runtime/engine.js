@@ -2223,6 +2223,11 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
 	 * @private
 	 */
 	_initClass: function(className) {
+      if (R.engine.Linker.resolvedClasses[className]) {
+         // This is all set, no need to run through this again
+         return;
+      }
+
 		// Get the class object
 		var pkg = R.global, clazz = className.split(".");
 		while (clazz.length > 1) {
@@ -2787,7 +2792,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
       var mode = "[";
       mode += (R.Engine.debugMode ? "DEBUG" : "");
       mode += (R.Engine.localMode ? (mode.length > 0 ? " LOCAL" : "LOCAL") : "");
-      mode += "]"
+      mode += "]";
       R.debug.Console.warn(">>> Engine started. " + (mode != "[]" ? mode : ""));
       R.Engine.running = true;
       R.Engine.shuttingDown = false;
@@ -3667,7 +3672,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             }
 
             // Finally try to load a browser and platform specific object
-            file += "_" + R.engine.Support.sysInfo().platform;
+            file += "_" + R.engine.Support.sysInfo().platform.toLowerCase();
             R.engine.Script.loadJSON(file + ".config", function(bData, status) {
                if (status == 200 || status == 304) {
                   R.debug.Console.debug("Platform specific game options loaded from '" + file + ".config'");

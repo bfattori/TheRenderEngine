@@ -50,8 +50,7 @@ R.Engine.define({
  * @constructor
  * @description Create an instance of this object, assigning a global identifies to it.
  */
-R.engine.PooledObject = function() {
-	return Base.extend(/** @scope R.engine.PooledObject.prototype */{
+R.engine.PooledObject =  Base.extend(/** @scope R.engine.PooledObject.prototype */{
 
    // The Id assigned by the engine
    id: -1,
@@ -357,4 +356,3 @@ R.engine.PooledObject = function() {
 	DATA_MODEL: "$$OBJECT_DATA_MODEL"
 
 });
-}
