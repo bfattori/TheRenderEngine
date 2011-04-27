@@ -173,6 +173,21 @@ R.make = function(clazz, props) {
 	return c;
 };
 
+/**
+ * Method to request an animation frame for timing (alternate loop)
+ * framerate fixed at 60fps
+ */
+R.global.nativeFrame = (function(){
+   return  R.global.requestAnimationFrame       ||
+           R.global.webkitRequestAnimationFrame ||
+           R.global.mozRequestAnimationFrame    ||
+           R.global.oRequestAnimationFrame      ||
+           R.global.msRequestAnimationFrame     ||
+           function(/* function */ callback, /* DOMElement */ element){
+             R.global.setTimeout(callback, 1000 / 60);
+           };
+ })();
+
 // Define the engine's default namespaces
 R.namespace("debug");
 R.namespace("lang");

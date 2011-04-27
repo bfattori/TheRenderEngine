@@ -512,25 +512,32 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 	 * @memberOf R.engine.Script
 	 * @private
 	 */
-	loadEngineOptions: function() {
-		// Load the specific config for the browser type
-		R.engine.Script.optionsLoaded = false;
+   loadEngineOptions: function() {
+      // Load the specific config for the browser type
+      R.engine.Script.optionsLoaded = false;
 	
-		// Load the options specific to the browser.  Whether they load, or not,
-		// the game will continue to load.
-		R.engine.Script.loadJSON(R.Engine.getEnginePath() + "/configs/" + R.engine.Support.sysInfo().browser + ".config", function(bData, status) {
-			if (status == 200 || status == 304) {
-				R.debug.Console.debug("Engine options loaded for: " + R.engine.Support.sysInfo().browser);
-				R.Engine.setOptions(bData);
-			} else {
-				// Log an error (most likely a 404)
-				R.debug.Console.log("Engine options for: " + R.engine.Support.sysInfo().browser + " responded with " + status);
-			}
-			
-			R.engine.Script.optionsLoaded = true;	
-		});
-		
-	},
+      // Load the options specific to the browser.  Whether they load, or not,
+      // the game will continue to load.
+      R.engine.Script.loadJSON(R.Engine.getEnginePath() + "/configs/" + R.engine.Support.sysInfo().browser + ".config", function(bData, status) {
+         if (status == 200 || status == 304) {
+            R.debug.Console.debug("Engine options loaded for: " + R.engine.Support.sysInfo().browser);
+            R.Engine.setOptions(bData);
+         } else {
+            // Log an error (most likely a 404)
+            R.debug.Console.log("Engine options for: " + R.engine.Support.sysInfo().browser + " responded with " + status);
+         }
+
+         // Allow a game to override engine options
+         R.engine.Script.loadJSON("engine.config", function(bData, status) {
+            if (status == 200 || status == 304) {
+               R.debug.Console.debug("Engine option overrides loaded for game.");
+               R.Engine.options = $.extend(R.Engine.options, bData);
+            }
+
+            R.engine.Script.optionsLoaded = true;
+         });
+      });
+   },
 
    /**
     * Load the the options object for the current game being loaded.

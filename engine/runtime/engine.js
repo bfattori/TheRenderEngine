@@ -173,6 +173,21 @@ R.make = function(clazz, props) {
 	return c;
 };
 
+/**
+ * Method to request an animation frame for timing (alternate loop)
+ * framerate fixed at 60fps
+ */
+R.global.nativeFrame = (function(){
+   return  R.global.requestAnimationFrame       ||
+           R.global.webkitRequestAnimationFrame ||
+           R.global.mozRequestAnimationFrame    ||
+           R.global.oRequestAnimationFrame      ||
+           R.global.msRequestAnimationFrame     ||
+           function(/* function */ callback, /* DOMElement */ element){
+             R.global.setTimeout(callback, 1000 / 60);
+           };
+ })();
+
 // Define the engine's default namespaces
 R.namespace("debug");
 R.namespace("lang");
@@ -3050,9 +3065,13 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 		}
 
 		// When the process is done, start all over again
-		R.Engine.globalTimer = setTimeout(function _engineTimer() { 
-			R.Engine.engineTimer(); 
-		}, nextFrame);
+      if (R.Engine.options.nativeAnimationFrame) {
+         R.global.nativeFrame( R.Engine.engineTimer /*, R.Engine.getDefaultContext().getSurface()*/ );
+      } else {
+         R.Engine.globalTimer = setTimeout(function _engineTimer() {
+            R.Engine.engineTimer();
+         }, nextFrame);
+      }
    },
 	
 	/**
@@ -3624,25 +3643,32 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 	 * @memberOf R.engine.Script
 	 * @private
 	 */
-	loadEngineOptions: function() {
-		// Load the specific config for the browser type
-		R.engine.Script.optionsLoaded = false;
+   loadEngineOptions: function() {
+      // Load the specific config for the browser type
+      R.engine.Script.optionsLoaded = false;
 	
-		// Load the options specific to the browser.  Whether they load, or not,
-		// the game will continue to load.
-		R.engine.Script.loadJSON(R.Engine.getEnginePath() + "/configs/" + R.engine.Support.sysInfo().browser + ".config", function(bData, status) {
-			if (status == 200 || status == 304) {
-				R.debug.Console.debug("Engine options loaded for: " + R.engine.Support.sysInfo().browser);
-				R.Engine.setOptions(bData);
-			} else {
-				// Log an error (most likely a 404)
-				R.debug.Console.log("Engine options for: " + R.engine.Support.sysInfo().browser + " responded with " + status);
-			}
-			
-			R.engine.Script.optionsLoaded = true;	
-		});
-		
-	},
+      // Load the options specific to the browser.  Whether they load, or not,
+      // the game will continue to load.
+      R.engine.Script.loadJSON(R.Engine.getEnginePath() + "/configs/" + R.engine.Support.sysInfo().browser + ".config", function(bData, status) {
+         if (status == 200 || status == 304) {
+            R.debug.Console.debug("Engine options loaded for: " + R.engine.Support.sysInfo().browser);
+            R.Engine.setOptions(bData);
+         } else {
+            // Log an error (most likely a 404)
+            R.debug.Console.log("Engine options for: " + R.engine.Support.sysInfo().browser + " responded with " + status);
+         }
+
+         // Allow a game to override engine options
+         R.engine.Script.loadJSON("engine.config", function(bData, status) {
+            if (status == 200 || status == 304) {
+               R.debug.Console.debug("Engine option overrides loaded for game.");
+               R.Engine.options = $.extend(R.Engine.options, bData);
+            }
+
+            R.engine.Script.optionsLoaded = true;
+         });
+      });
+   },
 
    /**
     * Load the the options object for the current game being loaded.
@@ -4154,10 +4180,11 @@ R.Engine.defaultOptions = {
    skipFrames: true,													// Skip missed frames
    billboards: true,													// Use billboards to speed up rendering
    textUseBillboards: true,										// Text will use billboards unless platform doesn't support
-   hardwareAccel: false,											// Hardware acceleration flag
+   hardwareAccel: false,											// Hardware acceleration supported flag
    pointAsArc: true,													// Draw points as arcs or rectangles
 	transientMathObject: false,									// Transient (non-pooled) MathObjects
-	useDirtyRectangles: false										// Enable canvas dirty rectangles redraws
+	useDirtyRectangles: false,										// Enable canvas dirty rectangles redraws
+   nativeAnimationFrame: false                           // Enable the use of "requestAnimationFrame" for faster redraws
 };
 
 

@@ -783,9 +783,13 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 		}
 
 		// When the process is done, start all over again
-		R.Engine.globalTimer = setTimeout(function _engineTimer() { 
-			R.Engine.engineTimer(); 
-		}, nextFrame);
+      if (R.Engine.options.nativeAnimationFrame) {
+         R.global.nativeFrame( R.Engine.engineTimer /*, R.Engine.getDefaultContext().getSurface()*/ );
+      } else {
+         R.Engine.globalTimer = setTimeout(function _engineTimer() {
+            R.Engine.engineTimer();
+         }, nextFrame);
+      }
    },
 	
 	/**

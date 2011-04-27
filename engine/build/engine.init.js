@@ -37,10 +37,11 @@ R.Engine.defaultOptions = {
    skipFrames: true,													// Skip missed frames
    billboards: true,													// Use billboards to speed up rendering
    textUseBillboards: true,										// Text will use billboards unless platform doesn't support
-   hardwareAccel: false,											// Hardware acceleration flag
+   hardwareAccel: false,											// Hardware acceleration supported flag
    pointAsArc: true,													// Draw points as arcs or rectangles
 	transientMathObject: false,									// Transient (non-pooled) MathObjects
-	useDirtyRectangles: false										// Enable canvas dirty rectangles redraws
+	useDirtyRectangles: false,										// Enable canvas dirty rectangles redraws
+   nativeAnimationFrame: false                           // Enable the use of "requestAnimationFrame" for faster redraws
 };
 
 
