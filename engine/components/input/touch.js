@@ -33,17 +33,17 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.components.input.Touch",
-	"requires": [
-		"R.components.Input",
-		"R.engine.Events",
-		"R.struct.Touch"
-	]
+   "class": "R.components.input.Touch",
+   "requires": [
+      "R.components.Input",
+      "R.engine.Events",
+      "R.struct.Touch"
+   ]
 });
 
 /**
  * @class A component which responds to touch events and notifies
- * its {@link R.engine.HostObject} by calling one of four methods.  The <tt>R.engine.HostObject</tt>
+ * its {@link R.engine.GameObject} by calling one of four methods.  The <tt>R.engine.GameObject</tt>
  * should implement any of the following methods to receive the corresponding event:
  * <ul>
  * <li><tt>onTouchStart()</tt> - A touch event started</li>
@@ -53,153 +53,161 @@ R.Engine.define({
  * </ul>
  * Each function should take up to two arguments.  The first argument is an array of
  * {@link R.struct.Touch} objects which represent each touch that occurred in the event.  Some
- * platforms support multi-touch, so each touch will be represented in the array.  The 
+ * platforms support multi-touch, so each touch will be represented in the array.  The
  * second argument is the actual event object itself.
  *
  * @param name {String} The unique name of the component.
- * @param [passThru] {Boolean} set to <tt>true</tt> to pass the event to the device 
+ * @param [passThru] {Boolean} set to <tt>true</tt> to pass the event to the device
  * @param [priority] {Number} The priority of the component among other input components.
  * @extends R.components.Input
  * @constructor
- * @description Create an instance of a touch input component. 
+ * @description Create an instance of a touch input component.
  */
 R.components.input.Touch = function() {
-	return R.components.Input.extend(/** @scope R.components.input.Touch.prototype */{
+   return R.components.Input.extend(/** @scope R.components.input.Touch.prototype */{
 
-	hasTouchMethods: null,
+      hasTouchMethods: null,
 
-   /**
-    * @private
-    */
-   constructor: function(name, passThru, priority) {
-		passThru = (typeof passThru == "number" ? false : passThru);
-		priority = (typeof passThru == "number" ? passThru : null);
-      this.base(name, priority);
+      /**
+       * @private
+       */
+      constructor: function(name, passThru, priority) {
+         passThru = (typeof passThru == "number" ? false : passThru);
+         priority = (typeof passThru == "number" ? passThru : null);
+         this.base(name, priority);
 
-      var ctx = R.Engine.getDefaultContext();
-      var self = this;
+         var ctx = R.Engine.getDefaultContext();
+         var self = this;
 
-      // Add the event handlers
-      ctx.addEvent(this, "touchstart", function(evt) {
-			if (!passThru) {
-	         evt.preventDefault();
-			}
-         return self._touchStartListener(evt);
-      });
-      ctx.addEvent(this, "touchend", function(evt) {
-			if (!passThru) {
-	         evt.preventDefault();
-			}
-         return self._touchEndListener(evt);
-      });
-      ctx.addEvent(this, "touchmove", function(evt) {
-			if (!passThru) {
-	         evt.preventDefault();
-			}
-         return self._touchMoveListener(evt);
-      });
-      ctx.addEvent(this, "touchcancel", function(evt) {
-			if (!passThru) {
-	         evt.preventDefault();
-			}
-         return self._touchCancelListener(evt);
-      });
-      
-      this.hasTouchMethods = [false, false, false, false];
-   },
+         // Add the event handlers
+         ctx.addEvent(this, "touchstart", function(evt) {
+            if (!passThru) {
+               evt.preventDefault();
+            }
+            return self._touchStartListener(evt);
+         });
+         ctx.addEvent(this, "touchend", function(evt) {
+            if (!passThru) {
+               evt.preventDefault();
+            }
+            return self._touchEndListener(evt);
+         });
+         ctx.addEvent(this, "touchmove", function(evt) {
+            if (!passThru) {
+               evt.preventDefault();
+            }
+            return self._touchMoveListener(evt);
+         });
+         ctx.addEvent(this, "touchcancel", function(evt) {
+            if (!passThru) {
+               evt.preventDefault();
+            }
+            return self._touchCancelListener(evt);
+         });
 
-   /**
-    * Destroy this instance and remove all references.
-    */
-   destroy: function() {
-      var ctx = R.Engine.getDefaultContext();
+         this.hasTouchMethods = [false, false, false, false];
+      },
 
-      // Clean up event handlers
-      ctx.removeEvent(this, "touchstart");
-      ctx.removeEvent(this, "touchend");
-      ctx.removeEvent(this, "touchmove");
-      ctx.removeEvent(this, "touchcancel");
-      this.base();
-   },
+      /**
+       * Destroy this instance and remove all references.
+       */
+      destroy: function() {
+         var ctx = R.Engine.getDefaultContext();
 
-	/**
-	 * Releases the component back into the object pool
-	 */
-	release: function() {
-		this.base();
-		this.hasTouchMethods = null;
-	},
+         // Clean up event handlers
+         ctx.removeEvent(this, "touchstart");
+         ctx.removeEvent(this, "touchend");
+         ctx.removeEvent(this, "touchmove");
+         ctx.removeEvent(this, "touchcancel");
+         this.base();
+      },
 
-	/**
-    * Establishes the link between this component and its host object.
-    * When you assign components to a host object, it will call this method
-    * so that each component can refer to its host object, the same way
-    * a host object can refer to a component with {@link R.engine.GameObject#getComponent}.
-    *
-    * @param hostObject {R.engine.GameObject} The object which hosts this component
-	 */
-	setHostObject: function(hostObj) {
-		this.base(hostObj);
-		this.hasTouchMethods = [hostObj.onTouchStart != undefined, 
-										hostObj.onTouchEnd != undefined, 
-										hostObj.onTouchMove != undefined,
-										hostObj.onTouchCancel != undefined];
-	},
+      /**
+       * Releases the component back into the object pool
+       */
+      release: function() {
+         this.base();
+         this.hasTouchMethods = null;
+      },
 
-   /**
-    * Process the touches and pass an array of touch objects to be handled by the
-    * host object.
-    * @private
-    */
-   processTouches: function(eventObj) {
-      var touches = [];
-		if (eventObj.touches) {
-	      for (var i = 0; i < eventObj.touches.length; i++) {
-	         touches.push(new R.struct.Touch(eventObj.touches[i]));
-	      }
-		}
-      return touches;
-   },
+      /**
+       * Deprecated in favor of {@link #setGameObject}
+       * @deprecated
+       */
+      setHostObject: function(hostObj) {
+         this.setGameObject(hostObj);
+      },
 
-   /** @private */
-   _touchStartListener: function(eventObj) {
-      if (this.hasTouchMethods[0]) {
-         return this.getHostObject().onTouchStart(this.processTouches(eventObj.originalEvent), eventObj);
+      /**
+       * Establishes the link between this component and its host object.
+       * When you assign components to a host object, it will call this method
+       * so that each component can refer to its host object, the same way
+       * a host object can refer to a component with {@link R.engine.GameObject#getComponent}.
+       *
+       * @param gameObject {R.engine.GameObject} The object which hosts this component
+       */
+      setGameObject: function(gameObject) {
+         this.base(gameObject);
+         this.hasTouchMethods = [gameObject.onTouchStart != undefined,
+            gameObject.onTouchEnd != undefined,
+            gameObject.onTouchMove != undefined,
+            gameObject.onTouchCancel != undefined];
+      },
+
+      /**
+       * Process the touches and pass an array of touch objects to be handled by the
+       * host object.
+       * @private
+       */
+      processTouches: function(eventObj) {
+         var touches = [];
+         if (eventObj.touches) {
+            for (var i = 0; i < eventObj.touches.length; i++) {
+               touches.push(new R.struct.Touch(eventObj.touches[i]));
+            }
+         }
+         return touches;
+      },
+
+      /** @private */
+      _touchStartListener: function(eventObj) {
+         if (this.hasTouchMethods[0]) {
+            return this.getGameObject().onTouchStart(this.processTouches(eventObj.originalEvent), eventObj);
+         }
+      },
+
+      /** @private */
+      _touchEndListener: function(eventObj) {
+         if (this.hasTouchMethods[1]) {
+            return this.getGameObject().onTouchEnd(this.processTouches(eventObj.originalEvent), eventObj);
+         }
+      },
+
+      /** @private */
+      _touchMoveListener: function(eventObj) {
+         if (this.hasTouchMethods[2]) {
+            return this.getGameObject().onTouchMove(this.processTouches(eventObj.originalEvent), eventObj);
+         }
+      },
+
+      /** @private */
+      _touchCancelListener: function(eventObj) {
+         if (this.hasTouchMethods[3]) {
+            return this.getGameObject().onTouchCancel(this.processTouches(eventObj.originalEvent), eventObj);
+         }
       }
-   },
 
-   /** @private */
-   _touchEndListener: function(eventObj) {
-      if (this.hasTouchMethods[1]) {
-         return this.getHostObject().onTouchEnd(this.processTouches(eventObj.originalEvent), eventObj);
-      }
-   },
+   }, /** @scope R.components.input.Touch.prototype */{
+      /**
+       * Get the class name of this object
+       *
+       * @return {String} "R.components.input.Touch"
+       */
+      getClassName: function() {
+         return "R.components.input.Touch";
+      },
 
-   /** @private */
-   _touchMoveListener: function(eventObj) {
-      if (this.hasTouchMethods[2]) {
-         return this.getHostObject().onTouchMove(this.processTouches(eventObj.originalEvent), eventObj);
-      }
-   },
-
-   /** @private */
-   _touchCancelListener: function(eventObj) {
-      if (this.hasTouchMethods[3]) {
-         return this.getHostObject().onTouchCancel(this.processTouches(eventObj.originalEvent), eventObj);
-      }
-   }
-
-}, /** @scope R.components.input.Touch.prototype */{
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} "R.components.input.Touch"
-    */
-   getClassName: function() {
-      return "R.components.input.Touch";
-   },
-   
-   /** @private */
-   RECORD_PART: ["shiftKey","ctrlKey","altKey","keyCode"]
-});
-}
+      /** @private */
+      RECORD_PART: ["shiftKey","ctrlKey","altKey","keyCode"]
+   });
+};

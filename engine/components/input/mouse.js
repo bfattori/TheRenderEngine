@@ -84,31 +84,39 @@ R.components.input.Mouse = function() {
    },
 
    /**
-    * Set the host object this component exists within.  Additionally, this component
-    * sets some readable flags on the host object and establishes (if not already set)
+    * Deprecated in favor of {@link #setGameObject}
+    * @deprecated
+    */
+   setHostObject: function(hostobj) {
+      this.setGameObject(hostobj);
+   },
+
+   /**
+    * Set the game object this component exists within.  Additionally, this component
+    * sets some readable flags on the game object and establishes (if not already set)
     * a mouse listener on the render context.
     *
-    * @param hostObject {R.engine.HostObject} The object which hosts the component
+    * @param gameObject {R.engine.GameObject} The object which hosts the component
     * @private
     */
-   setHostObject: function(hostObject) {
-      this.base(hostObject);
+   setGameObject: function(gameObject) {
+      this.base(gameObject);
 
       // Set some flags we can check
 		// TODO: Store in object data!!
-      hostObject.MouseInputComponent_mouseOver = false;
-      hostObject.MouseInputComponent_mouseDown = false;
+      gameObject.MouseInputComponent_mouseOver = false;
+      gameObject.MouseInputComponent_mouseDown = false;
 
 		// Remember if the host has any of the required handlers
-		if (this.getHostObject().onMouseOver ||
-          this.getHostObject().onMouseOut ||
-          this.getHostObject().onMouseDown ||
-          this.getHostObject().onMouseUp) {
-			hostObject.MouseInputComponent_hasHandlers = true;	 	
+		if (this.getGameObject().onMouseOver ||
+          this.getGameObject().onMouseOut ||
+          this.getGameObject().onMouseDown ||
+          this.getGameObject().onMouseUp) {
+			gameObject.MouseInputComponent_hasHandlers = true;
 		}
 
 		// Assign the global handlers
-		R.components.input.Mouse.assignMouseHandlers(hostObject.getRenderContext(), this);
+		R.components.input.Mouse.assignMouseHandlers(gameObject.getRenderContext(), this);
 
    },
 
@@ -121,43 +129,45 @@ R.components.input.Mouse = function() {
    execute: function(renderContext, time) {
       // Objects may be in motion.  If so, we need to call the mouse
       // methods for just such a case.
-      var mouseInfo = this.getHostObject().getRenderContext().MouseInputComponent_mouseInfo;
-      var bBox = this.getHostObject().getWorldBox();
-      var mouseOver = false;
-      if (this.getHostObject().MouseInputComponent_hasHandlers && mouseInfo && bBox) {
+      var gameObject = this.getGameObject(),
+            mouseInfo = gameObject.getRenderContext().MouseInputComponent_mouseInfo,
+            bBox = gameObject.getWorldBox(),
+            mouseOver = false;
+
+      if (gameObject.MouseInputComponent_hasHandlers && mouseInfo && bBox) {
          mouseOver = R.math.Math2D.boxPointCollision(bBox, mouseInfo.position);
       }
 
       // Mouse position changed
-      if (this.getHostObject().onMouseMove && !mouseInfo.position.equals(mouseInfo.lastPosition)) {
-         this.getHostObject().onMouseMove(mouseInfo);
+      if (gameObject.onMouseMove && !mouseInfo.position.equals(mouseInfo.lastPosition)) {
+         gameObject.onMouseMove(mouseInfo);
       }
 
       // Mouse is over object
-      if (this.getHostObject().onMouseOver && mouseOver && 
-			 !this.getHostObject().MouseInputComponent_mouseOver) {
-         this.getHostObject().MouseInputComponent_mouseOver = true;
-         this.getHostObject().onMouseOver(mouseInfo);
+      if (gameObject.onMouseOver && mouseOver &&
+			 !gameObject.MouseInputComponent_mouseOver) {
+         gameObject.MouseInputComponent_mouseOver = true;
+         gameObject.onMouseOver(mouseInfo);
       }
 
       // Mouse was over object
-      if (this.getHostObject().onMouseOut && !mouseOver &&
-          this.getHostObject().MouseInputComponent_mouseOver == true) {
-         this.getHostObject().MouseInputComponent_mouseOver = false;
-         this.getHostObject().onMouseOut(mouseInfo);
+      if (gameObject.onMouseOut && !mouseOver &&
+          gameObject.MouseInputComponent_mouseOver === true) {
+         gameObject.MouseInputComponent_mouseOver = false;
+         gameObject.onMouseOut(mouseInfo);
       }
 
       // Mouse button clicked 
-      if (this.getHostObject().onMouseDown && (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
-         this.getHostObject().MouseInputComponent_mouseDown = true;
-         this.getHostObject().onMouseDown(mouseInfo);
+      if (gameObject.onMouseDown && (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
+         gameObject.MouseInputComponent_mouseDown = true;
+         gameObject.onMouseDown(mouseInfo);
       }
 
       // Mouse button released (and mouse was down)
-      if (this.getHostObject().onMouseUp && this.getHostObject().MouseInputComponent_mouseDown &&
+      if (gameObject.onMouseUp && gameObject.MouseInputComponent_mouseDown &&
 		    (mouseInfo.button == R.engine.Events.MOUSE_NO_BUTTON)) {
-         this.getHostObject().MouseInputComponent_mouseDown = false;
-         this.getHostObject().onMouseUp(mouseInfo);
+         gameObject.MouseInputComponent_mouseDown = false;
+         gameObject.onMouseUp(mouseInfo);
       }
    }
 }, /** @scope R.components.input.Mouse.prototype */{

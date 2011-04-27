@@ -42,18 +42,18 @@ R.Engine.define({
 });
 
 /**
- * @class A component that can execute host objects.  Allows embedding
+ * @class A component that can execute game objects.  Allows embedding
  *        of multiple objects into one object.  This is logically
- *        a method to embed further {@link R.engine.HostObject HostObjects} within
- *        an existing <tt>R.engine.HostObject</tt>.
+ *        a method to embed further {@link R.engine.GameObject GameObjects} within
+ *        an existing <tt>R.engine.GameObject</tt>.
  *
  * @param name {String} The name of the component
  * @param [priority=1.0] {Number} The priority of this component
  * @extends R.components.Logic
  * @constructor
- * @description Creates a <tt>R.components.Host</tt> which can contain {@link R.engine.HostObject HostObjects}.
- *              This allows a component to embed other hosts within it.  Each time the
- *              component is executed, each host will be given a chance to update as well.
+ * @description Creates a <tt>R.components.Host</tt> which can contain {@link R.engine.GameObject GameObjects}.
+ *              This allows a component to embed other game objects within it.  Each time the
+ *              component is executed, each game object will be given a chance to update as well.
  */
 R.components.logic.Host = function() {
 	return R.components.Logic.extend(/** @scope R.components.logic.Host.prototype */{
@@ -78,7 +78,7 @@ R.components.logic.Host = function() {
    },
 
    /**
-    * Destroys all of the hosts contained within this component.
+    * Destroys the container which refers to the game objects.
     */
    destroy: function() {
       this.objects.destroy();
@@ -91,28 +91,28 @@ R.components.logic.Host = function() {
     * which they are added.
     *
     * @param name {String} A unique name to refer to the object by
-    * @param obj {R.engine.GameObject} The host object reference
+    * @param obj {R.engine.GameObject} The game object reference
     */
    add: function(name, obj) {
-      Assert((obj instanceof R.engine.GameObject), "You can only add GameObject to a HostComponent");
+      Assert((obj instanceof R.engine.GameObject), "You can only add GameObject to a Host component");
       this.objects.add(name.toUpperCase(), obj);
    },
 
    /**
-    * Retrieve the {@link R.engine.HostObject} that is associated with the
+    * Retrieve the {@link R.engine.GameObject} that is associated with the
     * given name from the component.
     *
     * @param name {String} The unique name of the object
-    * @return {R.engine.HostObject}
+    * @return {R.engine.GameObject}
     */
    get: function(name) {
       return this.objects.get(name.toUpperCase());
    },
 
    /**
-    * Remove the host object from the component.
+    * Remove the game object from the component.
     *
-    * @param obj {R.engine.GameObject} The host object reference
+    * @param obj {R.engine.GameObject} The game object reference
     * @return {R.engine.GameObject} The object which was removed
     */
    remove: function(obj) {
@@ -120,8 +120,8 @@ R.components.logic.Host = function() {
    },
 
    /**
-    * Update each of the host objects within this component.  The order
-    * in which hosts are updated is equivalent to the order in which
+    * Update each of the game objects within this component.  The order
+    * in which game objects are updated is equivalent to the order in which
     * the objects were added.
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
@@ -131,11 +131,11 @@ R.components.logic.Host = function() {
       var objs = this.objects.getObjects();
       for (var c in objs) {
 
-         // Make sure the host object's render context matches 
-         // this component's host object's context
+         // Make sure the game object's render context matches
+         // this component's game object's context
          if (objs[c].getRenderContext() == null) {
             objs[c].setRenderContext(renderContext);
-            R.debug.Console.info(this.getHostObject().getId() + "[" + this.getName() + "]: SetRenderContext '" + renderContext.getId() + "'");
+            R.debug.Console.info(this.getGameObject().getId() + "[" + this.getName() + "]: SetRenderContext '" + renderContext.getId() + "'");
          }
 
          objs[c].update(renderContext, time);

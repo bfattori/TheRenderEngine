@@ -42,14 +42,14 @@ R.Engine.define({
 
 /**
  * @class A component which responds to keyboard events and notifies
- * its {@link R.engine.HostObject} by calling one of three methods.  The <tt>R.engine.HostObject</tt>
+ * its {@link R.engine.GameObject} by calling one of three methods.  The <tt>R.engine.GameObject</tt>
  * should implement any of the following methods to receive the corresponding event:
  * <ul>
  * <li><tt>onKeyDown()</tt> - A key was pressed down</li>
  * <li><tt>onKeyUp()</tt> - A key was released</li>
  * <li><tt>onKeyPress()</tt> - A key was pressed and released</li>
  * </ul>
- * Each function should take up to six arguments.  The first argument is the character
+ * Each function takes up to six arguments.  The first argument is the character
  * code, a number which represents the key that was pressed. The second argument is the
  * <tt>keyCode</tt>, a number which represents special keys that were pressed, such as
  * the arrow keys and function keys.  See 

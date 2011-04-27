@@ -40,7 +40,7 @@ R.Engine.define({
 
 /**
  * @class Render component for DOM elements.  This component will ensure that
- * 		 the DOM CSS transformations are applied to the host object per frame.
+ * 		 the DOM CSS transformations are applied to the game object for each frame.
  *
  * @param name {String} The name of the component
  * @param priority {Number} The priority of the component between 0.0 and 1.0

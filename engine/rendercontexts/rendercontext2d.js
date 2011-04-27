@@ -635,7 +635,7 @@ R.rendercontexts.RenderContext2D = function() {
     * Draw an un-filled rectangle on the context.
     *
     * @param rect {R.math.Rectangle2D} The rectangle to draw
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawRectangle: function(rect /*, ref */) {
    },
@@ -644,7 +644,7 @@ R.rendercontexts.RenderContext2D = function() {
     * Draw a filled rectangle on the context.
     *
     * @param rect {R.math.Rectangle2D} The rectangle to draw
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawFilledRectangle: function(rect /*, ref */) {
    },
@@ -657,7 +657,7 @@ R.rendercontexts.RenderContext2D = function() {
     * @param radius {Number} The radius of the arc in pixels
     * @param startAngle {Number} The starting angle of the arc in degrees
     * @param endAngle {Number} The end angle of the arc in degrees
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawArc: function(point, radius, startAngle, endAngle /*, ref */) {
    },
@@ -670,7 +670,7 @@ R.rendercontexts.RenderContext2D = function() {
     * @param radius {Number} The radius of the arc in pixels
     * @param startAngle {Number} The starting angle of the arc in degrees
     * @param endAngle {Number} The end angle of the arc in degrees
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawFilledArc: function(point, radius, startAngle, endAngle /*, ref */) {
    },
@@ -681,7 +681,7 @@ R.rendercontexts.RenderContext2D = function() {
     *
     * @param point {R.math.Point2D} The point around which the circle will be drawn
     * @param radius {Number} The radius of the circle in pixels
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawCircle: function(point, radius /*, ref */) {
       this.drawArc(point, radius, 0, R.math.Math2D.TWO_PI);
@@ -693,7 +693,7 @@ R.rendercontexts.RenderContext2D = function() {
     *
     * @param point {R.math.Point2D} The point around which the circle will be drawn
     * @param radius {Number} The radius of the circle in pixels
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawFilledCircle: function(point, radius /*, ref */) {
       this.drawFilledArc(point, radius, 0, R.math.Math2D.TWO_PI);
@@ -759,7 +759,7 @@ R.rendercontexts.RenderContext2D = function() {
     * Draw an un-filled polygon on the context.
     *
     * @param pointArray {Array} An array of {@link R.math.Point2D} objects
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawPolygon: function(pointArray /*, ref */) {
       this._poly(pointArray, true);
@@ -771,7 +771,7 @@ R.rendercontexts.RenderContext2D = function() {
     * Draw a non-closed poly line on the context.
     *
     * @param pointArray {Array} An array of {@link Point2D} objects
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawPolyline: function(pointArray /*, ref */) {
       this._poly(pointArray, false);
@@ -783,7 +783,7 @@ R.rendercontexts.RenderContext2D = function() {
     * Draw an filled polygon on the context.
     *
     * @param pointArray {Array} An array of {@link R.math.Point2D} objects
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawFilledPolygon: function(pointArray /*, ref */) {
       this._poly(pointArray, true);
@@ -811,7 +811,7 @@ R.rendercontexts.RenderContext2D = function() {
     *
     * @param point1 {R.math.Point2D} The start of the line
     * @param point2 {R.math.Point2D} The end of the line
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawLine: function(point1, point2 /*, ref */) {
    },
@@ -820,7 +820,7 @@ R.rendercontexts.RenderContext2D = function() {
     * Draw a point on the context.
     *
     * @param point {R.math.Point2D} The position to draw the point
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawPoint: function(point /*, ref */) {
    },
@@ -830,7 +830,7 @@ R.rendercontexts.RenderContext2D = function() {
     *
     * @param sprite {R.resources.types.Sprite} The sprite to draw
     * @param time {Number} The current world time
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawSprite: function(sprite, time /*, ref */) {
    },
@@ -843,7 +843,7 @@ R.rendercontexts.RenderContext2D = function() {
     * @param image {Object} The image to draw onto the context
     * @param [srcRect] {R.math.Rectangle2D} <i>[optional]</i> The source rectangle within the image, if
     *                <tt>null</tt> the entire image is used
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawImage: function(rect, image, srcRect /*, ref */) {
    },
@@ -863,7 +863,7 @@ R.rendercontexts.RenderContext2D = function() {
     *
     * @param imageData {ImageData} Image data captured
     * @param point {R.math.Point2D} The poisition at which to draw the image
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    putImage: function(imageData, point /*, ref */) {
    },
@@ -873,7 +873,7 @@ R.rendercontexts.RenderContext2D = function() {
     *
     * @param point {R.math.Point2D} The top-left position to draw the image.
     * @param text {String} The text to draw
-    * @param [ref] {R.engine.HostObject} A reference host object
+    * @param [ref] {R.engine.GameObject} A reference game object
     */
    drawText: function(point, text /*, ref */) {
    },

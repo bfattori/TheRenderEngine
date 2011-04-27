@@ -42,7 +42,7 @@ R.Engine.define({
 
 /**
  * @class A game object is a container for components.  Each component within
- *        the host provides a portion of the overall functionality.  A game object
+ *        the object provides a portion of the overall functionality.  A game object
  *        can have any number of components of any type within it.  Components provide
  *        functionality for things like rendering, collision detection, effects, or 
  *        transformations. This way, an object can be anything, depending on it's components.
@@ -53,7 +53,7 @@ R.Engine.define({
  *        which are the building blocks for complex functionality and ease of development.
  *        <p/>
  *        By building a <tt>GameObject</tt> from multiple components, the object gains the
- *        component's functionality without having to necessarily implement anything.  Many
+ *        component's functionality without necessarily having to implement anything.  Many
  *        components already exist in the engine, but you are only limited by your imagination
  *        when it comes to developing new components.
  *

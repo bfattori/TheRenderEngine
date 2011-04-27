@@ -150,9 +150,8 @@ R.rendercontexts.HTMLElementContext = function(){
 				default:
 					this.hasTxfm = false;
 					break;
-			};
-			
-					},
+			}
+		},
 		
 		/**
 		 * Retrieve the jQuery object which represents the element.
@@ -266,6 +265,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		 */
 		setRotation: function(angle){
 			if (this.hasTxfm) {
+            angle = angle % 360;
 				this.txfm[1] = "rotate(" + angle + "deg)";
 			}
 			this.base(angle);
@@ -316,8 +316,8 @@ R.rendercontexts.HTMLElementContext = function(){
 		_mergeTransform: function(ref, css){
 			if (this.hasTxfm) {
 				css[this.txfmBrowser] = this.txfm[0] + " " +
-				(ref.getRotation() != 0 ? this.txfm[1] + " " : "") +
-				(ref.getScale() != 1 ? this.txfm[2] : "");
+				(ref && ref.getRotation() != 0 ? this.txfm[1] + " " : "") +
+				(ref && ref.getScale() != 1 ? this.txfm[2] : "");
 			}
 			else {
 				css.top = this.cursorPos.y;
@@ -326,20 +326,31 @@ R.rendercontexts.HTMLElementContext = function(){
 			
 			return css;
 		},
-		
+
+      /**
+       * Create an element and append it to the render context
+       * @param element {String} Element type
+       * @return {jQuery}
+       * @private
+       */
+      _createElement: function(element) {
+         var e = $(element);
+         this.jQ().append(e);
+         return e;
+      },
+
 		/**
-		 * Draw an un-filled rectangle on the context.
+		 * Draw an un-filled rectangle on the context.  Unless <tt>ref</tt> is provided, a div element
+       * will be added to the render context.
 		 *
 		 * @param rect {R.math.Rectangle2D} The rectangle to draw
-		 * @param ref {R.engine.HostObject} A reference host object
+		 * @param ref {R.engine.GameObject} A reference game object
 		 */
 		drawRectangle: function(rect, ref){
-			var rD = rect.getDims();
-			if (!ref) {
-				ref = $("<div>");
-				this.jQ().append(ref);
-			}
-			var d = ref.css(this._mergeTransform(ref, {
+			var rD = rect.getDims(),
+               obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<div>")
+
+			obj.css(this._mergeTransform(ref, {
 				borderWidth: this.getLineWidth(),
 				borderColor: this.getLineStyle(),
 				left: rD.l,
@@ -351,18 +362,17 @@ R.rendercontexts.HTMLElementContext = function(){
 		},
 		
 		/**
-		 * Draw a filled rectangle on the context.
+		 * Draw a filled rectangle on the context.  Unless <tt>ref</tt> is provided, a div element
+       * will be added to the render context.
 		 *
 		 * @param rect {R.math.Rectangle2D} The rectangle to draw
-		 * @param ref {R.engine.HostObject} A reference host object
+       * @param ref {R.engine.GameObject} A reference game object
 		 */
 		drawFilledRectangle: function(rect, ref){
-			var rD = rect.getDims();
-			if (!ref) {
-				ref = $("<div>");
-				this.jQ().append(ref);
-			}
-			var d = ref.css(this._mergeTransform(ref, {
+			var rD = rect.getDims(),
+               obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<div>");
+
+			obj.css(this._mergeTransform(ref, {
 				borderWidth: this.getLineWidth(),
 				borderColor: this.getLineStyle(),
 				backgroundColor: this.getFillStyle(),
@@ -375,49 +385,51 @@ R.rendercontexts.HTMLElementContext = function(){
 		},
 		
 		/**
-		 * Draw a point on the context.
+		 * Draw a point on the context.  Unless <tt>ref</tt> is provided, a new image
+       * will be added to the render context.
 		 *
 		 * @param point {R.math.Point2D} The position to draw the point
-		 * @param ref {R.engine.HostObject} A reference host object
+       * @param ref {R.engine.GameObject} A reference game object
 		 */
 		drawPoint: function(point, ref){
 			this.drawFilledRectangle(R.math.Rectangle2D.create(point.x, point.y, 1, 1), ref);
 		},
 		
 		/**
-		 * Draw a sprite on the context.
+		 * Draw a sprite on the context.  Unless <tt>ref</tt> is provided, a new image
+       * will be added to the render context.
 		 *
 		 * @param sprite {R.resources.types.Sprite} The sprite to draw
 		 * @param time {Number} The current world time
-		 * @param ref {R.math.HostObject} A reference host object
+		 * @param ref {R.math.HostObject} A reference game object
 		 */
 		drawSprite: function(sprite, time, ref){
-			var f = sprite.getFrame(time);
-			var tl = f.getTopLeft();
-			var rD = f.getDims();
+			var f = sprite.getFrame(time), tl = f.getTopLeft(), rD = f.getDims();
 			
 			// The reference object is a host object it
 			// will give us a reference to the HTML element which we can then
-			// just modify the displayed image for.
-			if (ref && ref.jQ()) {
-				var css = this._mergeTransform(ref, {
-					width: rD.w,
-					height: rD.h,
-					backgroundPosition: -tl.x + "px " + tl.y + "px"
-				});
-				ref.jQ().css(css);
-			}
+			// just modify the displayed image for.  If no ref was provided,
+         // create a new image.
+         var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<img>");
+
+         var css = this._mergeTransform(ref, {
+            width: rD.w,
+            height: rD.h,
+            backgroundPosition: -tl.x + "px " + tl.y + "px"
+         });
+         obj.css(css);
 		},
 		
 		/**
-		 * Draw an image on the context.
+		 * Draw an image on the context.  Unless <tt>ref</tt> is provided, a new image
+       * will be added to the render context.
 		 *
 		 * @param rect {R.math.Rectangle2D} The rectangle that specifies the position and
 		 *             dimensions of the image rectangle.
 		 * @param image {Object} The image to draw onto the context
 		 * @param [srcRect] {R.math.Rectangle2D} <i>[optional]</i> The source rectangle within the image, if
 		 *                <tt>null</tt> the entire image is used
-		 * @param [ref] {R.engine.HostObject} A reference host object
+		 * @param [ref] {R.engine.GameObject} A reference game object
 		 */
 		drawImage: function(rect, image, srcRect, ref){
 			var rD = rect.getDims();
@@ -427,54 +439,57 @@ R.rendercontexts.HTMLElementContext = function(){
 			
 			// The reference object is a host object it
 			// will give us a reference to the HTML element which we can then
-			// just modify the displayed image for.
-			if (ref && ref.jQ()) {
-				ref.jQ().css(this._mergeTransform(ref, {
-					width: rD.w,
-					height: rD.h
-				}));
-				
-				// Only modify the source, width, and height if they change it
-				if (ref.jQ().attr("src") != image.src) {
-					ref.jQ().attr("src", image.src);
-				}
-				if (ref.jQ().attr("width") != rD.w) {
-					ref.jQ().attr("width", rD.w)
-				}
-				if (ref.jQ().attr("height") != rD.h) {
-					ref.jQ().attr("height", rD.h)
-				}
-			}
+			// just modify the displayed image for.  If no ref was provided,
+         // create a new image.
+         var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<img>");
+
+         obj.css(this._mergeTransform(ref, {
+            width: rD.w,
+            height: rD.h
+         }));
+
+         // Only modify the source, width, and height if they change it
+         if (obj.attr("src") != image.src) {
+            obj.attr("src", image.src);
+         }
+         if (obj.attr("width") != rD.w) {
+            obj.attr("width", rD.w)
+         }
+         if (obj.attr("height") != rD.h) {
+            obj.attr("height", rD.h)
+         }
 		},
 		
 		/**
-		 * Draw text on the context.
+		 * Draw text on the context.  Unless <tt>ref</tt> is provided, a span element
+       * will be added to the render context.
 		 *
 		 * @param point {R.math.Point2D} The top-left position to draw the image.
 		 * @param text {String} The text to draw
-		 * @param ref {R.engine.HostObject} A reference host object
+       * @param ref {R.engine.GameObject} A reference game object
 		 */
 		drawText: function(point, text, ref){
 			this.base(point, text);
 			
 			// The reference object is a host object it
 			// will give us a reference to the HTML element which we can then
-			// just modify the displayed text for.
-			if (ref && ref.jQ()) {
-				var css = this._mergeTransform(ref, {
-					font: this.getNormalizedFont(),
-					color: this.getFillStyle(),
-					left: point.x,
-					top: point.y,
-					position: "absolute"
-				});
-				ref.jQ().css(css).text(text);
-			}
+			// just modify the displayed text for.  If no ref was provided,
+         // create a new image.
+         var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<span>");
+
+         var css = this._mergeTransform(ref, {
+            font: this.getNormalizedFont(),
+            color: this.getFillStyle(),
+            left: point.x,
+            top: point.y,
+            position: "absolute"
+         });
+         obj.css(css).text(text);
 		},
 		
 		/**
 		 * Draw an element on the context
-		 *
+       * @param ref {R.engine.GameObject} A reference game object
 		 */
 		drawElement: function(ref){
 			if (ref && ref.jQ()) {
@@ -489,7 +504,7 @@ R.rendercontexts.HTMLElementContext = function(){
 						this.tmpP1.set(ref.getOrigin());
 						this.tmpP1.neg();
 						this.tmpP2.set(this.getPosition());
-						this.tmpP2.add(offs);
+						//this.tmpP2.add(offs);
 						this.setPosition(this.tmpP2);
 						var o = ref.getOrigin();
 						css[this.txfmOrigin] = o.x + "px " + o.y + "px";
@@ -511,4 +526,4 @@ R.rendercontexts.HTMLElementContext = function(){
 		}
 	});
 	
-}
+};

@@ -42,8 +42,8 @@ R.Engine.define({
 
 /**
  * @class All components extend from this object class.  A component is one
- *        part of an operating whole object (a {@link R.engine.HostObject}) which is
- *        responsible for only a portion of the overall operation of an in-
+ *        part of an operating whole object (a {@link R.engine.GameObject}) which is
+ *        responsible for only a portion of the overall operation of the
  *        game object.  Components are broken down into five major categories:
  *        <ul>
  *          <li><b>TYPE_INPUT</b> - Input from controllers (keyboard, mouse, etc.)</li>
@@ -55,7 +55,7 @@ R.Engine.define({
  *          <li><b>TYPE_RENDERING</b> - Performs some sort of rendering operation to the context</li>
  *        </ul>
  *        Components are executed in the order listed.  First, all inputs are
- *        checked, then logic is performed.  Logic may be internal to a host object
+ *        checked, then logic is performed.  Logic may be internal to a game object
  *        itself, but some components perform an object-centric type of logic that
  *        can be reused.  Next, collisions are checked.  And finally, rendering can
  *        occur.
@@ -63,7 +63,7 @@ R.Engine.define({
  *        Within each component type set, components can be prioritized so that
  *        one component will execute before others.  Such an ordering allows for
  *        multiple components of each type to perform their tasks in an order
- *        that the host defines.
+ *        that the game object defines.
  *
  *
  * @extends R.engine.BaseObject
@@ -115,25 +115,41 @@ R.components.Base = function() {
    },
 
    /**
-    * Establishes the link between this component and its host object.
-    * When you assign components to a host object, it will call this method
-    * so that each component can refer to its host object, the same way
-    * a host object can refer to a component with {@link GameObject#getComponent}.
-    *
-    * @param hostObject {R.engine.GameObject} The object which hosts this component
+    * Deprecated in favor of {@link #setGameObject}
+    * @deprecated
     */
    setHostObject: function(hostObject) {
-      this.host = hostObject;
+      this.setGameObject(hostObject);
+   },
+
+   /**
+    * Establishes the link between this component and its game object.
+    * When you assign components to a game object, it will call this method
+    * so that each component can refer to its game object, the same way
+    * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
+    *
+    * @param gameObject {R.engine.GameObject} The object which hosts this component
+    */
+   setGameObject: function(gameObject) {
+      this.host = gameObject;
+   },
+
+   /**
+    * Deprecated in favor of {@link #getGameObject}
+    * @deprecated
+    */
+   getHostObject: function() {
+      return this.getGameObject();
    },
 
    /**
     * Gets the game object this component is a part of.  When the component was
     * assigned to a game object, the game object will have set itself as the container
-    * via {@link #setHostObject}.
+    * via {@link #setGameObject}.
     *
     * @return {R.engine.GameObject}
     */
-   getHostObject: function() {
+   getGameObject: function() {
       return this.host;
    },
 
@@ -151,17 +167,19 @@ R.components.Base = function() {
    /**
     * Set the execution priority of this component with
     * 1.0 being the highest priority and 0.0 being the lowest.  Components
-    * within a host object are sorted by type, and then priority.  As such,
+    * within a game object are sorted by type, and then priority.  As such,
     * two components with the same type will be sorted by priority with the
-    * higer value executing before the lower value.  This allows you to layer
-    * components like the {@link #TYPE_RENDER} componenent so that one effect
+    * higher value executing before the lower value.  This allows you to layer
+    * components like the {@link R.components.Render} component so that one effect
     * is drawn before another.
     *
     * @param priority {Number} A value between 0.0 and 1.0
     */
    setPriority: function(priority) {
       this.priority = priority;
-      this.getHost().sort();
+      if (this.host) {
+         this.host.sort();
+      }
    },
 
    /**
@@ -174,10 +192,10 @@ R.components.Base = function() {
    },
 
    /**
-    * [ABSTRACT] This method is called by the host object to run the component, 
+    * [ABSTRACT] This method is called by the game object to run the component,
     * updating its state.  Not all components will need an execute
     * method.  However, it is important to include one if you need to 
-    * update the state of the component each engine cycle.
+    * update the state of the component for each engine cycle.
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
     * @param time {Number} The global engine time
@@ -219,7 +237,7 @@ R.components.Base = function() {
    },
 
    /**
-    * The constant value for PRE process components.  Reserved for internal use.
+    * The constant value for PRE process components.  <i>Reserved for internal use.</i>
     * @type {Number}
     * @private
     */
@@ -256,11 +274,11 @@ R.components.Base = function() {
    TYPE_RENDERING:      5,
    
    /**
-    * The constant value for POST process components.  Reserved for internal use.
+    * The constant value for POST process components.  <i>Reserved for internal use.</i>
     * @type {Number}
     * @private
     */
    TYPE_POST:				6
 });
 
-}
+};

@@ -84,35 +84,43 @@ R.components.collision.Circle = function() {
 		this.cData = null;
 	},
 
+   /**
+    * Deprecated in favor of {@link #setGameObject}
+    * @deprecated
+    */
+   setHostObject: function(gameObject) {
+      this.setGameObject(gameObject);
+   },
+
 	/**
-    * Establishes the link between this component and its host object.
-    * When you assign components to a host object, it will call this method
-    * so that each component can refer to its host object, the same way
-    * a host object can refer to a component with {@link HostObject#getComponent}.
+    * Establishes the link between this component and its game object.
+    * When you assign components to a game object, it will call this method
+    * so that each component can refer to its game object, the same way
+    * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
     *
-    * @param hostObject {R.engine.HostObject} The object which hosts this component
+    * @param gameObject {R.engine.GameObject} The object which hosts this component
 	 */
-	setHostObject: function(hostObj) {
-		this.base(hostObj);
-		this.hasMethods = [hostObj.getWorldCircle != undefined]; // getWorldBox
+	setGameObject: function(gameObject) {
+		this.base(gameObject);
+		this.hasMethods = [gameObject.getWorldCircle != undefined]; // getWorldBox
 		/* pragma:DEBUG_START */
 		// Test if the host has getWorldCircle
-		AssertWarn(this.hasMethods[0], "Object " + hostObj.toString() + " does not have getWorldCircle() method");
+		AssertWarn(this.hasMethods[0], "Object " + gameObject.toString() + " does not have getWorldCircle() method");
 		/* pragma:DEBUG_END */
 	},
 
    /**
-    * If a collision occurs, calls the host object's <tt>onCollide()</tt> method, 
-    * passing the time of the collision, the potential collision object, and the host 
-    * and target masks.  The return value should either tell the collision tests to continue or stop.
+    * If a collision occurs, calls the game object's <tt>onCollide()</tt> method,
+    * passing the time of the collision, the potential collision object, and the game object
+    * and target's masks.  The return value should either tell the collision tests to continue or stop.
     *
     * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
-    * @param collisionObj {R.engine.HostObject} The host object with which the collision potentially occurs
-    * @param hostMask {Number} The collision mask for the host object
+    * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
+    * @param objectMask {Number} The collision mask for the game object
     * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
     * @return {Number} A status indicating whether to continue checking, or to stop
     */
-   testCollision: function(time, collisionObj, hostMask, targetMask) {
+   testCollision: function(time, collisionObj, objectMask, targetMask) {
 		if (this.getCollisionData() != null) {
 			// Clean up old data first
 			this.getCollisionData().destroy();
@@ -125,7 +133,7 @@ R.components.collision.Circle = function() {
 		}
       
       // See if a collision will occur
-      var host = this.getHostObject(),
+      var host = this.getGameObject(),
       	 circle1 = host.getWorldCircle(), 
       	 circle2 = collisionObj.getWorldCircle();
       
@@ -133,7 +141,7 @@ R.components.collision.Circle = function() {
       	 circle1.isIntersecting(circle2)) {
       		
       		// Intersection test passed
-      		return this.base(time, collisionObj, hostMask, targetMask);
+      		return this.base(time, collisionObj, objectMask, targetMask);
       
       } else {
 			var tRad = circle1.getRadius() + circle2.getRadius(),
@@ -154,7 +162,7 @@ R.components.collision.Circle = function() {
 																					 shape2,
 																					 sep));
 
-				return this.base(time, collisionObj, hostMask, targetMask);
+				return this.base(time, collisionObj, objectMask, targetMask);
 			}
       }
 

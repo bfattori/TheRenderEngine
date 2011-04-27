@@ -77,21 +77,29 @@ R.components.collision.Box = function() {
 	},
 
 	/**
-    * Establishes the link between this component and its host object.
-    * When you assign components to a host object, it will call this method
-    * so that each component can refer to its host object, the same way
-    * a host object can refer to a component with {@link HostObject#getComponent}.
-    *
-    * @param hostObject {R.engine.HostObject} The object which hosts this component
+    * Deprecated in favor of {@link #setGameObject}
+    * @deprecated
 	 */
-	setHostObject: function(hostObj) {
-		this.base(hostObj);
-		this.hasMethod = (hostObj.getWorldBox != undefined);
-		/* pragma:DEBUG_START */
-		// Test if the host has getWorldBox
-		AssertWarn(this.hasMethod, "Object " + hostObj.toString() + " does not have getWorldBox() method");
-		/* pragma:DEBUG_END */
+	setHostObject: function(gameObject) {
+		this.setGameObject(gameObject);
 	},
+
+   /**
+    * Establishes the link between this component and its game object.
+    * When you assign components to a game object, it will call this method
+    * so that each component can refer to its game object, the same way
+    * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
+    *
+    * @param gameObject {R.engine.GameObject} The object which hosts this component
+    */
+   setGameObject: function(gameObject) {
+      this.base(gameObject);
+      this.hasMethod = (gameObject.getWorldBox != undefined);
+      /* pragma:DEBUG_START */
+      // Test if the host has getWorldBox
+      AssertWarn(this.hasMethod, "Object " + gameObject.toString() + " does not have getWorldBox() method");
+      /* pragma:DEBUG_END */
+   },
 
    /**
     * If a collision occurs, calls the host object's <tt>onCollide()</tt> method, 
@@ -99,12 +107,12 @@ R.components.collision.Box = function() {
     * and target masks.  The return value should either tell the collision tests to continue or stop.
     *
     * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
-    * @param collisionObj {R.engine.HostObject} The host object with which the collision potentially occurs
-    * @param hostMask {Number} The collision mask for the host object
+    * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
+    * @param objectMask {Number} The collision mask for the game object
     * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
     * @return {Number} A status indicating whether to continue checking, or to stop
     */
-   testCollision: function(time, collisionObj, hostMask, targetMask) {
+   testCollision: function(time, collisionObj, objectMask, targetMask) {
 		if (this.getCollisionData() != null) {
 			// Clean up old data first
 			this.getCollisionData().destroy();
@@ -117,14 +125,14 @@ R.components.collision.Box = function() {
 		}
 
       // See if a collision will occur
-      var host = this.getHostObject(),
+      var host = this.getGameObject(),
       	 box1 = host.getWorldBox(), 
       	 box2 = collisionObj.getWorldBox();
       
       if (this.getTestMode() == R.components.Collider.SIMPLE_TEST) {
       	if (box1.isIntersecting(box2)) {
       		// Intersection test passed
-      		return this.base(time, collisionObj, hostMask, targetMask);
+      		return this.base(time, collisionObj, objectMask, targetMask);
       	}
       } else {
       	// We'll approximate using the separating circles method, using the
@@ -147,7 +155,7 @@ R.components.collision.Box = function() {
 																					 null,
 																					 sep));
 
-				return this.base(time, collisionObj, hostMask, targetMask);
+				return this.base(time, collisionObj, objectMask, targetMask);
 			}
       }
       
@@ -161,8 +169,8 @@ R.components.collision.Box = function() {
       if (R.Engine.getDebugMode() && !this.isDestroyed())
       {
 			renderContext.pushTransform();
-			var origin = R.math.Point2D.create(this.getHostObject().getOrigin());
-			var rect = R.math.Rectangle2D.create(this.getHostObject().getBoundingBox());
+			var origin = R.math.Point2D.create(this.getGameObject().getOrigin());
+			var rect = R.math.Rectangle2D.create(this.getGameObject().getBoundingBox());
 			rect.offset(origin.neg());
          renderContext.setLineStyle("yellow");
          renderContext.drawRectangle(rect);
