@@ -8,14 +8,14 @@ R.Engine.define({
 
    // Game class dependencies
    "depends": [
-      "Player"
+      "Shape"
    ]
 });
 
-R.engine.Game.load("box.js");
+R.engine.Game.load("shape.js");
 
 /**
- * @class HTML Context testing.
+ * @class HTML Context demo with rendered shapes.
  */
 var HTMLContextTest = function() {
    return R.engine.Game.extend({
@@ -35,8 +35,8 @@ var HTMLContextTest = function() {
          this.renderContext.setBackgroundColor("#000000");
          R.Engine.getDefaultContext().add(this.renderContext);
 
-         for (var x = 0; x < 5; x++) {
-            this.renderContext.add(Player.create());
+         for (var x = 0; x < 20; x++) {
+            this.renderContext.add(Shape.create());
          }
       }
 

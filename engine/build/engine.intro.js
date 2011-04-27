@@ -216,10 +216,10 @@ R.namespace("text");
 R.namespace("util");
 
 /**
- * Return a new date object.
- * @return {Date}
+ * Return the current time in milliseconds.
+ * @return {Number}
  */
-window["now"] = function() {
-	return new Date();
-};
+R.now = (function() {
+   return Date.now ? Date.now : function() {return new Date().getTime();};
+})();
 

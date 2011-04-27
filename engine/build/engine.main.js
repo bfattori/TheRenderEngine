@@ -497,7 +497,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
          return;
       };
 
-      R.Engine.upTime = now().getTime();
+      R.Engine.upTime = R.now();
       R.Engine.debugMode = debugMode ? true : false;
       R.Engine.started = true;
       R.Engine.totalFrames = 0;
@@ -622,7 +622,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
       }
       R.Engine.timerPool = {};
 
-      R.Engine.downTime = now().getTime();
+      R.Engine.downTime = R.now();
       R.debug.Console.warn(">>> Engine stopped.  Runtime: " + (R.Engine.downTime - R.Engine.upTime) + "ms");
       R.debug.Console.warn(">>>   frames generated: ", R.Engine.totalFrames);
 
@@ -764,9 +764,9 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 			//R.Engine.pclRebuilds = 0;
 
 			// Render a frame
-			R.Engine.worldTime = now().getTime();
+			R.Engine.worldTime = R.now();
 			R.Engine.getDefaultContext().update(null, R.Engine.worldTime);
-			R.Engine.frameTime = now().getTime() - R.Engine.worldTime;
+			R.Engine.frameTime = R.now() - R.Engine.worldTime;
 			R.Engine.liveTime = R.Engine.worldTime - R.Engine.upTime;
 			
 			// Count the number of frames generated

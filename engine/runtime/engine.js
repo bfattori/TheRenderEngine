@@ -216,12 +216,12 @@ R.namespace("text");
 R.namespace("util");
 
 /**
- * Return a new date object.
- * @return {Date}
+ * Return the current time in milliseconds.
+ * @return {Number}
  */
-window["now"] = function() {
-	return new Date();
-};
+R.now = (function() {
+   return Date.now ? Date.now : function() {return new Date().getTime();};
+})();
 
 /**
  * The Render Engine
@@ -1061,14 +1061,14 @@ R.debug.Profiler.enter = function(prof) {
 		// Create a monitor
 		profile = R.debug.Profiler.allProfiles[prof] = {
 			name: prof,
-			startMS: now(),
+			startMS: R.now(),
 			execs: 0,
 			totalMS: 0,
 			instances: 1,
 			pushed: false
 		};
 	} else {
-		profile.startMS = profile.instances == 0 ? now() : profile.startMS;
+		profile.startMS = profile.instances == 0 ? R.now() : profile.startMS;
 		profile.instances++;
 	}
 	R.debug.Profiler.profileStack.push(profile);
@@ -1129,7 +1129,7 @@ R.debug.Profiler.dump = function() {
 		R.debug.Console.error("Profile stack overflow.  Running profiles: ", rProfs);
 	}
 
-	var d = now();
+	var d = new Date();
 	d = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
 
 	var rev = R.debug.Profiler.profiles.reverse();
@@ -1797,7 +1797,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
                    supported = !!va;
                if (supported) {
                   // expire the cookie before returning
-                  window.document.cookie = "tre.test=;path=/;expires=" + new Date(now() - 1).toGMTString();
+                  window.document.cookie = "tre.test=;path=/;expires=" + new Date(R.now() - 1).toGMTString();
                }
                storageSupport.cookie = supported ? { "maxLength": va[1].length } : false;
             } catch (ex) { /* ignored */ }
@@ -2779,7 +2779,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
          return;
       };
 
-      R.Engine.upTime = now().getTime();
+      R.Engine.upTime = R.now();
       R.Engine.debugMode = debugMode ? true : false;
       R.Engine.started = true;
       R.Engine.totalFrames = 0;
@@ -2904,7 +2904,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
       }
       R.Engine.timerPool = {};
 
-      R.Engine.downTime = now().getTime();
+      R.Engine.downTime = R.now();
       R.debug.Console.warn(">>> Engine stopped.  Runtime: " + (R.Engine.downTime - R.Engine.upTime) + "ms");
       R.debug.Console.warn(">>>   frames generated: ", R.Engine.totalFrames);
 
@@ -3046,9 +3046,9 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 			//R.Engine.pclRebuilds = 0;
 
 			// Render a frame
-			R.Engine.worldTime = now().getTime();
+			R.Engine.worldTime = R.now();
 			R.Engine.getDefaultContext().update(null, R.Engine.worldTime);
-			R.Engine.frameTime = now().getTime() - R.Engine.worldTime;
+			R.Engine.frameTime = R.now() - R.Engine.worldTime;
 			R.Engine.liveTime = R.Engine.worldTime - R.Engine.upTime;
 			
 			// Count the number of frames generated

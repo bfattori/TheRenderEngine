@@ -176,7 +176,7 @@ R.storage.CookieStorage = function(){
                p += (p.length > 0 ? ";" : "") + k + (function(o) {
                   switch (o) {
                      case "secure": return "";
-                     case "expires": return "=" + new Date(now() + v).toGMTString();
+                     case "expires": return "=" + new Date(R.now() + v).toGMTString();
                      default: return "=" + v;
                   }
                })(k);

@@ -91,14 +91,14 @@ R.debug.Profiler.enter = function(prof) {
 		// Create a monitor
 		profile = R.debug.Profiler.allProfiles[prof] = {
 			name: prof,
-			startMS: now(),
+			startMS: R.now(),
 			execs: 0,
 			totalMS: 0,
 			instances: 1,
 			pushed: false
 		};
 	} else {
-		profile.startMS = profile.instances == 0 ? now() : profile.startMS;
+		profile.startMS = profile.instances == 0 ? R.now() : profile.startMS;
 		profile.instances++;
 	}
 	R.debug.Profiler.profileStack.push(profile);
@@ -159,7 +159,7 @@ R.debug.Profiler.dump = function() {
 		R.debug.Console.error("Profile stack overflow.  Running profiles: ", rProfs);
 	}
 
-	var d = now();
+	var d = new Date();
 	d = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
 
 	var rev = R.debug.Profiler.profiles.reverse();

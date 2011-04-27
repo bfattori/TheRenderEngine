@@ -58,6 +58,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		cursorPos: null,
 		jQObj: null,
 		hasTxfm: false,
+      has3dTxfm: false,
 		txfmBrowser: null,
 		txfmOrigin: null,
 		txfm: null,
@@ -121,6 +122,7 @@ R.rendercontexts.HTMLElementContext = function(){
 					if (version >= 3) {
 						// Support for webkit transforms
 						this.hasTxfm = true;
+                  this.has3dTxfm = true;
 						this.txfmBrowser = "-webkit-transform";
 						this.txfmOrigin = "-webkit-transform-origin";
 					}
@@ -128,6 +130,7 @@ R.rendercontexts.HTMLElementContext = function(){
 				case "chrome":
 					// Support for webkit transforms
 					this.hasTxfm = true;
+               this.has3dTxfm = true;
 					this.txfmBrowser = "-webkit-transform";
 					this.txfmOrigin = "-webkit-transform-origin";
 					break;
@@ -135,6 +138,7 @@ R.rendercontexts.HTMLElementContext = function(){
 					if (version >= 3.5) {
 						// Support for gecko transforms
 						this.hasTxfm = true;
+                  this.has3dTxfm = false;
 						this.txfmBrowser = "-moz-transform";
 						this.txfmOrigin = "-moz-transform-origin";
 					}
@@ -143,12 +147,22 @@ R.rendercontexts.HTMLElementContext = function(){
 					if (version >= 10.5) {
 						// Support for opera transforms
 						this.hasTxfm = true;
+                  this.has3dTxfm = false;
 						this.txfmBrowser = "-o-transform";
 						this.txfmOrigin = "-o-transform-origin";
 					}
 					break;
+            case "msie":
+               if (version >= 9.0) {
+                  // Support for Internet Explorer transforms
+                  this.hasTxfm = true;
+                  this.has3dTxfm = false;
+                  this.txfmBrowser = "-ms-transform";
+                  this.txfmOrigin = "-ms-transform-origin";
+               }
 				default:
 					this.hasTxfm = false;
+               this.has3dTxfm = false;
 					break;
 			}
 		},
