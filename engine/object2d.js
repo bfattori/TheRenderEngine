@@ -72,6 +72,7 @@ R.engine.Object2D = function(){
 		wBox: null,
 		wCircle: null,
 		lastPosition: null,
+      lastRenderPosition: null,
 		origin: null,
 		collisionHull: null,
 		genHull: null,
@@ -85,6 +86,7 @@ R.engine.Object2D = function(){
 		constructor: function(name, transformComponent){
 			this.base(name);
 			this.lastPosition = R.math.Point2D.create(5, 5);
+         this.lastRenderPosition = R.math.Point2D.create(5, 5);
 			this.bBox = R.math.Rectangle2D.create(0, 0, 1, 1);
 			this.AABB = R.math.Rectangle2D.create(0, 0, 1, 1);
 			this.wBox = R.math.Rectangle2D.create(0, 0, 1, 1);
@@ -111,6 +113,7 @@ R.engine.Object2D = function(){
 			this.wBox.destroy();
 			this.wCircle.destroy();
 			this.lastPosition.destroy();
+         this.lastRenderPosition.destroy();
 			if (this.collisionHull) {
 				this.collisionHull.destroy();
 			}
@@ -127,6 +130,7 @@ R.engine.Object2D = function(){
 			this.wBox = null;
 			this.wCircle = null;
 			this.lastPosition = null;
+         this.lastRenderPosition = null;
 			this.collisionHull = null;
 			this.genHull = null;
 			
@@ -246,11 +250,18 @@ R.engine.Object2D = function(){
 		 * @return {R.math.Rectangle2D} The world bounding rectangle
 		 */
 		getWorldBox: function(){
+         // TODO: Should probably also check to see if the
+         // bounding box has changed size or origin has moved
+         if (this.getRenderPosition().equals(this.lastRenderPosition)) {
+            return this.wBox;
+         }
+
 			this.wBox.set(this.getBoundingBox());
 			var rPos = R.math.Point2D.create(this.getRenderPosition());
 			rPos.sub(this.origin);
 			this.wBox.offset(rPos);
 			rPos.destroy();
+         this.lastRenderPosition.set(this.getRenderPosition());
 			return this.wBox;
 		},
 		

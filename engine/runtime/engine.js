@@ -2814,11 +2814,25 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
       R.debug.Console.debug(">>> sysinfo: ", R.engine.Support.sysInfo());
 
-      // Start world timer
-      R.Engine.globalTimer = window.setTimeout(function() { 
-			R.Engine.engineTimer(); 
-		}, this.fpsClock);
+      R.Engine._pauseTime = R.now();
+      R.Engine._stepOne = 0;
 
+      // Start world timer
+      R.Engine.engineTimer();
+   },
+
+   /**
+    * Steps the engine when paused.  Any timers that were paused, stay paused while stepping.
+    * @memberOf R.Engine
+    */
+   step: function() {
+      if (R.Engine.running) {
+         // Need to pause the engine to step
+         return;
+      }
+
+      R.Engine._stepOne = 1;
+      R.Engine.engineTimer();
    },
 
    /**
@@ -2839,6 +2853,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
       R.debug.Console.warn(">>> Engine paused <<<");
       window.clearTimeout(R.Engine.globalTimer);
       R.Engine.running = false;
+      R.Engine._pauseTime = R.now();
    },
 
 	/**
@@ -3040,16 +3055,21 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 		var nextFrame = R.Engine.fpsClock;
 
 		// Update the world
-		if (R.Engine.running && R.Engine.getDefaultContext() != null) {
+		if ((R.Engine._stepOne == 1 || R.Engine.running) && R.Engine.getDefaultContext() != null) {
 			R.Engine.vObj = 0;
 			R.Engine.rObjs = 0;
 			//R.Engine.pclRebuilds = 0;
 
 			// Render a frame
-			R.Engine.worldTime = R.now();
+			R.Engine.worldTime = R.Engine._stepOne == 1 ? R.Engine._pauseTime : R.now();
 			R.Engine.getDefaultContext().update(null, R.Engine.worldTime);
 			R.Engine.frameTime = R.now() - R.Engine.worldTime;
-			R.Engine.liveTime = R.Engine.worldTime - R.Engine.upTime;
+
+         if (R.Engine._stepOne == 1) {
+            R.Engine._pauseTime += R.Engine.frameTime;
+         }
+
+         R.Engine.liveTime = R.Engine.worldTime - R.Engine.upTime;
 			
 			// Count the number of frames generated
 			R.Engine.totalFrames++;
@@ -3063,6 +3083,12 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 			// Update the metrics display
 			R.Engine.doMetrics();
 		}
+
+      if (R.Engine._stepOne == 1) {
+         // If stepping, don't re-call the engine timer automatically
+         R.Engine._stepOne = 0;
+         return;
+      }
 
 		// When the process is done, start all over again
       if (R.Engine.options.nativeAnimationFrame) {
@@ -3950,6 +3976,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
       if (R.debug.Metrics.showMetricsWindow && !R.debug.Metrics.metricDisplay) {
          R.debug.Metrics.metricDisplay = $("<div/>").addClass("metrics");
          R.debug.Metrics.metricDisplay.append(R.debug.Metrics.metricButton("run", function() { R.Engine.run(); }));
+         R.debug.Metrics.metricDisplay.append(R.debug.Metrics.metricButton("step", function() { R.Engine.step(); }));
          R.debug.Metrics.metricDisplay.append(R.debug.Metrics.metricButton("pause", function() { R.Engine.pause(); }));
          R.debug.Metrics.metricDisplay.append(R.debug.Metrics.metricButton("shutdown", function() { R.Engine.shutdown(); }));
 

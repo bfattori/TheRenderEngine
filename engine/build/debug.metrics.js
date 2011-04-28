@@ -123,6 +123,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
       if (R.debug.Metrics.showMetricsWindow && !R.debug.Metrics.metricDisplay) {
          R.debug.Metrics.metricDisplay = $("<div/>").addClass("metrics");
          R.debug.Metrics.metricDisplay.append(R.debug.Metrics.metricButton("run", function() { R.Engine.run(); }));
+         R.debug.Metrics.metricDisplay.append(R.debug.Metrics.metricButton("step", function() { R.Engine.step(); }));
          R.debug.Metrics.metricDisplay.append(R.debug.Metrics.metricButton("pause", function() { R.Engine.pause(); }));
          R.debug.Metrics.metricDisplay.append(R.debug.Metrics.metricButton("shutdown", function() { R.Engine.shutdown(); }));
 

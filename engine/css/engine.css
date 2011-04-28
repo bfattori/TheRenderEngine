@@ -72,6 +72,10 @@ div.metric-button.maximize {
    background: url('$<enginePath>/css/run.png') no-repeat;
 }
 
+.step {
+   background: url('$<enginePath>/css/step.png') no-repeat;
+}
+
 .pause {
    background: url('$<enginePath>/css/pause.png') no-repeat;
 }
