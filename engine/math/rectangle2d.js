@@ -115,7 +115,7 @@ R.math.Rectangle2D = function() {
 		if (x.length && x.splice && x.shift) {
          this.topLeft.set(x[0],x[1]);
 			this.dims.set(x[2],x[3]);
-		} else if (x.setTopLeft && x.setDims) {
+		} else if (x.__POINT2D) {
          this.topLeft.set(x.x,x.y);
 			this.dims.set(x.w,x.h);
       } else {
@@ -180,7 +180,7 @@ R.math.Rectangle2D = function() {
     * @param y {Number} If the top left wasn't specified as the first argument, this is the Y coordinate
     */
    setTopLeft: function(ptOrX, y) {
-      if (ptOrX.addScalar && ptOrX.convolveInverse) {
+      if (ptOrX.__POINT2D) {
 			this.x = ptOrX.x;
 			this.y = ptOrX.y;
       } else {
@@ -196,7 +196,7 @@ R.math.Rectangle2D = function() {
     * @param [y] {Number} If the top left isn't a point, this is the Y coordinate
     */
    setDims: function(ptOrX, y) {
-      if (ptOrX.addScalar && ptOrX.convolveInverse) {
+      if (ptOrX.__POINT2D) {
 			this.w = ptOrX.x;
 			this.h = ptOrX.y;
       } else {

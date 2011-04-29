@@ -1,7 +1,8 @@
 /**
  * The Render Engine
+ * Fixture object
  *
- * Collision box editing object
+ * @fileoverview A fixture is a box which either defines a solid area or a trigger.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  *
@@ -32,7 +33,7 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.objects.CollisionBox",
+	"class": "R.objects.Fixture",
 	"requires": [
 		"R.engine.Object2D",
 		"R.components.Render",
@@ -42,31 +43,31 @@ R.Engine.define({
 });
 
 /**
- * @class A collision box is a simple rectangular area used to either define
- *			 an impassable object, or a trigger for a callback.
+ * @class A fixture is a simple rectangular area used to define either
+ *			 a solid area, or a trigger for a callback.
+ * @param rect {R.math.Rectangle2D} The box which defines the area of the fixture
+ *	@param visible {Boolean} <code>true</tt> to render a visible rectangle for the fixture
  * @constructor
  * @extends R.engine.Object2D
  */
-R.objects.CollisionBox = function(){
+R.objects.Fixture = function(){
 	return R.engine.Object2D.extend({
 	
 		editing: false,
 		boxRect: null,
 		type: null,
 		action: null,
+      visible: false,
 		
 		/** @private */
-		constructor: function(){
-			this.base("CollisionBlock");
-			
+		constructor: function(rect, visible){
+			this.base("Fixture");
 			this.editing = false;
-			
-			this.add(R.components.Render.create("draw"));
-			
-			this.setPosition(R.math.Point2D.create(100, 100));
-			this.boxRect = R.math.Rectangle2D.create(0, 0, 80, 80);
-			this.setBoundingBox(this.boxRect);
-			this.type = R.objects.CollisionBox.TYPE_COLLIDER;
+         this.visible = visible;
+			this.setPosition(R.math.Point2D.create(rect.topLeft()));
+         rect.topLeft.set(0,0);
+			this.setBoundingBox(rect);
+			this.type = R.objects.Fixture.TYPE_COLLIDER;
 			this.action = "";
 		},
 		
@@ -89,15 +90,15 @@ R.objects.CollisionBox = function(){
 					self.setHeight(i);
 				}, true],
 				"Type": [function() {
-					return self.type == R.objects.CollisionBox.TYPE_COLLIDER ? "TYPE_COLLIDER" : "TYPE_TRIGGER"; 
+					return self.type == R.objects.Fixture.TYPE_COLLIDER ? "TYPE_COLLIDER" : "TYPE_TRIGGER";
 				}, function(i) {
-					self.setType(i == "TYPE_COLLIDER" ? R.objects.CollisionBox.TYPE_COLLIDER : R.objects.CollisionBox.TYPE_TRIGGER);
+					self.setType(i == "TYPE_COLLIDER" ? R.objects.Fixture.TYPE_COLLIDER : R.objects.Fixture.TYPE_TRIGGER);
 				}, false],
 				"Action": [function() {
 									return self.action.substring(0,25);
-							  }, typeof LevelEditor !== "undefined" && self.type == R.objects.CollisionBox.TYPE_TRIGGER ?
+							  }, typeof LevelEditor !== "undefined" && self.type == R.objects.Fixture.TYPE_TRIGGER ?
 							  { "editor": function() { LevelEditor.showScriptDialog(this, "Action", self.action); }, "fn": function(i) { self.setAction(i); } } : null, 
-							  (typeof LevelEditor !== "undefined" && self.type == R.objects.CollisionBox.TYPE_TRIGGER)]
+							  (typeof LevelEditor !== "undefined" && self.type == R.objects.Fixture.TYPE_TRIGGER)]
 			});
 		},
 		
@@ -113,25 +114,29 @@ R.objects.CollisionBox = function(){
 		update: function(renderContext, time){
 			renderContext.pushTransform();
 			this.base(renderContext, time);
-			var color = "255,255,0";
-			
-			if (this.type == R.objects.CollisionBox.TYPE_TRIGGER) {
-				color = "255,0,0";	
-			}
-			
-			if (this.editing) {
-				renderContext.setFillStyle("rgba(" + color + ",0.85)");
-			} else {
-				renderContext.setFillStyle("rgba(" + color + ",0.4)");
-			}
-			
-			renderContext.drawFilledRectangle(this.boxRect);
 
-			if (this.editing) {
-				renderContext.setLineStyle("white");
-				renderContext.setLineWidth(2);
-				renderContext.drawRectangle(this.boxRect);
-			}
+         if (this.visible) {
+            var color = this.type == R.objects.Fixture.TYPE_COLLIDER ? "0,255,255" : "255,0,0";
+
+            if (this.editing) {
+               renderContext.setFillStyle("rgba(" + color + ",0.85)");
+            } else {
+               renderContext.setFillStyle("rgba(" + color + ",0.4)");
+            }
+
+            renderContext.drawFilledRectangle(this.boxRect);
+
+            if (this.editing) {
+               renderContext.setLineStyle("white");
+               renderContext.setLineWidth(2);
+            } else {
+               renderContext.setLineWidth(1);
+            }
+
+            renderContext.drawText(this.boxRect.topLeft(), this.type == R.objects.Fixture.TYPE_COLLIDER ?
+                  "solid" : "trigger");
+            renderContext.drawRectangle(this.boxRect);
+         }
 
 			renderContext.popTransform();
 		},
@@ -171,7 +176,7 @@ R.objects.CollisionBox = function(){
 		 * @param height {Number} The height of the box in pixels
 		 */
 		setBoxSize: function(width, height){
-			this.boxRect.setDims(R.math.Point2D.create(width, height));
+			this.boxRect.setDims(width, height);
 			this.setBoundingBox(this.boxRect);
 		},
 		
@@ -207,16 +212,25 @@ R.objects.CollisionBox = function(){
 		 */
 		isEditable: function(){
 			return true;
-		}
+		},
+
+      /**
+       * Set the visibility state of the fixture.
+       * @param state {Boolean}
+       * @private
+       */
+      setVisible: function(state) {
+         this.visible = state;
+      }
 		
-	}, /** @scope R.objects.CollisionBox.prototype */{ // Static
+	}, /** @scope R.objects.Fixture.prototype */{ // Static
 		/**
 		 * Get the class name of this object
-		 * @return The string <tt>R.objects.CollisionBox</tt>
+		 * @return The string <tt>R.objects.Fixture</tt>
 		 * @type String
 		 */
 		getClassName: function(){
-			return "R.objects.CollisionBox";
+			return "R.objects.Fixture";
 		},
 		
 		/**
