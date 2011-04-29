@@ -1,6 +1,6 @@
 // Load all required engine components
 R.Engine.define({
-	"class": "Tutorial2",
+	"class": "Tutorial3",
 	"requires": [
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext"
