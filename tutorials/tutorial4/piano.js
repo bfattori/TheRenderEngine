@@ -25,7 +25,7 @@ var PianoKeys = function() {
          this.add(R.components.render.Image.create("draw", Tutorial4.imageLoader.getImage("keys")));
 
          // Position the object
-         this.setPosition(Point2D.create(20, 25));
+         this.setPosition(R.math.Point2D.create(20, 25));
 
          // Get the sounds into an array
          var self = this;
@@ -90,7 +90,7 @@ var PianoKeys = function() {
       draw: function(renderContext) {
          for (var key = 0; key < 8; key++) {
             var keyColor = this.dots[key] ? "#ff0000" : "#ffffff";
-            var dotShape = Rectangle2D.create(15 + (26 * key), 108, 10, 10);
+            var dotShape = R.math.Rectangle2D.create(15 + (26 * key), 108, 10, 10);
             renderContext.setFillStyle(keyColor);
             renderContext.drawFilledRectangle(dotShape);
          }

@@ -63,7 +63,7 @@ R.lang.OneShotTrigger = function(){
 				aC.cb.call(this);
 			};
 			// Create an Interval internally
-			doneFn.intv = Interval.create(name + "_trigger", triggerInterval, triggerCallback);
+			doneFn.intv = R.lang.IntervalTimer.create(name + "_trigger", triggerInterval, triggerCallback);
 			doneFn.cb = callback;
 			
 			this.base(name, interval, doneFn);

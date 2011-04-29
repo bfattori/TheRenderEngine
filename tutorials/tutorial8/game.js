@@ -34,9 +34,6 @@ var Tutorial8 = function() {
        * the game to its running state.
        */
       setup: function(){
-         // Set the FPS of the game
-         R.Engine.setFPS(this.engineFPS);
-
          // Create the render context
          this.renderContext = R.rendercontexts.CanvasContext.create("Playfield",
                480, 480);
@@ -49,7 +46,7 @@ var Tutorial8 = function() {
          this.collisionModel = R.collision.broadphase.SpatialGrid.create(
                480, 480, 5);
 
-         this.spriteLoader = R.resources.loader.SpriteLoader.create();
+         this.spriteLoader = R.resources.loaders.SpriteLoader.create();
 
          // Load the sprites
          this.spriteLoader.load("sprites", this.getFilePath("resources/tutorial8.sprite"));

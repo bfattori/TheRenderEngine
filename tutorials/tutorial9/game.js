@@ -1,6 +1,6 @@
 // Load all required engine components
 R.Engine.define({
-	"class": "Tutorial8",
+	"class": "Tutorial9",
 	"requires": [
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext",
@@ -39,9 +39,6 @@ var Tutorial9 = function() {
        * the game to its running state.
        */
       setup: function(){
-         // Set the FPS of the game
-         R.Engine.setFPS(this.engineFPS);
-
          // Create the render context
          this.renderContext = R.rendercontexts.CanvasContext.create("Playfield",
                480, 480);
@@ -100,7 +97,7 @@ var Tutorial9 = function() {
       /**
        * Return a reference to the playfield box
        */
-      getFieldRect: function() {
+      getPlayfield: function() {
          return this.renderContext.getViewport();
       }
 

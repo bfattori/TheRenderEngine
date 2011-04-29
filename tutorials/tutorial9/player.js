@@ -1,6 +1,6 @@
 // Load all required engine components
 R.Engine.define({
-	"class": "GameObject",
+	"class": "Player",
 	"requires": [
 		"R.engine.Object2D",
       "R.engine.Events",
@@ -44,7 +44,7 @@ var Player = function() {
          this.getComponent("shield").setDrawMode(R.components.Render.NO_DRAW);
 
          // Start at the center of the playfield
-         var start = Tutorial9.getFieldRect().getCenter();
+         var start = Tutorial9.getPlayfield().getCenter();
          start.sub(R.math.Point2D.create(25, 25));
 
          // Position the object
@@ -248,7 +248,7 @@ var Player = function() {
          var pos = this.getPosition();
 
          // Determine if we hit a "wall" of our playfield
-         var playfield = Tutorial9.getFieldRect().get();
+         var playfield = Tutorial9.getPlayfield();
 
          if ((pos.x + this.width > playfield.r) || (pos.x < 0)) {
             // Stop X movement and back off

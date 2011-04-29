@@ -1,6 +1,6 @@
 // Load all required engine components
 R.Engine.define({
-	"class": "Tutorial5",
+	"class": "Tutorial6",
 	"requires": [
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext"
@@ -31,7 +31,7 @@ var Tutorial6 = function() {
        */
       setup: function(){
          // Create the render context
-         this.renderContext = CanvasContext.create("Playfield",
+         this.renderContext = R.rendercontexts.CanvasContext.create("Playfield",
                480, 480);
          this.renderContext.setBackgroundColor("black");
 

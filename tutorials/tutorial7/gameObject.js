@@ -35,7 +35,7 @@ var GameObject = function() {
 
          // Start at the center of the playfield
          var start = Tutorial7.getFieldRect().getCenter();
-         start.sub(Point2D.create(25, 25));
+         start.sub(R.math.Point2D.create(25, 25));
 
          // Set our object's shape
          this.shape = R.math.Rectangle2D.create(0, 0, this.width, this.height);

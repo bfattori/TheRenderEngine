@@ -1,6 +1,6 @@
 // Load all required engine components
 R.Engine.define({
-	"class": "GameObject",
+	"class": "Player",
 	"requires": [
 		"R.engine.Object2D",
       "R.engine.Events",

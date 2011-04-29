@@ -28,8 +28,8 @@ var TouchObject = function() {
          // Pick a random location on the playfield
          var dX = 50 + Math.floor(R.lang.Math2.random() * 100);
          var dY = 50 + Math.floor(R.lang.Math2.random() * 100);
-         var rX = Math2.random() * 100 < 50 ? -1 : 1;
-         var rY = Math2.random() * 100 < 50 ? -1 : 1;
+         var rX = R.lang.Math2.random() * 100 < 50 ? -1 : 1;
+         var rY = R.lang.Math2.random() * 100 < 50 ? -1 : 1;
          dX *= rX;
          dY *= rY;
          var start = R.math.Point2D.create(Tutorial7.getFieldRect().getCenter());

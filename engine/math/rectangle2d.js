@@ -58,10 +58,12 @@ R.math.Rectangle2D = function() {
 	bottomRight: null,
    dims: null,
 	center: null,
+   __RECTANGLE2D: true,
 
    /** @private */
    constructor: function(x, y, width, height) {
 		this.base("Rectangle2D");
+      this.__RECTANGLE2D = true;
 
       this.topLeft = R.math.Point2D.create(0,0);
       this.bottomRight = R.math.Point2D.create(0,0);
@@ -115,9 +117,12 @@ R.math.Rectangle2D = function() {
 		if (x.length && x.splice && x.shift) {
          this.topLeft.set(x[0],x[1]);
 			this.dims.set(x[2],x[3]);
-		} else if (x.__POINT2D) {
+		} else if (x.__RECTANGLE2D) {
          this.topLeft.set(x.x,x.y);
 			this.dims.set(x.w,x.h);
+      } else if (x.__POINT2D) {
+         this.topLeft.set(0,0);
+         this.dims.set(x);
       } else {
          this.topLeft.set(x,y);
 			this.dims.set(width,height);

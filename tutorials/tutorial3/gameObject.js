@@ -31,13 +31,13 @@ var GameObject = function() {
 
          // Start at the center of the playfield
          var start = Tutorial3.getFieldRect().getCenter();
-         start.sub(Point2D.create(25, 25));
+         start.sub(R.math.Point2D.create(25, 25));
 
          // Position the object
          this.setPosition(start);
 
          // Set the velocity to zero
-         this.moveVec = Vector2D.create(0,0);
+         this.moveVec = R.math.Vector2D.create(0,0);
       },
 
       /**

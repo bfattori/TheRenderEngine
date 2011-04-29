@@ -57,7 +57,7 @@ var Tutorial5 = function() {
       run: function(){
          // Create the render context
          var renderContext = R.rendercontexts.CanvasContext.create("Playfield",
-               400, 320);
+               650, 320);
          renderContext.setBackgroundColor("black");
 
          // Add the render context

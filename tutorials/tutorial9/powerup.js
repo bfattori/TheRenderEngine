@@ -1,6 +1,6 @@
 // Load all required engine components
 R.Engine.define({
-	"class": "GameObject",
+	"class": "Powerup",
 	"requires": [
 		"R.engine.Object2D",
       "R.engine.Events",
@@ -31,11 +31,11 @@ var Powerup = function() {
          var rY = R.lang.Math2.random() * 100 < 50 ? -1 : 1;
          dX *= rX;
          dY *= rY;
-         var start = R.math.Point2D.create(Tutorial9.getFieldBox().getCenter());
+         var start = R.math.Point2D.create(Tutorial9.getPlayfield().getCenter());
          start.add(R.math.Point2D.create(dX, dY));
 
          // Position the object
-         this.getComponent("move").setPosition(start);
+         this.setPosition(start);
 
          // Set the collision mask
          this.getComponent("collide").setCollisionMask(R.lang.Math2.parseBin("10"));

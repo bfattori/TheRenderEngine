@@ -56,13 +56,13 @@ var Tutorial4 = function() {
          this.imageLoader.load("keys", this.getFilePath("resources/fingerboard.png"), 220, 171);
 
          // Load each of the sound files
+         var self = this;
          $.each([["c1","low_c"],["d1","dee"],["e1","eee"],["f1","eff"],
                  ["g1","gee"],["a1","ay"],["b1","bee"],["c2", "hi_c"]], function() {
-            this.soundLoader.load(this[0], this.getFilePath("resources/" + this[1] + ".mp3"));
+            self.soundLoader.load(this[0], self.getFilePath("resources/" + this[1] + ".mp3"));
          });
 
          // Wait until the image and sounds are loaded before proceeding
-         var self = this;
          this.loadTimeout = R.lang.Timeout.create("wait", 250, function() {
             if (Tutorial4.imageLoader.isReady() && Tutorial4.soundLoader.isReady()) {
                this.destroy();
