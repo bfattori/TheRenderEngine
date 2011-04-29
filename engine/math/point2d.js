@@ -35,8 +35,7 @@ R.Engine.define({
 	"class": "R.math.Point2D",
 	"requires": [
 		"R.math.PooledMathObject",
-		"R.math.Math2D",
-		"R.math.Point3D"
+		"R.math.Math2D"
 	]
 });
 
@@ -53,17 +52,17 @@ R.Engine.define({
  */
 R.math.Point2D = function(){
 	return R.math.PooledMathObject.extend(/** @scope R.math.Point2D.prototype */{
-	
-		_vec: null,
-		__POINT2D:null,
-		
+
+      x: 0,
+      y: 0,
+      __POINT2D: true,
+
 		/**
 		 * @private
 		 */
 		constructor: function(x, y){
-			this.__POINT2D=true;
 			this.base("Point2D");
-			this._vec = $V([0, 0, 1]);
+         this.__POINT2D = true;
 			this.set(x, y);
 		},
 		
@@ -74,13 +73,6 @@ R.math.Point2D = function(){
 			this.base();
 			this.x = 0;
 			this.y = 0;
-		},
-		
-		/**
-		 * @private
-		 */
-		_getVec: function(){
-			return this._vec;
 		},
 		
 		/**
@@ -113,15 +105,15 @@ R.math.Point2D = function(){
 		set: function(x, y){
 			if (x.length && x.splice && x.shift) {
 				// An array
-				this._vec.setElements([x[0], x[1], 1]);
+				this.x = x[0]; this.y = x[1];
 			}
 			else 
-				if (x.__POINT2D) {
-					this._vec.setElements([x.x, x.y, 1]);
+				if (x.__POINT2D) {   // Instead of an "instanceof" check
+					this.x = x.x; this.y = x.y;
 				}
 				else {
 					AssertWarn((y != null), "Undefined Y value for point initialized to zero.");
-					this._vec.setElements([x, y || 0, 1]);
+					this.x = x; this.y = y || 0;
 				}
 			return this;
 		},
@@ -132,7 +124,7 @@ R.math.Point2D = function(){
 		 * @param x {Number} The X coordinate
 		 */
 		setX: function(x){
-			this.set(x, this.y);
+			this.x = x;
 		},
 		
 		/**
@@ -141,7 +133,7 @@ R.math.Point2D = function(){
 		 * @param y {Number} The Y coordinate
 		 */
 		setY: function(y){
-			this.set(this.x, y);
+			this.y = y;
 		},
 		
 		/**
@@ -249,46 +241,20 @@ R.math.Point2D = function(){
 		 * @return {Number} The distance between the two points
 		 */
 		dist: function(point){
-			return this._vec.distanceFrom(point._vec);
+         return Math.sqrt((point.x - this.x) * (point.x - this.x) +
+                          (point.y - this.y) * (point.y - this.y));
 		},
-		
-		/**
-		 * Project this point from 2 dimensions to 3 dimensions, using one of three projection
-		 * types: {@link R.math.Math2D#ISOMETRIC_PROJECTION}  <i>(default)</i>, {@link R.math.Math2D#DIMETRIC_SIDE_PROJECTION}, or
-		 * {@link R.math.Math2D#DIMETRIC_TOP_PROJECTION}.
-		 * <p/>
-		 * Reference: http://www.compuphase.com/axometr.htm
-		 *
-		 * @param height {Number} The height of the ground.  We must use a particular height to
-		 * 		extrapolate our 3D coordinates from.  If the ground is considered level, this can remain zero.
-		 * @param projectionType {Number} One of the three projection types in {@link R.math.Math2D}
-		 * @return {R.math.Point3D} This point, projected into 3 dimensions
-		 */
-		project: function(height, projectionType){
-			height = height || 0;
-			projectionType = projectionType || R.math.Math2D.ISOMETRIC_PROJECTION;
-			var pt = Point3D.create(0, 0, 0), j = this;
-			switch (projectionType) {
-				case R.math.Math2D.ISOMETRIC_PROJECTION:
-					pt.set(0.5 * j.x + j.y - height, -(0.5 * j.x) + j.y - height, height);
-					break;
-				case R.math.Math2D.DIMETRIC_SIDE_PROJECTION:
-					pt.set(j.x + (2 * (j.y - height)), 4 * j.y - height, height);
-					break;
-				case R.math.Math2D.DIMETRIC_TOP_PROJECTION:
-					pt.set(j.x - ((j.y - height) / 2), 2 * (j.y - height), height);
-					break;
-			}
-			return pt;
-		},
-		
+
 		/**
 		 * Mutator method which transforms this point by the specified matrix
-		 * @param matrix {Matrix} The matrix to transform this point by
+		 * @param matrix {Matrix} The matrix to transform this point by.  <tt>Matrix</tt>
+       * is defined in the Sylvester library.
+       *
 		 * @return {R.math.Point2D} This point
 		 */
 		transform: function(matrix){
-			this._vec = matrix.multiply(this._vec);
+			var v = matrix.multiply({ modulus: true, elements: [this.x, this.y, 1] });
+         this.x = v.elements[0]; this.y = v.elements[1];
 			return this;
 		},
 		
@@ -311,48 +277,6 @@ R.math.Point2D = function(){
 		
 		/** @private */
 		resolved: function() {
-         var pp = R.math.Point2D.prototype;
-         if (R.engine.Support.sysInfo().browser != "msie") {
-            // Define setters and getters
-
-            pp.__defineGetter__("x", function(){
-               return this._getVec().e(1);
-            });
-
-            pp.__defineSetter__("x", function(val){
-               var v = this._getVec();
-               v.setElements([val, v.e(2), 1]);
-            });
-
-            pp.__defineGetter__("y", function(){
-               return this._getVec().e(2);
-            });
-
-            pp.__defineSetter__("y", function(val){
-               var v = this._getVec();
-               v.setElements([v.e(1), val, 1]);
-            });
-         } else {
-            Object.defineProperty(pp, "x", {
-               get: function() {
-                  return this._getVec().e(1);
-               },
-               set: function(x) {
-                  var v = this._getVec();
-                  v.setElements([x, v.e(2), 1]);
-               }
-            });
-            Object.defineProperty(pp, "y", {
-               get: function() {
-                  return this._getVec().e(2);
-               },
-               set: function(y) {
-                  var v = this._getVec();
-                  v.setElements([v.e(1), y, 1]);
-               }
-            });
-         }
-
 			R.math.Point2D.ZERO = R.math.Point2D.create(0, 0);
 		},
 		

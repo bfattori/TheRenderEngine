@@ -34,8 +34,8 @@
 R.Engine.define({
 	"class": "R.math.Vector2D",
 	"requires": [
-		"R.math.Point2D",
-		"R.math.Math2D"
+		"R.math.Math2D",
+      "R.math.Point2D"
 	]
 });
 
@@ -60,14 +60,18 @@ R.math.Vector2D = function(){
 		constructor: function(x, y){
 			this.base(x, y);
 		},
-		
+
 		/**
 		 * A mutator method that normalizes this vector, returning a unit length vector.
 		 * @return {R.math.Vector2D} This vector, normalized
 		 * @see #len
 		 */
 		normalize: function(){
-			this._vec = this._vec.toUnitVector();
+         var ln = this.len();
+         if (ln != 0) {
+            this.x /= ln;
+            this.y /= ln;
+         }
 			return this;
 		},
 		
@@ -77,7 +81,7 @@ R.math.Vector2D = function(){
 		 * @return {Number} A value representing the length (magnitude) of the vector.
 		 */
 		len: function(){
-			return this._vec.modulus();
+         return Math.sqrt((this.x * this.x) + (this.y * this.y));
 		},
 		
 		/**
@@ -86,7 +90,7 @@ R.math.Vector2D = function(){
 		 * @return {Number} The dot product
 		 */
 		dot: function(vector){
-			return this._vec.dot(vector._vec);
+         return (this.x * vector.x) + (this.y * vector.y);
 		},
 		
 		/**
@@ -95,7 +99,9 @@ R.math.Vector2D = function(){
 		 * @return {R.math.Vector2D} This vector
 		 */
 		cross: function(vector){
-			this._vec = this._vec.cross(vector._vec);
+         this.x = this.y - vector.y;
+         this.y = vector.x - this.x;
+         // this.z = (this.x * vector.y) - (this.y * vector.x);
 			return this;
 		},
 		
@@ -108,7 +114,8 @@ R.math.Vector2D = function(){
 		 * @return {Number} The angle between two vectors, in degrees
 		 */
 		angleBetween: function(vector){
-			return R.math.Math2D.radToDeg(this._vec.angleFrom(vector._vec));
+         var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
+			return R.math.Math2D.radToDeg(v1.angleFrom(v2));
 		},
 		
 		/**
@@ -117,7 +124,8 @@ R.math.Vector2D = function(){
 		 * @return {Boolean}
 		 */
 		isParallelTo: function(vector){
-			return this._vec.isParallelTo(vector._vec);
+         var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
+			return v1.isParallelTo(v2);
 		},
 		
 		/**
@@ -126,7 +134,8 @@ R.math.Vector2D = function(){
 		 * @return {Boolean}
 		 */
 		isAntiparallelTo: function(vector){
-			return this._vec.isAntiparallelTo(vector._vec);
+         var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
+			return v1.isAntiparallelTo(v2);
 		},
 		
 		/**
@@ -135,7 +144,8 @@ R.math.Vector2D = function(){
 		 * @return {Boolean}
 		 */
 		isPerpendicularTo: function(vector){
-			return this._vec.isPependicularTo(vector._vec);
+         var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
+			return v1.isPependicularTo(v2);
 		},
 		
 		/**
@@ -147,7 +157,9 @@ R.math.Vector2D = function(){
 		 * @return {R.math.Vector2D} This vector
 		 */
 		rotate: function(angle, axis){
-			this._vec = this._vec.rotate(R.math.Math2D.degToRad(angle), axis);
+         var v1 = $V([this.x,this.y,1]);
+			var v3 = v1.rotate(R.math.Math2D.degToRad(angle), axis);
+         this.x = v3.elements[0]; this.y = v3.elements[1];
 			return this;
 		},
 		
@@ -158,9 +170,7 @@ R.math.Vector2D = function(){
 		 * @return {R.math.Vector2D}
 		 */
 		projectOnto: function(vector){
-			var proj = R.math.Vector2D.create(0, 0);
-			var v = vector;
-			var dp = this.dot(vector);
+			var proj = R.math.Vector2D.create(0, 0), v = vector, dp = this.dot(vector);
 			proj.set((dp / (v.x * v.x + v.y * v.y)) * v.x, (dp / (v.x * v.x + v.y * v.y)) * v.y);
 			return proj;
 		},

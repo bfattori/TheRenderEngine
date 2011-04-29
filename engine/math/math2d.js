@@ -1,6 +1,6 @@
 /**
  * The Render Engine
- * Math
+ * Math2D
  *
  * @fileoverview A static 2D math library with several helper methods.
  *
@@ -82,24 +82,6 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
     * @type {Number}
     */
    INV_PI: 0.31831,
-	
-	/**
-	 * The 30&deg; isometic projection (NEN/ISO)
-	 * @type {Number}
-	 */
-	ISOMETRIC_PROJECTION: 1,
-	
-	/**
-	 * The dimetric 1:2 top projection
-	 * @type {Number}
-	 */
-	DIMETRIC_TOP_PROJECTION: 2,
-	
-	/**
-	 * The dimetric 1:2 side projection
-	 * @type {Number}
-	 */
-	DIMETRIC_SIDE_PROJECTION: 3,
 	
    /**
     * Convert degrees to radians.
