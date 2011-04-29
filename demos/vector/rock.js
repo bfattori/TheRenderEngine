@@ -172,10 +172,10 @@ var SpaceroidsRock = function() {
 
       // Pick a random rotation and spin speed
       c_mover.setRotation( Math.floor(R.lang.Math2.random() * 360));
-      c_mover.setAngularVelocity( Math.floor(R.lang.Math2.random() * 10) > 5 ? 0.5 : -0.5);
+      c_mover.setAngularVelocity( Math.floor(R.lang.Math2.random() * 10) > 5 ? 0.2 : -0.2);
 
       // Select a random direction
-      var b = R.math.Point2D.create(0,-1.2);
+      var b = R.math.Point2D.create(0,-0.4);
       var vec = R.math.Math2D.getDirectionVector(R.math.Point2D.ZERO, b, Math.floor(R.lang.Math2.random() * 360));
       b.destroy();
       
@@ -231,7 +231,7 @@ var SpaceroidsRock = function() {
             rock.setup();
             
             var r_mover = rock.getComponent("move");
-            r_mover.setVelocity(r_mover.getVelocity().mul(curVel + 0.5));
+            r_mover.setVelocity(r_mover.getVelocity().mul(curVel + 0.8));
             if (Spaceroids.isAttractMode) {
                rock.killTimer = R.Engine.worldTime + 2000;
             }

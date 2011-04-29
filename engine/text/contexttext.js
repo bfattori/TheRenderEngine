@@ -91,7 +91,7 @@ R.text.ContextText = function(){
 		 * @private
 		 */
 		calculateBoundingBox: function(){
-			this.getHostObject().setBoundingBox(renderContext.getTextMetrics(this.getText()));
+			this.getGameObject().setBoundingBox(renderContext.getTextMetrics(this.getText()));
 		},
 		
 		/**
@@ -110,7 +110,7 @@ R.text.ContextText = function(){
 			renderContext.setFontSize(Math.floor(this.getSize() * R.text.TextRenderer.BASE_TEXT_PIXELSIZE) || R.text.TextRenderer.BASE_TEXT_PIXELSIZE);
 			
 			renderContext.setFillStyle(this.getColor());
-			renderContext.drawText(R.math.Point2D.ZERO, this.getText(), this.getHostObject());
+			renderContext.drawText(R.math.Point2D.ZERO, this.getText(), this.getGameObject());
 		}
 		
 	}, /** @scope R.text.ContextText.prototype */ {

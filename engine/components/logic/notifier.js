@@ -119,7 +119,7 @@ R.components.logic.Notifier = function() {
       }
       
       // get a unique subscriber Id
-      var subId = this.hasher.updateHash(type + fn.toString() + (thisObj || this.getHostObject()).toString());
+      var subId = this.hasher.updateHash(type + fn.toString() + (thisObj || this.getGameObject()).toString());
       this.notifyLists[type].add(subId, {parent: thisObj, func: fn});
       return subId;
    },
@@ -176,6 +176,7 @@ R.components.logic.Notifier = function() {
 			scopeObj = s.parent || host;
 			s.func.call(scopeObj, eventObj);
 		}
+      itr.destroy();
    }
 }, /** @scope R.components.logic.Notifier.prototype */{
    /**

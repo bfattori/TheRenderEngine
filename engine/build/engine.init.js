@@ -41,7 +41,8 @@ R.Engine.defaultOptions = {
    pointAsArc: true,													// Draw points as arcs or rectangles
 	transientMathObject: false,									// Transient (non-pooled) MathObjects
 	useDirtyRectangles: false,										// Enable canvas dirty rectangles redraws
-   nativeAnimationFrame: false                           // Enable the use of "requestAnimationFrame" for faster redraws
+   nativeAnimationFrame: true,                           // Enable the use of "requestAnimationFrame" for faster redraws
+   disableParticleEngine: false                          // Disable the particle engine (if used)
 };
 
 

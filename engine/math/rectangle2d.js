@@ -396,57 +396,110 @@ R.math.Rectangle2D = function() {
 	
 	/** @private */
 	resolved: function() {
-		var rp = R.math.Rectangle2D.prototype;
-		
-		// Define setters and getters
-		rp.__defineGetter__("x", function() {
-			return this.getTopLeft() != null ? this.getTopLeft().x : 0;
-		});
-		
-		rp.__defineSetter__("x", function(val) {
-			this.getTopLeft().setX(val);
-			this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
-		});
-		
-		rp.__defineGetter__("y", function() {
-			return this.getTopLeft() != null ? this.getTopLeft().y : 0;
-		});
-		
-		rp.__defineSetter__("y", function(val) {
-			this.getTopLeft().setY(val);
-			this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
-		});
-		
-		rp.__defineGetter__("w", function() {
-			return this.getDims() != null ? this.getDims().x : 0;
-		});
-		
-		rp.__defineSetter__("w", function(val) {
-			this.getDims().setX(val);
-			this.getBottomRight().set(this.getTopLeft().x + this.getDims().x, this.getTopLeft().y + this.getDims().y);
-			this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
-		});
-		
-		rp.__defineGetter__("h", function() {
-			return this.getDims() != null ? this.getDims().y : 0;
-		});
-		
-		rp.__defineSetter__("h", function(val) {
-			this.getDims().setY(val);
-			this.getBottomRight().set(this.getTopLeft().x + this.getDims().x, this.getTopLeft().y + this.getDims().y);
-			this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
-		});
-		
-		rp.__defineGetter__("r", function() {
-			return this.getDims() != null && this.getTopLeft() != null ? 
-					 this.getTopLeft().x + this.getDims().x : 0;
-		});
-		
-		rp.__defineGetter__("b", function() {
-			return this.getDims() != null && this.getTopLeft() != null ?
-					 this.getTopLeft().y + this.getDims().y : 0;
-		});
+      var rp = R.math.Rectangle2D.prototype;
+      if (R.engine.Support.sysInfo().browser != "msie") {
+
+         // Define setters and getters
+         rp.__defineGetter__("x", function() {
+            return this.getTopLeft() != null ? this.getTopLeft().x : 0;
+         });
+
+         rp.__defineSetter__("x", function(val) {
+            this.getTopLeft().setX(val);
+            this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
+         });
+
+         rp.__defineGetter__("y", function() {
+            return this.getTopLeft() != null ? this.getTopLeft().y : 0;
+         });
+
+         rp.__defineSetter__("y", function(val) {
+            this.getTopLeft().setY(val);
+            this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
+         });
+
+         rp.__defineGetter__("w", function() {
+            return this.getDims() != null ? this.getDims().x : 0;
+         });
+
+         rp.__defineSetter__("w", function(val) {
+            this.getDims().setX(val);
+            this.getBottomRight().set(this.getTopLeft().x + this.getDims().x, this.getTopLeft().y + this.getDims().y);
+            this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
+         });
+
+         rp.__defineGetter__("h", function() {
+            return this.getDims() != null ? this.getDims().y : 0;
+         });
+
+         rp.__defineSetter__("h", function(val) {
+            this.getDims().setY(val);
+            this.getBottomRight().set(this.getTopLeft().x + this.getDims().x, this.getTopLeft().y + this.getDims().y);
+            this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
+         });
+
+         rp.__defineGetter__("r", function() {
+            return this.getDims() != null && this.getTopLeft() != null ?
+                   this.getTopLeft().x + this.getDims().x : 0;
+         });
+
+         rp.__defineGetter__("b", function() {
+            return this.getDims() != null && this.getTopLeft() != null ?
+                   this.getTopLeft().y + this.getDims().y : 0;
+         });
+      } else {
+         Object.defineProperty(rp, "x", {
+            get: function() {
+               return this.getTopLeft() != null ? this.getTopLeft().x : 0;
+            },
+            set: function(val) {
+               this.getTopLeft().setX(val);
+               this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
+            }
+         });
+         Object.defineProperty(rp, "y", {
+            get: function() {
+               return this.getTopLeft() != null ? this.getTopLeft().y : 0;
+            },
+            set: function(val) {
+               this.getTopLeft().setY(val);
+               this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
+            }
+         });
+         Object.defineProperty(rp, "w", {
+            get: function() {
+               return this.getDims() != null ? this.getDims().x : 0;
+            },
+            set: function(val) {
+               this.getDims().setX(val);
+               this.getBottomRight().set(this.getTopLeft().x + this.getDims().x, this.getTopLeft().y + this.getDims().y);
+               this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
+            }
+         });
+         Object.defineProperty(rp, "h", {
+            get: function() {
+               return this.getDims() != null ? this.getDims().y : 0;
+            },
+            set: function(val) {
+               this.getDims().setY(val);
+               this.getBottomRight().set(this.getTopLeft().x + this.getDims().x, this.getTopLeft().y + this.getDims().y);
+               this.getCenter().set(this.getTopLeft().x + (this.getDims().x * 0.5), this.getTopLeft().y + (this.getDims().y * 0.5));
+            }
+         });
+         Object.defineProperty(rp, "r", {
+            get: function() {
+               return this.getDims() != null && this.getTopLeft() != null ?
+                      this.getTopLeft().x + this.getDims().x : 0;
+            }
+         });
+         Object.defineProperty(rp, "b", {
+            get: function() {
+               return this.getDims() != null && this.getTopLeft() != null ?
+                      this.getTopLeft().y + this.getDims().y : 0;
+            }
+         });
+      }
 	}
 });
 
-}
+};

@@ -34,27 +34,25 @@ R.Engine.define({
 	"class": "LevelEditor",
 	"requires": [
 		"R.engine.Game",
-		"R.lang.Timeout",
-		"R.lang.Iterator",
-		"R.engine.Events",
+      "R.engine.Events",
 
 		// Resource loaders and types
 		"R.resources.loaders.SoundLoader",
 		"R.resources.loaders.SpriteLoader",
 		"R.resources.loaders.LevelLoader",
+      "R.resources.loaders.TileLoader",
 		"R.resources.types.Level",
 		"R.resources.types.Sprite",
 		"R.resources.types.Sound",
+      "R.resources.types.Tile",
+      "R.resources.types.TileMap",
 
 		// Persistent storage to save level
 		"R.storage.PersistentStorage",
 
 		// Math objects
 		"R.math.Math2D",
-		"R.math.Point2D",
-		"R.math.Vector2D",
-		"R.math.Rectangle2D",
-		
+
 		// Game objects
 		"R.objects.SpriteActor",
 		"R.objects.CollisionBox"
@@ -86,6 +84,7 @@ var LevelEditor = function() {
    game: null,
    loaders: {
       sprite: null,
+      tile: null,
       sound: null,
       level: null
    },
@@ -94,6 +93,7 @@ var LevelEditor = function() {
 	defaultSprite: null,
 	spriteOptions: null,
 	allSprites: null,
+   allTiles: null,
 	contextOffset: null,
 	pStore: null,
 	dialogBase: null,
@@ -101,7 +101,7 @@ var LevelEditor = function() {
 
    constructor: null,
 	dirty: false,
-	
+
 	getName: function() {
 		return "LevelEditor";
 	},
@@ -117,6 +117,7 @@ var LevelEditor = function() {
       
       // See what kind of resource loaders the game has assigned to it
       LevelEditor.loaders.sprite = [];
+      LevelEditor.loaders.tile = [];
       LevelEditor.loaders.sound = [];
       LevelEditor.loaders.level = [];
       
@@ -128,6 +129,8 @@ var LevelEditor = function() {
                LevelEditor.loaders.sound.push(LevelEditor.game[o]);
             } else if (LevelEditor.game[o] instanceof R.resources.loaders.LevelLoader) {
                LevelEditor.loaders.level.push(LevelEditor.game[o]);
+            } else if (LevelEditor.game[o] instanceof R.resources.loaders.TileLoader) {
+               LevelEditor.loaders.tiles.push(LevelEditor.game[o]);
             } else if (LevelEditor.game[o] instanceof R.rendercontexts.AbstractRenderContext) {
                // The render context (if there's more than one, we'll need to update this)
                LevelEditor.gameRenderContext = LevelEditor.game[o];
@@ -175,6 +178,37 @@ var LevelEditor = function() {
 		}
 
       return LevelEditor.allSprites;
+   },
+
+   /**
+    * Get all of the sprites in all of the sprite resources
+    * @private
+    */
+   getAllTiles: function() {
+      if (!LevelEditor.allTiles) {
+         LevelEditor.allTiles = [];
+
+         // For each of the sprite loaders
+         for (var l in LevelEditor.loaders.tile) {
+            var loader = LevelEditor.loaders.tile[l];
+
+            // Locate the resources (sprite sheets)
+            var resources = loader.getResources();
+            for (var r in resources) {
+
+               // Get all of the sprites
+               var tiles = loader.getSpriteNames(resources[r]);
+               for (var t in tiles) {
+                  LevelEditor.allTiles.push({
+                     lookup: l + ":" + resources[r] + ":" + tiles[t],
+                     sprite: resources[r] + ": " + tiles[t]
+                  });
+               }
+            }
+         }
+      }
+
+      return LevelEditor.allTiles;
    },
 
 	/**
@@ -609,28 +643,11 @@ var LevelEditor = function() {
          LevelEditor.createActor($("#actor option:selected").val());
       });
 
-		/*
-      // Update grid size
-      tbar.append($("<span class='tool'>Grid Size:</span>"));
-      tbar.append($("<input class='tool' type='text' size='3' value='16'/>").change(function() {
-         if (!isNaN($(this).val())) {
-            LevelEditor.gridSize = $(this).val();
-         } else {
-            $(this).val(LevelEditor.gridSize);
-         }
-      }));
-
-      // Create collision rect
-      tbar.append($("<input type='button' value='Collision Box' class='tool'/>").click(function() {
-         LevelEditor.createCollisionBox();
-      }));
-		*/
-		
-      // We need a scrollbar to move the world
+      // We may need scrollbars to move the world
 		var game = LevelEditor.getGame();
-		var viewWidth = game.getRenderContext().getViewport().get().w;
+		var viewWidth = game.getRenderContext().getViewport().w;
       var sb = $("<div style='height: 25px; width: " + viewWidth + "px; overflow-x: auto;'><div style='width: " +
-         game.getLevel().getFrame().get().w + "px; border: 1px dashed'></div></div>").bind("scroll", function() {
+         game.getLevel().getFrame().w + "px; border: 1px dashed'></div></div>").bind("scroll", function() {
             game.getRenderContext().setHorizontalScroll(this.scrollLeft);
       });
       $(document.body).append(sb);

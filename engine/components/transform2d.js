@@ -123,7 +123,7 @@ R.components.Transform2D = function() {
    setPosition: function(point) {
       this.setLastPosition(this.getPosition());
       this.position.set(point);
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 
    /**
@@ -142,7 +142,7 @@ R.components.Transform2D = function() {
     */
    getRenderPosition: function() {
 		this.worldPos.set(this.getPosition());
-		this.worldPos.sub(this.getHostObject().getRenderContext().getWorldPosition());
+		this.worldPos.sub(this.getGameObject().getRenderContext().getWorldPosition());
       return this.worldPos;
    },
 
@@ -178,7 +178,7 @@ R.components.Transform2D = function() {
     */
    setRotation: function(rotation) {
       this.rotation = rotation;
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 
    /**
@@ -194,7 +194,7 @@ R.components.Transform2D = function() {
     * @return {Number}
     */
    getRenderRotation: function() {
-      var wR = this.getHostObject().getRenderContext().getWorldRotation();
+      var wR = this.getGameObject().getRenderContext().getWorldRotation();
       return wR + this.getRotation();
    },
 
@@ -210,7 +210,7 @@ R.components.Transform2D = function() {
    setScale: function(scaleX, scaleY) {
    	scaleX = scaleX || 1.0;
       this.scale = [scaleX, scaleY || scaleX];
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 
    /**
@@ -242,7 +242,7 @@ R.components.Transform2D = function() {
     * @return {Number}
     */
    getRenderScale: function() {
-//    var wS = this.getHostObject().getRenderContext().getWorldScale();
+//    var wS = this.getGameObject().getRenderContext().getWorldScale();
 //      return wS * this.scale;
       return this.scale[0];
    },
@@ -252,7 +252,7 @@ R.components.Transform2D = function() {
     * @return {Number}
     */
    getRenderScaleX: function() {
-//    var wS = this.getHostObject().getRenderContext().getWorldScale();
+//    var wS = this.getGameObject().getRenderContext().getWorldScale();
 //      return wS * this.scale;
       return this.scale[0];
    },
@@ -262,7 +262,7 @@ R.components.Transform2D = function() {
     * @return {Number}
     */
    getRenderScaleY: function() {
-//    var wS = this.getHostObject().getRenderContext().getWorldScale();
+//    var wS = this.getGameObject().getRenderContext().getWorldScale();
 //      return wS * this.scale;
       return this.scale[1];
    },

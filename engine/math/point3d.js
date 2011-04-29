@@ -332,35 +332,66 @@ R.math.Point3D = function(){
 		
 		/** @private */
 		resolved: function() {
-			// Define setters and getters
-			var pp = R.math.Point3D.prototype;
-			pp.__defineGetter__("x", function(){
-				return this._getVec().e(1);
-			});
-			
-			pp.__defineSetter__("x", function(val){
-				var v = this._getVec();
-				v.setElements([val, v.e(2), v.e(3)]);
-			});
-			
-			pp.__defineGetter__("y", function(){
-				return this._getVec().e(2);
-			});
-			
-			pp.__defineSetter__("y", function(val){
-				var v = this._getVec();
-				v.setElements([v.e(1), val, v.e(3)]);
-			});
-			
-			pp.__defineGetter__("z", function(){
-				return this._getVec().e(3);
-			});
-			
-			pp.__defineSetter__("z", function(val){
-				var v = this._getVec();
-				v.setElements([v.e(1), v.e(2), val]);
-			});
-			
+         var pp = R.math.Point3D.prototype;
+         if (R.engine.Support.sysInfo().browser != "msie") {
+            // Define setters and getters
+            pp.__defineGetter__("x", function(){
+               return this._getVec().e(1);
+            });
+
+            pp.__defineSetter__("x", function(val){
+               var v = this._getVec();
+               v.setElements([val, v.e(2), v.e(3)]);
+            });
+
+            pp.__defineGetter__("y", function(){
+               return this._getVec().e(2);
+            });
+
+            pp.__defineSetter__("y", function(val){
+               var v = this._getVec();
+               v.setElements([v.e(1), val, v.e(3)]);
+            });
+
+            pp.__defineGetter__("z", function(){
+               return this._getVec().e(3);
+            });
+
+            pp.__defineSetter__("z", function(val){
+               var v = this._getVec();
+               v.setElements([v.e(1), v.e(2), val]);
+            });
+         } else {
+            Object.defineProperty(pp, "x", {
+               get: function() {
+                  return this._getVec().e(1);
+               },
+               set: function(x) {
+                  var v = this._getVec();
+                  v.setElements([x, v.e(2), v.e(3)]);
+               }
+            });
+            Object.defineProperty(pp, "y", {
+               get: function() {
+                  return this._getVec().e(2);
+               },
+               set: function(y) {
+                  var v = this._getVec();
+                  v.setElements([v.e(1), y, v.e(3)]);
+               }
+            });
+            Object.defineProperty(pp, "z", {
+               get: function() {
+                  return this._getVec().e(3);
+               },
+               set: function(z) {
+                  var v = this._getVec();
+                  v.setElements([v.e(1), v.e(2), z]);
+               }
+            });
+
+         }
+
 			R.math.Point3D.ZERO = R.math.Point3D.create(0, 0, 0);
 		},
 		
@@ -371,4 +402,4 @@ R.math.Point3D = function(){
 		 */
 		ZERO: null 
 	});
-}
+};

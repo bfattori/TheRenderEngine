@@ -237,4 +237,4 @@ R.math.Vector2D = function(){
 		RIGHT: null
 	});
 	
-}
+};

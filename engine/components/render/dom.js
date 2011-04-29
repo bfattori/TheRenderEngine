@@ -60,7 +60,7 @@ R.components.render.DOM = function() {
     */
    execute: function(renderContext, time) {
 		if (this.base(renderContext, time)) {
-			renderContext.drawElement(this.getHostObject());
+			renderContext.drawElement(this.getGameObject());
 		}
    }
 

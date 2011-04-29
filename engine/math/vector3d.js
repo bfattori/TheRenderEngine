@@ -134,5 +134,4 @@ R.math.Vector3D = function(){
 		 */
 		ZERO: null
 	});
-	
-}
+};

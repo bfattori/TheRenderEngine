@@ -91,7 +91,7 @@ var SpaceroidsBullet = function() {
       var p = R.math.Point2D.create(p_mover.getPosition());
 		var dPos = R.math.Point2D.create(dir).mul(10);
       c_mover.setPosition(p.add(dPos));
-      c_mover.setVelocity(dir.mul(8));
+      c_mover.setVelocity(dir.mul(4.5));
       c_mover.setCheckLag(false);
 		dir.destroy();
 		p.destroy();

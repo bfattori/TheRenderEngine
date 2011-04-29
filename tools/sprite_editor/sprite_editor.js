@@ -38,16 +38,12 @@ R.Engine.define({
    "requires": [
       "R.engine.Game",
       "R.rendercontexts.CanvasContext",
-      "R.lang.Iterator",
 
       // Persistent storage to save level
       "R.storage.PersistentStorage",
 
       // Math objects
       "R.math.Math2D",
-      "R.math.Point2D",
-      "R.math.Vector2D",
-      "R.math.Rectangle2D",
 
       "R.util.RenderUtil"
    ],
@@ -981,6 +977,13 @@ var SpriteEditor = function() {
          if (SpriteEditor.clipboard != null && SpriteEditor.pixSize == SpriteEditor.clipboard.size) {
             SpriteEditor.currentLayer.setPixels(SpriteEditor.clipboard.pix);
          }
+      },
+
+      /**
+       * Break an animation up into single frames
+       */
+      actionBreakAnim: function() {
+         
       },
 
       actionExportSpriteSheet: function() {

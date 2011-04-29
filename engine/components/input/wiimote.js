@@ -403,7 +403,7 @@ R.components.input.Wiimote = function() {
       /** @private */
       _wmMinus: function(evt, controllerNum, pressed) {
          if (this.hasMethods[5]) {
-            this.getHostObject().onWiimoteMinus(controllerNum, pressed, evt);
+            this.getGameObject().onWiimoteMinus(controllerNum, pressed, evt);
          }
       },
 
@@ -606,4 +606,4 @@ R.components.input.Wiimote = function() {
        */
       KEYCODE_DOWN: 176
    });
-}
+};

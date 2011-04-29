@@ -239,13 +239,13 @@ R.engine.GameObject = function(){
 				 
 				 // Only one of each can be added
 				 this.setPreOrPostComponent(component);
-				 component.setHostObject(this);
+				 component.setGameObject(this);
 				 return;
 			}
 			
 			this.base(component.getName(), component);
 			
-			component.setHostObject(this);
+			component.setGameObject(this);
 			if (this.getObjects().length > 1) {
 				this.sort(R.engine.GameObject.componentSort);
 			}

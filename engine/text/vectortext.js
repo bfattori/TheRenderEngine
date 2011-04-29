@@ -103,7 +103,7 @@ R.text.VectorText = function(){
 				}
 			}
 			
-			this.getHostObject().getBoundingBox().set(0, 0, ((Math.abs(x1) + x2) * this.getSize()) + 2, ((Math.abs(y1) + y2) * this.getSize()) + 2);
+			this.getGameObject().getBoundingBox().set(0, 0, ((Math.abs(x1) + x2) * this.getSize()) + 2, ((Math.abs(y1) + y2) * this.getSize()) + 2);
 			this.setTextAlignment(this.getTextAlignment());
 		},
 		
@@ -124,7 +124,7 @@ R.text.VectorText = function(){
 			this.base(align);
 			
 			// Adjust the origin, based on the alignment
-			var b = this.getHostObject().getBoundingBox();
+			var b = this.getGameObject().getBoundingBox();
 			var c = b.getCenter();
 			var o = R.math.Point2D.create(0, 0);
 			if (align === R.text.AbstractTextRenderer.ALIGN_RIGHT) {
@@ -138,7 +138,7 @@ R.text.VectorText = function(){
 					o.set(c.x, 0);
 				}
 			
-			this.getHostObject().setOrigin(o);
+			this.getGameObject().setOrigin(o);
 		},
 		
 		/**
@@ -216,7 +216,7 @@ R.text.VectorText = function(){
 			}
 			
 			renderContext.pushTransform();
-			var o = R.math.Point2D.create(this.getHostObject().getOrigin());
+			var o = R.math.Point2D.create(this.getGameObject().getOrigin());
 			o.neg();
 			renderContext.setPosition(o);
 			o.destroy();

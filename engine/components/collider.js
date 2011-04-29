@@ -106,17 +106,25 @@ R.components.Collider = function() {
       },
 
       /**
-       * Establishes the link between this component and its host object.
-       * When you assign components to a host object, it will call this method
-       * so that each component can refer to its host object, the same way
-       * a host object can refer to a component with {@link R.engine.GameObject#getComponent}.
-       *
-       * @param hostObject {R.engine.GameObject} The object which hosts this component
+       * Deprecated in favor of {@link #setGameObject}.
+       * @deprecated
        */
       setHostObject: function(hostObj) {
-         this.base(hostObj);
+         this.setGameObject(hostObj);
+      },
+
+      /**
+       * Establishes the link between this component and its game object.
+       * When you assign components to a game object, it will call this method
+       * so that each component can refer to its game object, the same way
+       * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
+       *
+       * @param gameObject {R.engine.GameObject} The object which hosts this component
+       */
+      setGameObject: function(gameObject) {
+         this.base(gameObject);
          this.setCollisionMask(0x7FFFFFFF);
-         this.hasCollideMethods = [hostObj.onCollide != undefined, hostObj.onCollideEnd != undefined];
+         this.hasCollideMethods = [gameObject.onCollide != undefined, gameObject.onCollideEnd != undefined];
       },
 
       // TODO: Should destroy() remove the object from the collision model??
@@ -211,7 +219,7 @@ R.components.Collider = function() {
        * @return {Number}
        */
       getCollisionMask: function() {
-         return this.collisionModel ? this.collisionModel.getObjectSpatialData(this.getHostObject(), "collisionMask") :
+         return this.collisionModel ? this.collisionModel.getObjectSpatialData(this.getGameObject(), "collisionMask") :
                0;
       },
 
@@ -234,7 +242,7 @@ R.components.Collider = function() {
        */
       setCollisionMask: function(collisionMask) {
          if (this.collisionModel) {
-            this.collisionModel.setObjectSpatialData(this.getHostObject(), "collisionMask", collisionMask);
+            this.collisionModel.setObjectSpatialData(this.getGameObject(), "collisionMask", collisionMask);
          }
       },
 
@@ -259,7 +267,7 @@ R.components.Collider = function() {
        * update this model frequently so collisions can be determined.
        */
       updateModel: function() {
-         var obj = this.getHostObject();
+         var obj = this.getGameObject();
          this.getCollisionModel().addObject(obj, obj.getPosition());
       },
 
@@ -269,7 +277,7 @@ R.components.Collider = function() {
        * @return {R.spatial.AbstractSpatialNode}
        */
       getSpatialNode: function() {
-         return this.collisionModel.getObjectSpatialData(this.getHostObject(), "lastNode");
+         return this.collisionModel.getObjectSpatialData(this.getGameObject(), "lastNode");
       },
 
       /**
@@ -297,7 +305,7 @@ R.components.Collider = function() {
             return;
          }
 
-         var host = this.getHostObject();
+         var host = this.getGameObject();
 
          // Update the collision model
          this.updateModel();
@@ -318,7 +326,7 @@ R.components.Collider = function() {
 
             pcl.forEach(function(obj) {
                var targetMask = this.collisionModel.getObjectSpatialData(obj, "collisionMask");
-               if (obj !== this.getHostObject() && // Cannot collide with itself
+               if (obj !== this.getGameObject() && // Cannot collide with itself
                      (hostMask & targetMask) <= hostMask &&
                      status == R.components.Collider.CONTINUE ||
                      status == R.components.Collider.COLLIDE_AND_CONTINUE) {
@@ -362,7 +370,7 @@ R.components.Collider = function() {
             return R.components.Collider.CONTINUE;
          }
 
-         var test = this.getHostObject().onCollide(collisionObj, time, targetMask);
+         var test = this.getGameObject().onCollide(collisionObj, time, targetMask);
          this.didCollide |= (test == R.components.Collider.STOP || R.components.Collider.COLLIDE_AND_CONTINUE);
          return test;
       }
@@ -416,4 +424,4 @@ R.components.Collider = function() {
       DETAILED_TEST: 2
 
    });
-}
+};

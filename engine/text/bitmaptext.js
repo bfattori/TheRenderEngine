@@ -127,7 +127,7 @@ R.text.BitmapText = function(){
 			}
 			
 			// Set the bounding box
-			this.getHostObject().getBoundingBox().set(0, 0, pc.x * this.getSize(), cH * this.getSize());
+			this.getGameObject().getBoundingBox().set(0, 0, pc.x * this.getSize(), cH * this.getSize());
 			pc.destroy();
 		},
 		
@@ -210,7 +210,7 @@ R.text.BitmapText = function(){
 							cW = this.font.info.letters[glyph] - cS;
 							var sRect = R.math.Rectangle2D.create(cS, 0, cW, cH);
 							var rect = R.math.Rectangle2D.create(pc.x, pc.y, cW, cH);
-							renderContext.drawImage(rect, this.font.image, sRect, this.getHostObject());
+							renderContext.drawImage(rect, this.font.image, sRect, this.getGameObject());
 							pc.add(R.math.Point2D.create(cW, 0).mul(kern));
 						}
 					}

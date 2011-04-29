@@ -35,14 +35,10 @@ R.Engine.define({
 	"class": "SpriteGrid",
 	"requires": [
 		"R.engine.Object2D",
-		"R.struct.Container",
-		"R.lang.Iterator",
+		"R.struct.Container"
 
 		// Math objects
-		"R.math.Math2D",
-		"R.math.Point2D",
-		"R.math.Vector2D",
-		"R.math.Rectangle2D"
+		"R.math.Math2D"
 	]
 });
 

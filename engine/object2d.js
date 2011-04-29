@@ -343,7 +343,7 @@ R.engine.Object2D = function(){
 		setCollisionHull: function(convexHull){
 			Assert(convexHull instanceof R.collision.ConvexHull, "setCollisionHull() - not ConvexHull!");
 			this.collisionHull = convexHull;
-			this.collisionHull.setHostObject(this);
+			this.collisionHull.setGameObject(this);
 			this.genHull = false;
 			this.markDirty();
 		},

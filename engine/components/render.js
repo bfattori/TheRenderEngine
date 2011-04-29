@@ -108,12 +108,12 @@ R.components.Render = function() {
 	 * @param before {Boolean} <code>true</code> if the transform is occurring before rendering
 	 */
 	transformOrigin: function(renderContext, before) {
-		if (this.getHostObject().getOrigin().isZero()) {
+		if (this.getGameObject().getOrigin().isZero()) {
 			return;
 		}
 		
-		if (!this.origin.equals(this.getHostObject().getOrigin())) {
-			this.origin.set(this.getHostObject().getOrigin());
+		if (!this.origin.equals(this.getGameObject().getOrigin())) {
+			this.origin.set(this.getGameObject().getOrigin());
 		}
 		
 		if (before === true) {
@@ -134,26 +134,26 @@ R.components.Render = function() {
     */
    execute: function(renderContext, time) {
 
-		if (R.Engine.options.useDirtyRectangles && !this.getHostObject().isDirty()) {
+		if (R.Engine.options.useDirtyRectangles && !this.getGameObject().isDirty()) {
 			// Objects that aren't dirty don't need to re-render
 			return false;
 		}
 
       // Check visibility
       if ((this.drawMode == R.components.Render.NO_DRAW) ||
-          this.getHostObject().getWorldBox &&
-          (!renderContext.getViewport().isIntersecting(this.getHostObject().getWorldBox())))
+          this.getGameObject().getWorldBox &&
+          (!renderContext.getViewport().isIntersecting(this.getGameObject().getWorldBox())))
       {
-         if (this.getHostObject().getElement() && !this.oldDisplay) {
-            this.oldDisplay = this.getHostObject().jQ().css("display");
-            this.getHostObject().jQ().css("display", "none");
+         if (this.getGameObject().getElement() && !this.oldDisplay) {
+            this.oldDisplay = this.getGameObject().jQ().css("display");
+            this.getGameObject().jQ().css("display", "none");
          }
 
          return false;
       }
 
-      if (this.getHostObject().getElement() && this.oldDisplay) {
-         this.getHostObject().jQ().css("display", this.oldDisplay);
+      if (this.getGameObject().getElement() && this.oldDisplay) {
+         this.getGameObject().jQ().css("display", this.oldDisplay);
          this.oldDisplay = null;
       }
 

@@ -33,17 +33,17 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.components.physics.CircleBody",
-	"requires": [
-		"R.components.physics.BaseBody",
-		"R.math.Point2D",
-		"R.math.Rectangle2D"
-	]
+   "class": "R.components.physics.CircleBody",
+   "requires": [
+      "R.components.physics.BaseBody",
+      "R.math.Point2D",
+      "R.math.Rectangle2D"
+   ]
 });
 
 /**
  * @class An extension of the {@link R.components.physics.BaseBody} which creates a circular
- * 		 rigid body.  
+ *        rigid body.
  *
  * @param name {String} Name of the component
  * @param radius {Number} The radius of the circle
@@ -53,99 +53,107 @@ R.Engine.define({
  * @description A circular rigid body component.
  */
 R.components.physics.CircleBody = function() {
-	return R.components.physics.BaseBody.extend(/** @scope R.components.physics.CircleBody.prototype */{
+   return R.components.physics.BaseBody.extend(/** @scope R.components.physics.CircleBody.prototype */{
 
-	radius: 0,
+      radius: 0,
 
-	/**
-	 * @private
-	 */
-	constructor: function(name, radius) {
-		var fixDef = new Box2D.Dynamics.b2FixtureDef();
-		fixDef.shape = new Box2D.Collision.Shapes.b2CircleShape(1);
+      /**
+       * @private
+       */
+      constructor: function(name, radius) {
+         var fixDef = new Box2D.Dynamics.b2FixtureDef();
+         fixDef.shape = new Box2D.Collision.Shapes.b2CircleShape(1);
 
-		this.base(name, fixDef);
-		this.radius = radius;
-		this.setLocalOrigin(radius, radius);
-	},
-	
-	/**
-	 * Releases the component back into the object pool.
-	 */
-	release: function() {
-		this.base();
-		this.radius = 0;
-	},
-	
-	setHostObject: function(hostObj) {
-		this.base(hostObj);
-		
-		var scaled = this.getRadius() / hostObj.getSimulation().getScale();
-		this.getFixtureDef().shape.SetRadius(scaled);
-	},
-	
-	/**
-	 * Set the radius of the circle's body.  Calling this method after
-	 * simulation has started on the body has no effect.
-	 * 
-	 * @param radius {Number} The radius of the body
-	 */
-	setRadius: function(radius) {
-		this.radius = radius;
-		
-		var scaled = radius / this.getHostObject().getSimulation().getScale();
-		this.getFixtureDef().shape.SetRadius(scaled);
-		if (this.simulation) {
-			this.updateFixture();
-		}
-	},
-	
-	/**
-	 * Get the radius of the circle's body.
-	 * @return {Number}
-	 */
-	getRadius: function() {
-		return this.radius;
-	},
+         this.base(name, fixDef);
+         this.radius = radius;
+         this.setLocalOrigin(radius, radius);
+      },
 
-	/**
-	 * Get a box which bounds the body.
-	 * @return {R.math.Rectangle2D}
-	 */
-	getBoundingBox: function() {
-		var box = this.base();
-		var r = this.radius;
-		box.set(0, 0, r * 2, r * 2);
-		return box;
-	}
+      /**
+       * Releases the component back into the object pool.
+       */
+      release: function() {
+         this.base();
+         this.radius = 0;
+      },
 
-	/* pragma:DEBUG_START */
-	/**
-	 * Adds shape debugging
-	 * @private
-	 */	
-	,execute: function(renderContext, time) {
-		this.base(renderContext, time);
-		if (R.Engine.getDebugMode()) {
-			renderContext.pushTransform();
-			renderContext.setLineStyle("blue");
-			renderContext.setScale(1/this.getScale());
-			renderContext.drawArc(R.math.Point2D.ZERO, this.getRadius(), 0, 360);
-			renderContext.popTransform();
-		}	
-	}
-	/* pragma:DEBUG_END */
+      /**
+       * Deprecated in favor of {@link #setGameObject}
+       * @deprecated
+       */
+      setHostObject: function(hostObj) {
+         this.setGameObject(hostObj);
+      },
 
-}, { /** @scope R.components.physics.CircleBody.prototype */
+      setGameObject: function(gameObject) {
+         this.base(gameObject);
 
+         var scaled = this.getRadius() / gameObject.getSimulation().getScale();
+         this.getFixtureDef().shape.SetRadius(scaled);
+      },
+
+      /**
+       * Set the radius of the circle's body.  Calling this method after
+       * simulation has started on the body has no effect.
+       *
+       * @param radius {Number} The radius of the body
+       */
+      setRadius: function(radius) {
+         this.radius = radius;
+
+         var scaled = radius / this.getGameObject().getSimulation().getScale();
+         this.getFixtureDef().shape.SetRadius(scaled);
+         if (this.simulation) {
+            this.updateFixture();
+         }
+      },
+
+      /**
+       * Get the radius of the circle's body.
+       * @return {Number}
+       */
+      getRadius: function() {
+         return this.radius;
+      },
+
+      /**
+       * Get a box which bounds the body.
+       * @return {R.math.Rectangle2D}
+       */
+      getBoundingBox: function() {
+         var box = this.base();
+         var r = this.radius;
+         box.set(0, 0, r * 2, r * 2);
+         return box;
+      }
+
+      /* pragma:DEBUG_START */
    /**
-    * Get the class name of this object
-    *
-    * @return {String} "R.components.physics.CircleBody"
+    * Adds shape debugging
+    * @private
     */
-   getClassName: function() {
-      return "R.components.physics.CircleBody";
-   }
-   
-});
-}
+      ,execute: function(renderContext, time) {
+         this.base(renderContext, time);
+         if (R.Engine.getDebugMode()) {
+            renderContext.pushTransform();
+            renderContext.setLineStyle("blue");
+            renderContext.setScale(1 / this.getScale());
+            renderContext.drawArc(R.math.Point2D.ZERO, this.getRadius(), 0, 360);
+            renderContext.popTransform();
+         }
+      }
+      /* pragma:DEBUG_END */
+
+   }, { /** @scope R.components.physics.CircleBody.prototype */
+
+      /**
+       * Get the class name of this object
+       *
+       * @return {String} "R.components.physics.CircleBody"
+       */
+      getClassName: function() {
+         return "R.components.physics.CircleBody";
+      }
+
+   });
+};

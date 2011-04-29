@@ -152,7 +152,7 @@ R.components.render.Vector2D = function() {
 		}
 		
 		this.calculateBoundingBox();
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 	
 	/**
@@ -164,7 +164,7 @@ R.components.render.Vector2D = function() {
 			this.points[c].transform(matrix);
 		}
 		this.calculateBoundingBox();
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
 	},
 
 	/**
@@ -217,7 +217,7 @@ R.components.render.Vector2D = function() {
     */
    setLineStyle: function(strokeStyle) {
       this.strokeStyle = strokeStyle;
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 
    /**
@@ -235,7 +235,7 @@ R.components.render.Vector2D = function() {
     */
    setLineWidth: function(lineWidth) {
       this.lineWidth = lineWidth;
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 
    /**
@@ -253,7 +253,7 @@ R.components.render.Vector2D = function() {
     */
    setFillStyle: function(fillStyle) {
       this.fillStyle = fillStyle;
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 
    /**
@@ -272,7 +272,7 @@ R.components.render.Vector2D = function() {
     */
    setClosed: function(closed) {
       this.closedManifold = closed;
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 
    /**

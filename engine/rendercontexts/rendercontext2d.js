@@ -1103,4 +1103,4 @@ R.rendercontexts.RenderContext2D = function() {
       NO_ZBIN: 0xDEADBEEF
    });
 
-}
+};

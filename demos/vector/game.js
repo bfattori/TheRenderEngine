@@ -82,8 +82,6 @@ var Spaceroids = function() {
    centerPoint: null,
    areaScale: $.browser.Wii ? 0.7 : 1,
 
-   engineFPS: 30,
-
    collisionModel: null,
 
    rocks: 0,
@@ -448,8 +446,6 @@ var Spaceroids = function() {
    	//R.Engine.setDebugMode(true);
    	R.debug.Metrics.showMetrics();
    	
-      R.Engine.setFPS(this.engineFPS);
-
       // Create the 2D context
       this.fieldBox = R.math.Rectangle2D.create(0, 0, this.fieldWidth, this.fieldHeight);
       this.centerPoint = this.fieldBox.getCenter();

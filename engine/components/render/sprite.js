@@ -94,14 +94,14 @@ R.components.render.Sprite = function() {
    setSprite: function(sprite) {
       this.currentSprite = sprite;
       
-      if (this.getHostObject().jQ()) {
-         this.getHostObject().jQ().css({
+      if (this.getGameObject().jQ()) {
+         this.getGameObject().jQ().css({
             width: sprite.getBoundingBox().len_x(),
             height: sprite.getBoundingBox().len_y(),
             background: "url('" + sprite.getSourceImage().src + "') no-repeat"
          });
       }
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 
    /**
@@ -129,7 +129,7 @@ R.components.render.Sprite = function() {
 
       if (this.currentSprite) {
 			this.transformOrigin(renderContext, true);
-         renderContext.drawSprite(this.currentSprite, time, this.getHostObject());
+         renderContext.drawSprite(this.currentSprite, time, this.getGameObject());
 			this.transformOrigin(renderContext, false);
       }
    }

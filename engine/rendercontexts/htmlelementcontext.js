@@ -157,9 +157,10 @@ R.rendercontexts.HTMLElementContext = function(){
                   // Support for Internet Explorer transforms
                   this.hasTxfm = true;
                   this.has3dTxfm = false;
-                  this.txfmBrowser = "-ms-transform";
+                  this.txfmBrowser = "msTransform";
                   this.txfmOrigin = "-ms-transform-origin";
                }
+               break;
 				default:
 					this.hasTxfm = false;
                this.has3dTxfm = false;
@@ -279,7 +280,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		 */
 		setRotation: function(angle){
 			if (this.hasTxfm) {
-            angle = angle % 360;
+            angle = Math.floor(angle % 360);
 				this.txfm[1] = "rotate(" + angle + "deg)";
 			}
 			this.base(angle);
@@ -362,7 +363,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		 */
 		drawRectangle: function(rect, ref){
 			var rD = rect.getDims(),
-               obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<div>")
+               obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<div>");
 
 			obj.css(this._mergeTransform(ref, {
 				borderWidth: this.getLineWidth(),

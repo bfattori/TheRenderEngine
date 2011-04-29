@@ -75,7 +75,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
    /*
     * Engine info
     */
-   fpsClock: 33,              // The clock rate (ms)
+   fpsClock: 16,              // The clock rate (ms)
    frameTime: 0,              // Amount of time taken to render a frame
    engineLocation: null,      // URI of engine
    defaultContext: null,      // The default rendering context
@@ -368,7 +368,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
       	R.debug.Console.warn("Engine shutting down, '" + obj + "' destroyed because it would create an orphaned reference");
       	obj.destroy();
       	return null;
-      };
+      }
 
       Assert((R.Engine.started === true), "Creating an object when the engine is stopped!", obj);
 
@@ -434,6 +434,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
    		while(itr.hasNext()) {
    			var obj = itr.next();
    			if (obj.getId && (obj.getId() === id)) {
+               itr.destroy();
    				return obj;
    			}
    			if (obj instanceof R.struct.Container) {
@@ -441,6 +442,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
    				return search(obj);
    			}
    		}
+         itr.destroy();
    		return null;
    	}
    	
@@ -767,6 +769,11 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
     */
    engineTimer: function() {
       if (R.Engine.shuttingDown) {
+         return;
+      }
+
+      if (!R.Engine.running && R.Engine._stepOne == 0) {
+         // Not stepping, done here
          return;
       }
 

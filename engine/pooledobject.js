@@ -316,7 +316,8 @@ R.engine.PooledObject =  Base.extend(/** @scope R.engine.PooledObject.prototype 
 
       // We'll only add elements to the pool if the pool for objects is
       // smaller than the defined limit per class (MAX_POOL_COUNT)
-      if (R.engine.PooledObject.objectPool[obj.constructor.getClassName()].length < obj.constructor.MAX_POOL_COUNT) {
+      var maxPool = obj.constructor.MAX_POOL_COUNT || R.engine.PooledObject.MAX_POOL_COUNT;
+      if (R.engine.PooledObject.objectPool[obj.constructor.getClassName()].length < maxPool) {
          // Push this object into the pool
          R.engine.PooledObject.poolSize++;
          R.engine.PooledObject.objectPool[obj.constructor.getClassName()].push(obj);

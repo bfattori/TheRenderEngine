@@ -61,7 +61,7 @@ R.Engine.define({
 	],
 	
 	"includes": [
-		"/../tools/level_editor/leveleditor.js"
+		"/../tools/level_editor/level_editor.js"
 	],
 	
 	// Game class dependencies
@@ -83,8 +83,6 @@ var SpriteDemo = function() {
    fieldBox: null,
    centerPoint: null,
    areaScale: 1.0,
-
-   engineFPS: 30,
 
    fieldWidth: 640,
    fieldHeight: 448,
@@ -121,9 +119,6 @@ var SpriteDemo = function() {
     * the game to its running state.
     */
    setup: function() {
-
-      // Set the FPS of the game
-      R.Engine.setFPS(this.engineFPS);
 
       this.spriteLoader = R.resources.loaders.SpriteLoader.create();
       this.soundLoader = R.resources.loaders.SoundLoader.create(new R.sound.SM2());

@@ -36,7 +36,7 @@ R.Engine.define({
 	"class": "R.particles.ParticleEngine",
 	"requires": [
 		"R.engine.BaseObject",
-		"R.struct.LinkedList"
+		"R.struct.Container"
 	]
 });
 
@@ -69,7 +69,7 @@ R.particles.ParticleEngine = function() {
    /** @private */
    constructor: function() {
       this.base("ParticleEngine");
-      this.particles = R.struct.LinkedList.create();
+      this.particles = R.struct.Container.create();
       this.maximum = R.particles.ParticleEngine.MAX_PARTICLES;
       this.liveParticles = 0;
    },
@@ -104,6 +104,11 @@ R.particles.ParticleEngine = function() {
 			// If the particles are an Array, convert to a LinkedList first
 			particles = R.struct.LinkedList.fromArray(particles);
 		}
+
+      if (R.Engine.options.disableParticleEngine) {
+         particles.destroy();
+         return;
+      }
 
       // If the new particles exceed the size of the engine's
       // maximum, truncate the remainder
@@ -149,6 +154,11 @@ R.particles.ParticleEngine = function() {
     * @param particle {R.particles.AbstractParticle} A particle to animate
     */
    addParticle: function(particle) {
+      if (R.Engine.options.disableParticleEngine) {
+         particle.destroy();
+         return;
+      }
+
 		if (this.particles.size() < this.maximum) {
          particle.init(this, this.lastTime);
 			this.particles.add(particle);
@@ -202,6 +212,10 @@ R.particles.ParticleEngine = function() {
     * @param time {Number} The global time within the engine.
     */
    update: function(renderContext, time) {
+      if (R.Engine.options.disableParticleEngine) {
+         return;
+      }
+
       var p = 1;
       this.lastTime = time;
 

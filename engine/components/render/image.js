@@ -101,7 +101,7 @@ R.components.render.Image = function() {
    setImage: function(image) {
       this.currentImage = image;
       this.bbox = image.getBoundingBox();
-		this.getHostObject().markDirty();
+		this.getGameObject().markDirty();
    },
 
    /**
@@ -126,7 +126,7 @@ R.components.render.Image = function() {
 
       if (this.currentImage) {
 			this.transformOrigin(renderContext, true);
-         renderContext.drawImage(this.bbox, this.currentImage.getImage(), null, this.getHostObject());
+         renderContext.drawImage(this.bbox, this.currentImage.getImage(), null, this.getGameObject());
 			this.transformOrigin(renderContext, false);
       }
    }

@@ -311,25 +311,47 @@ R.math.Point2D = function(){
 		
 		/** @private */
 		resolved: function() {
-			// Define setters and getters
-			var pp = R.math.Point2D.prototype;
-			pp.__defineGetter__("x", function(){
-				return this._getVec().e(1);
-			});
-			
-			pp.__defineSetter__("x", function(val){
-				var v = this._getVec();
-				v.setElements([val, v.e(2), 1]);
-			});
-			
-			pp.__defineGetter__("y", function(){
-				return this._getVec().e(2);
-			});
-			
-			pp.__defineSetter__("y", function(val){
-				var v = this._getVec();
-				v.setElements([v.e(1), val, 1]);
-			});
+         var pp = R.math.Point2D.prototype;
+         if (R.engine.Support.sysInfo().browser != "msie") {
+            // Define setters and getters
+
+            pp.__defineGetter__("x", function(){
+               return this._getVec().e(1);
+            });
+
+            pp.__defineSetter__("x", function(val){
+               var v = this._getVec();
+               v.setElements([val, v.e(2), 1]);
+            });
+
+            pp.__defineGetter__("y", function(){
+               return this._getVec().e(2);
+            });
+
+            pp.__defineSetter__("y", function(val){
+               var v = this._getVec();
+               v.setElements([v.e(1), val, 1]);
+            });
+         } else {
+            Object.defineProperty(pp, "x", {
+               get: function() {
+                  return this._getVec().e(1);
+               },
+               set: function(x) {
+                  var v = this._getVec();
+                  v.setElements([x, v.e(2), 1]);
+               }
+            });
+            Object.defineProperty(pp, "y", {
+               get: function() {
+                  return this._getVec().e(2);
+               },
+               set: function(y) {
+                  var v = this._getVec();
+                  v.setElements([v.e(1), y, 1]);
+               }
+            });
+         }
 
 			R.math.Point2D.ZERO = R.math.Point2D.create(0, 0);
 		},
@@ -340,4 +362,4 @@ R.math.Point2D = function(){
 		 */
 		ZERO: null 
 	});
-}
+};

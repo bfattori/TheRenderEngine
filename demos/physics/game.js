@@ -87,9 +87,7 @@ var PhysicsDemo =  function() {
     * the game to its running state.
     */
    setup: function(){
-      // Set the FPS of the game
-      R.Engine.setFPS(this.engineFPS);
-      
+
       PhysicsDemo.spriteLoader = R.resources.loaders.SpriteLoader.create();
       
       // Load the sprites

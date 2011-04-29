@@ -62,9 +62,6 @@ var FontTest = function() {
       // The rendering context
       renderContext: null,
       
-      // Engine frames per second
-      engineFPS: 30,
-      
       // The play field
       fieldBox: null,
       fieldWidth: 700,
@@ -75,9 +72,6 @@ var FontTest = function() {
        * the game to its running state.
        */
       setup: function(){
-         // Set the FPS of the game
-         R.Engine.setFPS(this.engineFPS);
-			
 			FontTest.fontLoader = R.resources.loaders.BitmapFontLoader.create();
 			FontTest.fontLoader.load("lucida", "lucida_sans_36.font");
 			FontTest.fontLoader.load("century", "century_gothic_36.font");
@@ -109,9 +103,6 @@ var FontTest = function() {
        * Run the game
        */
       run: function(){
-         // Remove the "loading" message
-         $("#loading").remove();
-         
          // Create the render context
          this.fieldWidth = R.Engine.getDebugMode() ? 400 : this.fieldWidth;
          this.fieldBox = R.math.Rectangle2D.create(0, 0, this.fieldWidth, this.fieldHeight);
