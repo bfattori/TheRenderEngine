@@ -200,9 +200,9 @@ var SpaceroidsRock = function() {
     */
    kill: function() {
       // Make some particles
-      var pCount = Spaceroids.isAttractMode ? 6 : 4;
+      var pCount = 8, p;
 
-      var p = R.struct.Container.create();
+      p = R.struct.Container.create();
       for (var x = 0; x < pCount; x++)
       {
          var decel = R.lang.Math2.random() * 0.04;
@@ -224,7 +224,7 @@ var SpaceroidsRock = function() {
       if (this.size - 4 > 1)
       {
          var curVel = this.getComponent("move").getVelocity().len();
-         for (var p = 0; p < 3; p++)
+         for (p = 0; p < 3; p++)
          {
             var rock = SpaceroidsRock.create(this.size - 4, this.getPosition());
             Spaceroids.renderContext.add(rock);

@@ -56,14 +56,17 @@ R.Engine.define({
 R.math.Point3D = function(){
 	return R.math.PooledMathObject.extend(/** @scope R.math.Point3D.prototype */{
 	
-		_vec: null,
+		x: 0,
+      y: 0,
+      z: 0,
+      __POINT3D: true,
 		
 		/**
 		 * @private
 		 */
 		constructor: function(x, y, z){
 			this.base("Point3D");
-			this._vec = $V([0, 0, 0]);
+         this.__POINT3D = true;
 			this.set(x, y, z);
 		},
 		
@@ -75,13 +78,6 @@ R.math.Point3D = function(){
 			this.x = 0;
 			this.y = 0;
 			this.z = 0;
-		},
-		
-		/**
-		 * @private
-		 */
-		_getVec: function(){
-			return this._vec;
 		},
 		
 		/**
@@ -100,7 +96,7 @@ R.math.Point3D = function(){
 		 * @return {Boolean} <tt>true</tt> if the two points are equal
 		 */
 		equals: function(point){
-			return this._vec.eql(point._vec);
+			return this.x == point.x && this.y == point.y && this.z == point.z;
 		},
 		
 		/**
@@ -116,40 +112,27 @@ R.math.Point3D = function(){
 		set: function(x, y, z){
 			if (x.length && x.splice && x.shift) {
 				// An array
-				this._vec.setElements(x);
+				this.x = x[0]; this.y = x[1]; this.z = x[2];
 			}
 			else 
-				if (x instanceof R.math.Point3D) {
-					this._vec.setElements([x.x, x.y, x.z]);
+				if (x.__POINT3D) {
+					this.x = x.x; this.y = x.y; this.z = x.z;
 				}
 				else {
 					AssertWarn((y != null), "Undefined Y value for point initialized to zero.");
 					AssertWarn((z != null), "Undefined Z value for point initialized to zero.");
-					this._vec.setElements([x, y || 0, z || 0]);
+					this.x = x; this.y = y || 0; this.z = z || 0;
 				}
 			return this;
 		},
-		
-		/**
-		 * Get the elements of this point as an object with elements x, y, and z.
-		 * @return {Object}
-		 * @deprecated
-		 */
-		get: function(){
-			return {
-				x: this.x,
-				y: this.x,
-				z: this.z
-			};
-		},
-		
+
 		/**
 		 * Set the X coordinate.
 		 *
 		 * @param x {Number} The X coordinate
 		 */
 		setX: function(x){
-			this.set(x, this.y, this.z);
+			this.x = x;
 		},
 		
 		/**
@@ -158,7 +141,7 @@ R.math.Point3D = function(){
 		 * @param y {Number} The Y coordinate
 		 */
 		setY: function(y){
-			this.set(this.x, y, this.z);
+			this.y = y;
 		},
 		
 		/**
@@ -167,7 +150,7 @@ R.math.Point3D = function(){
 		 * @param z {Number} The Z coordinate
 		 */
 		setZ: function(z){
-			this.set(this.x, this.y, z);
+			this.z = z;
 		},
 		
 		/**
@@ -283,36 +266,11 @@ R.math.Point3D = function(){
 		 * @return {Number} The distance between the two points
 		 */
 		dist: function(point){
-			return this._vec.distanceFrom(point._vec);
+         return Math.sqrt((point.x - this.x) * (point.x - this.x) +
+                          (point.y - this.y) * (point.y - this.y) +
+                          (point.z - this.z) * (point.z - this.z));
 		},
-		
-		/**
-		 * Project this point from 3 dimensions to 2 dimensions, using one of three projection
-		 * types: {@link R.math.Math2D#ISOMETRIC_PROJECTION} <i>(default)</i>, {@link R.math.Math2D#DIMETRIC_SIDE_PROJECTION}, or
-		 * {@link R.math.Math2D#DIMETRIC_TOP_PROJECTION}.
-		 * <p/>
-		 * Reference: http://www.compuphase.com/axometr.htm
-		 *
-		 * @param projectionType {Number} One of the three projection types in {@link R.math.Math2D}
-		 * @return {R.math.Point2D} This point, projected into 2 dimensions
-		 */
-		project: function(projectionType){
-			projectionType = projectionType || R.math.Math2D.ISOMETRIC_PROJECTION;
-			var pt = Point2D.create(0, 0), j = this;
-			switch (projectionType) {
-				case R.math.Math2D.ISOMETRIC_PROJECTION:
-					pt.set(j.x - j.z, j.y + ((j.x + j.z) / 2));
-					break;
-				case R.math.Math2D.DIMETRIC_SIDE_PROJECTION:
-					pt.set(j.x + (j.z / 2), j.y + (j.z / 4));
-					break;
-				case R.math.Math2D.DIMETRIC_TOP_PROJECTION:
-					pt.set(j.x + (j.z / 4), j.y + (j.z / 2));
-					break;
-			}
-			return pt;
-		},
-		
+
 		/**
 		 * Returns a printable version of this object fixed to two decimal places.
 		 * @return {String} Formatted as "x,y"
@@ -332,67 +290,10 @@ R.math.Point3D = function(){
 		
 		/** @private */
 		resolved: function() {
-         var pp = R.math.Point3D.prototype;
-         if (R.engine.Support.sysInfo().browser != "msie") {
-            // Define setters and getters
-            pp.__defineGetter__("x", function(){
-               return this._getVec().e(1);
-            });
-
-            pp.__defineSetter__("x", function(val){
-               var v = this._getVec();
-               v.setElements([val, v.e(2), v.e(3)]);
-            });
-
-            pp.__defineGetter__("y", function(){
-               return this._getVec().e(2);
-            });
-
-            pp.__defineSetter__("y", function(val){
-               var v = this._getVec();
-               v.setElements([v.e(1), val, v.e(3)]);
-            });
-
-            pp.__defineGetter__("z", function(){
-               return this._getVec().e(3);
-            });
-
-            pp.__defineSetter__("z", function(val){
-               var v = this._getVec();
-               v.setElements([v.e(1), v.e(2), val]);
-            });
-         } else {
-            Object.defineProperty(pp, "x", {
-               get: function() {
-                  return this._getVec().e(1);
-               },
-               set: function(x) {
-                  var v = this._getVec();
-                  v.setElements([x, v.e(2), v.e(3)]);
-               }
-            });
-            Object.defineProperty(pp, "y", {
-               get: function() {
-                  return this._getVec().e(2);
-               },
-               set: function(y) {
-                  var v = this._getVec();
-                  v.setElements([v.e(1), y, v.e(3)]);
-               }
-            });
-            Object.defineProperty(pp, "z", {
-               get: function() {
-                  return this._getVec().e(3);
-               },
-               set: function(z) {
-                  var v = this._getVec();
-                  v.setElements([v.e(1), v.e(2), z]);
-               }
-            });
-
-         }
-
 			R.math.Point3D.ZERO = R.math.Point3D.create(0, 0, 0);
+         if (Object.freeze) {
+            Object.freeze(R.math.Point3D.ZERO);
+         }
 		},
 		
 		/**

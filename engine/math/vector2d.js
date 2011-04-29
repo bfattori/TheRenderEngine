@@ -209,6 +209,14 @@ R.math.Vector2D = function(){
 			R.math.Vector2D.LEFT = R.math.Vector2D.create(-1, 0);
 			R.math.Vector2D.DOWN = R.math.Vector2D.create(0, 1);
 			R.math.Vector2D.RIGHT = R.math.Vector2D.create(1, 0);
+         if (Object.freeze) {
+            Object.freeze(R.math.Vector2D.ZERO);
+            Object.freeze(R.math.Vector2D.UP);
+            Object.freeze(R.math.Vector2D.LEFT);
+            Object.freeze(R.math.Vector2D.DOWN);
+            Object.freeze(R.math.Vector2D.RIGHT);
+         }
+
 		},
 
 		/**

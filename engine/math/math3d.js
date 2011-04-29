@@ -67,15 +67,14 @@ R.math.Math3D = /** @scope R.math.Math3D.prototype */{
     */
    DIMETRIC_SIDE_PROJECTION: 3,
 
-
    /**
-    * Project a 2d point to 3d, using one of three projection types: {@link R.math.Math2D#ISOMETRIC_PROJECTION}
-    * <i>(default)</i>, {@link R.math.Math2D#DIMETRIC_SIDE_PROJECTION}, or
-    * {@link R.math.Math2D#DIMETRIC_TOP_PROJECTION}.
+    * Project a 2d point to 3d, using one of three projection types: {@link R.math.Math3D#ISOMETRIC_PROJECTION}
+    * <i>(default)</i>, {@link R.math.Math3D#DIMETRIC_SIDE_PROJECTION}, or
+    * {@link R.math.Math3D#DIMETRIC_TOP_PROJECTION}.
     * <p/>
     * Reference: <a href="http://www.compuphase.com/axometr.htm">http://www.compuphase.com/axometr.htm</a>
     *
-    * @param point2d {R.math.Point2D}
+    * @param point2d {R.math.Point2D} The point to project into 3 dimensions
     * @param height {Number} The height of the ground.  We must use a particular height to
     * 		extrapolate our 3D coordinates from.  If the ground is considered level, this can remain zero.
     * @param projectionType {Number} One of the three projection types in {@link R.math.Math2D}
@@ -84,18 +83,47 @@ R.math.Math3D = /** @scope R.math.Math3D.prototype */{
    project: function(point2d, height, projectionType){
       height = height || 0;
       projectionType = projectionType || R.math.Math3D.ISOMETRIC_PROJECTION;
-      var pt = R.math.Point3D.create(0, 0, 0), j = point2d;
+      var pt = R.math.Point3D.create(0, 0, 0);
       switch (projectionType) {
          case R.math.Math3D.ISOMETRIC_PROJECTION:
-            pt.set(0.5 * j.x + j.y - height, -(0.5 * j.x) + j.y - height, height);
+            pt.set(0.5 * point2d.x + point2d.y - height, -(0.5 * point2d.x) + point2d.y - height, height);
             break;
          case R.math.Math3D.DIMETRIC_SIDE_PROJECTION:
-            pt.set(j.x + (2 * (j.y - height)), 4 * j.y - height, height);
+            pt.set(point2d.x + (2 * (point2d.y - height)), 4 * point2d.y - height, height);
             break;
          case R.math.Math3D.DIMETRIC_TOP_PROJECTION:
-            pt.set(j.x - ((j.y - height) / 2), 2 * (j.y - height), height);
+            pt.set(point2d.x - ((point2d.y - height) / 2), 2 * (point2d.y - height), height);
+            break;
+      }
+      return pt;
+   },
+
+   /**
+    * Project a 3d point to a 2d point, using one of three projection
+    * types: {@link R.math.Math3D#ISOMETRIC_PROJECTION} <i>(default)</i>, {@link R.math.Math3D#DIMETRIC_SIDE_PROJECTION}, or
+    * {@link R.math.Math3D#DIMETRIC_TOP_PROJECTION}.
+    * <p/>
+    * Reference: http://www.compuphase.com/axometr.htm
+    *
+    * @param point3d {R.math.Point3D} The point to project into 2 dimensions
+    * @param projectionType {Number} One of the three projection types in {@link R.math.Math2D}
+    * @return {R.math.Point2D} This point, projected into 2 dimensions
+    */
+   unproject: function(point3d, projectionType){
+      projectionType = projectionType || R.math.Math3D.ISOMETRIC_PROJECTION;
+      var pt = R.math.Point2D.create(0, 0);
+      switch (projectionType) {
+         case R.math.Math3D.ISOMETRIC_PROJECTION:
+            pt.set(point3d.x - point3d.z, point3d.y + ((point3d.x + point3d.z) / 2));
+            break;
+         case R.math.Math3D.DIMETRIC_SIDE_PROJECTION:
+            pt.set(point3d.x + (point3d.z / 2), point3d.y + (point3d.z / 4));
+            break;
+         case R.math.Math3D.DIMETRIC_TOP_PROJECTION:
+            pt.set(point3d.x + (point3d.z / 4), point3d.y + (point3d.z / 2));
             break;
       }
       return pt;
    }
+
 };

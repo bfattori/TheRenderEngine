@@ -69,7 +69,12 @@ R.math.Vector3D = function(){
 		 * @see #len
 		 */
 		normalize: function(){
-			this._vec = this._vec.toUnitVector();
+         var ln = this.len();
+         if (ln != 0) {
+            this.x /= ln;
+            this.y /= ln;
+            this.z /= ln;
+         }
 			return this;
 		},
 		
@@ -79,7 +84,7 @@ R.math.Vector3D = function(){
 		 * @return {Number} A value representing the length (magnitude) of the vector.
 		 */
 		len: function(){
-			return this._vec.modulus();
+         return Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
 		},
 		
 		/**
@@ -88,7 +93,7 @@ R.math.Vector3D = function(){
 		 * @return {Number} The dot product
 		 */
 		dot: function(vector){
-			return this._vec.dot(vector._vec);
+         return (this.x * vector.x) + (this.y * vector.y) + (this.z * vector.z);
 		},
 		
 		/**
@@ -97,7 +102,9 @@ R.math.Vector3D = function(){
 		 * @return {R.math.Vector3D} This vector
 		 */
 		cross: function(vector){
-			this._vec = this._vec.cross(vector._vec);
+         this.x = this.y - vector.y;
+         this.y = vector.x - this.x;
+         this.z = (this.x * vector.y) - (this.y * vector.x);
 			return this;
 		},
 		
@@ -110,7 +117,8 @@ R.math.Vector3D = function(){
 		 * @return {Number} The angle between two vectors, in degrees
 		 */
 		angleBetween: function(vector){
-			return R.math.Math2D.radToDeg(this._vec.angleFrom(vector._vec));
+         var v1 = $V([this.x,this.y,this.z]), v2 = $V([vector.x,vector.y,vector.z]);
+			return R.math.Math2D.radToDeg(v1.angleFrom(v2));
 		}
 		
 	}, /** @scope R.math.Vector3D.prototype */{ 
@@ -125,6 +133,9 @@ R.math.Vector3D = function(){
 		/** @private */
 		resolved: function() {
 			R.math.Vector3D.ZERO = R.math.Vector3D.create(0, 0, 0);
+         if (Object.freeze) {
+            Object.freeze(R.math.Vector3D.ZERO);
+         }
 		},
 		
 		/**

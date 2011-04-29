@@ -94,7 +94,7 @@ R.math.Circle2D = function(){
 				this.radius = x.getRadius();
 			}
 			else 
-				if (x instanceof R.math.Point2D) {
+				if (x.__POINT2D) {
 					this.center.set(x);
 					this.radius = y;
 				}
@@ -141,7 +141,7 @@ R.math.Circle2D = function(){
 		 */
 		offset: function(offsetPtOrX, offsetY){
 			var offs = R.math.Point2D.create(0, 0);
-			if (offsetPtOrX instanceof R.math.Point2D) {
+			if (offsetPtOrX.__POINT2D) {
 				offs.set(offsetPtOrX);
 			}
 			else {
@@ -253,4 +253,4 @@ R.math.Circle2D = function(){
 		
 	});
 	
-}
+};

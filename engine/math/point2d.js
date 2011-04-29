@@ -278,6 +278,9 @@ R.math.Point2D = function(){
 		/** @private */
 		resolved: function() {
 			R.math.Point2D.ZERO = R.math.Point2D.create(0, 0);
+         if (Object.freeze) {
+            Object.freeze(R.math.Point2D.ZERO);
+         }
 		},
 		
 		/**
