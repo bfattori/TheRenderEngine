@@ -283,7 +283,7 @@ R.rendercontexts.RenderContext2D = function() {
                   contextModel.isVisible = true;
                   bin.vis.push(obj);
                }
-            } else if (dataModel.isVisible) {
+            } else if (contextModel.isVisible) {
                // The object isn't in the viewport and is marked visible, unmark it and
                // remove from "visibility" list
                contextModel.isVisible = false;
