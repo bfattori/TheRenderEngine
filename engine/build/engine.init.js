@@ -42,13 +42,14 @@ R.Engine.defaultOptions = {
 	transientMathObject: false,									// Transient (non-pooled) MathObjects
 	useDirtyRectangles: false,										// Enable canvas dirty rectangles redraws
    nativeAnimationFrame: true,                           // Enable the use of "requestAnimationFrame" for faster redraws
-   disableParticleEngine: false                          // Disable the particle engine (if used)
+   disableParticleEngine: false,                         // Disable the particle engine (if used)
+   "useVirtualControlPad": false,                        // Disable the display of the virtual control pad (for touch)
+   "virtualPad": {}                                      // Virtual pad controls
 };
 
 
-// Start the engine
+// Configure the default options
 R.Engine.options = $.extend({}, R.Engine.defaultOptions);
-R.Engine.startup();
 
 // Set up the engine using whatever query params were passed
 R.Engine.setDebugMode(R.engine.Support.checkBooleanParam("debug"));

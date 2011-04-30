@@ -424,9 +424,9 @@ R.rendercontexts.CanvasContext = function() {
     */
    drawSprite: function(sprite, time) {
       var f = sprite.getFrame(time);
-      var tl = f.getTopLeft();
-      var d = f.getDims();
-      this.get2DContext().drawImage(sprite.getSourceImage(), tl.x, tl.y, d.x, d.y, 0, 0, d.x, d.y);
+      //var tl = f.getTopLeft();
+      //var d = f.getDims();
+      this.get2DContext().drawImage(sprite.getSourceImage(), f.x, f.y, f.w, f.h, 0, 0, f.w, f.h);
       this.base(sprite, time);
 		f.destroy();
    },

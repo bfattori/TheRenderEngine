@@ -542,6 +542,56 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
       } else {
          setTimeout(arguments.callee, 50);
       }
+   },
+
+   /**
+    * Displays the virtual D-pad on the screen, if enabled via <tt>R.Engine.options.useVirtualControlPad</tt>,
+    * and wires up the appropriate events for the current browser.
+    */
+   showDPad: function() {
+      if (!R.Engine.options.useVirtualControlPad) {
+         return;
+      }
+
+      R.debug.Console.debug("Virtual D-pad Enabled.");
+
+      var dpad = $("<div class='virtual-d-pad'></div>"),
+            up = $("<div class='button up'></div>"), down = $("<div class='button down'></div>"),
+            left = $("<div class='button left'></div>"), right = $("<div class='button right'></div>");
+
+      $.each([["up",up],["down",down],["left",left],["right",right]], function() {
+         if (R.Engine.options.virtualPad[this[0]]) {
+            dpad.append(this[1]);
+         }
+      });
+      $(document.body).append(dpad);
+
+      // Wire up the buttons to fire keyboard events on the context
+      var downEvent, upEvent;
+      switch (R.engine.Support.sysInfo().browser) {
+         case "safarimobile":
+         case "android": downEvent = "touchstart"; upEvent = "touchend"; break;
+         default: downEvent = "mousedown"; upEvent = "mouseup";
+      }
+
+      $.each([["up",R.engine.Events.KEYCODE_UP_ARROW,up],["down",R.engine.Events.KEYCODE_DOWN_ARROW,down],
+              ["left",R.engine.Events.KEYCODE_LEFT_ARROW,left],["right",R.engine.Events.KEYCODE_RIGHT_ARROW,right]], function() {
+
+         var key = this;
+         if (R.Engine.options.virtualPad[key[0]]) {
+            key[2].bind(downEvent, function() {
+               var e = $.Event("keydown");
+               e.which = key[1];
+               R.Engine.getDefaultContext().jQ().trigger(e);
+               return false;
+            }).bind(upEvent, function() {
+               var e = $.Event("keyup");
+               e.which = key[1];
+               R.Engine.getDefaultContext().jQ().trigger(e);
+               return false;
+            });
+         }
+      });
    }
 });
 

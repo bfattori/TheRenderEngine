@@ -1873,6 +1873,56 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
       } else {
          setTimeout(arguments.callee, 50);
       }
+   },
+
+   /**
+    * Displays the virtual D-pad on the screen, if enabled via <tt>R.Engine.options.useVirtualControlPad</tt>,
+    * and wires up the appropriate events for the current browser.
+    */
+   showDPad: function() {
+      if (!R.Engine.options.useVirtualControlPad) {
+         return;
+      }
+
+      R.debug.Console.debug("Virtual D-pad Enabled.");
+
+      var dpad = $("<div class='virtual-d-pad'></div>"),
+            up = $("<div class='button up'></div>"), down = $("<div class='button down'></div>"),
+            left = $("<div class='button left'></div>"), right = $("<div class='button right'></div>");
+
+      $.each([["up",up],["down",down],["left",left],["right",right]], function() {
+         if (R.Engine.options.virtualPad[this[0]]) {
+            dpad.append(this[1]);
+         }
+      });
+      $(document.body).append(dpad);
+
+      // Wire up the buttons to fire keyboard events on the context
+      var downEvent, upEvent;
+      switch (R.engine.Support.sysInfo().browser) {
+         case "safarimobile":
+         case "android": downEvent = "touchstart"; upEvent = "touchend"; break;
+         default: downEvent = "mousedown"; upEvent = "mouseup";
+      }
+
+      $.each([["up",R.engine.Events.KEYCODE_UP_ARROW,up],["down",R.engine.Events.KEYCODE_DOWN_ARROW,down],
+              ["left",R.engine.Events.KEYCODE_LEFT_ARROW,left],["right",R.engine.Events.KEYCODE_RIGHT_ARROW,right]], function() {
+
+         var key = this;
+         if (R.Engine.options.virtualPad[key[0]]) {
+            key[2].bind(downEvent, function() {
+               var e = $.Event("keydown");
+               e.which = key[1];
+               R.Engine.getDefaultContext().jQ().trigger(e);
+               return false;
+            }).bind(upEvent, function() {
+               var e = $.Event("keyup");
+               e.which = key[1];
+               R.Engine.getDefaultContext().jQ().trigger(e);
+               return false;
+            });
+         }
+      });
    }
 });
 
@@ -2778,8 +2828,8 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
       // Check for supported browser
       if (!R.Engine.browserSupportCheck()) {
-         return;
-      };
+         return false;
+      }
 
       R.Engine.upTime = R.now();
       R.Engine.debugMode = debugMode ? true : false;
@@ -2788,6 +2838,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
       // Load the required scripts
       R.Engine.loadEngineScripts();
+      return true;
    },
 
    /**
@@ -3014,16 +3065,14 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
          case "chrome":
          case "Wii":
          case "safari":
+         case "safarimobile":
          case "mozilla":
          case "firefox":
          case "opera": return true;
-         case "unknown": $(document).ready(function() {
-                           R.Engine.shutdown();
-                           $("body", document).append($("<div class='unsupported'>")
-                              .html(msg));
-                        });
+         default: R.debug.Console.warn("Unsupported Browser");
+                  $("body", document).empty().append($("<div style='font:12pt Arial,sans-serif;'>").html(msg));
+                  return false;
       }
-      return false;
    },
 
    /**
@@ -3606,6 +3655,9 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     * @memberOf R.engine.Script
     */
    loadGame: function(gameSource, gameObjectName/* , gameDisplayName */) {
+      if (!R.Engine.startup()) {
+         return;
+      }
 
       var gameDisplayName = arguments[2] || gameObjectName;
 
@@ -3638,6 +3690,9 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
              R.engine.Script.gameOptionsLoaded &&
 				 R.rendercontexts.DocumentContext &&
 				 R.rendercontexts.DocumentContext.started) {
+
+            // Show the virtual D-pad if the option is on
+            R.engine.Support.showDPad();
 
             // Start the engine
             R.Engine.run();
@@ -4219,13 +4274,14 @@ R.Engine.defaultOptions = {
 	transientMathObject: false,									// Transient (non-pooled) MathObjects
 	useDirtyRectangles: false,										// Enable canvas dirty rectangles redraws
    nativeAnimationFrame: true,                           // Enable the use of "requestAnimationFrame" for faster redraws
-   disableParticleEngine: false                          // Disable the particle engine (if used)
+   disableParticleEngine: false,                         // Disable the particle engine (if used)
+   "useVirtualControlPad": false,                        // Disable the display of the virtual control pad (for touch)
+   "virtualPad": {}                                      // Virtual pad controls
 };
 
 
-// Start the engine
+// Configure the default options
 R.Engine.options = $.extend({}, R.Engine.defaultOptions);
-R.Engine.startup();
 
 // Set up the engine using whatever query params were passed
 R.Engine.setDebugMode(R.engine.Support.checkBooleanParam("debug"));

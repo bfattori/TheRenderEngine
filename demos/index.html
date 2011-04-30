@@ -1,0 +1,49 @@
+<html>
+<head>
+   <title>The Render Engine - Demos</title>
+   <style type="text/css">
+      body {
+         font: 16pt Arial;
+      }
+
+      a {
+         text-decoration: none;
+      }
+
+      ul {
+         list-style: none;
+      }
+
+      ul li {
+         margin-bottom: 10px;
+      }
+   </style>
+   <script type="text/javascript" src="../engine/libs/jquery.js"></script>
+   <script type="text/javascript">
+      $(document).ready(function() {
+         $("ul li").each(function(){
+            var loc = $(this).attr("loc");
+            var html = "<a href='" + loc + "'>" + $(this).text() + "</a>";
+
+            var withDebug = "&nbsp;&nbsp;&nbsp;&nbsp;<a href='" + loc + "?debug=true'>(debug)</a>";
+            var withProfile = "&nbsp;&nbsp;&nbsp;&nbsp;<a href='" + loc + "?profile=true'>(profile graph)</a>"
+
+            $(this).html(html + withDebug + withProfile);
+         });
+      });
+   </script>
+</head>
+<body>
+<em>The Render Engine</em> Built-in Demos
+<ul>
+   <li loc="htmlcontext/index.html">HTMLContext Demo</li>
+   <li loc="isometric/index.html">Isometric Tilemap Demo</li>
+   <li loc="physics/index.html">Simple Physics Demo</li>
+   <li loc="physics2/index.html">Physics Actor Demo</li>
+   <li loc="textrender/index.html">Text Rendering in Canvas Demo</li>
+   <li loc="tilemap/index.html">2d Tilemapping Demo</li>
+   <li loc="touch/index.html">Touch Support Demo</li>
+   <li loc="vector/index.html">Vector Graphics Demo</li>
+</ul>
+</body>
+</html>

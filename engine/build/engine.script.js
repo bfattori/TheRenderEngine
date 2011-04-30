@@ -442,6 +442,9 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     * @memberOf R.engine.Script
     */
    loadGame: function(gameSource, gameObjectName/* , gameDisplayName */) {
+      if (!R.Engine.startup()) {
+         return;
+      }
 
       var gameDisplayName = arguments[2] || gameObjectName;
 
@@ -474,6 +477,9 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
              R.engine.Script.gameOptionsLoaded &&
 				 R.rendercontexts.DocumentContext &&
 				 R.rendercontexts.DocumentContext.started) {
+
+            // Show the virtual D-pad if the option is on
+            R.engine.Support.showDPad();
 
             // Start the engine
             R.Engine.run();

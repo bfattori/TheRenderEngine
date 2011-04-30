@@ -496,8 +496,8 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
       // Check for supported browser
       if (!R.Engine.browserSupportCheck()) {
-         return;
-      };
+         return false;
+      }
 
       R.Engine.upTime = R.now();
       R.Engine.debugMode = debugMode ? true : false;
@@ -506,6 +506,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
       // Load the required scripts
       R.Engine.loadEngineScripts();
+      return true;
    },
 
    /**
@@ -732,16 +733,14 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
          case "chrome":
          case "Wii":
          case "safari":
+         case "safarimobile":
          case "mozilla":
          case "firefox":
          case "opera": return true;
-         case "unknown": $(document).ready(function() {
-                           R.Engine.shutdown();
-                           $("body", document).append($("<div class='unsupported'>")
-                              .html(msg));
-                        });
+         default: R.debug.Console.warn("Unsupported Browser");
+                  $("body", document).empty().append($("<div style='font:12pt Arial,sans-serif;'>").html(msg));
+                  return false;
       }
-      return false;
    },
 
    /**
