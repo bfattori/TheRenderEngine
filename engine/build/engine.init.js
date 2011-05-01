@@ -44,7 +44,17 @@ R.Engine.defaultOptions = {
    nativeAnimationFrame: true,                           // Enable the use of "requestAnimationFrame" for faster redraws
    disableParticleEngine: false,                         // Disable the particle engine (if used)
    "useVirtualControlPad": false,                        // Disable the display of the virtual control pad (for touch)
-   "virtualPad": {}                                      // Virtual pad controls
+   "virtualPad": {                                       // Virtual d-pad mappings
+      "up": "R.engine.Events.KEYCODE_UP_ARROW",
+      "down": "R.engine.Events.KEYCODE_DOWN_ARROW",
+      "left": "R.engine.Events.KEYCODE_LEFT_ARROW",
+      "right": "R.engine.Events.KEYCODE_RIGHT_ARROW"
+   },
+   "virtualButtons": {                                   // Virtual control button mappings
+      "A": "A",
+      "B": "B",
+      "C": "C"
+   }
 };
 
 

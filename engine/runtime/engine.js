@@ -1859,7 +1859,12 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
       }
       return R.engine.Support._sysInfo;
    },
-   
+
+/**
+ * Displays the virtual D-pad on the screen, if enabled via <tt>R.Engine.options.useVirtualControlPad</tt>,
+ * and wires up the appropriate events for the current browser.
+ */
+
    /**
     * When the object is no longer <tt>undefined</tt>, the function will
     * be executed.
@@ -1874,11 +1879,6 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
          setTimeout(arguments.callee, 50);
       }
    },
-
-   /**
-    * Displays the virtual D-pad on the screen, if enabled via <tt>R.Engine.options.useVirtualControlPad</tt>,
-    * and wires up the appropriate events for the current browser.
-    */
    showDPad: function() {
       if (!R.Engine.options.useVirtualControlPad) {
          return;
@@ -1886,18 +1886,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
 
       R.debug.Console.debug("Virtual D-pad Enabled.");
 
-      var dpad = $("<div class='virtual-d-pad'></div>"),
-            up = $("<div class='button up'></div>"), down = $("<div class='button down'></div>"),
-            left = $("<div class='button left'></div>"), right = $("<div class='button right'></div>");
-
-      $.each([["up",up],["down",down],["left",left],["right",right]], function() {
-         if (R.Engine.options.virtualPad[this[0]]) {
-            dpad.append(this[1]);
-         }
-      });
-      $(document.body).append(dpad);
-
-      // Wire up the buttons to fire keyboard events on the context
+      // Events to track based on platform
       var downEvent, upEvent;
       switch (R.engine.Support.sysInfo().browser) {
          case "safarimobile":
@@ -1905,23 +1894,66 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
          default: downEvent = "mousedown"; upEvent = "mouseup";
       }
 
-      $.each([["up",R.engine.Events.KEYCODE_UP_ARROW,up],["down",R.engine.Events.KEYCODE_DOWN_ARROW,down],
-              ["left",R.engine.Events.KEYCODE_LEFT_ARROW,left],["right",R.engine.Events.KEYCODE_RIGHT_ARROW,right]], function() {
+      var dpad = $("<div class='virtual-d-pad'></div>"),
+          vpad = $("<div class='virtual-buttons'></div>"), dpButtons = [], vbButtons = [], i = 0;
+
+
+      // Decodes the key mapping
+      function getMappedKey(key) {
+         if (key.indexOf("R.engine.Events.") != -1) {
+            return R.engine.Events[key.split(".")[3]];
+         } else {
+            return key.charCodeAt(0);
+         }
+      }
+
+      // Don't allow touches in the virtual pads to propagate
+      dpad.bind(downEvent, function() { return false; });
+      vpad.bind(downEvent, function() { return false; });
+
+      // D-pad buttons
+      $.each(R.Engine.options.virtualPad, function(key, v) {
+         if (R.Engine.options.virtualPad[key] != false) {
+            dpButtons[i++] = [key, getMappedKey(v), $("<div class='button " + key + "'></div>")];
+         }
+      });
+
+      $.each(dpButtons, function() {
+         dpad.append(this[2]);
+      });
+      $(document.body).append(dpad);
+
+      // Virtual Pad Buttons
+      i = 0;
+      $.each(R.Engine.options.virtualButtons, function(key, v) {
+         if (R.Engine.options.virtualButtons[key] != false) {
+            vbButtons[i++] = [key, getMappedKey(v), $("<div class='button " + key + "'>" + key + "</div>")];
+         }
+      });
+
+      $.each(vbButtons, function() {
+         vpad.append(this[2]);
+      });
+      $(document.body).append(vpad);
+
+      // Wire up the buttons to fire keyboard events on the context
+      var allButtons = dpButtons.concat(vbButtons);
+      $.each(allButtons, function() {
 
          var key = this;
-         if (R.Engine.options.virtualPad[key[0]]) {
-            key[2].bind(downEvent, function() {
-               var e = $.Event("keydown");
-               e.which = key[1];
-               R.Engine.getDefaultContext().jQ().trigger(e);
-               return false;
-            }).bind(upEvent, function() {
-               var e = $.Event("keyup");
-               e.which = key[1];
-               R.Engine.getDefaultContext().jQ().trigger(e);
-               return false;
-            });
-         }
+         key[2].bind(downEvent, function() {
+            R.debug.Console.debug("virtual keydown: " + key[1]);
+            var e = $.Event("keydown");
+            e.which = key[1];
+            R.Engine.getDefaultContext().jQ().trigger(e);
+            e.preventDefault();
+         }).bind(upEvent, function() {
+            R.debug.Console.debug("virtual keyup: " + key[1]);
+            var e = $.Event("keyup");
+            e.which = key[1];
+            R.Engine.getDefaultContext().jQ().trigger(e);
+            e.preventDefault();
+         });
       });
    }
 });
@@ -3767,6 +3799,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
    loadGameOptions: function(gameSource) {
       var file = gameSource.split(".")[0];
       R.engine.Script.gameOptionsLoaded = false;
+      R.engine.Script.gameOptionsObject = {};
 
       // Attempt three loads for game options... First for the game in general, then
       // for the browser, and finally for the browser and platform.  The objects will be
@@ -3774,7 +3807,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
       R.engine.Script.loadJSON(file + ".config", function(bData, status) {
          if (status == 200 || status == 304) {
             R.debug.Console.debug("Game options loaded from '" + file + ".config'");
-            R.engine.Script.gameOptionsObject = bData;
+            R.engine.Script.gameOptionsObject = $.extend(R.engine.Script.gameOptionsObject, bData);
          }
 
          // Now try to load a browser specific object
@@ -4276,7 +4309,17 @@ R.Engine.defaultOptions = {
    nativeAnimationFrame: true,                           // Enable the use of "requestAnimationFrame" for faster redraws
    disableParticleEngine: false,                         // Disable the particle engine (if used)
    "useVirtualControlPad": false,                        // Disable the display of the virtual control pad (for touch)
-   "virtualPad": {}                                      // Virtual pad controls
+   "virtualPad": {                                       // Virtual d-pad mappings
+      "up": "R.engine.Events.KEYCODE_UP_ARROW",
+      "down": "R.engine.Events.KEYCODE_DOWN_ARROW",
+      "left": "R.engine.Events.KEYCODE_LEFT_ARROW",
+      "right": "R.engine.Events.KEYCODE_RIGHT_ARROW"
+   },
+   "virtualButtons": {                                   // Virtual control button mappings
+      "A": "A",
+      "B": "B",
+      "C": "C"
+   }
 };
 
 

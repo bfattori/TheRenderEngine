@@ -453,8 +453,6 @@ var SpaceroidsPlayer = function() {
                this.nuke();
                break;
          }
-
-         return false;
       },
 
       /**
@@ -479,8 +477,6 @@ var SpaceroidsPlayer = function() {
                break;
 
          }
-
-         return false;
       }
 
    }, { // Static
