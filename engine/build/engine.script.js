@@ -442,6 +442,9 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     * @memberOf R.engine.Script
     */
    loadGame: function(gameSource, gameObjectName/* , gameDisplayName */) {
+      if (!R.Engine.startup()) {
+         return;
+      }
 
       var gameDisplayName = arguments[2] || gameObjectName;
 
@@ -474,6 +477,9 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
              R.engine.Script.gameOptionsLoaded &&
 				 R.rendercontexts.DocumentContext &&
 				 R.rendercontexts.DocumentContext.started) {
+
+            // Show the virtual D-pad if the option is on
+            R.engine.Support.showDPad();
 
             // Start the engine
             R.Engine.run();
@@ -548,6 +554,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
    loadGameOptions: function(gameSource) {
       var file = gameSource.split(".")[0];
       R.engine.Script.gameOptionsLoaded = false;
+      R.engine.Script.gameOptionsObject = {};
 
       // Attempt three loads for game options... First for the game in general, then
       // for the browser, and finally for the browser and platform.  The objects will be
@@ -555,7 +562,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
       R.engine.Script.loadJSON(file + ".config", function(bData, status) {
          if (status == 200 || status == 304) {
             R.debug.Console.debug("Game options loaded from '" + file + ".config'");
-            R.engine.Script.gameOptionsObject = bData;
+            R.engine.Script.gameOptionsObject = $.extend(R.engine.Script.gameOptionsObject, bData);
          }
 
          // Now try to load a browser specific object

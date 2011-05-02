@@ -119,6 +119,7 @@ R.rendercontexts.HTMLElementContext = function(){
 			var version = parseFloat(R.engine.Support.sysInfo().version);
 			switch (R.engine.Support.sysInfo().browser) {
 				case "safari":
+            case "safarimobile":
 					if (version >= 3) {
 						// Support for webkit transforms
 						this.hasTxfm = true;

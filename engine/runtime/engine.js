@@ -1859,7 +1859,12 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
       }
       return R.engine.Support._sysInfo;
    },
-   
+
+/**
+ * Displays the virtual D-pad on the screen, if enabled via <tt>R.Engine.options.useVirtualControlPad</tt>,
+ * and wires up the appropriate events for the current browser.
+ */
+
    /**
     * When the object is no longer <tt>undefined</tt>, the function will
     * be executed.
@@ -1873,6 +1878,83 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
       } else {
          setTimeout(arguments.callee, 50);
       }
+   },
+   showDPad: function() {
+      if (!R.Engine.options.useVirtualControlPad) {
+         return;
+      }
+
+      R.debug.Console.debug("Virtual D-pad Enabled.");
+
+      // Events to track based on platform
+      var downEvent, upEvent;
+      switch (R.engine.Support.sysInfo().browser) {
+         case "safarimobile":
+         case "android": downEvent = "touchstart"; upEvent = "touchend"; break;
+         default: downEvent = "mousedown"; upEvent = "mouseup";
+      }
+
+      var dpad = $("<div class='virtual-d-pad'></div>"),
+          vpad = $("<div class='virtual-buttons'></div>"), dpButtons = [], vbButtons = [], i = 0;
+
+
+      // Decodes the key mapping
+      function getMappedKey(key) {
+         if (key.indexOf("R.engine.Events.") != -1) {
+            return R.engine.Events[key.split(".")[3]];
+         } else {
+            return key.charCodeAt(0);
+         }
+      }
+
+      // Don't allow touches in the virtual pads to propagate
+      dpad.bind(downEvent, function() { return false; });
+      vpad.bind(downEvent, function() { return false; });
+
+      // D-pad buttons
+      $.each(R.Engine.options.virtualPad, function(key, v) {
+         if (R.Engine.options.virtualPad[key] != false) {
+            dpButtons[i++] = [key, getMappedKey(v), $("<div class='button " + key + "'></div>")];
+         }
+      });
+
+      $.each(dpButtons, function() {
+         dpad.append(this[2]);
+      });
+      $(document.body).append(dpad);
+
+      // Virtual Pad Buttons
+      i = 0;
+      $.each(R.Engine.options.virtualButtons, function(key, v) {
+         if (R.Engine.options.virtualButtons[key] != false) {
+            vbButtons[i++] = [key, getMappedKey(v), $("<div class='button " + key + "'>" + key + "</div>")];
+         }
+      });
+
+      $.each(vbButtons, function() {
+         vpad.append(this[2]);
+      });
+      $(document.body).append(vpad);
+
+      // Wire up the buttons to fire keyboard events on the context
+      var allButtons = dpButtons.concat(vbButtons);
+      $.each(allButtons, function() {
+
+         var key = this;
+         key[2].bind(downEvent, function() {
+            R.debug.Console.debug("virtual keydown: " + key[1]);
+            var e = $.Event("keydown");
+            e.which = key[1];
+            R.Engine.getDefaultContext().jQ().trigger(e);
+            e.preventDefault();
+         }).bind(upEvent, function() {
+            R.debug.Console.debug("virtual keyup: " + key[1]);
+            var e = $.Event("keyup");
+            e.which = key[1];
+            R.Engine.getDefaultContext().jQ().trigger(e);
+            e.preventDefault();
+         });
+      });
    }
 });
 
@@ -2778,8 +2860,8 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
       // Check for supported browser
       if (!R.Engine.browserSupportCheck()) {
-         return;
-      };
+         return false;
+      }
 
       R.Engine.upTime = R.now();
       R.Engine.debugMode = debugMode ? true : false;
@@ -2788,6 +2870,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
       // Load the required scripts
       R.Engine.loadEngineScripts();
+      return true;
    },
 
    /**
@@ -3014,16 +3097,14 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
          case "chrome":
          case "Wii":
          case "safari":
+         case "safarimobile":
          case "mozilla":
          case "firefox":
          case "opera": return true;
-         case "unknown": $(document).ready(function() {
-                           R.Engine.shutdown();
-                           $("body", document).append($("<div class='unsupported'>")
-                              .html(msg));
-                        });
+         default: R.debug.Console.warn("Unsupported Browser");
+                  $("body", document).empty().append($("<div style='font:12pt Arial,sans-serif;'>").html(msg));
+                  return false;
       }
-      return false;
    },
 
    /**
@@ -3606,6 +3687,9 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     * @memberOf R.engine.Script
     */
    loadGame: function(gameSource, gameObjectName/* , gameDisplayName */) {
+      if (!R.Engine.startup()) {
+         return;
+      }
 
       var gameDisplayName = arguments[2] || gameObjectName;
 
@@ -3638,6 +3722,9 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
              R.engine.Script.gameOptionsLoaded &&
 				 R.rendercontexts.DocumentContext &&
 				 R.rendercontexts.DocumentContext.started) {
+
+            // Show the virtual D-pad if the option is on
+            R.engine.Support.showDPad();
 
             // Start the engine
             R.Engine.run();
@@ -3712,6 +3799,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
    loadGameOptions: function(gameSource) {
       var file = gameSource.split(".")[0];
       R.engine.Script.gameOptionsLoaded = false;
+      R.engine.Script.gameOptionsObject = {};
 
       // Attempt three loads for game options... First for the game in general, then
       // for the browser, and finally for the browser and platform.  The objects will be
@@ -3719,7 +3807,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
       R.engine.Script.loadJSON(file + ".config", function(bData, status) {
          if (status == 200 || status == 304) {
             R.debug.Console.debug("Game options loaded from '" + file + ".config'");
-            R.engine.Script.gameOptionsObject = bData;
+            R.engine.Script.gameOptionsObject = $.extend(R.engine.Script.gameOptionsObject, bData);
          }
 
          // Now try to load a browser specific object
@@ -4219,13 +4307,24 @@ R.Engine.defaultOptions = {
 	transientMathObject: false,									// Transient (non-pooled) MathObjects
 	useDirtyRectangles: false,										// Enable canvas dirty rectangles redraws
    nativeAnimationFrame: true,                           // Enable the use of "requestAnimationFrame" for faster redraws
-   disableParticleEngine: false                          // Disable the particle engine (if used)
+   disableParticleEngine: false,                         // Disable the particle engine (if used)
+   "useVirtualControlPad": false,                        // Disable the display of the virtual control pad (for touch)
+   "virtualPad": {                                       // Virtual d-pad mappings
+      "up": "R.engine.Events.KEYCODE_UP_ARROW",
+      "down": "R.engine.Events.KEYCODE_DOWN_ARROW",
+      "left": "R.engine.Events.KEYCODE_LEFT_ARROW",
+      "right": "R.engine.Events.KEYCODE_RIGHT_ARROW"
+   },
+   "virtualButtons": {                                   // Virtual control button mappings
+      "A": "A",
+      "B": "B",
+      "C": "C"
+   }
 };
 
 
-// Start the engine
+// Configure the default options
 R.Engine.options = $.extend({}, R.Engine.defaultOptions);
-R.Engine.startup();
 
 // Set up the engine using whatever query params were passed
 R.Engine.setDebugMode(R.engine.Support.checkBooleanParam("debug"));

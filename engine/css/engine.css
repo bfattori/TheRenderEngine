@@ -107,3 +107,77 @@ canvas.engine-profile {
 	z-index: 10000;
 }
 
+.virtual-d-pad,
+.virtual-buttons {
+   position: absolute;
+   left: 20px;
+   bottom: 20px;
+   z-index: 20000;
+   height: 155px;
+   width: 150px;
+}
+
+.virtual-buttons {
+   left: auto;
+   right: 20px;
+}
+
+.virtual-d-pad .button,
+.virtual-buttons .button {
+   position: absolute;
+   background: gray url('$<enginePath>/css/virtualdpad.png') no-repeat;
+   opacity: 0.5;
+   border-radius: 10px;
+   width: 46px;
+   height: 46px;
+}
+
+.virtual-buttons .button {
+   font: 20pt Arial,Helvetica,sans-serif;
+   font-weight: bold;
+   color: black;
+   background: gray;
+   text-align: center;
+   padding-top: 8px;
+   height: 38px;
+   border-radius: 30px;
+}
+
+.virtual-d-pad .button.up {
+   top: 0;
+   left: 40px;
+   background-position: 3px 2px;
+}
+
+.virtual-d-pad .button.down {
+   bottom: 10px;
+   left: 40px;
+   background-position: -37px 4px;
+}
+
+.virtual-d-pad .button.left {
+   left: 0;
+   top: 50px;
+   background-position: -79px 2px;
+}
+
+.virtual-d-pad .button.right {
+   right: 20px;
+   top: 50px;
+   background-position: -116px 2px;
+}
+
+.virtual-buttons .button.A {
+   left: 0;
+   top: 50px;
+}
+
+.virtual-buttons .button.B {
+   left: 60px;
+   top: 50px;
+}
+
+.virtual-buttons .button.C {
+   left: 120px;
+   top: 50px;
+}

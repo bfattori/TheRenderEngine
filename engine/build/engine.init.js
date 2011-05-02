@@ -42,13 +42,24 @@ R.Engine.defaultOptions = {
 	transientMathObject: false,									// Transient (non-pooled) MathObjects
 	useDirtyRectangles: false,										// Enable canvas dirty rectangles redraws
    nativeAnimationFrame: true,                           // Enable the use of "requestAnimationFrame" for faster redraws
-   disableParticleEngine: false                          // Disable the particle engine (if used)
+   disableParticleEngine: false,                         // Disable the particle engine (if used)
+   "useVirtualControlPad": false,                        // Disable the display of the virtual control pad (for touch)
+   "virtualPad": {                                       // Virtual d-pad mappings
+      "up": "R.engine.Events.KEYCODE_UP_ARROW",
+      "down": "R.engine.Events.KEYCODE_DOWN_ARROW",
+      "left": "R.engine.Events.KEYCODE_LEFT_ARROW",
+      "right": "R.engine.Events.KEYCODE_RIGHT_ARROW"
+   },
+   "virtualButtons": {                                   // Virtual control button mappings
+      "A": "A",
+      "B": "B",
+      "C": "C"
+   }
 };
 
 
-// Start the engine
+// Configure the default options
 R.Engine.options = $.extend({}, R.Engine.defaultOptions);
-R.Engine.startup();
 
 // Set up the engine using whatever query params were passed
 R.Engine.setDebugMode(R.engine.Support.checkBooleanParam("debug"));
