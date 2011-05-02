@@ -102,9 +102,9 @@ R.struct.CollisionData = function() {
          this.worldTime = wt;
          this.delta = dt;
 
-         if (Object.freeze) {
-            Object.freeze(this);
-         }
+         //if (Object.freeze) {
+         //   Object.freeze(this);
+         //}
 
 			this.base("CollisionData");
 		},

@@ -249,7 +249,7 @@ var SpaceroidsRock = function() {
        * object is the player, calls the <tt>kill()</tt> method on the player
        * object.
        */
-      onCollide: function(obj, time, mask) {
+      onCollide: function(obj, time, dt, mask) {
          if (mask == SpaceroidsPlayer.COLLISION_MASK && !Spaceroids.playerObj.isNuking()) {
             if (obj.isAlive()) {
                obj.kill();

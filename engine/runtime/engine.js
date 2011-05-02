@@ -1908,8 +1908,8 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
       }
 
       // Don't allow touches in the virtual pads to propagate
-      dpad.bind(downEvent, function() { return false; });
-      vpad.bind(downEvent, function() { return false; });
+      dpad.bind(downEvent, function(evt) { evt.preventDefault(); });
+      vpad.bind(downEvent, function(evt) { evt.preventDefault(); });
 
       // D-pad buttons
       $.each(R.Engine.options.virtualPad, function(key, v) {
@@ -1946,13 +1946,11 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
             var e = $.Event("keydown");
             e.which = key[1];
             R.Engine.getDefaultContext().jQ().trigger(e);
-            e.preventDefault();
          }).bind(upEvent, function() {
             R.debug.Console.debug("virtual keyup: " + key[1]);
             var e = $.Event("keyup");
             e.which = key[1];
             R.Engine.getDefaultContext().jQ().trigger(e);
-            e.preventDefault();
          });
       });
    }
@@ -2467,6 +2465,9 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
     * @memberOf R.Engine
     */
    worldTime: 0,              // The world time
+
+   /** @private */
+   lastTime: 0,               // The last timestamp the world was drawn
 
    /**
     * The number of milliseconds the engine has been running.  This time is updated
@@ -3150,7 +3151,10 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
 			// Render a frame
 			R.Engine.worldTime = R.Engine._stepOne == 1 ? R.Engine._pauseTime : R.now();
-			R.Engine.getDefaultContext().update(null, R.Engine.worldTime);
+
+         // Pass parent context, world time, delta time
+			R.Engine.getDefaultContext().update(null, R.Engine.worldTime, R.Engine.worldTime - R.Engine.lastTime);
+         R.Engine.lastTime = R.Engine.worldTime;
 			R.Engine.frameTime = R.now() - R.Engine.worldTime;
 
          if (R.Engine._stepOne == 1) {
