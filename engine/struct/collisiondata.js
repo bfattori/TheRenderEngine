@@ -40,17 +40,8 @@ R.Engine.define({
 });
 
 /**
- * @class An object which contains information about a collision.  
- * 	The following is the data available:
- * <ul>
- * <li>overlap - {Number} The amount of overlap in pixels</li>
- * <li>unitVector - {@link R.math.Vector2D} The collision normal</li>
- * <li>shape1 - {@link R.collision.ConvexHull} The convex hull which collided (use {@link R.collision.ConvexHull#getHostObj getHostObj} to
- * 	get the object which is using the hull)</li>
- * <li>shape2 - {@link R.collision.ConvexHull} The convex hull that was collided with (use {@link R.collision.ConvexHull#getHostObj getHostObj} to
- * 	get the object which is using the hull)</li>
- * <li>impulseVector - {@link R.math.Vector2D} A vector which can be used to just separate shape1 from shape2</li>
- * </ul>
+ * @class An object which contains information about a collision.  The values of the
+ *    collision data are read directly.
  *
  * @extends R.engine.PooledObject
  * @constructor
@@ -58,20 +49,63 @@ R.Engine.define({
  */
 R.struct.CollisionData = function() {
 	return R.engine.PooledObject.extend({
-		
-		overlap: 0,
+
+      /**
+       * The overlap in pixels
+       * @type {Number}
+       */
+      overlap: 0,
+
+      /**
+       * The collision normal
+       * @type {R.math.Vector2D}
+       */
 		unitVector: null,
+
+      /**
+       * The convex hull which collided
+       * @type {R.collision.ConvexHull}
+       */
 		shape1: null,
+
+      /**
+       * The convex hull which was collided with
+       * @type {R.collision.ConvexHull}
+       */
 		shape2: null,
+
+      /**
+       * A vector which can be used to move the two shapes apart so they aren't colliding
+       * @type {R.math.Vector2D}
+       */
 		impulseVector: null,
 
+      /**
+       * The world time at the time of the collision
+       * @type {Number}
+       */
+      worldTime: 0,
+
+      /**
+       * The time delta between the world time and the last time the engine was updated
+       * @type {Number}
+       */
+      delta: 0,
+
       /** @private */
-		constructor: function(o,u,s1,s2,i) {
+		constructor: function(o,u,s1,s2,i,wt,dt) {
 			this.overlap = o;
 			this.unitVector = u;
 			this.shape1 = s1;
 			this.shape2 = s2;
 			this.impulseVector = i;
+         this.worldTime = wt;
+         this.delta = dt;
+
+         if (Object.freeze) {
+            Object.freeze(this);
+         }
+
 			this.base("CollisionData");
 		},
 
@@ -94,6 +128,12 @@ R.struct.CollisionData = function() {
 			this.shape1 = null;
 			this.shape2 = null;
 			this.impulseVector = null;
+         this.worldTime = 0;
+         this.delta = 0;
 		}
-	});
+	}, {
+      getClassName: function() {
+         return "R.struct.CollisionData";
+      }
+   });
 };

@@ -209,7 +209,7 @@ R.text.VectorText = function(){
 		/**
 		 * @private
 		 */
-		execute: function(renderContext, time){
+		execute: function(renderContext, time, dt){
 		
 			if (this.rText.length == 0) {
 				return;

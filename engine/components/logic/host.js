@@ -126,8 +126,10 @@ R.components.logic.Host = function() {
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   execute: function(renderContext, time) {
+   execute: function(renderContext, time, dt) {
       var objs = this.objects.getObjects();
       for (var c in objs) {
 
@@ -138,7 +140,7 @@ R.components.logic.Host = function() {
             R.debug.Console.info(this.getGameObject().getId() + "[" + this.getName() + "]: SetRenderContext '" + renderContext.getId() + "'");
          }
 
-         objs[c].update(renderContext, time);
+         objs[c].update(renderContext, time, dt);
       }
    }
 }, /** @scope R.components.logic.Host.prototype */{

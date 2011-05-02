@@ -83,10 +83,12 @@ var Player = function() {
     *
     * @param renderContext {RenderContext} The rendering context
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   update: function(renderContext, time) {
+   update: function(renderContext, time, dt) {
       renderContext.pushTransform();
-      this.base(renderContext, time);
+      this.base(renderContext, time, dt);
       renderContext.popTransform();
 
       // Use the metrics to let us know if we're over a toy object

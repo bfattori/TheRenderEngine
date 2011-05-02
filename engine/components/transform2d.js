@@ -273,8 +273,10 @@ R.components.Transform2D = function() {
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   execute: function(renderContext, time) {
+   execute: function(renderContext, time, dt) {
       renderContext.setPosition(this.getRenderPosition());
       renderContext.setRotation(this.getRenderRotation());
       renderContext.setScale(this.getRenderScaleX(), this.getRenderScaleY());

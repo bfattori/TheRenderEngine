@@ -199,8 +199,10 @@ R.components.Base = function() {
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
     * @param time {Number} The global engine time
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   execute: function(renderContext, time) {
+   execute: function(renderContext, time, dt) {
       // ABSTRACT METHOD DECLARATION
    },
 

@@ -298,8 +298,10 @@ R.components.Collider = function() {
        *
        * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context for the component
        * @param time {Number} The current engine time in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      execute: function(renderContext, time) {
+      execute: function(renderContext, time, dt) {
 
          if (!this.collisionModel) {
             return;
@@ -319,7 +321,7 @@ R.components.Collider = function() {
             var hostMask = this.collisionModel.getObjectSpatialData(host, "collisionMask");
 
             // Get the PCL and check for collisions
-            pcl = this.getCollisionModel().getPCL(host.getPosition(), time);
+            pcl = this.getCollisionModel().getPCL(host.getPosition(), time, dt);
             var status = R.components.Collider.CONTINUE;
             var collisionsReported = 0;
             this.didCollide = false;
@@ -332,7 +334,7 @@ R.components.Collider = function() {
                      status == R.components.Collider.COLLIDE_AND_CONTINUE) {
 
                   // Test for a collision
-                  status = this.testCollision(time, obj, hostMask, targetMask);
+                  status = this.testCollision(time, dt, obj, hostMask, targetMask);
 
                   // If they don't return  any value, assume CONTINUE
                   status = (status == undefined ? R.components.Collider.CONTINUE : status);
@@ -347,12 +349,13 @@ R.components.Collider = function() {
          // onCollideEnd
          if (!this.isDestroyed() && this.hasCollideMethods[1] &&
                this.didCollide && collisionsReported == 0) {
-            host.onCollideEnd(time);
+            host.onCollideEnd(time, dt);
          }
       },
 
       /**
        * Call the host object's <tt>onCollide()</tt> method, passing the time of the collision,
+       * the delta since the last time the world was updated,
        * the potential collision object, and the game object and target's masks.  The return value should
        * indicate if the collision tests should continue or stop.
        * <p/>
@@ -360,17 +363,19 @@ R.components.Collider = function() {
        * For <tt>R.components.Collider</tt> the collision test is up to the game object to determine.
        *
        * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
        * @param hostMask {Number} The collision mask for the host object
        * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
        * @return {Number} A status indicating whether to continue checking, or to stop
        */
-      testCollision: function(time, collisionObj, hostMask, targetMask) {
+      testCollision: function(time, dt, collisionObj, hostMask, targetMask) {
          if (hostMask == targetMask && !this.collideSame) {
             return R.components.Collider.CONTINUE;
          }
 
-         var test = this.getGameObject().onCollide(collisionObj, time, targetMask);
+         var test = this.getGameObject().onCollide(collisionObj, time, dt, targetMask);
          this.didCollide |= (test == R.components.Collider.STOP || R.components.Collider.COLLIDE_AND_CONTINUE);
          return test;
       }

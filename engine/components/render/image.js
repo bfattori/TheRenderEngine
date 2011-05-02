@@ -118,10 +118,12 @@ R.components.render.Image = function() {
        *
        * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render to
        * @param time {Number} The engine time in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      execute: function(renderContext, time) {
+      execute: function(renderContext, time, dt) {
 
-         if (!this.base(renderContext, time)) {
+         if (!this.base(renderContext, time, dt)) {
             return;
          }
 

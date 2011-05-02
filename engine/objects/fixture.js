@@ -110,10 +110,12 @@ R.objects.Fixture = function(){
 		 *
 		 * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
 		 * @param time {Number} The engine time in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 */
-		update: function(renderContext, time){
+		update: function(renderContext, time, dt){
 			renderContext.pushTransform();
-			this.base(renderContext, time);
+			this.base(renderContext, time, dt);
 
          if (this.visible) {
             var color = this.type == R.objects.Fixture.TYPE_COLLIDER ? "0,255,255" : "255,0,0";

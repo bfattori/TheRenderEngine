@@ -124,12 +124,14 @@ R.components.collision.Convex = function() {
        * and target's masks.  The return value should either tell the collision tests to continue or stop.
        *
        * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
        * @param objectMask {Number} The collision mask for the host object
        * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
        * @return {Number} A status indicating whether to continue checking, or to stop
        */
-      testCollision: function(time, collisionObj, objectMask, targetMask) {
+      testCollision: function(time, dt, collisionObj, objectMask, targetMask) {
          if (this.getCollisionData() != null) {
             // Clean up old data first
             this.getCollisionData().destroy();
@@ -168,18 +170,18 @@ R.components.collision.Convex = function() {
          }
 
          // Perform the test, passing along the circle data so we don't recalc
-         this.setCollisionData(R.components.collision.Convex.test(hull1, hull2, distSqr, tRad));
+         this.setCollisionData(R.components.collision.Convex.test(hull1, hull2, time, dt, distSqr, tRad));
 
          // If a collision occurred, there will be a data structure describing it
          if (this.getCollisionData() != null) {
-            return this.base(time, collisionObj, objectMask, targetMask);
+            return this.base(time, dt, collisionObj, objectMask, targetMask);
          }
 
          return R.components.Collider.CONTINUE;
       }
 
       /* pragma:DEBUG_START */
-      ,execute: function(renderContext, time) {
+      ,execute: function(renderContext, time, dt) {
          this.base(renderContext, time);
          // Debug the collision hull
          if (R.Engine.getDebugMode() && !this.isDestroyed()) {
@@ -218,22 +220,25 @@ R.components.collision.Convex = function() {
        *
        * @param shape1 {R.collision.ConvexHull}
        * @param shape2 {R.collision.ConvexHull}
+       * @param time {Number} The world time
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        * @return {R.math.Vector2D}
        */
-      test: function(shape1, shape2 /*, distSqr, tRad */) {
+      test: function(shape1, shape2, time, dt /*, distSqr, tRad */) {
          if (shape1.getType() == R.collision.ConvexHull.CONVEX_CIRCLE &&
                shape2.getType() == R.collision.ConvexHull.CONVEX_CIRCLE) {
             // Perform circle-circle test if both shapes are circles
             // We've passed in the distSqr and tRad from the early-out test, pass it along
             // so we're not re-running the calculations
-            return R.components.collision.Convex.ccTest(shape1, shape2, arguments[2], arguments[3]);
+            return R.components.collision.Convex.ccTest(shape1, shape2, time, dt, arguments[4], arguments[5]);
          } else if (shape1.getType() != R.collision.ConvexHull.CONVEX_CIRCLE &&
                shape2.getType() != R.collision.ConvexHull.CONVEX_CIRCLE) {
             // Perform polygon test if both shapes are NOT circles
-            return R.components.collision.Convex.ppTest(shape1, shape2);
+            return R.components.collision.Convex.ppTest(shape1, shape2, time, dt);
          } else {
             // One shape is a circle, the other is an polygon, do that test
-            return R.components.collision.Convex.cpTest(shape1, shape2);
+            return R.components.collision.Convex.cpTest(shape1, shape2, time, dt);
          }
       },
 
@@ -241,7 +246,7 @@ R.components.collision.Convex = function() {
        * Circle-circle test
        * @private
        */
-      ccTest: function(shape1, shape2, distSqr, tRad) {
+      ccTest: function(shape1, shape2, time, dt, distSqr, tRad) {
          // If we got here, we've already done 95% of the work in the early-out test above
          var c1 = shape1.getCenter(), c2 = shape2.getCenter();
 
@@ -254,7 +259,9 @@ R.components.collision.Convex = function() {
                R.math.Vector2D.create(c2.x - c1.x, c2.y - c1.y).normalize(),
                shape1,
                shape2,
-               sep);
+               sep,
+               time,
+               dt);
 
          // Return the collision data
          return cData;
@@ -264,7 +271,7 @@ R.components.collision.Convex = function() {
        * Poly-poly test
        * @private
        */
-      ppTest: function(shape1, shape2) {
+      ppTest: function(shape1, shape2, time, dt) {
          var test1, test2, testNum, min1, min2, max1, max2, offset, temp;
          var axis = R.math.Vector2D.create(0, 0);
          var vectorOffset = R.math.Vector2D.create(0, 0);
@@ -345,7 +352,9 @@ R.components.collision.Convex = function() {
                unitVec,
                shape1,
                shape2,
-               R.math.Vector2D.create(unitVec.x * overlap, unitVec.y * overlap));
+               R.math.Vector2D.create(unitVec.x * overlap, unitVec.y * overlap),
+               time,
+               dt);
 
          // Clean up before returning
          vectorOffset.destroy();
@@ -368,7 +377,7 @@ R.components.collision.Convex = function() {
        * Circle-poly test
        * @private
        */
-      cpTest: function(shape1, shape2) {
+      cpTest: function(shape1, shape2, time, dt) {
          var test1, test2, test, min1, max1, min2, max2, offset, distance;
          var vectorOffset = R.math.Vector2D.create(0, 0);
          var vectors, center, radius, poly;
@@ -508,7 +517,9 @@ R.components.collision.Convex = function() {
                shape1,
                shape2,
                R.math.Vector2D.create(unitVec.x * overlap,
-                     unitVec.y * overlap));
+                     unitVec.y * overlap),
+               time,
+               dt);
 
          // Clean up before returning
          c.destroy();

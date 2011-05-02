@@ -125,8 +125,10 @@ R.components.input.Mouse = function() {
     * intersection tests to be able to call mouse events.
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context
     * @param time {Number} The current world time
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   execute: function(renderContext, time) {
+   execute: function(renderContext, time, dt) {
       // Objects may be in motion.  If so, we need to call the mouse
       // methods for just such a case.
       var gameObject = this.getGameObject(),

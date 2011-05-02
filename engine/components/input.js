@@ -117,7 +117,9 @@ R.components.Input = function() {
       },
 
       /** @private */
-      record: function(eventObj, parts) {
+      record: function(eventObj, parts, time, dt) {
+         // TODO: Now with engine time and delta we should be able
+         // to accurately record and playback demos
          if (!this.recording) {
             return;
          }

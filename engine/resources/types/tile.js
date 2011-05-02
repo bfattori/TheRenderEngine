@@ -118,8 +118,12 @@ R.resources.types.Tile = function() {
        * Test if the given point, local to the tile's coordinates, would
        * result in a collision.
        * @param point {R.math.Point2D}
+       * @param time {Number} The current world time
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      testPoint: function(point, time) {
+      testPoint: function(point, time, dt) {
+         // TODO: The frame calc needs to be modified for sync/unsync
          // Get the frame for the current time
          var fSpeed = tile.getFrameSpeed() == -1 ? 0 : tile.getFrameSpeed(),
              frame = (time / fSpeed) % this.getFrameCount();

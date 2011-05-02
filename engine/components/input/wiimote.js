@@ -308,7 +308,7 @@ R.components.input.Wiimote = function() {
        *
        * @private
        */
-      execute: function(renderContext, time) {
+      execute: function(renderContext, time, dt) {
          if (!$.browser.Wii) {
             // If this isn't Opera for Wii, don't do anything
             return;

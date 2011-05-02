@@ -281,9 +281,11 @@ R.components.render.Vector2D = function() {
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render to
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   execute: function(renderContext, time) {
-      if (!(this.points && this.base(renderContext, time))) {
+   execute: function(renderContext, time, dt) {
+      if (!(this.points && this.base(renderContext, time, dt))) {
          return;
       }
 

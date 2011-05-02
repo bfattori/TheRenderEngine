@@ -171,8 +171,10 @@ R.rendercontexts.CanvasContext = function() {
    /**
     * Set up the world for the given time before any rendering is dont.
     * @param time {Number} The render time
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   setupWorld: function(time) {
+   setupWorld: function(time, dt) {
       this.setScale(this.getWorldScale());
 
       if (R.Engine.getDebugMode()) {
@@ -181,7 +183,7 @@ R.rendercontexts.CanvasContext = function() {
          this.drawRectangle(this.getViewport());
       }
 
-      this.base(time);
+      this.base(time, dt);
    },
 
 	/**
@@ -228,8 +230,10 @@ R.rendercontexts.CanvasContext = function() {
 	 * @param bin {Number} The bin number being rendered
 	 * @param itr {R.lang.Iterator} The iterator over all the objects in the bin
     * @param time {Number} The current render time in milliseconds from the engine.
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
 	 */
-	renderBin: function(bin, itr, time) {
+	renderBin: function(bin, itr, time, dt) {
 		if (R.Engine.options.useDirtyRectangles) {
 			if (!this.firstFrame) {
 				this.resetBin(bin);
@@ -237,7 +241,7 @@ R.rendercontexts.CanvasContext = function() {
 			this.captureBin(bin, itr);
 			this.firstFrame = false;
 		}
-		R.rendercontexts.RenderContext2D.prototype.renderBin.call(this, bin, itr, time);
+		R.rendercontexts.RenderContext2D.prototype.renderBin.call(this, bin, itr, time, dt);
 		//this.base(bin, itr, time);
 	},
 
@@ -421,13 +425,15 @@ R.rendercontexts.CanvasContext = function() {
     *
     * @param sprite {R.resources.types.Sprite} The sprite to draw
     * @param time {Number} The current world time
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   drawSprite: function(sprite, time) {
-      var f = sprite.getFrame(time);
+   drawSprite: function(sprite, time, dt) {
+      var f = sprite.getFrame(time, dt);
       var tl = f.getTopLeft();
       var d = f.getDims();
       this.get2DContext().drawImage(sprite.getSourceImage(), tl.x, tl.y, d.x, d.y, 0, 0, d.x, d.y);
-      this.base(sprite, time);
+      this.base(sprite, time, dt);
 		f.destroy();
    },
 

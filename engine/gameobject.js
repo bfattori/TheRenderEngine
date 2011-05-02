@@ -196,21 +196,23 @@ R.engine.GameObject = function(){
 		 *
 		 * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the object will be rendered within.
 		 * @param time {Number} The global time within the engine.
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 */
-		update: function(renderContext, time){
+		update: function(renderContext, time, dt){
 		
 			// Run the components
 			var components = this.iterator();
 			
 			while (components.hasNext()) {
-				components.next().execute(renderContext, time);
+				components.next().execute(renderContext, time, dt);
 			}
 			
 			components.destroy();
 			this.oldDirty = this.dirtyFlag;
 			this.dirtyFlag = false;
 			
-			this.base(renderContext, time);
+			this.base(renderContext, time, dt);
 		},
 		
 		/**

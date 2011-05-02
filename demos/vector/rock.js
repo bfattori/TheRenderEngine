@@ -109,8 +109,10 @@ var SpaceroidsRock = function() {
     *
     * @param renderContext {RenderContext} The rendering context
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   update: function(renderContext, time) {
+   update: function(renderContext, time, dt) {
       var c_mover = this.getComponent("move");
       var p = R.math.Point2D.create(c_mover.getPosition());
       c_mover.setPosition(Spaceroids.wrap(p, this.getBoundingBox()));
@@ -128,7 +130,7 @@ var SpaceroidsRock = function() {
       p.destroy();
 
       renderContext.pushTransform();
-      this.base(renderContext, time);
+      this.base(renderContext, time, dt);
       renderContext.popTransform();
 		
    },

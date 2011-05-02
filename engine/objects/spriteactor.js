@@ -266,13 +266,15 @@ R.objects.SpriteActor = function(){
 		 *
 		 * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
 		 * @param time {Number} The engine time in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 */
-		update: function(renderContext, time){
+		update: function(renderContext, time, dt){
 			renderContext.pushTransform();
 
-			this.callScriptedEvent("onBeforeUpdate", ["worldTime"], [time]);
-			this.base(renderContext, time);
-			this.callScriptedEvent("onAfterUpdate", ["worldTime"], [time]);
+			this.callScriptedEvent("onBeforeUpdate", ["worldTime", "delta"], [time, dt]);
+			this.base(renderContext, time, dt);
+			this.callScriptedEvent("onAfterUpdate", ["worldTime", "delta"], [time, dt]);
 			
 			if (this.editing) {
 				renderContext.setLineStyle("white");
@@ -354,12 +356,14 @@ R.objects.SpriteActor = function(){
 		 * another object.  This will typically trigger an event callback for scripted events.
 		 * @param collisionObj {R.engine.Object2D} The object that this object collided with
 		 * @param time {Number} The time at which the collision occurred
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 * @param targetMask {Number} The collision mask for the object this collided with
 		 * @return {Number} Returns a flag which tells the collision system what to do
 		 */
-		onCollide: function(collisionObj, time, targetMask) {
+		onCollide: function(collisionObj, time, dt, targetMask) {
 			var cData = this.getComponent("collide").getCollisionData();
-			var cResult = this.callScriptedEvent("onCollide", ["collisionData", "targetMask", "worldTime"], [cData, targetMask, time]);
+			var cResult = this.callScriptedEvent("onCollide", ["collisionData", "targetMask", "worldTime", "delta"], [cData, targetMask, time, dt]);
 			
 			// We may want to do something here...
 			

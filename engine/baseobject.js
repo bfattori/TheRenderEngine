@@ -153,8 +153,10 @@ R.engine.BaseObject = function(){
 		 *
 		 * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the object exists within
 		 * @param time {Number} The current engine time, in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 */
-		update: function(renderContext, time){
+		update: function(renderContext, time, dt){
 		},
 		
 		/**

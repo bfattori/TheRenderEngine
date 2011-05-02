@@ -96,9 +96,11 @@ R.particles.AbstractParticle = function(){
 		 * Initializes the particle within the <tt>R.particles.ParticleEngine</tt>
 		 * @param pEngine {R.particles.ParticleEngine} The particle engine which owns the particle
 		 * @param time {Number} The world time when the particle was created
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 * @private
 		 */
-		init: function(pEngine, time){
+		init: function(pEngine, time, dt){
 			this.engine = pEngine;
 			this.life += time;
 			this.birth = time;
@@ -126,12 +128,14 @@ R.particles.AbstractParticle = function(){
 		 * Update the particle in the render context, calling its draw method.
 		 * @param renderContext {R.rendercontexts.AbstractRenderContext} The context where the particle is drawn
 		 * @param time {Number} The world time, in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 */
-		update: function(renderContext, time){
+		update: function(renderContext, time, dt){
 			if (time < this.life &&
 			renderContext.getViewport().containsPoint(this.getPosition())) {
 				// if the particle is still alive, and it isn't outside the viewport
-				this.draw(renderContext, time);
+				this.draw(renderContext, time, dt);
 				return true;
 			}
 			else {
@@ -161,8 +165,10 @@ R.particles.AbstractParticle = function(){
 		 * [ABSTRACT] Draw the particle
 		 * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the particle to
 		 * @param time {Number} The world time, in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 */
-		draw: function(renderContext, time){
+		draw: function(renderContext, time, dt){
 			// ABSTRACT
 		}
 		

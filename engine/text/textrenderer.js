@@ -100,13 +100,15 @@ R.text.TextRenderer = function() {
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the text into
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   update: function(renderContext, time) {
+   update: function(renderContext, time, dt) {
 
       if (this.drawMode == R.text.TextRenderer.DRAW_TEXT)
       {
          renderContext.pushTransform();
-         this.base(renderContext, time);
+         this.base(renderContext, time, dt);
          renderContext.popTransform();
       }
 

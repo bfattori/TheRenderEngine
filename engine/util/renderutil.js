@@ -98,7 +98,7 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 		var ctx = R.util.RenderUtil.getTempContext(contextType, width, height);
 		
 		time = time || R.Engine.worldTime;
-		
+
 		// The position to render to in the context
 		offset = offset || Point2D.ZERO;
 		
@@ -107,7 +107,7 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 		p.add(offset);
 		ctx.setPosition(p);
 		p.destroy();
-		renderComponent.execute(ctx, time);
+		renderComponent.execute(ctx, time, 1);
 		
 		// Extract the rendered image
 		return ctx.getDataURL();

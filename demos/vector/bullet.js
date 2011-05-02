@@ -118,8 +118,10 @@ var SpaceroidsBullet = function() {
     *
     * @param renderContext {RenderContext} The rendering context
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   update: function(renderContext, time) {
+   update: function(renderContext, time, dt) {
       var c_mover = this.getComponent("move");
 
       // Is this bullet in field any more?
@@ -134,7 +136,7 @@ var SpaceroidsBullet = function() {
       }
 
       renderContext.pushTransform();
-      this.base(renderContext, time);
+      this.base(renderContext, time, dt);
       renderContext.popTransform();
 		bBox.destroy();
    }

@@ -371,12 +371,14 @@ R.rendercontexts.AbstractRenderContext = function() {
        *
        * @param parentContext {R.rendercontexts.AbstractRenderContext} A parent context, or <tt>null</tt>
        * @param time {Number} The current render time in milliseconds from the engine.
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      update: function(parentContext, time) {
+      update: function(parentContext, time, dt) {
          if (!this.staticCtx) {
             // Clear and render world
             this.reset();
-            this.render(time);
+            this.render(time, dt);
          }
       },
 
@@ -384,17 +386,19 @@ R.rendercontexts.AbstractRenderContext = function() {
        * Called to render all of the objects to the context.
        *
        * @param time {Number} The current world time in milliseconds from the engine.
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      render: function(time) {
+      render: function(time, dt) {
          // Push the world transform
          this.pushTransform();
 
-         this.setupWorld(time);
+         this.setupWorld(time, dt);
 
          // Run the objects if they are visible
          var objs = this.iterator();
          while (objs.hasNext()) {
-            this.renderObject(objs.next(), time);
+            this.renderObject(objs.next(), time, dt);
          }
 
          objs.destroy();
@@ -413,9 +417,11 @@ R.rendercontexts.AbstractRenderContext = function() {
        * Render a single object into the world for the given time.
        * @param obj {R.engine.BaseObject} An object to render
        * @param time {Number} The world time, in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      renderObject: function(obj, time) {
-         obj.update(this, time);
+      renderObject: function(obj, time, dt) {
+         obj.update(this, time, dt);
       },
 
       /**
@@ -423,8 +429,10 @@ R.rendercontexts.AbstractRenderContext = function() {
        * Use this method to change the world position, rotation, scale, etc.
        *
        * @param time {Number} The current world time
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      setupWorld: function(time) {
+      setupWorld: function(time, dt) {
       },
 
       /**

@@ -259,16 +259,18 @@ R.resources.types.Sprite = function() {
     * Gets the frame of the sprite. The frame is the rectangle defining what
     * portion of the image map the sprite frame occupies, given the specified time.
     *
-    * @param time {Number} Current world time (can be obtained with {@link Engine#worldTime}
+    * @param time {Number} Current world time
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     * @return {R.math.Rectangle2D} A rectangle which defines the frame of the sprite in
     *         the source image map.
     */
-   getFrame: function(time) {
+   getFrame: function(time, dt) {
       if (!this.isAnimation()) {
          return R.math.Rectangle2D.create(this.frame);
       } else {
          var f = R.math.Rectangle2D.create(this.frame);
-         var fn = this.calcFrameNumber(time);
+         var fn = this.calcFrameNumber(time, dt);
          return f.offset(f.dims.x * fn, 0);
       }
    },
@@ -276,9 +278,12 @@ R.resources.types.Sprite = function() {
 	/**
 	 * Calculate the frame number for the type of animation
 	 * @param time {Number} The current world time
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
 	 * @private
 	 */
-	calcFrameNumber: function(time) {
+	calcFrameNumber: function(time, dt) {
+      // TODO: Update to use delta time and world time to get correct frame when synchronized
 		if (!this.playing) {
 			return this.frameNum;
 		}

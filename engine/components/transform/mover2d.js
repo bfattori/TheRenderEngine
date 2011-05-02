@@ -56,7 +56,6 @@ R.Engine.define({
 R.components.transform.Mover2D = function() {
 	return R.components.Transform2D.extend(/** @scope R.components.transform.Mover2D.prototype */{
 
-   lastTime: -1,
    velocity: null,
    vDecay: 0,
    angularVelocity: 0,
@@ -71,6 +70,7 @@ R.components.transform.Mover2D = function() {
    lagAdjustment: null,
    checkLag: null,
    _vec: null,
+   firstFrame: false,
    
    /**
     * @private
@@ -89,6 +89,7 @@ R.components.transform.Mover2D = function() {
       this.restingVelocity = R.components.transform.Mover2D.DEFAULT_RESTING_VELOCITY;
       this.lagAdjustment = R.components.transform.Mover2D.DEFAULT_LAG_ADJUSTMENT;
       this.checkLag = true;
+      this.firstFrame = true;
       
       // Temp vector to use in calcs
 		this._vec = R.math.Vector2D.create(0,0);
@@ -112,7 +113,6 @@ R.components.transform.Mover2D = function() {
     */
    release: function() {
       this.base();
-      this.lastTime = -1;
       this.velocity = null;
       this.vDecay = 0;
       this.angularVelocity = 0;
@@ -127,6 +127,7 @@ R.components.transform.Mover2D = function() {
       this.lagAdjustment = null;
       this.checkLag = null;
       this._vec = null;
+      this.firstFrame = true;
    },
 
    /**
@@ -138,15 +139,17 @@ R.components.transform.Mover2D = function() {
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context for the component
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   execute: function(renderContext, time) {
+   execute: function(renderContext, time, dt) {
       if (!this.isResting()) {
          this.lPos.set(this.getPosition());
          var rot = this.getRotation();
    
          // If we've just come into the world, we can short circuit with a
          // quick addition of the velocity.
-         if (this.lastTime == -1) {
+         if (this.firstFrame) {
             this.setPosition(this.lPos.add(this.velocity).add(this.acceleration).add(this.gravity));
          } else {
             if (this.getVelocityDecay() != 0 && this.velocity.len() > 0) {
@@ -166,8 +169,8 @@ R.components.transform.Mover2D = function() {
 
             // Calculate lag?
             var lag;
-            if (this.isCheckLag() && ((time - this.lastTime) > R.Engine.getFrameTime())) {
-               lag = (time - this.lastTime) * this.getLagAdjustment();
+            if (this.isCheckLag() && (dt > R.Engine.getFrameTime())) {
+               lag = dt * this.getLagAdjustment();
             } else {
                lag = 1;
             }
@@ -186,8 +189,8 @@ R.components.transform.Mover2D = function() {
          }   
       }
 
-      this.lastTime = time;
-      this.base(renderContext, time);
+      this.firstFrame = false;
+      this.base(renderContext, time, dt);
    },
 
    /**

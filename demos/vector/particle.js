@@ -87,8 +87,10 @@ var SimpleParticle = function() {
     *
     * @param renderContext {RenderContext} The rendering context
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   draw: function(renderContext, time) {
+   draw: function(renderContext, time, dt) {
       if (this.decel > 0 && this.vec.len() > 0) {
          this.invVel.set(this.vec).neg();
          this.invVel.mul(this.decel);
@@ -173,8 +175,10 @@ var TrailParticle = function(){
 		 *
 		 * @param renderContext {RenderContext} The rendering context
 		 * @param time {Number} The engine time in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 */
-		draw: function(renderContext, time){
+		draw: function(renderContext, time, dt){
 			this.getPosition().add(this.vec);
 			renderContext.setFillStyle(this.clr);
 			renderContext.drawPoint(this.getPosition());

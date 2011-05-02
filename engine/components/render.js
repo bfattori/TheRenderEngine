@@ -131,8 +131,10 @@ R.components.Render = function() {
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   execute: function(renderContext, time) {
+   execute: function(renderContext, time, dt) {
 
 		if (R.Engine.options.useDirtyRectangles && !this.getGameObject().isDirty()) {
 			// Objects that aren't dirty don't need to re-render

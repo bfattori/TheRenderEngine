@@ -97,7 +97,7 @@ R.text.ContextText = function(){
 		/**
 		 * @private
 		 */
-		execute: function(renderContext, time){
+		execute: function(renderContext, time, dt){
 		
 			if (this.getText().length == 0) {
 				return;

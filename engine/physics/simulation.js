@@ -103,7 +103,8 @@ R.physics.Simulation = function() {
       this.base();
    },
    
-   update: function(renderContext, time) {
+   update: function(renderContext, time, dt) {
+      // TODO: This should probably be based on world and delta times... ?
       this.world.Step(1/R.Engine.getFPS(), this.integrations, this.integrations); 
 		this.world.ClearForces();  
    },

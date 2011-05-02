@@ -296,8 +296,10 @@ R.objects.PhysicsActor = function() {
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the object will be rendered within.
     * @param time {Number} The global time within the engine.
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   update: function(renderContext, time) {
+   update: function(renderContext, time, dt) {
 
       // Run the components
       var components = this.iterator();
@@ -308,7 +310,7 @@ R.objects.PhysicsActor = function() {
 			if (isPhysicsComponent) {
 				renderContext.pushTransform();
 			}
-			nextComponent.execute(renderContext, time);
+			nextComponent.execute(renderContext, time, dt);
 			if (isPhysicsComponent && nextComponent.getRenderComponent() != null) {
 				// Make sure to execute the render component immediately following
 				// the body component.
@@ -323,7 +325,7 @@ R.objects.PhysicsActor = function() {
 		   	}
 				/* pragma:DEBUG_END */
 				
-				nextComponent.getRenderComponent().execute(renderContext, time);
+				nextComponent.getRenderComponent().execute(renderContext, time, dt);
 				pt.destroy();
 			}
 			if (isPhysicsComponent) {
@@ -334,7 +336,7 @@ R.objects.PhysicsActor = function() {
 		components.destroy();
 
 		// Special case so we can skip the super class (HostObject)
-      R.struct.HashContainer.prototype.update.call(this, renderContext, time);
+      R.struct.HashContainer.prototype.update.call(this, renderContext, time, dt);
    },
 	
 	/** @private */

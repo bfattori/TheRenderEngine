@@ -234,12 +234,14 @@ R.rendercontexts.RenderContext2D = function() {
        * Called to render all of the objects to the context.
        *
        * @param time {Number} The current render time in milliseconds from the engine.
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      render: function(time) {
+      render: function(time, dt) {
          // Push the world transform
          this.pushTransform();
 
-         this.setupWorld(time);
+         this.setupWorld(time, dt);
 
          // Run the objects in each bin
          for (var zbin in this.zBins.activeBins) {
@@ -250,7 +252,7 @@ R.rendercontexts.RenderContext2D = function() {
             R.Engine.rObjs += bin.vis.length;
 
             var objs = bin.vis;
-            this.renderBin(zbin, objs, time);
+            this.renderBin(zbin, objs, time, dt);
          }
 
          // Restore the world transform
@@ -298,8 +300,10 @@ R.rendercontexts.RenderContext2D = function() {
        * @param bin {Number} The bin number being rendered
        * @param objs {Array} Array of objects
        * @param time {Number} The current render time in milliseconds from the engine.
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      renderBin: function(bin, objs, time) {
+      renderBin: function(bin, objs, time, dt) {
          R.engine.Support.forEach(objs, function(e) {
             this.renderObject(e, time);
          }, this);
@@ -833,9 +837,11 @@ R.rendercontexts.RenderContext2D = function() {
        *
        * @param sprite {R.resources.types.Sprite} The sprite to draw
        * @param time {Number} The current world time
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        * @param [ref] {R.engine.GameObject} A reference game object
        */
-      drawSprite: function(sprite, time /*, ref */) {
+      drawSprite: function(sprite, time, dt /*, ref */) {
       },
 
       /**

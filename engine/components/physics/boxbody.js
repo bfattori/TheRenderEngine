@@ -142,8 +142,8 @@ R.components.physics.BoxBody = function() {
     * Adds shape debugging
     * @private
     */
-      ,execute: function(renderContext, time) {
-         this.base(renderContext, time);
+      ,execute: function(renderContext, time, dt) {
+         this.base(renderContext, time, dt);
          if (R.Engine.getDebugMode()) {
             renderContext.pushTransform();
             renderContext.setLineStyle("blue");

@@ -120,6 +120,7 @@ R.particles.ParticleEngine = function() {
       
       // Initialize all of the new particles
       for (var i = particles.iterator(); i.hasNext(); ) {
+         // TODO: Why this.lastTime??
          i.next().init(this, this.lastTime);
       }
 		i.destroy();
@@ -160,6 +161,7 @@ R.particles.ParticleEngine = function() {
       }
 
 		if (this.particles.size() < this.maximum) {
+         // TODO: Why this.lastTime?
          particle.init(this, this.lastTime);
 			this.particles.add(particle);
 			this.liveParticles = this.particles.size();
@@ -198,8 +200,8 @@ R.particles.ParticleEngine = function() {
     * if it is dead.  Only live particles are updated
     * @private
     */
-   runParticle: function(particle, renderContext, time) {
-      if (!particle.update(renderContext, time)) {
+   runParticle: function(particle, renderContext, time, dt) {
+      if (!particle.update(renderContext, time, dt)) {
 			this.particles.remove(particle);
          particle.destroy();
       }
@@ -210,8 +212,10 @@ R.particles.ParticleEngine = function() {
     *
     * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the particles will be rendered within.
     * @param time {Number} The global time within the engine.
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   update: function(renderContext, time) {
+   update: function(renderContext, time, dt) {
       if (R.Engine.options.disableParticleEngine) {
          return;
       }
@@ -229,7 +233,7 @@ R.particles.ParticleEngine = function() {
       renderContext.pushTransform();
 
 		for (var itr = this.particles.iterator(); itr.hasNext(); ) {
-			this.runParticle(itr.next(), renderContext, time);
+			this.runParticle(itr.next(), renderContext, time, dt);
 		}
 		itr.destroy();
       

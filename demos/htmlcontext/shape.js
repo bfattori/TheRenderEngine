@@ -56,12 +56,12 @@ var Shape = function() {
          this.setOrigin(40, 40);
       },
 
-      update: function(renderContext, time) {
+      update: function(renderContext, time, dt) {
          renderContext.pushTransform();
 
          this.setRotation(this.getRotation() + this.spinRate);
 
-         this.base(renderContext, time);
+         this.base(renderContext, time, dt);
          renderContext.popTransform();
       }
 

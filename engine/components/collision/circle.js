@@ -115,12 +115,14 @@ R.components.collision.Circle = function() {
        * and target's masks.  The return value should either tell the collision tests to continue or stop.
        *
        * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
        * @param objectMask {Number} The collision mask for the game object
        * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
        * @return {Number} A status indicating whether to continue checking, or to stop
        */
-      testCollision: function(time, collisionObj, objectMask, targetMask) {
+      testCollision: function(time, dt, collisionObj, objectMask, targetMask) {
          if (this.getCollisionData() != null) {
             // Clean up old data first
             this.getCollisionData().destroy();
@@ -141,7 +143,7 @@ R.components.collision.Circle = function() {
                circle1.isIntersecting(circle2)) {
 
             // Intersection test passed
-            return this.base(time, collisionObj, objectMask, targetMask);
+            return this.base(time, dt, collisionObj, objectMask, targetMask);
 
          } else {
             var tRad = circle1.getRadius() + circle2.getRadius(),
@@ -158,9 +160,11 @@ R.components.collision.Circle = function() {
                var sep = R.math.Vector2D.create((c2.x - c1.x) * diff, (c2.y - c1.y) * diff);
                this.setCollisionData(R.struct.CollisionData.create(sep.len(),
                      R.math.Vector2D.create(c2.x - c1.x, c2.y - c1.y).normalize(),
-                     shape1,
-                     shape2,
-                     sep));
+                     null,
+                     null,
+                     sep,
+                     time,
+                     dt));
 
                return this.base(time, collisionObj, objectMask, targetMask);
             }
@@ -171,8 +175,8 @@ R.components.collision.Circle = function() {
       }
 
       /* pragma:DEBUG_START */
-      ,execute: function(renderContext, time) {
-         this.base(renderContext, time);
+      ,execute: function(renderContext, time, dt) {
+         this.base(renderContext, time, dt);
          // Debug the collision box
          if (R.Engine.getDebugMode() && !this.isDestroyed()) {
             renderContext.pushTransform();

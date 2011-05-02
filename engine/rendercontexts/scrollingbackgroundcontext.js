@@ -121,8 +121,8 @@ R.rendercontexts.ScrollingBackgroundContext = function(){
 			return this.visRect.getTopLeft().y;
 		},
 		
-		setupWorld: function(time){
-			this.base(time);
+		setupWorld: function(time, dt){
+			this.base(time, dt);
 			
 			// Render the slice of the level image first
 			this.drawImage(this.getViewport(), this.level.getSourceImage(), this.visRect);

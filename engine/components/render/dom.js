@@ -57,9 +57,11 @@ R.components.render.DOM = function() {
     *
     * @param renderContext {R.rendercontexts.HTMLElementContext} The rendering context
     * @param time {Number} The engine time in milliseconds
+    * @param dt {Number} The delta between the world time and the last time the world was updated
+    *          in milliseconds.
     */
-   execute: function(renderContext, time) {
-		if (this.base(renderContext, time)) {
+   execute: function(renderContext, time, dt) {
+		if (this.base(renderContext, time, dt)) {
 			renderContext.drawElement(this.getGameObject());
 		}
    }

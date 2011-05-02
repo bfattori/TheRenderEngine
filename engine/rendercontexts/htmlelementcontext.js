@@ -416,10 +416,12 @@ R.rendercontexts.HTMLElementContext = function(){
 		 *
 		 * @param sprite {R.resources.types.Sprite} The sprite to draw
 		 * @param time {Number} The current world time
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
 		 * @param ref {R.math.HostObject} A reference game object
 		 */
-		drawSprite: function(sprite, time, ref){
-			var f = sprite.getFrame(time), tl = f.getTopLeft(), rD = f.getDims();
+		drawSprite: function(sprite, time, dt, ref){
+			var f = sprite.getFrame(time, dt), tl = f.getTopLeft(), rD = f.getDims();
 			
 			// The reference object is a host object it
 			// will give us a reference to the HTML element which we can then
@@ -433,6 +435,8 @@ R.rendercontexts.HTMLElementContext = function(){
             backgroundPosition: -tl.x + "px " + tl.y + "px"
          });
          obj.css(css);
+         this.base(sprite, time, dt);
+         f.destroy();
 		},
 		
 		/**
