@@ -503,7 +503,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
       }
 
       R.Engine.upTime = R.now();
-      R.Engine.debugMode = debugMode ? true : false;
+      //R.Engine.debugMode = debugMode ? true : false;
       R.Engine.started = true;
       R.Engine.totalFrames = 0;
 

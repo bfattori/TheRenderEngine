@@ -226,6 +226,19 @@ R.components.collision.Convex = function() {
        * @return {R.math.Vector2D}
        */
       test: function(shape1, shape2, time, dt /*, distSqr, tRad */) {
+         /* pragma:DEBUG_START */
+         if (R.Engine.getDebugMode()) {
+            var rc = shape1.getGameObject().getRenderContext(), c1 = R.math.Point2D.create(shape1.getCenter()), c2 =
+                  R.math.Point2D.create(shape2.getCenter());
+            rc.postRender(function() {
+               this.setLineStyle("yellow");
+               this.setLineWidth(2);
+               this.drawLine(c1, c2);
+            });
+         }
+         /* pragma:DEBUG_END */
+
+
          if (shape1.getType() == R.collision.ConvexHull.CONVEX_CIRCLE &&
                shape2.getType() == R.collision.ConvexHull.CONVEX_CIRCLE) {
             // Perform circle-circle test if both shapes are circles
