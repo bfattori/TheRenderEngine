@@ -168,20 +168,12 @@ R.rendercontexts.HTMLElementContext = function(){
 					break;
 			}
 		},
-		
+
 		/**
-		 * Retrieve the jQuery object which represents the element.
-		 * @return {jQuery} Object
-		 */
-		jQ: function(){
-			if (this.jQObj == null) {
-				this.jQObj = $(this.getSurface());
-			}
-			return this.jQObj;
-		},
-		
-		/**
-		 * Add an object to the context, or create an element to represent the object.
+		 * Add an object to the context, or creates an element to represent the object.  Objects
+       * added to the <tt>HTMLElementContext</tt> need a DOM representation, otherwise one
+       * will be created for the object being added.
+       *
 		 * @param obj {HTMLElement} The element, or <tt>null</tt>
 		 */
 		add: function(obj){
@@ -189,7 +181,15 @@ R.rendercontexts.HTMLElementContext = function(){
 				// Create an element for the object
 				obj.setElement($("<div>").css("position", "absolute"));
 			}
-			this.jQ().append(obj.getElement());
+
+         // Look to see if the element is already a child of the element
+         // we're appending to.  This will occur when someone adds a HTMLElementContext
+         // to the default context, when the element which represents the HTMLElementContext
+         // already exists in the DOM.
+         if (this.jQ().find(obj.getElement()).length == 0) {
+			   this.jQ().append(obj.getElement());
+         }
+
 			this.base(obj);
 		},
 		

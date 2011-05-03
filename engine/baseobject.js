@@ -67,16 +67,14 @@ R.engine.BaseObject = function(){
 	return R.engine.PooledObject.extend(/** @scope R.engine.BaseObject.prototype */{
 	
 		element: null,
-		
-		jQObject: null,
-		
+		jQObject: undefined,
 		events: null,
 		
 		/** @private */
 		constructor: function(name){
 			this.base(name);
 			this.events = {};
-			this.jQObject = null;
+			this.jQObject = undefined;
 		},
 		
 		/**
@@ -87,9 +85,8 @@ R.engine.BaseObject = function(){
 			// We need to make sure to remove any event's attached to us
 			// that weren't already cleaned up
 			for (var ref in this.events) {
-				var r = ref;
-				var fn = this.events[r];
-				var type = r.split(",")[1];
+				var fn = this.events[ref];
+				var type = ref.split(",")[1];
 				if (fn) {
 					R.engine.Events.clearHandler(this.getElement(), type, fn);
 				}
@@ -109,7 +106,7 @@ R.engine.BaseObject = function(){
 			this.base();
 			this.element = null;
 			this.events = null;
-			this.jQObject = null;
+			this.jQObject = undefined;
 		},
 		
 		/**
@@ -138,10 +135,10 @@ R.engine.BaseObject = function(){
 		 * @return {jQuery} A jQuery object
 		 */
 		jQ: function(){
-			if (!this.jQObject && this.element) {
-				this.jQObject = $(this.element);
+			if (this.jQObject === undefined) {
+            this.jQObject = this.element ? $(this.element) : null;
 			}
-			return this.jQObject;
+         return this.jQObject;
 		},
 		
 		/**
