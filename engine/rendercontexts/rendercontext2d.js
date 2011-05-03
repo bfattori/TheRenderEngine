@@ -75,6 +75,7 @@ R.rendercontexts.RenderContext2D = function() {
       fontBaseline: "alphabetic",
       fontStyle: "normal",
       zBins: null,
+      postRenderList: null,
 
       /** @private */
       constructor: function(name, surface) {
@@ -89,6 +90,7 @@ R.rendercontexts.RenderContext2D = function() {
             }
          };
          this.zBins.activeBins = [0];
+         this.postRenderList = [];
       },
 
       /**
@@ -258,11 +260,20 @@ R.rendercontexts.RenderContext2D = function() {
          // Restore the world transform
          this.popTransform();
 
+         while (this.postRenderList.length > 0) {
+            var fn = this.postRenderList.shift();
+            fn.call(this);
+         }
+
          // Safely remove any objects that were removed from
          // the context while it was rendering
          if (this.safeRemoveList.length > 0) {
             this._safeRemove();
          }
+      },
+
+      postRender: function(fn) {
+         this.postRenderList.push(fn);
       },
 
       /**
@@ -305,7 +316,7 @@ R.rendercontexts.RenderContext2D = function() {
        */
       renderBin: function(bin, objs, time, dt) {
          R.engine.Support.forEach(objs, function(e) {
-            this.renderObject(e, time);
+            this.renderObject(e, time, dt);
          }, this);
       },
 
