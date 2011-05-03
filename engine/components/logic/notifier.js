@@ -1,6 +1,6 @@
 /**
  * The Render Engine
- * InputComponent
+ * NotifierComponent
  *
  * @fileoverview An extension of the logic component which efficiently 
  *               notifies a list of recipients when events are triggered.

@@ -50,6 +50,36 @@ R.Engine.define({
 R.util.SocketUtil = /** @scope R.util.SocketUtil.prototype */{
 
    /**
+    * Socket connected message type
+    * @type {Number}
+    */
+   MSG_CONNECT: 1,
+
+   /**
+    * Socket disconnected message type
+    * @type {Number}
+    */
+   MSG_DISCONNECT: 2,
+
+   /**
+    * Socket acknowledges message received and handled type
+    * @type {Number}
+    */
+   MSG_ACK: 3,
+
+   /**
+    * Server broadcast message type
+    * @type {Number}
+    */
+   MSG_SERVER: 4,
+
+   /**
+    * Internal pool of sockets, organized by URL
+    * @private
+    */
+   _socketPool: {},
+
+   /**
     * Create a socket for network communication.  A socket is
     * a self contained object which has methods for sending messages of
     * various types.  When you are finished with the socket, call its
@@ -79,9 +109,6 @@ R.util.SocketUtil = /** @scope R.util.SocketUtil.prototype */{
     */
    createSocket: function(connectionURL, port, secure)  {
 
-      // Internal pool of sockets, organized by URL
-      var socketPool = {};
-
       // Message type for simple "send" with no acknowledgement
       var TYPE_SEND = -1,
 
@@ -95,12 +122,12 @@ R.util.SocketUtil = /** @scope R.util.SocketUtil.prototype */{
       var dest = connectionURL.split("/");
       dest = dest[dest.length - 1].replace(/[^\w]g/,"") + ":" + (port ? port.toString() : "0") + ":" + secure;
 
-      var pool = socketPool[dest];
+      var pool = R.util.SocketUtil._socketPool[dest];
       if (!pool || pool.length == 0) {
 
          if (!pool) {
             // Create the pool
-            pool = socketPool[dest] = [];
+            pool = R.util.SocketUtil._socketPool[dest] = [];
          }
 
          /**
@@ -173,8 +200,9 @@ R.util.SocketUtil = /** @scope R.util.SocketUtil.prototype */{
                // All set, clean up and pool us
                this.packetNum = 1;
                this.awaitingACK.length = 0;
+               this.listener = undefined;
 
-               socketPool[this.id].push(this);
+               R.util.SocketUtil._socketPool[this.id].push(this);
             };
 
             /**
@@ -320,25 +348,25 @@ R.util.SocketUtil = /** @scope R.util.SocketUtil.prototype */{
           * Socket connected message type
           * @type {Number}
           */
-         Socket.MSG_CONNECT = 1;
+         Socket.MSG_CONNECT = R.util.SocketUtil.MSG_CONNECT;
 
          /**
           * Socket disconnected message type
           * @type {Number}
           */
-         Socket.MSG_DISCONNECT = 2;
+         Socket.MSG_DISCONNECT = R.util.SocketUtil.MSG_DISCONNECT;
 
          /**
           * Socket acknowledges message received and handled type
           * @type {Number}
           */
-         Socket.MSG_ACK = 3;
+         Socket.MSG_ACK = R.util.SocketUtil.MSG_ACK;
 
          /**
           * Server broadcast message type
           * @type {Number}
           */
-         Socket.MSG_SERVER = 4;
+         Socket.MSG_SERVER = R.util.SocketUtil.MSG_SERVER;
 
          // Add the socket to the pool
          pool.push(new Socket(dest, connectionURL));
