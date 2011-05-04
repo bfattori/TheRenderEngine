@@ -272,6 +272,12 @@ R.rendercontexts.RenderContext2D = function() {
          }
       },
 
+      /**
+       * A rendering function to perform in world coordinates.  After the world has
+       * been rendered, and all transformations have been reset to world coordinates,
+       * the list of post-render functions are executed.
+       * @param fn {Function} A function to execute
+       */
       postRender: function(fn) {
          this.postRenderList.push(fn);
       },

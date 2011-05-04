@@ -1,3 +1,24 @@
+// === Sylvester ===
+// Vector and Matrix mathematics modules for JavaScript
+// Copyright (c) 2007 James Coglan
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 var Sylvester={version:"0.1.3",precision:1.0E-6};function Vector(){}
 Vector.prototype={e:function(a){return a<1||a>this.elements.length?null:this.elements[a-1]},dimensions:function(){return this.elements.length},modulus:function(){return Math.sqrt(this.dot(this))},eql:function(a){var b=this.elements.length;a=a.elements||a;if(b!=a.length)return false;do if(Math.abs(this.elements[b-1]-a[b-1])>Sylvester.precision)return false;while(--b);return true},dup:function(){return Vector.create(this.elements)},map:function(a){var b=[];this.each(function(c,d){b.push(a(c,d))});return Vector.create(b)},
 each:function(a){var b=this.elements.length,c=b,d;do{d=c-b;a(this.elements[d],d+1)}while(--b)},toUnitVector:function(){var a=this.modulus();if(a===0)return this.dup();return this.map(function(b){return b/a})},angleFrom:function(a){var b=a.elements||a;if(this.elements.length!=b.length)return null;var c=0,d=0,e=0;this.each(function(f,g){c+=f*b[g-1];d+=f*f;e+=b[g-1]*b[g-1]});d=Math.sqrt(d);e=Math.sqrt(e);if(d*e===0)return null;a=c/(d*e);if(a<-1)a=-1;if(a>1)a=1;return Math.acos(a)},isParallelTo:function(a){a=

@@ -210,8 +210,7 @@ R.util.FNV1Hash = function() {
       },
 
       /**
-       * Get the last returned hash value without evolving the hash, like
-       * {@link #updateHash}
+       * Get the last returned hash value without evolving the hash.
        * @return {String} A hexadecimal hash value
        */
       getLastHash: function() {
