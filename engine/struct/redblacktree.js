@@ -93,11 +93,12 @@ R.struct.RedBlackTree = function(){
 		/** @private */
 		constructor: function(name){
 			this.base(name || "RBTree");
-			this.header = new R.struct.RedBlackNode(null);
-			this.header.left = this.header.right = nullRBNode;
-			
+
 			this.nullNode = new R.struct.RedBlackNode(null);
 			this.nullNode.left = this.nullNode.right = this.nullNode;
+
+         this.header = new R.struct.RedBlackNode(null);
+         this.header.left = this.header.right = this.nullNode;
 		},
 		
 		/**
