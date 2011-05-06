@@ -63,7 +63,7 @@ R.math.Point2D = function(){
 		constructor: function(x, y){
 			this.base("Point2D");
          this.__POINT2D = true;
-			this.set(x, y);
+			return this.set(x, y);
 		},
 		
 		/**

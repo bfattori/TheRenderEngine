@@ -76,6 +76,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
     * Engine info
     */
    fpsClock: 16,              // The clock rate (ms)
+   FPS: undefined,            // Calculated frames per second
    frameTime: 0,              // Amount of time taken to render a frame
    engineLocation: null,      // URI of engine
    defaultContext: null,      // The default rendering context
@@ -232,6 +233,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
    setFPS: function(fps) {
       Assert((fps != 0), "You cannot have a framerate of zero!");
       R.Engine.fpsClock = Math.floor(1000 / fps);
+      R.Engine.FPS = undefined;
    },
    
    /**
@@ -240,7 +242,10 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
     * @memberOf R.Engine
     */
    getFPS: function() {
-      return Math.floor((1 / R.Engine.fpsClock) * 1000)
+      if (!R.Engine.FPS) {
+         R.Engine.FPS = Math.floor((1 / R.Engine.fpsClock) * 1000);
+      }
+      return R.Engine.FPS;
    },
    
    /**

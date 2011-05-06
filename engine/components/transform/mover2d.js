@@ -57,6 +57,7 @@ R.components.transform.Mover2D = function() {
 	return R.components.Transform2D.extend(/** @scope R.components.transform.Mover2D.prototype */{
 
    velocity: null,
+   _nVel: null,
    vDecay: 0,
    angularVelocity: 0,
    lPos: null,
@@ -78,6 +79,7 @@ R.components.transform.Mover2D = function() {
    constructor: function(name, priority) {
       this.base(name, priority || 1.0);
       this.velocity = R.math.Vector2D.create(0,0);
+      this._nVel = R.math.Vector2D.create(0,0);
       this.acceleration = R.math.Vector2D.create(0,0);
       this.lPos = R.math.Point2D.create(0,0);
       this.vDecay = 0;
@@ -100,6 +102,7 @@ R.components.transform.Mover2D = function() {
 	 */
 	destroy: function() {
 		this.velocity.destroy();
+      this._nVel.destroy();
 		this.acceleration.destroy();
 		this.lPos.destroy();
 		this.gravity.destroy();
@@ -114,6 +117,7 @@ R.components.transform.Mover2D = function() {
    release: function() {
       this.base();
       this.velocity = null;
+      this._nVel = null;
       this.vDecay = 0;
       this.angularVelocity = 0;
       this.lPos = null;
@@ -159,25 +163,19 @@ R.components.transform.Mover2D = function() {
                this._vec.mul(this.getVelocityDecay());
                this.velocity.add(this._vec);
             }
-   
-            this._vec.set(this.velocity);
-            this.velocity.add(this.acceleration);
-            this.velocity.add(this.gravity);
-            if (this.maxVelocity != -1 && this.velocity.len() > this.maxVelocity) {
-               this.velocity.set(this._vec);
+
+            // Adjust the step value for lagging frame rates
+            this._vec.set(this.velocity.add(this.acceleration).add(this.gravity));
+            this._vec.mul(dt / R.Engine.fpsClock);
+
+            if (this.maxVelocity != -1 && this._vec.len() > this.maxVelocity) {
+               this._vec.normalize().mul(this.maxVelocity);
             }
 
-            // Calculate lag?
-            var lag;
-            if (this.isCheckLag() && (dt > R.Engine.getFrameTime())) {
-               lag = dt * this.getLagAdjustment();
-            } else {
-               lag = 1;
-            }
-
-            this._vec.set(this.velocity).mul(lag);
             this.setPosition(this.lPos.add(this._vec));
-            this.setRotation(rot + this.angularVelocity * (lag));
+
+            // TODO: Get lag adjustment back into rotation
+            this.setRotation(rot + this.angularVelocity);
          }
          
          // Check rest state  

@@ -84,7 +84,6 @@ var SpaceroidsBullet = function() {
       this.setCollisionHull(c_draw.getOBBHull());
 		this.setBoundingBox(c_draw.getBoundingBox());
 
-
       var r = p_mover.getRotation();
       var dir = R.math.Math2D.getDirectionVector(R.math.Point2D.ZERO, R.math.Vector2D.UP, r);
 
@@ -92,7 +91,6 @@ var SpaceroidsBullet = function() {
 		var dPos = R.math.Point2D.create(dir).mul(10);
       c_mover.setPosition(p.add(dPos));
       c_mover.setVelocity(dir.mul(4.5));
-      c_mover.setCheckLag(false);
 		dir.destroy();
 		p.destroy();
 		dPos.destroy();

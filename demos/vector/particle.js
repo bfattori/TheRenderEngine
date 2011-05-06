@@ -99,7 +99,7 @@ var SimpleParticle = function() {
       
       this.getPosition().add(this.vec);
  
-      var colr = "#fff";
+      var colr,rgba;
       if (!Spaceroids.isAttractMode) {
          var s = time - this.getBirth();
          var e = this.getTTL() - this.getBirth();
@@ -110,10 +110,10 @@ var SimpleParticle = function() {
             colr = 255;
          }
 
-         colr = "#" + (colr.toString(16) + colr.toString(16) + colr.toString(16));
+         rgba = "rgb(" + colr +","+ colr +","+ colr +")";
       }
 
-      renderContext.setFillStyle(colr);
+      renderContext.setFillStyle(rgba);
       renderContext.drawPoint(this.getPosition());
    }
 

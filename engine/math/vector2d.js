@@ -58,7 +58,7 @@ R.math.Vector2D = function(){
 		 * @private
 		 */
 		constructor: function(x, y){
-			this.base(x, y);
+			return this.base(x, y);
 		},
 
 		/**

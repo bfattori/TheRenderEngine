@@ -67,7 +67,7 @@ R.math.Point3D = function(){
 		constructor: function(x, y, z){
 			this.base("Point3D");
          this.__POINT3D = true;
-			this.set(x, y, z);
+			return this.set(x, y, z);
 		},
 		
 		/**

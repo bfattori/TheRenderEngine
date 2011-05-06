@@ -77,7 +77,7 @@ R.math.Rectangle2D = function() {
          this.center = R.math.Point2D.create(0, 0);
 
          this.set(x, y, width, height);
-         this.base("Rectangle2D");
+         return this;
       },
 
       /**
@@ -138,6 +138,7 @@ R.math.Rectangle2D = function() {
             this.w = width; this.h = height;
          }
          this._upd();
+         return this;
       },
 
       /**

@@ -78,7 +78,6 @@ var SpaceroidsPlayer = function() {
 
          // Add the drawing components for ship and thrust
          this.add(R.components.render.Vector2D.create("draw"));
-         this.add(R.components.render.Vector2D.create("thrust"));
 
          // Set up collision component (convex hull [SAT])
          this.add(R.components.collision.Convex.create("collider", Spaceroids.collisionModel));
@@ -89,8 +88,6 @@ var SpaceroidsPlayer = function() {
          this.alive = true;
          this.rotDir = 0;
          this.thrusting = false;
-         this.getComponent("move").setCheckRestState(false);
-         this.getComponent("move").setCheckLag(false);
          this.nukes = 0;	// Have to earn your nukes
          this.nuking = false;
          this.setZIndex(1);
@@ -136,7 +133,7 @@ var SpaceroidsPlayer = function() {
             var r = c_mover.getRotation();
             var dir = R.math.Math2D.getDirectionVector(R.math.Point2D.ZERO, R.math.Vector2D.UP, r);
 
-            c_mover.setAcceleration(dir.mul(0.1));
+            c_mover.setAcceleration(dir.mul(0.2));
 
             // Particle trail
             var inv = R.math.Point2D.create(this.getPosition()).add(dir.neg().mul(1.5));
@@ -217,18 +214,6 @@ var SpaceroidsPlayer = function() {
          // Save the shape so we can draw lives remaining
          this.playerShape = s;
 
-         var thrust = SpaceroidsPlayer.thrust;
-         s = [];
-         for (var p = 0; p < thrust.length; p++) {
-            var pt = R.math.Point2D.create(thrust[p][0], thrust[p][1]);
-            pt.mul(this.size);
-            s.push(pt);
-         }
-         c_thrust.setPoints(s);
-         c_thrust.setLineStyle("white");
-         c_thrust.setClosed(false);
-         c_thrust.setDrawMode(R.components.Render.NO_DRAW);
-
          // Put us in the middle of the playfield
          c_mover.setPosition(Spaceroids.renderContext.getBoundingBox().getCenter());
          c_mover.setVelocityDecay(0.03);
@@ -296,7 +281,6 @@ var SpaceroidsPlayer = function() {
          this.alive = false;
 
          this.getComponent("draw").setDrawMode(R.components.Render.NO_DRAW);
-         this.getComponent("thrust").setDrawMode(R.components.Render.NO_DRAW);
          Spaceroids.soundLoader.get("thrust").stop();
 
          // Make some particles
@@ -344,7 +328,6 @@ var SpaceroidsPlayer = function() {
 
          // Hide the player
          this.alive = false;
-         this.getComponent("thrust").setDrawMode(R.components.Render.NO_DRAW);
          Spaceroids.soundLoader.get("thrust").stop();
          this.thrusting = false;
          this.hyperjump = true;
@@ -445,7 +428,6 @@ var SpaceroidsPlayer = function() {
                this.rotDir = 3;
                break;
             case R.engine.Events.KEYCODE_UP_ARROW:
-               this.getComponent("thrust").setDrawMode(R.components.Render.DRAW);
                if (!this.thrusting) {
                   Spaceroids.soundLoader.get("thrust").play({volume: 30});
                }
@@ -473,7 +455,6 @@ var SpaceroidsPlayer = function() {
                this.rotDir = 0;
                break;
             case R.engine.Events.KEYCODE_UP_ARROW:
-               this.getComponent("thrust").setDrawMode(R.components.Render.NO_DRAW);
                this.thrusting = false;
                Spaceroids.soundLoader.get("thrust").stop();
                break;
@@ -501,16 +482,6 @@ var SpaceroidsPlayer = function() {
          [ 2,  2],
          [ 0, 1]
       ],
-
-      /** The player's thrust shape
-       * @private
-       */
-      thrust: [
-         [-1,  2],
-         [0,  3],
-         [ 1,  2]
-      ],
-
 
       TRAIL_COLORS: ["red", "orange", "yellow", "white", "lime"],
       NUKE_COLORS: ["#1111ff", "#8833ff", "#ffff00"],
