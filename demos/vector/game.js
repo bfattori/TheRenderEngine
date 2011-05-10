@@ -48,7 +48,8 @@ R.Engine.define({
       "R.storage.PersistentStorage",
       "R.engine.Events",
       "R.math.Math2D",
-      "R.particles.ParticleEngine"
+      //"R.particles.ParticleEngine"
+      "R.particles.AccumulatorParticleEngine"
    ],
 
    // Game class dependencies
@@ -130,6 +131,7 @@ var Spaceroids = function() {
       cleanupPlayfield: function() {
 
          // Detach the particle engine so it isn't destroyed
+         this.pEngine.reset();
          this.renderContext.remove(this.pEngine);
 
          this.scoreObj = null;
@@ -154,6 +156,14 @@ var Spaceroids = function() {
          var copyPos = R.math.Point2D.create(center.x, 570);
          this.cleanupPlayfield();
          Spaceroids.isAttractMode = true;
+
+         if (R.engine.Support.sysInfo().browser == "chrome") {
+            // Chrome can handle a lot of particles
+            this.pEngine.setMaximum(5000);
+         }
+
+         this.renderContext.add(this.pEngine);
+         this.pEngine.setFadeRate(0.1);
 
          var pWidth = this.fieldWidth;
          var pHeight = this.fieldHeight;
@@ -216,13 +226,6 @@ var Spaceroids = function() {
          };
 
          Spaceroids.intv = R.lang.Timeout.create("startkey", 1000, flash);
-
-         if (R.engine.Support.sysInfo().browser == "chrome") {
-            // Chrome can handle a lot of particles
-            this.pEngine.setMaximum(5000);
-         }
-
-         this.renderContext.add(this.pEngine);
 
          this.addHiScore();
          this.gameOver();
@@ -326,6 +329,9 @@ var Spaceroids = function() {
          this.playerScore = 0;
          this.cleanupPlayfield();
 
+         this.pEngine.setFadeRate(0.2);
+         this.renderContext.add(this.pEngine);
+
          this.nextLevel();
 
          this.playerObj = SpaceroidsPlayer.create();
@@ -336,7 +342,6 @@ var Spaceroids = function() {
             // Chrome can handle a LOT!
             this.pEngine.setMaximum(5000);
          }
-         this.renderContext.add(this.pEngine);
 
          this.addHiScore();
          this.addScore();
@@ -486,7 +491,7 @@ var Spaceroids = function() {
          this.hiScore = this.pStore.load("highScore") || 0;
 
          // Start up a particle engine
-         this.pEngine = R.particles.ParticleEngine.create();
+         this.pEngine = R.particles.AccumulatorParticleEngine.create();
 
          // Demo recording and playback
          if (R.engine.Support.checkBooleanParam("record")) {
@@ -529,13 +534,7 @@ var Spaceroids = function() {
        * Cause the playfield to flash
        */
       blinkScreen: function(color) {
-         if (!Spaceroids.isAttractMode) {
-            $(this.renderContext.getSurface()).css("background", color || "#8F8F8F");
-            var surf = this.renderContext.getSurface();
-            R.lang.OneShotTimeout.create("blink", 100, function() {
-               $(surf).css("background", "black");
-            });
-         }
+         // Not used
       },
 
       /**

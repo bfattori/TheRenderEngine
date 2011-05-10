@@ -469,16 +469,14 @@ R.rendercontexts.CanvasContext = function() {
 
       // Clamp the rectangle to be within the bounds of the context
       var p = rect.getTopLeft();
-      var tr = R.math.Point2D.create((p.x < 0 ? 0 : (p.x > this.getWidth() ? this.getWidth() - 1 : p.x)),
+      var tl = R.math.Point2D.create((p.x < 0 ? 0 : (p.x > this.getWidth() ? this.getWidth() - 1 : p.x)),
                            			 (p.y < 0 ? 0 : (p.y > this.getHeight() ? this.getHeight() - 1 : p.y)));
-      var d = rect.getDims();
-      var r = p.x + d.x;
-      var b = p.y + d.y;
-      var wh = R.math.Point2D.create((r > this.getWidth() ? this.getWidth() - tr.x : (r < 0 ? 1 : d.x)),
-                           			 (b > this.getHeight() ? this.getHeight() - tr.y : (b < 0 ? 1 : d.y)));
-
-
-      return this.get2DContext().getImageData(tr.x, tr.y, wh.x, wh.y);
+      var wh = R.math.Point2D.create((rect.r > this.getWidth() ? this.getWidth() - tl.x : (rect.r < 0 ? 1 : rect.w)),
+                           			 (rect.b > this.getHeight() ? this.getHeight() - tl.y : (rect.b < 0 ? 1 : rect.h)));
+      var imgData = this.get2DContext().getImageData(tl.x, tl.y, wh.x, wh.y);
+      tl.destroy();
+      wh.destroy();
+      return imgData;
    },
 
    /**

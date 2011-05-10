@@ -82,7 +82,7 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 		
 		return ctx;
 	},
-	
+
 	/**
 	 * Perform a single execution of a rendering component.
 	 * @param contextType {R.rendercontexts.RenderContext2D} The type of context to render to

@@ -138,7 +138,7 @@ var SpaceroidsPlayer = function() {
             // Particle trail
             var inv = R.math.Point2D.create(this.getPosition()).add(dir.neg().mul(1.5));
             var colr = SpaceroidsPlayer.TRAIL_COLORS[Math.floor(R.lang.Math2.random() * 3)];
-            Spaceroids.pEngine.addParticle(TrailParticle.create(inv, this.getRotation(), 20, colr, 600));
+            Spaceroids.pEngine.addParticle(TrailParticle.create(inv, this.getRotation(), 20, colr, 1200));
             inv.destroy();
             dir.destroy();
          } else {
