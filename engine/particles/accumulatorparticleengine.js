@@ -38,7 +38,8 @@ R.Engine.define({
    "requires": [
       "R.particles.ParticleEngine",
       "R.struct.Container",
-      "R.rendercontexts.CanvasContext"
+      "R.rendercontexts.CanvasContext",
+      "R.util.RenderUtil"
    ]
 });
 
@@ -57,12 +58,15 @@ R.particles.AccumulatorParticleEngine = function() {
 
       accumulator: null,      // The accumulated frame
       fadeRate: 0,             // The rate at which particles fade out
+      blur: false,
 
       /** @private */
       constructor: function(fadeRate) {
          this.base("AccumulatorParticleEngine");
          this.accumulator = null;
          this.fadeRate = fadeRate || 0.5;
+         this.blur = false;
+         this.radius = 1;
       },
 
       /**
@@ -79,6 +83,8 @@ R.particles.AccumulatorParticleEngine = function() {
          this.base();
          this.accumulator = null;
          this.fadeRate = 0;
+         this.blur = false;
+         this.radius = 1;
       },
 
       /**
@@ -88,6 +94,22 @@ R.particles.AccumulatorParticleEngine = function() {
       setFadeRate: function(fadeRate) {
          this.fadeRate = fadeRate;
          this.accumulator = null;
+      },
+
+      /**
+       * Enable blurring of the particles in the accumulator
+       * @param state {Boolean} <code>true</code> to enable (default: false)
+       */
+      setBlur: function(state) {
+         this.blur = state;
+      },
+
+      /**
+       * Set the blurring radius around the pixel.  Higher numbers result in lower frame rates.
+       * @param radius {Number} The radius of the blur (default: 1)
+       */
+      setBlurRadius: function(radius) {
+         this.radius = radius;
       },
 
       /**
@@ -113,23 +135,38 @@ R.particles.AccumulatorParticleEngine = function() {
          }
 
          // Is there an accumulator already?
-         var vp = renderContext.getViewport();
          if (!this.accumulator) {
             // Create the accumulator buffer, at the size of the renderContext
-            this.accumulator = R.rendercontexts.CanvasContext.create("APEContext", vp.w, vp.h);
+            this.accumulator = R.rendercontexts.CanvasContext.create("APEContext",
+                  renderContext.getViewport().w, renderContext.getViewport().h);
          }
+
+         this.accumulator.get2DContext().globalAlpha = 1.0;
 
          // Fade the accumulator at a set rate
          this.accumulator.get2DContext().globalCompositeOperation = "source-atop";
          this.accumulator.setFillStyle("rgba(0,0,0," + this.fadeRate + ")");
-         this.accumulator.drawFilledRectangle(vp);
+         this.accumulator.drawFilledRectangle(renderContext.getViewport());
          this.accumulator.get2DContext().globalCompositeOperation = "source-over";
 
          // Render particles to the accumulator
          this.base(this.accumulator, time, dt);
 
+         if (this.blur) {
+            var vp = R.math.Rectangle2D.create(renderContext.getViewport()),
+               ox = vp.x, oy = vp.y;
+            this.accumulator.get2DContext().globalAlpha = 0.5;
+            for (var y = -this.radius; y <= this.radius; y++) {
+               for (var x = -this.radius; x <= this.radius; x++) {
+                  vp.y = oy + y; vp.x = ox + x;
+                  this.accumulator.drawImage(vp, this.accumulator.getSurface());
+               }
+            }
+            vp.destroy();
+         }
+
          // Render the contents of the accumulator to the render context
-         renderContext.drawImage(vp, this.accumulator.getSurface());
+         renderContext.drawImage(renderContext.getViewport(), this.accumulator.getSurface());
       },
 
       /**

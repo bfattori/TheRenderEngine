@@ -125,7 +125,7 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 		
 		// Render the screenshot to the temp context
 		var ctx = R.util.RenderUtil.getTempContext(renderContext.constructor, renderContext.getViewport().w, renderContext.getViewport().h);
-		ctx.drawImage(renderContext.getViewport(), renderContext.getElement(), cropRect);
+		ctx.drawImage(renderContext.getViewport(), renderContext.getSurface(), cropRect);
 		
 		// Return the image data
 		return ctx.getDataURL();
@@ -152,6 +152,39 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 		
 		// Return the image data from the temp context
 		return ctx.getImage(cropRect);
-	}
-	
+	},
+
+   blurCtx: null,
+
+   /**
+    * Blur the contents of the <tt>renderContext</tt> using the number of passes specified.
+    * The blur operation is fairly quick and is an approximation of a blur, not an actual
+    * blur filter.  This method is slow and shouldn't be called per frame.
+    *
+    * @param renderContext {R.rendercontexts.RenderContext2D} The context to blur
+    * @param [passes] {Number} Optional number of passes to apply (default: 1)
+    */
+   blur: function(renderContext, passes) {
+      var i,x,y,rect = R.math.Rectangle2D.create(renderContext.getViewport()),
+            ctx = R.util.RenderUtil.getTempContext(renderContext.constructor,
+                                                   renderContext.getViewport().w,
+                                                   renderContext.getViewport().h);
+
+      // Extract the context's current image
+      ctx.drawImage(rect, renderContext.getSurface());
+
+      // Run the blur
+      passes = passes || 1;
+      renderContext.get2DContext().globalAlpha = 0.125;
+      for (i = 1; i <= passes; i++) {
+         for (y = -1; y < 2; y++) {
+            for (x = -1; x < 2; x++) {
+               rect.x = x; rect.y = y;
+               renderContext.drawImage(rect, ctx.getSurface());
+            }
+         }
+      }
+      renderContext.get2DContext().globalAlpha = 1.0;
+   }
+
 };
