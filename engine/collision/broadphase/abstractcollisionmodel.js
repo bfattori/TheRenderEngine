@@ -121,7 +121,20 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 		findNodePoint: function(point){
 			return null;
 		},
-		
+
+      /**
+       * Normalize a point to keep it within the boundaries of the collision model.
+       * @param point {R.math.Point2D} The point
+       * @return {R.math.Point2D} The normalized point
+       */
+      normalizePoint: function(point) {
+         // Keep it within the boundaries
+         var p = R.math.Point2D.create(point);
+         p.x = p.x < 0 ? 0 : p.x > this.getWidth() ? this.getWidth() : p.x;
+         p.y = p.y < 0 ? 0 : p.y > this.getHeight() ? this.getHeight() : p.y;
+         return p;
+      },
+
 		/**
 		 * Add an object to the node which corresponds to the position of the object provided
 		 * provided.  Adding an object at a specific point will remove it from whatever
@@ -131,27 +144,32 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 		 * @param point {R.math.Point2D} The world position where the object is
 		 */
 		addObject: function(obj, point){
+         var p = this.normalizePoint(point);
+
 			// See if the object is already in a node and remove it
 			var oldNode = this.getObjectSpatialData(obj, "lastNode");
 			if (oldNode != null) {
-				if (!oldNode.contains(point)) {
+				if (!oldNode.contains(p)) {
 					// The object is no longer in the same node
 					oldNode.removeObject(obj);
 				}
 				else {
 					// The object hasn't left the node
+               p.destroy();
 					return;
 				}
 			}
 			
 			// Find the node by position and add the object to it
-			var node = this.findNodePoint(point);
+			var node = this.findNodePoint(p);
 			if (node != null) {
 				node.addObject(obj);
 				
 				// Update the collision data on the object
 				this.setObjectSpatialData(obj, "lastNode", node);
 			}
+
+         p.destroy();
 		},
 		
 		/**

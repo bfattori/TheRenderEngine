@@ -214,17 +214,18 @@ R.collision.broadphase.SpatialGrid = function() {
        * @return {R.struct.Container} A container of objects found that could be collision targets
        */
       getPCL: function(point) {
+         var p = this.normalizePoint(point);
 
          // Get the root node
-         var x = Math.floor(point.x * this.xLocator);
-         var y = Math.floor(point.y * this.yLocator);
+         var x = Math.floor(p.x * this.xLocator);
+         var y = Math.floor(p.y * this.yLocator);
 
          // Iff the object is inside the grid
          if (x >= 0 && x <= this.divisions - 1 &&
                y >= 0 && y <= this.divisions - 1) {
 
             // Create cache nodes for each normalized point in the grid
-            var id = this.getNodeId(point);
+            var id = this.getNodeId(p);
             if (this.pclCache[id] == null) {
                this.pclCache[id] = R.struct.Container.create();
             }
@@ -323,6 +324,8 @@ R.collision.broadphase.SpatialGrid = function() {
             return cachedPCL;
          }
 
+         p.destroy();
+
          // Outside the grid, return the empty container
          return R.struct.Container.EMPTY;
       },
@@ -338,6 +341,41 @@ R.collision.broadphase.SpatialGrid = function() {
          });
          return objs;
       }
+
+      /* pragma:DEBUG_START */
+      ,update: function(renderContext, time, dt) {
+         renderContext.pushTransform();
+
+         this.base(renderContext, time, dt);
+
+         // Draw the grid and highlight cells which contain objects
+         var vp = renderContext.getViewport(), xStep = vp.w / this.divisions, yStep = vp.h / this.divisions,
+               pSt = R.math.Point2D.create(0,0), pEn = R.math.Point2D.create(0,0),
+               rect = R.math.Rectangle2D.create(0,0,1,1), x, y;
+
+         // Grid
+         for (x = 0, y = 0; x < vp.w; ) {
+            renderContext.setLineStyle("gray");
+            renderContext.drawLine(pSt.set(x, 0), pEn.set(x, vp.h));
+            renderContext.drawLine(pSt.set(0, y), pEn.set(vp.w, y));
+            x += xStep; y += yStep;
+         }
+         pSt.destroy();
+         pEn.destroy();
+
+         // Occupied Cells
+         for (var c = 0, len = this.getRoot().length; c < len; c++) {
+            if (this.getRoot()[c].getCount() != 0) {
+               x = (c % this.divisions) * xStep;
+               y = Math.floor(c / this.divisions) * yStep;
+               renderContext.setLineStyle("silver");
+               renderContext.drawRectangle(rect.set(x, y, xStep, yStep));
+            }
+         }
+
+         renderContext.popTransform();
+      }
+      /* pragma:DEBUG_END */
 
    }, /** @scope R.collision.broadphase.SpatialGrid.prototype */{
       /**

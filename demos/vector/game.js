@@ -130,9 +130,10 @@ var Spaceroids = function() {
        */
       cleanupPlayfield: function() {
 
-         // Detach the particle engine so it isn't destroyed
-         this.pEngine.reset();
+         // Detach the collision model & particle engine
+         this.renderContext.remove(this.collisionModel);
          this.renderContext.remove(this.pEngine);
+         this.pEngine.reset();
 
          this.scoreObj = null;
          this.hscoreObj = null;
@@ -143,6 +144,9 @@ var Spaceroids = function() {
          this.rocks = 0;
          this.level = 0;
 
+         // Put the particle engine and collision model back again
+         this.renderContext.add(this.pEngine);
+         this.renderContext.add(this.collisionModel);
       },
 
       /**
@@ -162,8 +166,7 @@ var Spaceroids = function() {
             this.pEngine.setMaximum(5000);
          }
 
-         this.renderContext.add(this.pEngine);
-         this.pEngine.setFadeRate(0.1);
+         this.pEngine.setFadeRate(0.5);
 
          var pWidth = this.fieldWidth;
          var pHeight = this.fieldHeight;
@@ -330,7 +333,6 @@ var Spaceroids = function() {
          this.cleanupPlayfield();
 
          this.pEngine.setFadeRate(0.2);
-         this.renderContext.add(this.pEngine);
 
          this.nextLevel();
 

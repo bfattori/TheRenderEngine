@@ -111,6 +111,8 @@ var SimpleParticle = function() {
          }
 
          rgba = "rgb(" + colr +","+ colr +","+ colr +")";
+      } else {
+         rgba = "rgb(255,255,255)";
       }
 
       renderContext.setFillStyle(rgba);
