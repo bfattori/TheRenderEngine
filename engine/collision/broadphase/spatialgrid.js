@@ -344,6 +344,10 @@ R.collision.broadphase.SpatialGrid = function() {
 
       /* pragma:DEBUG_START */
       ,update: function(renderContext, time, dt) {
+         if (!R.Engine.getDebugMode()) {
+            return;
+         }
+         
          renderContext.pushTransform();
 
          this.base(renderContext, time, dt);
