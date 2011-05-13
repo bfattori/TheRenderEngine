@@ -90,6 +90,10 @@ R.components.physics.BaseBody = function() {
        * Destroy the object
        */
       destroy: function() {
+         if (this.simulation) {
+            this.stopSimulation();
+         }
+
          if (this.renderComponent != null) {
             this.renderComponent.destroy();
          }
@@ -120,6 +124,9 @@ R.components.physics.BaseBody = function() {
          if (!this.simulation) {
             this.simulation = this.getGameObject().getSimulation();
             this.body = this.simulation.addBody(this.getBodyDef(), this.getFixtureDef());
+
+            // Add something to the body so we can get back to this object
+            this.body.__$backRef$__ = this;
          }
       },
 

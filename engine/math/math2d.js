@@ -532,7 +532,36 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
 		p.div(points.length);
 		return p;
 	},
-	
+
+   /**
+    * Calculate the smallest bounding box which contains
+    * the given set of points.
+    * @param points {Array} An array of {@link R.math.Point2D}
+    * @return {R.math.Rectangle2D} The bounding box of the points
+    */
+   getBoundingBox: function(points) {
+      var x1 = R.lang.Math2.MAX_INT, x2 = -R.lang.Math2.MAX_INT, y1 = R.lang.Math2.MAX_INT, y2 = -R.lang.Math2.MAX_INT,
+         rect = R.math.Rectangle2D.create(0,0,1,1);
+
+      for (var p = 0; p < points.length; p++) {
+         var pt = points[p];
+
+         if (pt.x < x1) {
+            x1 = pt.x;
+         }
+         if (pt.x > x2) {
+            x2 = pt.x;
+         }
+         if (pt.y < y1) {
+            y1 = pt.y;
+         }
+         if (pt.y > y2) {
+            y2 = pt.y;
+         }
+      }
+		rect.set(0,0,Math.abs(x1) + x2,Math.abs(y1) + y2);
+   },
+
 	/**
 	 * Transform all of the points by the given matrix.  This method
 	 * transforms all of the points in the array by mutating the points.

@@ -1,8 +1,8 @@
 /**
  * The Render Engine
- * BoxBodyComponent
+ * PolyBodyComponent
  *
- * @fileoverview A physical rectangular body component for use in a {@link Simulation}.
+ * @fileoverview A physical polygonal body component for use in a {@link R.physics.Simulation}.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  *
@@ -33,7 +33,7 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.physics.BoxBody",
+   "class": "R.components.physics.PolyBody",
    "requires": [
       "R.components.physics.BaseBody",
       "R.math.Math2D"
@@ -41,37 +41,46 @@ R.Engine.define({
 });
 
 /**
- * @class An extension of the {@link R.components.BaseBody} which creates a rectangular
- *        rigid body.
+ * @class An extension of {@link R.components.BaseBody} which creates a polygonal
+ *        rigid body.  The polygon must be a convex polygon.
  *
  * @param name {String} Name of the component
- * @param extents {R.math.Vector2D} The full extents of the body along X and Y
+ * @param points {Array} An array of points defining the body shape
  *
  * @extends R.components.physics.BaseBody
  * @constructor
- * @description A rectangular rigid body component.
+ * @description A polygonal rigid body component.
  */
-R.components.physics.BoxBody = function() {
-   return R.components.physics.BaseBody.extend(/** @scope R.components.physics.BoxBody.prototype */{
+R.components.physics.PolyBody = function() {
+   return R.components.physics.BaseBody.extend(/** @scope R.components.physics.PolyBody.prototype */{
 
+      points: null,
+      center: null,
       extents: null,
 
       /**
        * @private
        */
-      constructor: function(name, extents) {
+      constructor: function(name, points) {
          var fixDef = new Box2D.Dynamics.b2FixtureDef();
          fixDef.shape = new Box2D.Collision.Shapes.b2PolygonShape();
 
          this.base(name, fixDef);
-         this.extents = extents;
-         this.setLocalOrigin(extents.x / 2, extents.y / 2);
+         this.points = points;
+
+         // Calculate the extents of the points
+         this.extents = R.math.Math2D.getBoundingBox(points);
+
+         // Calculate the center of the points
+         this.center = R.math.Math2D.getCenterOfPoints(points);
+         this.setLocalOrigin(this.center);
       },
 
       /**
        * Destroy the object
        */
       destroy: function() {
+         this.center.destroy();
          this.extents.destroy();
          this.base();
       },
@@ -80,6 +89,8 @@ R.components.physics.BoxBody = function() {
        * Return the object to the pool.
        */
       release: function() {
+         this.points = null;
+         this.center = null;
          this.extents = null;
          this.base();
       },
@@ -95,9 +106,14 @@ R.components.physics.BoxBody = function() {
       setGameObject: function(gameObject) {
          this.base(gameObject);
 
-         var scaled = R.math.Point2D.create(this.extents).div(gameObject.getSimulation().getScale());
-         this.getFixtureDef().shape.SetAsBox(scaled.x / 2, scaled.y / 2);	// Half width and height
-         scaled.destroy();
+         var scaled = [], pt = R.math.Point2D.create(0,0);
+         for (var p = 0; p < this.points.length; p++) {
+            pt.set(this.points[p]);
+            pt.div(gameObject.getSimulation().getScale());
+            scaled.push(new Box2D.Common.Math.b2Vec2(pt.x, pt.y));
+         }
+         this.getFixtureDef().shape.SetAsArray(scaled);
+         pt.destroy();
       },
 
       /**
@@ -105,26 +121,7 @@ R.components.physics.BoxBody = function() {
        * @return {R.math.Rectangle2D}
        */
       getBoundingBox: function() {
-         var box = this.base();
-         var p = this.getPosition();
-         var e = this.getExtents();
-         box.set(0, 0, e.x, e.y);
-         return box;
-      },
-
-      /**
-       * Set the extents of the box's body.  Calling this method after the
-       * simulation of the body has started has no effect.
-       *
-       * @param extents {R.math.Point2D} The extents of the body along X and Y
-       */
-      setExtents: function(extents) {
-         this.extents = extents;
-         var scaled = R.math.Point2D.create(extents).div(this.getGameObject().getSimulation().getScale());
-         this.getFixtureDef().SetAsBox(scaled.x / 2, scaled.y / 2);
-         if (this.simulation) {
-            this.updateFixture();
-         }
+         return this.extents;
       },
 
       /**
