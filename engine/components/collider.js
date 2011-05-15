@@ -81,6 +81,7 @@ R.components.Collider = function() {
       didCollide: false,
       testMode: null,
       cData: null,
+      physicalBody: null,
 
       /**
        * @private
@@ -93,6 +94,7 @@ R.components.Collider = function() {
          this.didCollide = false;
          this.testMode = R.components.Collider.SIMPLE_TEST;
          this.cData = null;
+         this.physicalBody = null;
       },
 
       /**
@@ -141,6 +143,7 @@ R.components.Collider = function() {
          this.didCollide = false;
          this.testMode = null;
          this.cData = null;
+         this.physicalBody = null;
       },
 
       /**
@@ -261,6 +264,23 @@ R.components.Collider = function() {
       },
 
       /**
+       * Link a rigid physical body to the collision component.  When using a physical body to represent
+       * a component, it is oftentimes useful to use the body shape as the collision shape.
+       * @param physicalBody {R.components.physics.BaseBody}
+       */
+      linkPhysicalBody: function(physicalBody) {
+         this.physicalBody = physicalBody;
+      },
+
+      /**
+       * Get the linked physical body.
+       * @return {R.components.physics.BaseBody}
+       */
+      getLinkedBody: function() {
+         return this.physicalBody;
+      },
+
+      /**
        * Update the collision model that this component was initialized with.
        * As objects move about the world, the objects will move to different
        * areas (or nodes) within the collision model.  It is necessary to
@@ -324,7 +344,6 @@ R.components.Collider = function() {
             pcl = this.getCollisionModel().getPCL(host.getPosition(), time, dt);
             var status = R.components.Collider.CONTINUE;
             var collisionsReported = 0;
-            this.didCollide = false;
 
             pcl.forEach(function(obj) {
                var targetMask = this.collisionModel.getObjectSpatialData(obj, "collisionMask");
@@ -350,6 +369,7 @@ R.components.Collider = function() {
          if (!this.isDestroyed() && this.hasCollideMethods[1] &&
                this.didCollide && collisionsReported == 0) {
             host.onCollideEnd(time, dt);
+            this.didCollide = false;
          }
       },
 

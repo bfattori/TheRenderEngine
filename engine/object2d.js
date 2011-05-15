@@ -371,6 +371,21 @@ R.engine.Object2D = function(){
 		getDefaultTransformComponent: function() {
 			return this.defaultTxfmComponent;
 		},
+
+      /**
+       * Set, or override, the default transformation component.
+       * @param transformComponent {R.components.Transform2D}
+       */
+      setDefaultTransformComponent: function(transformComponent) {
+         Assert(transformComponent && transformComponent instanceof R.components.Transform2D, "Default transform component not R.components.Transform2D or subclass");
+
+         // If this is the component created by the system, we can just destroy it
+         if (this.defaultTxfmComponent && this.defaultTxfmComponent.getName() === "dTxfm__") {
+            this.defaultTxfmComponent.destroy();
+         }
+
+         this.defaultTxfmComponent = transformComponent;
+      },
 		
 		/**
 		 * Set the position of the object
@@ -411,7 +426,7 @@ R.engine.Object2D = function(){
 		 * @param angle {Number} The rotation angle
 		 */
 		setRotation: function(angle){
-			this.getDefaultTransformComponent().setRotation(angle)
+			this.getDefaultTransformComponent().setRotation(angle);
 			this.markDirty();
 		},
 		
@@ -565,4 +580,4 @@ R.engine.Object2D = function(){
 		ROTATION_AXIS: $V([0, 0, 1])
 	});
 	
-}
+};

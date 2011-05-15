@@ -545,6 +545,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
       R.Engine._pauseTime = R.now();
       R.Engine._stepOne = 0;
+      R.Engine.lastTime = R.now() - R.Engine.fpsClock;
 
       // Start world timer
       R.Engine.engineTimer();
@@ -794,6 +795,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
 			// Render a frame
 			R.Engine.worldTime = R.Engine._stepOne == 1 ? R.Engine._pauseTime : R.now();
+         R.Engine.lastTime = R.Engine._stepOne == 1 ? R.Engine.worldTime - R.Engine.fpsClock : R.Engine.lastTime;
 
          // Pass parent context, world time, delta time
 			R.Engine.getDefaultContext().update(null, R.Engine.worldTime, R.Engine.worldTime - R.Engine.lastTime);

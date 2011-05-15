@@ -1,4 +1,3 @@
-
 /**
  * The Render Engine
  * A wooden crate toy
@@ -31,63 +30,68 @@
  */
 
 R.Engine.define({
-	"class": "Crate",
-	"requires": [
-		"R.components.physics.BoxBody",
-		"R.math.Math2D"
-	],
-	
-	"depends": [
-		"Toy"
-	]
+   "class": "Crate",
+   "requires": [
+      "R.components.physics.BoxBody",
+      "R.components.collision.Box",
+      "R.math.Math2D"
+   ],
+
+   "depends": [
+      "Toy"
+   ]
 });
 
 /**
  * @class A wooden crate toy to play with.  Uses the box body to physically animate
- *			 the toy object.
+ *          the toy object.
  *
  * @constructor
  * @extends Toy
  * @description Create a wooden crate toy
  */
 var Crate = function() {
-	return Toy.extend(/** @scope Crate.prototype */{
+   return Toy.extend(/** @scope Crate.prototype */{
 
-	boxSize: null,
+      boxSize: null,
 
-	/**
-	 * @private
-	 */
-	constructor: function() {
-		this.base("crate", "crate", "over");
-	},
+      /**
+       * @private
+       */
+      constructor: function() {
+         this.base("crate", "crate", "over");
+      },
 
-	/**
-	 * Create the physical body component and assign it to the
-	 * toy.
-	 *
-	 * @param componentName {String} The name to assign to the component.
-	 * @param scale {Number} A scalar scaling value for the toy
-	 */
-	createPhysicalBody: function(componentName, scale) {
-		this.boxSize = R.math.Point2D.create(60, 60);
-		this.boxSize.mul(scale);
-		this.add(R.components.physics.BoxBody.create(componentName, this.boxSize));
-		
-		// Set the friction and bounciness of the crate
-		this.getComponent(componentName).setFriction(1);
-		this.getComponent(componentName).setRestitution(0);
-		this.getComponent(componentName).setDensity(1);
-	}
+      /**
+       * Create the physical body component and assign it to the
+       * toy.
+       *
+       * @param componentName {String} The name to assign to the component.
+       * @param scale {Number} A scalar scaling value for the toy
+       */
+      createPhysicalBody: function(componentName, scale) {
+         this.boxSize = R.math.Point2D.create(60, 60);
+         this.boxSize.mul(scale);
+         this.add(R.components.physics.BoxBody.create(componentName, this.boxSize));
 
-}, /** @scope Crate.prototype */{ // Static
+         // Set the friction and bounciness of the crate
+         this.getComponent(componentName).setFriction(1);
+         this.getComponent(componentName).setRestitution(0);
+         this.getComponent(componentName).setDensity(1);
+      },
 
-   /**
-    * Get the class name of this object
-    * @return {String} The string <tt>Crate</tt>
-    */
-   getClassName: function() {
-      return "Crate";
-   }
-});
+      createColliderComponent: function(componentName, collisionModel) {
+         this.add(R.components.collision.Box.create(componentName, collisionModel));
+      }
+
+   }, /** @scope Crate.prototype */{ // Static
+
+      /**
+       * Get the class name of this object
+       * @return {String} The string <tt>Crate</tt>
+       */
+      getClassName: function() {
+         return "Crate";
+      }
+   });
 };

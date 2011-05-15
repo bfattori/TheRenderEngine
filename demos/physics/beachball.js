@@ -1,4 +1,3 @@
-
 /**
  * The Render Engine
  * A beachball toy
@@ -31,62 +30,68 @@
  */
 
 R.Engine.define({
-	"class": "BeachBall",
-	"requires": [
-		"R.components.physics.CircleBody"
-	],
-	
-	"depends": [
-		"Toy"
-	]
+   "class": "BeachBall",
+   "requires": [
+      "R.components.physics.CircleBody",
+      "R.components.collision.Box"
+   ],
+
+   "depends": [
+      "Toy"
+   ]
 });
 
 /**
  * @class A beachball toy to play with.  Uses the circle body to physically animate
- *			 the toy object.
+ *          the toy object.
  *
  * @constructor
  * @extends Toy
  * @description Create a beachball toy
  */
 var BeachBall = function() {
-	return Toy.extend(/** @scope BeachBall.prototype */{
+   return Toy.extend(/** @scope BeachBall.prototype */{
 
-	size: 30,
+      size: 30,
 
-	/**
-	 * @private
-	 */
-	constructor: function() {
-		this.base("beachball", "ball", "over");
-	},
+      /**
+       * @private
+       */
+      constructor: function() {
+         this.base("beachball", "ball", "over");
+      },
 
-	/**
-	 * Create the physical body component and assign it to the
-	 * toy.
-	 *
-	 * @param componentName {String} The name to assign to the component.
-	 * @param scale {Number} A scalar scaling value for the toy
-	 */
-	createPhysicalBody: function(componentName, scale) {
-		this.size = 30;
-		this.size *= scale;
-		this.add(R.components.physics.CircleBody.create(componentName, this.size));
-		
-		// Set the friction and bounciness of the beachball
-		this.getComponent(componentName).setFriction(0.2);
-		this.getComponent(componentName).setRestitution(0.8);
-		this.getComponent(componentName).setDensity(0.4);
-	}
+      /**
+       * Create the physical body component and assign it to the
+       * toy.
+       *
+       * @param componentName {String} The name to assign to the component.
+       * @param scale {Number} A scalar scaling value for the toy
+       */
+      createPhysicalBody: function(componentName, scale) {
+         this.size = 30;
+         this.size *= scale;
+         this.add(R.components.physics.CircleBody.create(componentName, this.size));
 
-}, /** @scope BeachBall.prototype */{ // Static
+         // Set the friction and bounciness of the beachball
+         this.getComponent(componentName).setFriction(0.2);
+         this.getComponent(componentName).setRestitution(0.8);
+         this.getComponent(componentName).setDensity(0.4);
+      },
 
-   /**
-    * Get the class name of this object
-    * @return {String} The string <tt>BeachBall</tt>
-    */
-   getClassName: function() {
-      return "BeachBall";
-   }
-});
+      createColliderComponent: function(componentName, collisionModel) {
+         this.add(R.components.collision.Box.create(componentName, collisionModel));
+      }
+
+
+   }, /** @scope BeachBall.prototype */{ // Static
+
+      /**
+       * Get the class name of this object
+       * @return {String} The string <tt>BeachBall</tt>
+       */
+      getClassName: function() {
+         return "BeachBall";
+      }
+   });
 };

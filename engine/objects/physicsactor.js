@@ -139,6 +139,7 @@ R.objects.PhysicsActor = function() {
 	setRootBody: function(body) {
 		Assert(body instanceof R.components.physics.BaseBody, "Root body is not a BaseBodyComponent");
 		this.rootBody = body;
+      this.setDefaultTransformComponent(body);
 	},
 	
 	/**
@@ -150,43 +151,11 @@ R.objects.PhysicsActor = function() {
 		if (!this.rootBody) {
 			// Get all of the bodies and select the first to be the root 
 			this.rootBody = this.getRigidBodies()[0];
+         this.setDefaultTransformComponent(this.rootBody);
 		}
 		return this.rootBody;
 	},
 
-   /**
-    * Get the position of the actor from the root body component.
-    * @return {R.math.Point2D}
-    */
-   getPosition: function() {
-      return this.getRootBody().getPosition();
-   },
-	
-   /**
-    * Get the render position of the actor
-    * @return {R.math.Point2D}
-    */
-   getRenderPosition: function() {
-      this.rPos.set(this.getPosition());
-		return this.rPos;
-   },
-
-	/**
-	 * Get the rotation of the toy from the "physics" component.
-	 * @return {Number}
-	 */
-	getRotation: function() {
-		return this.getRootBody().getRotation();
-	},
-	
-	/**
-	 * Get the uniform scale of the toy from the "physics" component.
-	 * @return {Number}
-	 */
-	getScale: function() {
-		return this.getRootBody().getScale();
-	},
-	
 	/**
 	 * Set the position of the actor.  If the actor is comprised of multiple rigid bodies,
 	 * the position will be set for all rigid bodies and joints, relative to the root body.
@@ -276,7 +245,7 @@ R.objects.PhysicsActor = function() {
 			this.rigidBodies = null;
 			
 			// Assure that there's a renderer for the body and then link the two
-			Assert(renderComponent == null || (renderComponent instanceof R.components.Render), "Adding non-render component to body component");
+			Assert(renderComponent == null || (renderComponent instanceof R.components.Render), "Adding non-render component to rigid body component");
 			
 			// Link the two so that when the body (transform) occurs, the renderer does its thing
 			component.setRenderComponent(renderComponent);
@@ -300,9 +269,10 @@ R.objects.PhysicsActor = function() {
     *          in milliseconds.
     */
    update: function(renderContext, time, dt) {
-
       // Run the components
       var components = this.iterator();
+
+      renderContext.pushTransform();
 
       while (components.hasNext()) {
 			var nextComponent = components.next();
@@ -321,7 +291,7 @@ R.objects.PhysicsActor = function() {
 				
 				/* pragma:DEBUG_START */
 				if (R.Engine.getDebugMode()) {
-		   		renderContext.drawFilledArc(pt.neg(), 10, 0, 360);
+		   		renderContext.drawFilledArc(pt.neg(), 5, 0, 360);
 		   	}
 				/* pragma:DEBUG_END */
 				
@@ -332,6 +302,8 @@ R.objects.PhysicsActor = function() {
 				renderContext.popTransform();
 			}
       }
+
+      renderContext.popTransform();
 
 		components.destroy();
 

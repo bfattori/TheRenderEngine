@@ -208,6 +208,7 @@ R.engine.PooledObject =  Base.extend(/** @scope R.engine.PooledObject.prototype 
 	setObjectDataModel: function(key, value) {
 		var mData = this.getObjectDataModel();
 		mData[key] = value;
+      return mData[key];
 	},
 	
 	/**

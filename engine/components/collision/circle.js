@@ -135,7 +135,8 @@ R.components.collision.Circle = function() {
          }
 
          // See if a collision will occur
-         var host = this.getGameObject(),
+         var linked = this.getLinkedBody(),
+               host = this.getGameObject(),
                circle1 = host.getWorldCircle(),
                circle2 = collisionObj.getWorldCircle();
 
@@ -179,15 +180,19 @@ R.components.collision.Circle = function() {
          this.base(renderContext, time, dt);
          // Debug the collision box
          if (R.Engine.getDebugMode() && !this.isDestroyed()) {
-            renderContext.pushTransform();
-            var origin = R.math.Point2D.create(this.getGameObject().getOrigin());
-            var rect = R.math.Rectangle2D.create(this.getGameObject().getBoundingBox());
+            var linked = this.getLinkedBody(),
+                  origin = R.math.Point2D.create(linked ? linked.getLocalOrigin() : R.math.Point2D.ZERO),
+                  rect = R.math.Rectangle2D.create(this.getGameObject().getWorldBox());
+
             rect.offset(origin.neg());
-            renderContext.setLineStyle("yellow");
-            renderContext.drawRectangle(rect);
-            renderContext.popTransform();
+
+            renderContext.postRender(function() {
+               this.setLineStyle("yellow");
+               this.setLineWidth(1);
+               this.drawRectangle(rect);
+            });
+
             origin.destroy();
-            rect.destroy();
          }
       }
       /* pragma:DEBUG_END */

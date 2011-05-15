@@ -274,4 +274,4 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 	
 	});
 	
-}
+};

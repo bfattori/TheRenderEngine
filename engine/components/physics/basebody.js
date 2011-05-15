@@ -244,7 +244,7 @@ R.components.physics.BaseBody = function() {
        * @param restitution {Number} A value between 0.0 and 1.0
        */
       setRestitution: function(restitution) {
-         this.fixtureDef.restitution = restitution
+         this.fixtureDef.restitution = restitution;
          this.updateFixture();
       },
 

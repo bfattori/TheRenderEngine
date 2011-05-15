@@ -106,7 +106,6 @@ R.components.physics.BoxBody = function() {
        */
       getBoundingBox: function() {
          var box = this.base();
-         var p = this.getPosition();
          var e = this.getExtents();
          box.set(0, 0, e.x, e.y);
          return box;

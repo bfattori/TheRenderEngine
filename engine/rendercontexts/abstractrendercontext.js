@@ -157,6 +157,43 @@ R.rendercontexts.AbstractRenderContext = function() {
       },
 
       /**
+       * Enable mouse event capturing within the render context.  The mouse
+       * event data will be accessible by calling {@link #getMouseInfo}.
+       */
+      captureMouse: function() {
+         R.rendercontexts.AbstractRenderContext.assignMouseHandler(this);
+      },
+
+      /**
+       * Disabled mouse event capturing within the render context.
+       */
+      uncaptureMouse: function() {
+         R.rendercontexts.AbstractRenderContext.removeMouseHandler(this);
+      },
+
+      /**
+       * Get the state of the mouse in the rendering context.  You must first enable mouse
+       * event capturing with {@link #captureMouse}.
+       * The object will contain:
+       * <ul>
+       * <li><code>position</code> - {@link R.math.Point2D}</li>
+       * <li><code>lastPosition</code> - {@link R.math.Point2D}</li>
+       * <li><code>downPosition</code> - {@link R.math.Point2D}</li>
+       * <li><code>button</code> - {@link R.engine.Events#MOUSE_NO_BUTTON}, {@link R.engine.Events#MOUSE_LEFT_BUTTON},
+       * {@link R.engine.Events#MOUSE_RIGHT_BUTTON}, or {@link R.engine.Events#MOUSE_MIDDLE_BUTTON}</li>
+       * <li><code>lastOver</code> - {@link R.engine.BaseObject} or <code>null</code></li>
+       * <li><code>moveVec</code> - {@link R.math.Vector2D} which represents the direction and distance
+       * of the mouse movement</li>
+       * <li><code>dragVec</code> - {@link R.math.Vector2D} which represents the direction and distance
+       * of the mouse movement when a mouse button is down</li>
+       * </ul>
+       * @return {Object} The current state of the mouse
+       */
+      getMouseInfo: function() {
+         return this.getObjectDataModel().mouseInfo;
+      },
+
+      /**
        * [ABSTRACT] Set the scale of the rendering context.
        *
        * @param scaleX {Number} The scale along the X dimension
@@ -474,8 +511,74 @@ R.rendercontexts.AbstractRenderContext = function() {
       /**
        * @private
        */
-      DATA_MODEL: "RenderContext"
+      DATA_MODEL: "RenderContext",
 
+      /**
+       * Assigns the mouse handlers.
+       * @private
+       * @param ctx {R.rendercontexts.AbstractRenderContext} The context to assign the handlers to
+       */
+      assignMouseHandler: function(ctx) {
+         // Assign handlers to the context, making sure to only add
+         // the handler once.  This way we don't have hundreds of mouse move
+         // handlers taking up precious milliseconds.
+         var ctxData = ctx.getObjectDataModel(), mouseInfo = ctx.getObjectDataModel("mouseInfo");
+
+         if (!mouseInfo) {
+            mouseInfo = ctx.setObjectDataModel("mouseInfo", {
+               position: R.math.Point2D.create(0, 0),
+               lastPosition: R.math.Point2D.create(0, 0),
+               downPosition: R.math.Point2D.create(0, 0),
+               button: R.engine.Events.MOUSE_NO_BUTTON,
+               moveVec: R.math.Vector2D.create(0, 0),
+               dragVec: R.math.Vector2D.create(0, 0),
+               lastOver: null,
+               moveTimer: null
+            });
+
+            ctx.addEvent(ctx, "mousemove", function(evt) {
+               if (mouseInfo.moveTimer != null) {
+                  mouseInfo.moveTimer.destroy();
+                  mouseInfo.moveTimer = null;
+               }
+               mouseInfo.lastPosition.set(mouseInfo.position);
+               mouseInfo.position.set(evt.offsetX, evt.offsetY);
+               mouseInfo.moveVec.set(mouseInfo.position);
+               mouseInfo.moveVec.sub(mouseInfo.lastPosition);
+               if (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON) {
+                  mouseInfo.dragVec.set(mouseInfo.downPosition);
+                  mouseInfo.dragVec.sub(mouseInfo.position);
+               }
+               mouseInfo.moveTimer = R.lang.Timeout.create("mouseMove", 33, function() {
+                  mouseInfo.moveVec.set(0, 0);
+               });
+            });
+
+            ctx.addEvent(ctx, "mousedown", function(evt) {
+               mouseInfo.button = evt.which;
+               mouseInfo.downPosition.set(evt.pageX, evt.pageY);
+               evt.preventDefault();
+            });
+
+            ctx.addEvent(ctx, "mouseup", function(evt) {
+               mouseInfo.button = R.engine.Events.MOUSE_NO_BUTTON;
+               mouseInfo.dragVec.set(0, 0);
+            });
+
+         }
+      },
+
+      /**
+       * Remove the mouse handlers
+       * @param ctx
+       * @private
+       */
+      removeMouseHandler: function(ctx) {
+         ctx.setObjectDataModel("mouseInfo", undefined);
+         ctx.removeEvent(ctx, "mousemove");
+         ctx.removeEvent(ctx, "mousedown");
+         ctx.removeEvent(ctx, "mouseup");
+      }
    });
 
 };

@@ -127,8 +127,9 @@ R.components.collision.Box = function() {
 		}
 
       // See if a collision will occur
-      var host = this.getGameObject(),
-      	 box1 = host.getWorldBox(), 
+      var linked = this.getLinkedBody(),
+          host = this.getGameObject(),
+      	 box1 = linked ? R.math.Rectangle2D.create(host.getWorldBox()).offset(R.math.Point2D.create(linked.getLocalOrigin()).neg()) : host.getWorldBox(),
       	 box2 = collisionObj.getWorldBox();
       
       if (this.getTestMode() == R.components.Collider.SIMPLE_TEST) {
@@ -172,15 +173,19 @@ R.components.collision.Box = function() {
       // Debug the collision box
       if (R.Engine.getDebugMode() && !this.isDestroyed())
       {
-			renderContext.pushTransform();
-			var origin = R.math.Point2D.create(this.getGameObject().getOrigin());
-			var rect = R.math.Rectangle2D.create(this.getGameObject().getBoundingBox());
+         var linked = this.getLinkedBody(),
+             origin = R.math.Point2D.create(linked ? linked.getLocalOrigin() : R.math.Point2D.ZERO),
+			    rect = R.math.Rectangle2D.create(this.getGameObject().getWorldBox());
+
 			rect.offset(origin.neg());
-         renderContext.setLineStyle("yellow");
-         renderContext.drawRectangle(rect);
-			renderContext.popTransform();
+
+         renderContext.postRender(function() {
+            this.setLineStyle("yellow");
+            this.setLineWidth(1);
+            this.drawRectangle(rect);
+         });
+
 			origin.destroy();
-			rect.destroy();
       }
 	}
    /* pragma:DEBUG_END */

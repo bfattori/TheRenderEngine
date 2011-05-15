@@ -372,8 +372,8 @@ R.collision.broadphase.SpatialGrid = function() {
             if (this.getRoot()[c].getCount() != 0) {
                x = (c % this.divisions) * xStep;
                y = Math.floor(c / this.divisions) * yStep;
-               renderContext.setLineStyle("silver");
-               renderContext.drawRectangle(rect.set(x, y, xStep, yStep));
+               renderContext.setFillStyle("rgba(192,192,192,0.4)");
+               renderContext.drawFilledRectangle(rect.set(x, y, xStep, yStep));
             }
          }
 
