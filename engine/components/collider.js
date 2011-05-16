@@ -35,8 +35,7 @@
 R.Engine.define({
    "class": "R.components.Collider",
    "requires": [
-      "R.components.Base",
-      "R.struct.CollisionData"
+      "R.components.Base"
    ]
 });
 

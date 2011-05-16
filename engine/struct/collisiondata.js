@@ -43,6 +43,14 @@ R.Engine.define({
  * @class An object which contains information about a collision.  The values of the
  *    collision data are read directly.
  *
+ * @param o {Number} Overlap
+ * @param u {R.math.Vector2D} The collision normal
+ * @param s1 {R.engine.GameObject} Game object 1
+ * @param s2 {R.engine.GameObject} Game object 2
+ * @param i {R.math.Vector2D} Impulse vector to separate shapes
+ * @param wt {Number} World time
+ * @param dt {Number} Time since last frame redraw (delta time)
+ *
  * @extends R.engine.PooledObject
  * @constructor
  * @description Creates a collision data structure.
@@ -63,19 +71,19 @@ R.struct.CollisionData = function() {
 		unitVector: null,
 
       /**
-       * The convex hull which collided
-       * @type {R.collision.ConvexHull}
+       * The game object which collided
+       * @type {R.engine.GameObject}
        */
 		shape1: null,
 
       /**
-       * The convex hull which was collided with
-       * @type {R.collision.ConvexHull}
+       * The game object that was collided with
+       * @type {R.engine.GameObject}
        */
 		shape2: null,
 
       /**
-       * A vector which can be used to move the two shapes apart so they aren't colliding
+       * A vector which can be used to move the two objects apart so they aren't colliding
        * @type {R.math.Vector2D}
        */
 		impulseVector: null,

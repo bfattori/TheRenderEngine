@@ -161,8 +161,8 @@ R.components.collision.Circle = function() {
                var sep = R.math.Vector2D.create((c2.x - c1.x) * diff, (c2.y - c1.y) * diff);
                this.setCollisionData(R.struct.CollisionData.create(sep.len(),
                      R.math.Vector2D.create(c2.x - c1.x, c2.y - c1.y).normalize(),
-                     null,
-                     null,
+                     host,
+                     collisionObj,
                      sep,
                      time,
                      dt));

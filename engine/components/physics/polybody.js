@@ -142,14 +142,8 @@ R.components.physics.PolyBody = function() {
          if (R.Engine.getDebugMode()) {
             renderContext.pushTransform();
             renderContext.setLineStyle("blue");
-            var ext = R.math.Point2D.create(this.extents);
-            //ext.mul(this.getScale());
-            var hx = ext.x / 2;
-            var hy = ext.y / 2;
-            var rect = R.math.Rectangle2D.create(-hx, -hy, hx * 2, hy * 2);
             renderContext.setScale(1 / this.getScale());
-            renderContext.drawRectangle(rect);
-            rect.destroy();
+            renderContext.drawPolygon(this.points);
             renderContext.popTransform();
          }
       }

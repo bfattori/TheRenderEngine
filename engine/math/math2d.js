@@ -647,6 +647,88 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
 			[0,scaleY,0],
 			[0,0,1]
 		]);	
-	}
+	},
+
+   /**
+    * Calculates all of the points along a line using Bresenham's algorithm.
+    * This method will return an array of points which need to be cleaned up
+    * when done using them.
+    *
+    * @param start {R.math.Point2D} The starting point for the line
+    * @param end {R.math.Point2D} The ending point for the line
+    * @return {Array} An array of {@link R.math.Point2D}.  Be sure to
+    *    destroy the points in the array when done using them.
+    */
+   bresenham: function(start, end) {
+      function swap(pt) {
+         pt.set(pt.y, pt.x);
+      }
+
+      var points = [], steep = Math.abs(end.y - start.y) > Math.abs(end.x - start.x), swapped = false;
+      if (steep) {
+         // Reflect the line
+         swap(start);
+         swap(end);
+      }
+
+      if (start.x > end.x) {
+         // Make sure the line goes downward
+         var t = start.x;
+         start.x = end.y;
+         end.y = t;
+         t = start.y;
+         start.y = end.y;
+         end.y = t;
+         swapped = true;
+      }
+
+      var deltax = end.x - start.x,             // x slope
+          deltay = Math.abs(end.y - start.y),   // y slope, positive because the lines always go down
+          error = deltax / 2,                   // error is used instead of tracking the y values
+          ystep, y = start.y;
+
+      ystep = (start.y < end.y ? 1 : -1);
+      for (var x = start.x; x < end.x; x++) {   // for each point
+         if (steep) {
+            points.push(R.math.Point2D.create(y,x));  // if it's stepp, push flipped version
+         } else {
+            points.push(R.math.Point2D.create(x,y));  // push normal
+         }
+         error -= deltay;  // change the error
+         if (error < 0) {
+            y += ystep;    // if the error is too much, adjust the ystep
+            error += deltax;
+         }
+      }
+
+      if (swapped) {
+         points.reverse();
+      }
+
+      return points;
+   },
+
+   /**
+    * Determine if the given <code>point</code> is within the polygon defined by the array of
+    * points in <code>poly</code>.
+    *
+    * @param point {R.math.Point2D} The point to test
+    * @param poly {Array} An array of <code>R.math.Point2D</code>
+    * @return {Boolean} <code>true</code> if the point is within the polygon
+    */
+   pointInPoly: function(point, poly) {
+      var sides = poly.length, i = 0, j = sides - 1, oddNodes = false;
+      for (i = 0; i < sides; i++) {
+         if ((poly[i].y < point.y && poly[j].y >= point.y) ||
+             (poly[j].y < point.y && poly[i].y >= point.y)) {
+
+            if (poly[i].x + (point.y - poly[i].y) / (poly[j].y - poly[i].y) * (poly[j].x - poly[i].x) < point.x) {
+               oddNodes = !oddNodes;
+            }
+         }
+         j = i;
+      }
+      return oddNodes;
+   }
 	
 };

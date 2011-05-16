@@ -257,7 +257,86 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 			return this.getObjects().filter(function(obj){
 				return (obj instanceof clazz);
 			}, this);
-		}
+		},
+
+      /**
+       * Cast a ray through the collision model, looking for collisions along the
+       * ray.  If a collision is found, a {@link R.struct.CollisionData} object
+       * will be returned or <code>null</code> if otherwise.  If the object being
+       * tested has a convex hull, that will be used to test for collision with
+       * the ray.  Otherwise, its world box will be used.
+       * <p/>
+       * If a collision occurs, the value stored in {@link R.struct.CollisionData#shape1}
+       * is the object which was collided with.  The value in {@link R.struct.CollisionData#impulseVector}
+       * is the point at which the intersection was determined.
+       *
+       * @param fromPoint {R.math.Point2D} The origination of the ray
+       * @param direction {R.math.Vector2D} A unit vector specifying the direction of the ray being cast
+       * @return {R.struct.CollisionData} The collision info, or <code>null</code> if
+       *    no collision would occur.
+       */
+      castRay: function(fromPoint, direction) {
+         // Get all of the points along the line and test them against the
+         // collision model.  At the first collision, we stop performing any more checks.
+         var end = R.math.Point2D.create(fromPoint)
+               .add(direction.mul(R.collision.broadphase.AbstractCollisionModel.MAX_RAY_LENGTH)),
+            line = R.math.Math2D.bresenham(fromPoint, end), collision = null, pt = 0, test, node, itr, object,
+            wt = R.Engine.worldTime, dt = R.Engine.lastTime, vec = R.math.Vector2D.create(direction).neg(),
+            did = false;
+
+         while (!collision && pt < line.length) {
+            test = line[pt];
+
+            // If the point is outside our boundaries, we can get out of here now
+            if (test.x < 0 || test.y < 0 || test.x > this.width || test.y > this.height()) {
+               break;
+            }
+
+            // Find the node for the current point
+            node = this.findNodePoint(test);
+
+            // Get all of the objects in the node
+            for (itr = node.getObjects().iterator(); itr.hasNext(); ) {
+               object = itr.next();
+
+               // If the object has a convex hull, we'll test against that
+               // otherwise we'll use its world box
+               if (object.getConvexHull) {
+                  var hull = object.getConvexHull();
+                  if (hull.getType() == R.collision.ConvexHull.CONVEX_CIRCLE) {
+                     // Point to circle hull test
+                     var rad = hull.getRadius(), c = hull.getCenter();
+                     var distSqr = (test.x - c.x) * (test.x - c.x) +
+                                   (test.y - c.y) * (test.y - c.y);
+                     if (distSqr < (rad * rad)) {
+                        did = true;
+                     }
+                  } else {
+                     // Point to polygon hull test
+                     if (R.math.Math2D.pointInPoly(test, hull.getVertexes())) {
+                        did = true;
+                     }
+                  }
+               } else if (object.getWorldBox && object.getWorldBox().containsPoint(test)) {
+                  did = true;
+               }
+
+               // Stop if we found a collision
+               if (did) {
+                  collision = R.struct.CollisionData.create(0, vec, object, null,
+                                                            R.math.Point2D.create(test), wt, dt);
+                  break;
+               }
+            }
+         }
+
+         // Destroy the points in the line
+         while (line.length > 0) {
+            line.shift().destroy();
+         }
+
+         return collision;
+      }
 		
 	}, /** @scope R.collision.broadphase.AbstractCollisionModel.prototype */ {
 		/**
@@ -270,8 +349,12 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 		},
 		
 		/** @private */
-		DATA_MODEL: "BroadPhaseCollisionData"
-	
+		DATA_MODEL: "BroadPhaseCollisionData",
+
+      /**
+       * The maximum length of a cast ray
+       */
+      MAX_RAY_LENGTH: 500
 	});
 	
 };

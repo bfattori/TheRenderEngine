@@ -268,16 +268,13 @@ R.components.collision.Convex = function() {
 
          // If we got here, there is a collision
          var sep = R.math.Vector2D.create((c2.x - c1.x) * diff, (c2.y - c1.y) * diff);
-         var cData = R.struct.CollisionData.create(sep.len(),
+         return R.struct.CollisionData.create(sep.len(),
                R.math.Vector2D.create(c2.x - c1.x, c2.y - c1.y).normalize(),
-               shape1,
-               shape2,
+               shape1.getGameObject(),
+               shape2.getGameObject(),
                sep,
                time,
                dt);
-
-         // Return the collision data
-         return cData;
       },
 
       /**
@@ -363,8 +360,8 @@ R.components.collision.Convex = function() {
          // If you're here, there is a collision
          var cData = R.struct.CollisionData.create(overlap,
                unitVec,
-               shape1,
-               shape2,
+               shape1.getGameObject(),
+               shape2.getGameObject(),
                R.math.Vector2D.create(unitVec.x * overlap, unitVec.y * overlap),
                time,
                dt);
@@ -527,8 +524,8 @@ R.components.collision.Convex = function() {
          // If we got here, there is a collision
          var cData = R.struct.CollisionData.create(overlap,
                unitVec,
-               shape1,
-               shape2,
+               shape1.getGameObject(),
+               shape2.getGameObject(),
                R.math.Vector2D.create(unitVec.x * overlap,
                      unitVec.y * overlap),
                time,

@@ -485,6 +485,8 @@ var Spaceroids = function() {
          this.soundLoader.load("thrust", this.getFilePath("resources/thrust.mp3"));
          this.soundLoader.load("lowboop", this.getFilePath("resources/low.mp3"));
          this.soundLoader.load("hiboop", this.getFilePath("resources/hi.mp3"));
+         this.soundLoader.load("ufosmall", this.getFilePath("resources/ufosmall.mp3"));
+         this.soundLoader.load("ufobig", this.getFilePath("resources/ufobig.mp3"));
 
          // Use persistent storage to keep the high score
          this.pStore = R.storage.PersistentStorage.create("AsteroidsEvolutionStorage");
