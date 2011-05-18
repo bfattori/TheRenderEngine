@@ -49,7 +49,7 @@ R.Engine.define({
 var SpaceroidsUFO = function() {
    return R.engine.Object2D.extend({
 
-      size: 4,
+      isSmall: false,
       alive: false,
       shape: null,
 
@@ -73,7 +73,7 @@ var SpaceroidsUFO = function() {
 
       release: function() {
          this.base();
-         this.size = 4;
+         this.isSmall = false;
          this.alive = false;
          this.shape = null;
       },
@@ -88,7 +88,7 @@ var SpaceroidsUFO = function() {
        */
       update: function(renderContext, time, dt) {
          renderContext.pushTransform();
-         this.move();
+         this.move(time, dt);
          this.base(renderContext, time, dt);
          renderContext.popTransform();
       },
@@ -96,10 +96,13 @@ var SpaceroidsUFO = function() {
       /**
        * Set up the UFO object on the playfield.  The UFO always
        * starts from either the left or right side of the playfield
+       * @param isSmall {Boolean} If <code>true</code> the UFO will be the
+       *    smaller, more "intelligent" one.
        */
-      setup: function() {
+      setup: function(isSmall) {
+         this.isSmall = isSmall;
 
-         // Randomize the position and velocity
+         // Set the position and velocity
          var c_mover = this.getComponent("move");
          var c_draw = this.getComponent("draw");
 
@@ -110,7 +113,7 @@ var SpaceroidsUFO = function() {
          var s = [];
          for (var p = 0; p < shape.length; p++) {
             var pt = R.math.Point2D.create(shape[p][0], shape[p][1]);
-            pt.mul(this.size);
+            pt.mul(isSmall ? 4 : 10);
             s.push(pt);
          }
 
@@ -126,14 +129,49 @@ var SpaceroidsUFO = function() {
          this.shape = s;
 
          // Pick a side to start on
-         var side = R.lang.Math2.randomRange(0, 100, true) < 50 ? -this.getBoundingBox().w + 3 :
-               Spaceroids.renderContext.getBoundingBox().w + 3;
-         c_mover.setPosition(side, Spaceroids.renderContext.getBoundingBox().h / 2);
+         var pick = R.lang.Math2.randomRange(0, 100, true);
+         var startX = pick < 50 ? -this.getBoundingBox().w - 3 : Spaceroids.renderContext.getBoundingBox().w + 3,
+             startY;
+
+         // Test the collision nodes along the side chosen and look for an open one to enter at
+         var cm = Spaceroids.collisionModel, cells = [], divs = cm.getDivisions(), x, y;
+         x = pick < 50 ? 0 : divs - 1;
+         for (y = 0; y < divs; y++) {
+            cells.push(cm.getNode(x, y));
+         }
+
+         var cell;
+         for (var itr = R.lang.Iterator.create(cells); itr.hasNext(); ) {
+            cell = itr.next();
+            if (cell.getCount() == 0) {
+               break;
+            } else {
+               cell = null;
+            }
+         }
+
+         if (cell) {
+            startY = cell.getRect().getCenter().y;
+            var spd = isSmall ? 2 : 0.5;
+            c_mover.setPosition(startX, startY);
+            c_mover.setVelocity(pick ? spd : -spd, 0);
+         }
       },
 
       /**
-       * Called when the UFO shoots a bullet to create a bullet
-       * in the playfield and keep track of the active number of bullets.
+       * Both UFOs move in the same way, but the velocity of the smaller UFO
+       * allows it to adapt more quickly to avoid hitting asteroids.
+       * @param time
+       * @param dt
+       */
+      move: function(time, dt) {
+
+      },
+
+      /**
+       * Called to determine if the UFO can see the player and shoot at it.
+       * For the smaller UFO, the player's direction of travel and speed are
+       * used to shoot at a point where the bullet would intercept the player.
        */
       shoot: function() {
          // Determine if we can see the player

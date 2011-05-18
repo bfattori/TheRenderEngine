@@ -444,7 +444,7 @@ var Spaceroids = function() {
          //R.debug.Profiler.start();
 
          //R.Engine.setDebugMode(true);
-         //R.debug.Metrics.showMetrics();
+         R.debug.Metrics.showMetrics();
 
          if (options.disableParticles) {
             R.Engine.options.disableParticleEngine = true;

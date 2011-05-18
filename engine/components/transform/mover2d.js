@@ -174,7 +174,7 @@ R.components.transform.Mover2D = function() {
 
                this.setPosition(this.lPos.add(this._vec));
 
-               // TODO: Get lag adjustment back into rotation
+               // TODO: Actually implement angular velocity per time step
                this.setRotation(rot + this.angularVelocity);
             }
 
@@ -231,11 +231,12 @@ R.components.transform.Mover2D = function() {
       /**
        * Set the velocity vector of the component.
        *
-       * @param vector {R.math.Vector2D} The velocity vector
+       * @param vector {Number|R.math.Vector2D} The velocity vector, or the X velocity
+       * @param [y] {Number} If <tt>vector</tt> is a number, this is the Y velocity
        */
-      setVelocity: function(vector) {
-         this.velocity.set(vector);
-         if (!vector.equals(R.math.Vector2D.ZERO)) {
+      setVelocity: function(vector, y) {
+         this.velocity.set(vector, y);
+         if (!this.velocity.isZero()) {
             this.atRest = false;
          }
       },
@@ -314,10 +315,11 @@ R.components.transform.Mover2D = function() {
        * Set the acceleration vector.  Acceleration will be constantly applied to
        * the last position.
        *
-       * @param {R.math.Vector2D} The acceleration vector
+       * @param vector {Number|R.math.Vector2D} The acceleration vector, or acceleration along X
+       * @param [y] {Number} If <tt>vector</tt> is a number, the acceleration along Y
        */
-      setAcceleration: function(vector) {
-         this.acceleration.set(vector);
+      setAcceleration: function(vector, y) {
+         this.acceleration.set(vector, y);
          this.atRest = false;
       },
 
@@ -331,10 +333,11 @@ R.components.transform.Mover2D = function() {
 
       /**
        * Set the vector of gravity.
-       * @param vector {R.math.Vector2D} The gravity vector
+       * @param vector {Number|R.math.Vector2D} The gravity vector, or gravity along X
+       * @param [y] {Number} If <tt>vector</tt> is a number, the gravity along Y
        */
-      setGravity: function(vector) {
-         this.gravity.set(vector);
+      setGravity: function(vector, y) {
+         this.gravity.set(vector, y);
          this.atRest = false;
       },
 
@@ -367,7 +370,7 @@ R.components.transform.Mover2D = function() {
       /**
        * Set the maximum velocity.  Setting this value to <tt>zero</tt> indicates that
        * there is no maximum velocity.
-       * @param {Number} The maximum velocity
+       * @param maxVel {Number} The maximum velocity
        */
       setMaxVelocity: function(maxVel) {
          this.maxVelocity = maxVel;
@@ -401,16 +404,15 @@ R.components.transform.Mover2D = function() {
       },
 
       /**
-       * Set the angular velocity as a number of degrees per second.
-       *
-       * @param angularVelocity {Number} The angle change per second
+       * Set the angular velocity.
+       * @param angularVelocity {Number} The angle of change
        */
       setAngularVelocity: function(angularVelocity) {
          this.angularVelocity = angularVelocity;
       },
 
       /**
-       * Returns the angle change per second of the component.
+       * Returns the angular velocity.
        * @return {Number}
        */
       getAngularVelocity: function() {

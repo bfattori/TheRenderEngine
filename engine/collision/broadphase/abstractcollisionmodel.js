@@ -239,10 +239,9 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 		
 		/**
 		 * Returns all objects within the collision model.
-		 * 
 		 * @return {R.struct.Container} A container of all objects in the model
 		 */
-		getObjects: function(clazz){
+		getObjects: function(){
 			return R.struct.Container.create();
 		},
 		
@@ -260,6 +259,35 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 		},
 
       /**
+       * Query the collision model using a testing function.  All objects in the
+       * model will be passed through the function, and if the function returns
+       * <code>true</code>, indicating it passed the test, it will be included
+       * in the list.
+       * @param testFn {Function} The testing function
+       * @return {Array} An array of objects in the container which pass the test
+       */
+      query: function(testFn) {
+         return this.getObjects().filter(testFn, this);
+      },
+
+      /**
+       * Query the collision model for objects near a point.  Specify the point
+       * and the radius from that point to test.  The test will be performed
+       * against the position of the object being tested, not its boundaries.
+       * @param point {R.math.Point2D}
+       * @param radius {Number}
+       * @return {Array} An array of objects in the container which satisfy the query
+       */
+      queryNear: function(point, radius) {
+         return this.query(function(obj) {
+            var pos = obj.getPosition();
+            var distSqr = (point.x - pos.x) * (point.x - pos.x) +
+                          (point.y - pos.y) * (point.y - pos.y);
+            return (distSqr < radius);
+         });
+      },
+
+      /**
        * Cast a ray through the collision model, looking for collisions along the
        * ray.  If a collision is found, a {@link R.struct.CollisionData} object
        * will be returned or <code>null</code> if otherwise.  If the object being
@@ -272,24 +300,32 @@ R.collision.broadphase.AbstractCollisionModel = function(){
        *
        * @param fromPoint {R.math.Point2D} The origination of the ray
        * @param direction {R.math.Vector2D} A unit vector specifying the direction of the ray being cast
+       * @param [testFn] {Function} A test function which will be executed when a collision occurs.  The
+       *    argument to the function will be a {@link R.struct.CollisionData}.  Returning <code>true</code> will indicate
+       *    that the raycast testing should stop, <code>false</code> to continue testing.
        * @return {R.struct.CollisionData} The collision info, or <code>null</code> if
        *    no collision would occur.
        */
-      castRay: function(fromPoint, direction) {
+      castRay: function(fromPoint, direction, testFn) {
          // Get all of the points along the line and test them against the
          // collision model.  At the first collision, we stop performing any more checks.
-         var end = R.math.Point2D.create(fromPoint)
-               .add(direction.mul(R.collision.broadphase.AbstractCollisionModel.MAX_RAY_LENGTH)),
-            line = R.math.Math2D.bresenham(fromPoint, end), collision = null, pt = 0, test, node, itr, object,
-            wt = R.Engine.worldTime, dt = R.Engine.lastTime, vec = R.math.Vector2D.create(direction).neg(),
-            did = false;
+         var end = R.math.Point2D.create(fromPoint), dir = R.math.Point2D.create(direction), line,
+             pt = 0, test, node, itr, object, wt = R.Engine.worldTime, dt = R.Engine.lastTime,
+             vec = R.math.Vector2D.create(direction).neg(), did = false;
+
+         // Create the collision structure only once
+         var collision = R.struct.CollisionData.create(0, vec, null, null, null, wt, dt);
+
+         // Use Bresenham's algorithm to calculate the points along the line
+         end.add(dir.mul(R.collision.broadphase.AbstractCollisionModel.MAX_RAY_LENGTH));
+         line = R.math.Math2D.bresenham(fromPoint, end);
 
          while (!collision && pt < line.length) {
-            test = line[pt];
+            test = line[pt++];
 
-            // If the point is outside our boundaries, we can get out of here now
-            if (test.x < 0 || test.y < 0 || test.x > this.width || test.y > this.height()) {
-               break;
+            // If the point is outside our boundaries, we can move to the next point
+            if (test.x < 0 || test.y < 0 || test.x > this.width || test.y > this.height) {
+               continue;
             }
 
             // Find the node for the current point
@@ -298,11 +334,12 @@ R.collision.broadphase.AbstractCollisionModel = function(){
             // Get all of the objects in the node
             for (itr = node.getObjects().iterator(); itr.hasNext(); ) {
                object = itr.next();
+               did = false;
 
-               // If the object has a convex hull, we'll test against that
+               // If the object has a collision hull, we'll test against that
                // otherwise we'll use its world box
-               if (object.getConvexHull) {
-                  var hull = object.getConvexHull();
+               if (object.getCollisionHull) {
+                  var hull = object.getCollisionHull();
                   if (hull.getType() == R.collision.ConvexHull.CONVEX_CIRCLE) {
                      // Point to circle hull test
                      var rad = hull.getRadius(), c = hull.getCenter();
@@ -321,18 +358,40 @@ R.collision.broadphase.AbstractCollisionModel = function(){
                   did = true;
                }
 
-               // Stop if we found a collision
+               // If we find a collision, prep it
                if (did) {
-                  collision = R.struct.CollisionData.create(0, vec, object, null,
-                                                            R.math.Point2D.create(test), wt, dt);
-                  break;
+                  collision.shape1 = object;
+                  collision.impulseVector = R.math.Point2D.create(test);
+
+                  if (!testFn) {
+                     // No test function, just return the collision
+                     break;
+                  } else if (testFn(collision)) {
+                     // Test function returned true, return the collision
+                     break;
+                  } else {
+                     // Test function returned false, move onto another test
+                     collision.shape1 = null;
+                     collision.impulseVector.destroy();
+                  }
                }
             }
+
+            // Clean up the iterator over the objects in the node
+            itr.destroy();
          }
+
+         // Clean up a bit
+         end.destroy();
+         dir.destroy();
 
          // Destroy the points in the line
          while (line.length > 0) {
             line.shift().destroy();
+         }
+
+         if (collision.shape1 == null) {
+            collision = null;
          }
 
          return collision;

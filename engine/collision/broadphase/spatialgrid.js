@@ -166,17 +166,29 @@ R.collision.broadphase.SpatialGrid = function() {
       },
 
       /**
-       * Get the node within the grid.
+       * Get a node within the grid.  The X and Y coordinates are node coordinates, and
+       * not world coordinates.  For example, if a grid has 5 divisions, the cells are
+       * numbered 0 through 4 on each axis.
+       *
        * @param x {Number} The virtual X coordinate in our grid
        * @param y {Number} The virtual Y coordinate in our grid
-       * @return {Number}
-       * @private
+       * @return {R.collision.broadphase.SpatialGridNode}
        */
       getNode: function(x, y) {
          // Normalize X and Y within the bounds of the grid
          x = x < 0 ? 0 : (x > this.divisions - 1 ? this.divisions - 1 : x);
          y = y < 0 ? 0 : (y > this.divisions - 1 ? this.divisions - 1 : y);
          return this.getRoot()[x + (y * this.divisions)];
+      },
+
+      /**
+       * Get the number of divisions along the horizontal and vertical axis.  The
+       * divisions are uniform for both axis, so the cells of the grid won't necessarily
+       * be square.
+       * @return {Number}
+       */
+      getDivisions: function() {
+         return this.divisions;
       },
 
       /**

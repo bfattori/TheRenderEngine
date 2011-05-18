@@ -674,8 +674,8 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
       if (start.x > end.x) {
          // Make sure the line goes downward
          var t = start.x;
-         start.x = end.y;
-         end.y = t;
+         start.x = end.x;
+         end.x = t;
          t = start.y;
          start.y = end.y;
          end.y = t;
