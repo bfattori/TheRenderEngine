@@ -118,11 +118,12 @@ R.components.Transform2D = function() {
    /**
     * Set the position of the transform.
     *
-    * @param point {R.math.Point2D} The position
+    * @param point {Number|R.math.Point2D} The X coordinate, or the position
+    * @param [y] {Number} If <tt>point</tt> was a number, this is the Y coordinate
     */
-   setPosition: function(point) {
+   setPosition: function(point, y) {
       this.setLastPosition(this.getPosition());
-      this.position.set(point);
+      this.position.set(point, y);
 		this.getGameObject().markDirty();
    },
 
@@ -149,10 +150,11 @@ R.components.Transform2D = function() {
    /**
     * Set the last position that the transformation was at.
     *
-    * @param point {R.math.Point2D} The last position
+    * @param point {Number|R.math.Point2D} The last X coordinate, or last position
+    * @param [y] {Number} If <code>point</code> was a number, this is the Y coordinate
     */
-   setLastPosition: function(point) {
-      this.lastPosition.set(point);
+   setLastPosition: function(point, y) {
+      this.lastPosition.set(point, y);
    },
 
    /**

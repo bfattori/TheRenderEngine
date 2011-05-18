@@ -158,9 +158,10 @@ R.lang.Iterator = function() {
          if (this.arr ? (this.aO != null ? !this.aO.isDestroyed() : true) : !this.c.isDestroyed()) {
             if (this.arr) {
                // For arrays (and R.struct.Container)
-               var nxt = this.r ? -1 : 1, n = this.p;
-               while ((n > -1 && n < this.c.length) && this.c[n].isDestroyed()) {
-                  // Skip destroyed objects
+               var nxt = this.r ? -1 : 1, n = this.p,
+                   dead = (this.c[n] && this.c[n].isDestroyed && this.c[n].isDestroyed());
+               while ((n > -1 && n < this.c.length) && dead) {
+                  // Skip dead objects
                   n += nxt;
                   this.p = n;
                }

@@ -152,9 +152,10 @@ var SpaceroidsUFO = function() {
 
          if (cell) {
             startY = cell.getRect().getCenter().y;
-            var spd = isSmall ? 2 : 0.5;
+            var step = pick < 50 ? 1 : -1,
+                spd = (isSmall ? 3 : 1) * step;
             c_mover.setPosition(startX, startY);
-            c_mover.setVelocity(pick ? spd : -spd, 0);
+            c_mover.setVelocity(spd, 0);
          }
       },
 
@@ -165,7 +166,34 @@ var SpaceroidsUFO = function() {
        * @param dt
        */
       move: function(time, dt) {
+         var c_mover = this.getComponent("move"), cm = Spaceroids.collisionModel,
+             testFn = function(obj) {
+                // Testing function to only return asteroids
+                return (obj.COLLISION_MASK == SpaceroidsRock.COLLISION_MASK);
+             };
 
+         // Cast a ray in the direction of movement
+         var dir = R.math.Vector2D.create(c_mover.getVelocity()).normalize(),
+             ray = R.math.Vector2D.create(dir).mul(250),
+             collision = cm.castRay(c_mover.getPosition(), ray, testFn);
+
+         if (collision != null) {
+            // There's a rock in our path, avoid it.
+            var diff = R.math.Vector2D.create(c_mover.getPosition()).sub(collision.shape1.getPosition()),
+                dist = collision.impulseVector.sub(c_mover.getPosition()).len();
+
+            if (dist < collision.shape1.getCollisionHull().getRadius() + 80) {
+               var force = R.math.Vector2D.create(dir).rightNormal().mul(diff.perProduct()).mul(10);
+               c_mover.getVelocity().add(force);
+               force.destroy();
+            }
+
+            diff.destroy();
+            collision.destroy();
+         }
+
+         dir.destroy();
+         ray.destroy();
       },
 
       /**
@@ -242,16 +270,16 @@ var SpaceroidsUFO = function() {
        * @private
        */
       points: [
-         [1, 1],
-         [1, 2],
-         [-1, 2],
-         [-1, 1],
-         [1, 1],
-         [2, 0],
          [1, -1],
+         [1, -2],
+         [-1, -2],
          [-1, -1],
+         [1, -1],
+         [2, 0],
+         [1, 1],
+         [-1, 1],
          [-2, 0],
-         [-1, 1]
+         [-1, -1]
       ],
 
       COLLISION_MASK: R.lang.Math2.parseBin("011")

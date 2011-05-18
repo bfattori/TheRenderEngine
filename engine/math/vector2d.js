@@ -183,9 +183,11 @@ R.math.Vector2D = function(){
 		rightNormal: function(){
 			return R.math.Vector2D.create(-this.y, this.x).normalize();
 		},
-		
+
 		/**
-		 * Get the per-product of this vector and <tt>vector</tt>.
+		 * Get the per-product of this vector and <tt>vector</tt>.  Returns
+       * -1 if <tt>vector</tt> is to the left, or 1 if it is to the right
+       * of this vector.
 		 * @param vector {R.math.Vector2D} The other vector
 		 * @return {Number}
 		 */

@@ -58,7 +58,8 @@ R.Engine.define({
       "SpaceroidsPlayer",
       "SpaceroidsBullet",
       "SimpleParticle",
-      "TrailParticle"
+      "TrailParticle",
+      "SpaceroidsUFO"
    ]
 });
 
@@ -67,6 +68,7 @@ R.engine.Game.load("/rock.js");
 R.engine.Game.load("/player.js");
 R.engine.Game.load("/bullet.js");
 R.engine.Game.load("/particle.js");
+R.engine.Game.load("/ufo.js");
 
 /**
  * @class The game.
@@ -591,6 +593,12 @@ var Spaceroids = function() {
             pos.set(x, y);
          }
          return pos;
+      },
+
+      addUFO: function() {
+         var ufo = SpaceroidsUFO.create();
+         ufo.setup(false);
+         Spaceroids.renderContext.add(ufo);
       },
 
       /**

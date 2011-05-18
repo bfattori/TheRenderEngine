@@ -299,7 +299,8 @@ R.collision.broadphase.AbstractCollisionModel = function(){
        * is the point at which the intersection was determined.
        *
        * @param fromPoint {R.math.Point2D} The origination of the ray
-       * @param direction {R.math.Vector2D} A unit vector specifying the direction of the ray being cast
+       * @param direction {R.math.Vector2D} A vector whose magnitude specifies the direction and
+       *    length of the ray being cast.  The ray will be truncated at {@link #MAX_RAY_LENGTH}.
        * @param [testFn] {Function} A test function which will be executed when a collision occurs.  The
        *    argument to the function will be a {@link R.struct.CollisionData}.  Returning <code>true</code> will indicate
        *    that the raycast testing should stop, <code>false</code> to continue testing.
@@ -309,18 +310,23 @@ R.collision.broadphase.AbstractCollisionModel = function(){
       castRay: function(fromPoint, direction, testFn) {
          // Get all of the points along the line and test them against the
          // collision model.  At the first collision, we stop performing any more checks.
-         var end = R.math.Point2D.create(fromPoint), dir = R.math.Point2D.create(direction), line,
+         var end = R.math.Point2D.create(fromPoint), dir = R.math.Vector2D.create(direction), line,
              pt = 0, test, node, itr, object, wt = R.Engine.worldTime, dt = R.Engine.lastTime,
              vec = R.math.Vector2D.create(direction).neg(), did = false;
 
          // Create the collision structure only once
          var collision = R.struct.CollisionData.create(0, vec, null, null, null, wt, dt);
 
+         // Make sure the length isn't greater than the max
+         if (dir.len() > R.collision.broadphase.AbstractCollisionModel.MAX_RAY_LENGTH) {
+            dir.normalize().mul(R.collision.broadphase.AbstractCollisionModel.MAX_RAY_LENGTH);
+         }
+
          // Use Bresenham's algorithm to calculate the points along the line
-         end.add(dir.mul(R.collision.broadphase.AbstractCollisionModel.MAX_RAY_LENGTH));
+         end.add(dir);
          line = R.math.Math2D.bresenham(fromPoint, end);
 
-         while (!collision && pt < line.length) {
+         while (!collision.shape1 && pt < line.length) {
             test = line[pt++];
 
             // If the point is outside our boundaries, we can move to the next point
@@ -411,9 +417,10 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 		DATA_MODEL: "BroadPhaseCollisionData",
 
       /**
-       * The maximum length of a cast ray
+       * The maximum length of a cast ray (1000)
+       * @type {Number}
        */
-      MAX_RAY_LENGTH: 500
+      MAX_RAY_LENGTH: 1000
 	});
 	
 };
