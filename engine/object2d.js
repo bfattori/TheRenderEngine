@@ -37,10 +37,7 @@ R.Engine.define({
 	"requires": [
 		"R.engine.GameObject",
 		"R.collision.OBBHull",
-		"R.math.Rectangle2D",
 		"R.math.Circle2D",
-		"R.math.Point2D",
-		"R.math.Vector2D",
 		"R.math.Math2D",
 		"R.components.Transform2D"
 	]
@@ -77,6 +74,9 @@ R.engine.Object2D = function(){
 		collisionHull: null,
 		genHull: null,
 		defaultTxfmComponent: null,
+
+      // Simple flag indicating object is descendant of Object2D
+      __OBJECT2D: true,
 		
 		// Current origin/negative-origin matrices
 		oMtx: null,
@@ -103,6 +103,7 @@ R.engine.Object2D = function(){
 			// Initialize the matrices
 			this.oMtx = R.math.Math2D.identityMatrix();
 			this.oMtxN = R.math.Math2D.identityMatrix();
+         this.__OBJECT2D = true;
 		},
 		
 		/**
@@ -358,6 +359,8 @@ R.engine.Object2D = function(){
 		getCollisionHull: function(){
 			if (this.collisionHull == null) {
 				this.collisionHull = R.collision.OBBHull.create(this.getBoundingBox());
+
+            // A flag indicating the hull was auto-generated
 				this.genHull = true;
 			}
 			

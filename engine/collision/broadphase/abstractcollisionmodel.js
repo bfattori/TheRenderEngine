@@ -348,23 +348,16 @@ R.collision.broadphase.AbstractCollisionModel = function(){
                   var hull = object.getCollisionHull();
                   if (hull.getType() == R.collision.ConvexHull.CONVEX_CIRCLE) {
                      // Point to circle hull test
-                     var rad = hull.getRadius(), c = hull.getCenter();
-                     var distSqr = (test.x - c.x) * (test.x - c.x) +
-                                   (test.y - c.y) * (test.y - c.y);
-                     if (distSqr < (rad * rad)) {
-                        did = true;
-                     }
+                     did = R.math.Math2D.pointInCircle(test, hull.getCenter(), hull.getRadius());
                   } else {
                      // Point to polygon hull test
-                     if (R.math.Math2D.pointInPoly(test, hull.getVertexes())) {
-                        did = true;
-                     }
+                     did = R.math.Math2D.pointInPoly(test, hull.getVertexes());
                   }
                } else if (object.getWorldBox && object.getWorldBox().containsPoint(test)) {
                   did = true;
                }
 
-               // If we find a collision, prep it
+               // If we find a collision, prep collision structure
                if (did) {
                   collision.shape1 = object;
                   collision.impulseVector = R.math.Point2D.create(test);
@@ -397,6 +390,7 @@ R.collision.broadphase.AbstractCollisionModel = function(){
          }
 
          if (collision.shape1 == null) {
+            collision.destroy();
             collision = null;
          }
 

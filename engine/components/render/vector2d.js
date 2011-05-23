@@ -106,28 +106,7 @@ R.components.render.Vector2D = function() {
     * @private
     */
    calculateBoundingBox: function() {
-      var x1 = R.lang.Math2.MAX_INT;
-      var x2 = -R.lang.Math2.MAX_INT;
-      var y1 = R.lang.Math2.MAX_INT;
-      var y2 = -R.lang.Math2.MAX_INT;
-      for (var p = 0; p < this.points.length; p++) {
-         var pt = this.points[p];
-
-         if (pt.x < x1) {
-            x1 = pt.x;
-         }
-         if (pt.x > x2) {
-            x2 = pt.x;
-         }
-         if (pt.y < y1) {
-            y1 = pt.y;
-         }
-         if (pt.y > y2) {
-            y2 = pt.y;
-         }
-      }
-
-		this.bBox.set(0,0,Math.abs(x1) + x2,Math.abs(y1) + y2);
+      R.math.Math2D.getBoundingBox(this.points, this.bBox);
    },
 
    /**

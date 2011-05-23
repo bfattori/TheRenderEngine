@@ -537,11 +537,12 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
     * Calculate the smallest bounding box which contains
     * the given set of points.
     * @param points {Array} An array of {@link R.math.Point2D}
+    * @param [rect] {R.math.Rectangle2D} Optional rectangle to set to the bounding box
     * @return {R.math.Rectangle2D} The bounding box of the points
     */
-   getBoundingBox: function(points) {
-      var x1 = R.lang.Math2.MAX_INT, x2 = -R.lang.Math2.MAX_INT, y1 = R.lang.Math2.MAX_INT, y2 = -R.lang.Math2.MAX_INT,
-         rect = R.math.Rectangle2D.create(0,0,1,1);
+   getBoundingBox: function(points, rect) {
+      var x1 = R.lang.Math2.MAX_INT, x2 = -R.lang.Math2.MAX_INT, y1 = R.lang.Math2.MAX_INT, y2 = -R.lang.Math2.MAX_INT;
+      rect = rect || R.math.Rectangle2D.create(0,0,1,1);
 
       for (var p = 0; p < points.length; p++) {
          var pt = points[p];
@@ -560,6 +561,7 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
          }
       }
 		rect.set(0,0,Math.abs(x1) + x2,Math.abs(y1) + y2);
+      return rect;
    },
 
 	/**
@@ -729,6 +731,21 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
          j = i;
       }
       return oddNodes;
+   },
+
+   /**
+    * Determine if the given <code>point</code> is within the circle defined by the
+    * <code>center</code> and <code>radius</code>.
+    * @param point {R.math.Point2D} The point to test
+    * @param center {R.math.Point2D} The center of the circle
+    * @param radius {Number} The radius of the circle
+    * @return {Boolean} <code>true</code> if the point is within the circle
+    */
+   pointInCircle: function(point, center, radius) {
+      // Point to circle hull test
+      var distSqr = (point.x - center.x) * (point.x - center.x) +
+                    (point.y - center.y) * (point.y - center.y);
+      return (distSqr < (radius * radius));
    }
 	
 };

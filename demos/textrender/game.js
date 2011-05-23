@@ -64,7 +64,7 @@ var FontTest = function() {
       
       // The play field
       fieldBox: null,
-      fieldWidth: 700,
+      fieldWidth: 760,
       fieldHeight: 400,
 
       /**
@@ -74,13 +74,13 @@ var FontTest = function() {
       setup: function(){
 			FontTest.fontLoader = R.resources.loaders.BitmapFontLoader.create();
 			FontTest.fontLoader.load("lucida", "lucida_sans_36.font");
-			FontTest.fontLoader.load("century", "century_gothic_36.font");
+			FontTest.fontLoader.load("console", "press_start_24.font");
 			FontTest.fontLoader.load("times", "times_36.font");
 			
          // Don't start until all of the resources are loaded
          R.lang.Timeout.create("wait", 250, function(){
             if (FontTest.fontLoader.isReady("lucida") &&
-                FontTest.fontLoader.isReady("century") &&
+                FontTest.fontLoader.isReady("console") &&
                 FontTest.fontLoader.isReady("times")) {
                   FontTest.run();
                   this.destroy();
@@ -117,60 +117,62 @@ var FontTest = function() {
 	      this.renderContext.setBackgroundColor("#000000");
          R.Engine.getDefaultContext().add(this.renderContext);
 
+         var textStr = "ABCxyz123!@#$%^&*()[]+=_-";
+
 		 	// Vector Text
-			var vector1 = R.text.TextRenderer.create(R.text.VectorText.create(), "ABCxyz123!@#$%^&*()", 1);
+			var vector1 = R.text.TextRenderer.create(R.text.VectorText.create(), textStr, 1.2);
 			vector1.setPosition(R.math.Point2D.create(20, 20));
 			vector1.setTextWeight(1);
 			vector1.setColor("#ffffff");
 			this.renderContext.add(vector1);
 			
-			var vector2 = R.text.TextRenderer.create(R.text.VectorText.create(), "ABCxyz123!@#$%^&*()", 2);
+			var vector2 = R.text.TextRenderer.create(R.text.VectorText.create(), textStr, 2);
 			vector2.setPosition(R.math.Point2D.create(20, 43));
 			vector2.setTextWeight(1);
 			vector2.setColor("#ffffff");
 			this.renderContext.add(vector2);
 			
-			var vector3 = R.text.TextRenderer.create(R.text.VectorText.create(), "ABCxyz123!@#$%^&*()", 2.5);
+			var vector3 = R.text.TextRenderer.create(R.text.VectorText.create(), textStr, 2.5);
 			vector3.setPosition(R.math.Point2D.create(20, 80));
 			vector3.setTextWeight(1);
 			vector3.setColor("#ffffff");
 			this.renderContext.add(vector3);
 			
 			// Bitmap Text
-			var bitmap1 = R.text.TextRenderer.create(R.text.BitmapText.create(FontTest.fontLoader.get("century")),
-               "ABCxyz123!@#$%^&*()", 0.75);
-			bitmap1.setPosition(R.math.Point2D.create(10, 120));
+			var bitmap1 = R.text.TextRenderer.create(R.text.BitmapText.create(FontTest.fontLoader.get("console")),
+               textStr, 0.8);
+			bitmap1.setPosition(R.math.Point2D.create(10, 135));
 			bitmap1.setTextWeight(1);
-			bitmap1.setColor("#ff0000");
+			bitmap1.setColor("#ffff00");
 			this.renderContext.add(bitmap1);
 			
 			var bitmap2 = R.text.TextRenderer.create(R.text.BitmapText.create(FontTest.fontLoader.get("lucida")),
-               "ABCxyz123!@#$%^&*()", 1);
-			bitmap2.setPosition(R.math.Point2D.create(10, 143));
+               textStr, 1);
+			bitmap2.setPosition(R.math.Point2D.create(10, 160));
 			bitmap2.setTextWeight(1);
-			bitmap2.setColor("#ff0000");
+			bitmap2.setColor("#ffff00");
 			this.renderContext.add(bitmap2);
 			
 			var bitmap3 = R.text.TextRenderer.create(R.text.BitmapText.create(FontTest.fontLoader.get("times")),
-               "ABCxyz123!@#$%^&*()", 1.5);
-			bitmap3.setPosition(R.math.Point2D.create(10, 175));
+               textStr, 1.2);
+			bitmap3.setPosition(R.math.Point2D.create(10, 195));
 			bitmap3.setTextWeight(1);
-			bitmap3.setColor("#ff0000");
+			bitmap3.setColor("#ffff00");
 			this.renderContext.add(bitmap3);
 			
 			// Context Render
-	      var context1 = R.text.TextRenderer.create(R.text.ContextText.create(), "ABCxyz123!@#$%^&*()", 1);
+	      var context1 = R.text.TextRenderer.create(R.text.ContextText.create(), textStr, 1);
 	      context1.setPosition(R.math.Point2D.create(10, 260));
 	      context1.setColor("#8888ff");
 	      this.renderContext.add(context1);
 
-	      var context2 = R.text.TextRenderer.create(R.text.ContextText.create(), "ABCxyz123!@#$%^&*()", 2);
+	      var context2 = R.text.TextRenderer.create(R.text.ContextText.create(), textStr, 2);
 	      context2.setPosition(R.math.Point2D.create(10, 288));
 			context2.setTextFont("Times New Roman");
 	      context2.setColor("#8888ff");
 	      this.renderContext.add(context2);
 
-	      var context3 = R.text.TextRenderer.create(R.text.ContextText.create(), "ABCxyz123!@#$%^&*()", 2.5);
+	      var context3 = R.text.TextRenderer.create(R.text.ContextText.create(), textStr, 3);
 	      context3.setPosition(R.math.Point2D.create(10, 320));
 			context3.setTextFont("Courier New");
 			context3.setTextWeight(R.rendercontexts.RenderContext2D.FONT_WEIGHT_BOLD);

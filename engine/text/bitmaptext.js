@@ -37,8 +37,8 @@
 R.Engine.define({
 	"class": "R.text.BitmapText",
 	"requires": [
-		"R.math.Rectangle2D",
-		"R.math.Point2D",
+		"R.math.Math2D",
+		"R.util.RenderUtil",
 		"R.text.AbstractTextRenderer"
 	]
 });
@@ -57,9 +57,8 @@ R.text.BitmapText = function(){
 	return R.text.AbstractTextRenderer.extend(/** @scope R.text.BitmapText.prototype */{
 	
 		font: null,
-		
 		spacing: 0,
-		
+
 		/** @private */
 		constructor: function(font){
 			this.base();
@@ -80,17 +79,11 @@ R.text.BitmapText = function(){
 		 * @private
 		 */
 		calculateBoundingBox: function(){
-			var text = this.getText();
-			var lCount = text.length;
-			var align = this.getTextAlignment();
-			var letter = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? text.length - 1 : 0);
-			var kern = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.kerning : this.font.info.kerning);
-			var space = R.math.Point2D.create((align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.space : this.font.info.space), 0);
-			var cW, cH = this.font.info.height;
-			var cS = 0;
-			var y = 0;
-			
-			var pc = R.math.Point2D.create(0, 0);
+			var text = this.getText(), lCount = text.length, align = this.getTextAlignment(),
+			    letter = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? text.length - 1 : 0),
+			    kern = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.kerning : this.font.info.kerning),
+			    space = R.math.Point2D.create((align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.space : this.font.info.space), 0),
+			    cW, cH = this.font.info.height, cS = 0, y = 0, pc = R.math.Point2D.create(0, 0);
 			
 			// Run the text to get its bounding box
 			var weight = this.getTextWeight();
@@ -137,6 +130,7 @@ R.text.BitmapText = function(){
 		 */
 		setSize: function(size){
 			this.base(size);
+         this.generated = false;
 			this.calculateBoundingBox();
 		},
 		
@@ -151,6 +145,7 @@ R.text.BitmapText = function(){
 			
 			// Replace special chars
 			this.base(text);
+         this.generated = false;
 			this.calculateBoundingBox();
 		},
 		
@@ -162,35 +157,30 @@ R.text.BitmapText = function(){
 			if (this.getText().length == 0) {
 				return;
 			}
-			
+
 			renderContext.pushTransform();
 			renderContext.setScale(this.getSize());
-			
-			var text = this.getText();
-			var lCount = text.length;
-			var align = this.getTextAlignment();
-			var letter = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? text.length - 1 : 0);
-			var kern = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.kerning : this.font.info.kerning);
-			var space = R.math.Point2D.create((align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.space : this.font.info.space), 0);
-			var cW, cH = this.font.info.height;
-			var cS = 0;
-			var y = 0;
-			var lineCount = 1;
-			
+
+			var text = this.getText(), lCount = text.length, align = this.getTextAlignment(),
+             letter = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? text.length - 1 : 0),
+			    kern = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.kerning : this.font.info.kerning),
+			    space = R.math.Point2D.create((align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.space : this.font.info.space), 0),
+			    cW, cH = this.font.info.height, cS = 0, y = 0, lineCount = 1;
+
 			// Render the text
 			var weight = this.getTextWeight();
 			for (var wT = 0; wT < weight; wT++) {
-			
+
 				var pc = R.math.Point2D.create(wT * 0.5, 0);
-				
+
 				// 1st pass: The text
 				letter = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? text.length - 1 : 0);
 				lCount = text.length;
-				
+
 				if (renderContext.get2DContext) {
 					renderContext.get2DContext().globalCompositeOperation = "source-over";
 				}
-				
+
 				while (lCount-- > 0) {
 					var chr = text.charCodeAt(letter);
 					if (chr == 10) {
@@ -214,11 +204,11 @@ R.text.BitmapText = function(){
 							pc.add(R.math.Point2D.create(cW, 0).mul(kern));
 						}
 					}
-					
+
 					letter += (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -1 : 1);
 				}
 			}
-			
+
 			// 2nd pass: The color
 			if (renderContext.get2DContext) {
 				renderContext.get2DContext().globalCompositeOperation = "source-atop";
@@ -229,10 +219,10 @@ R.text.BitmapText = function(){
 				renderContext.get2DContext().globalCompositeOperation = "source-over";
 				r.destroy();
 			}
-			
+
 			pc.destroy();
 			space.destroy();
-			
+
 			renderContext.popTransform();
 		}
 	}, /** @scope R.text.BitmapText.prototype */ {
