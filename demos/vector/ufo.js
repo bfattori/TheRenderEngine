@@ -130,7 +130,7 @@ var SpaceroidsUFO = function() {
 
          // Pick a side to start on
          var pick = R.lang.Math2.randomRange(0, 100, true);
-         var startX = pick < 50 ? -this.getBoundingBox().w - 3 : Spaceroids.renderContext.getBoundingBox().w + 3,
+         var startX = pick < 50 ? 0 - (this.getBoundingBox().w + 3) : Spaceroids.renderContext.getViewport().w + 3,
              startY;
 
          // Test the collision nodes along the side chosen and look for an open one to enter at
@@ -152,8 +152,9 @@ var SpaceroidsUFO = function() {
 
          if (cell) {
             startY = cell.getRect().getCenter().y;
-            var step = pick < 50 ? 1 : -1,
-                spd = (isSmall ? 3 : 1) * step;
+            var stepX = pick < 50 ? 1 : -1, stepY = pick > 50 ? 1 : -1,
+                spd = (isSmall ? 2 : 1) * stepX,
+                yvel = (isSmall ? 2 : 1) * stepY;
             c_mover.setPosition(startX, startY);
             c_mover.setVelocity(spd, 0);
          }
@@ -169,13 +170,14 @@ var SpaceroidsUFO = function() {
          var c_mover = this.getComponent("move"), cm = Spaceroids.collisionModel,
              testFn = function(obj) {
                 // Testing function to only return asteroids
-                return (obj.COLLISION_MASK == SpaceroidsRock.COLLISION_MASK);
+                var mask = Spaceroids.collisionModel.getObjectSpatialData(obj, "collisionMask");
+                return (mask == SpaceroidsRock.COLLISION_MASK);
              };
 
          // Cast a ray in the direction of movement
          var dir = R.math.Vector2D.create(c_mover.getVelocity()).normalize(),
              ray = R.math.Vector2D.create(dir).mul(250),
-             collision = cm.castRay(c_mover.getPosition(), ray, testFn);
+             collision = cm.castRay(c_mover.getPosition(), ray, testFn, Spaceroids.renderContext);
 
          if (collision != null) {
             // There's a rock in our path, avoid it.
@@ -183,7 +185,7 @@ var SpaceroidsUFO = function() {
                 dist = collision.impulseVector.sub(c_mover.getPosition()).len();
 
             if (dist < collision.shape1.getCollisionHull().getRadius() + 80) {
-               var force = R.math.Vector2D.create(dir).rightNormal().mul(diff.perProduct()).mul(10);
+               var force = R.math.Vector2D.create(dir).rightNormal().mul(diff.perProduct(dir)).mul(0.5);
                c_mover.getVelocity().add(force);
                force.destroy();
             }

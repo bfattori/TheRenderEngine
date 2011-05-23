@@ -121,8 +121,12 @@ R.struct.CollisionData = function() {
        * Destroy the collision data object.
        */
 		destroy: function() {
-			this.impulseVector.destroy();
-			this.unitVector.destroy();
+         if (this.impulseVector) {
+			   this.impulseVector.destroy();
+         }
+         if (this.unitVector) {
+			   this.unitVector.destroy();
+         }
 			this.base();
 		},
 

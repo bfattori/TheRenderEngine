@@ -310,7 +310,8 @@ R.collision.broadphase.AbstractCollisionModel = function(){
       castRay: function(fromPoint, direction, testFn) {
          // Get all of the points along the line and test them against the
          // collision model.  At the first collision, we stop performing any more checks.
-         var end = R.math.Point2D.create(fromPoint), dir = R.math.Vector2D.create(direction), line,
+         var begin = R.math.Point2D.create(fromPoint), end = R.math.Point2D.create(fromPoint),
+             dir = R.math.Vector2D.create(direction), line,
              pt = 0, test, node, itr, object, wt = R.Engine.worldTime, dt = R.Engine.lastTime,
              vec = R.math.Vector2D.create(direction).neg(), did = false;
 
@@ -324,7 +325,23 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 
          // Use Bresenham's algorithm to calculate the points along the line
          end.add(dir);
-         line = R.math.Math2D.bresenham(fromPoint, end);
+         line = R.math.Math2D.bresenham(begin, end);
+
+         /* pragma:DEBUG_START */
+         if (R.Engine.getDebugMode() && arguments[3])
+         {
+            var start = R.math.Point2D.create(begin), finish = R.math.Point2D.create(end);
+
+            arguments[3].postRender(function() {
+               this.setLineStyle("yellow");
+               this.setLineWidth(1);
+               this.drawLine(start, end);
+               start.destroy();
+               end.destroy();
+            });
+         }
+         /* pragma:DEBUG_END */
+
 
          while (!collision.shape1 && pt < line.length) {
             test = line[pt++];
@@ -360,12 +377,12 @@ R.collision.broadphase.AbstractCollisionModel = function(){
                // If we find a collision, prep collision structure
                if (did) {
                   collision.shape1 = object;
-                  collision.impulseVector = R.math.Point2D.create(test);
+                  collision.impulseVector = R.math.Vector2D.create(test);
 
                   if (!testFn) {
                      // No test function, just return the collision
                      break;
-                  } else if (testFn(collision)) {
+                  } else if (testFn(collision.shape1)) {
                      // Test function returned true, return the collision
                      break;
                   } else {
@@ -381,6 +398,7 @@ R.collision.broadphase.AbstractCollisionModel = function(){
          }
 
          // Clean up a bit
+         begin.destroy();
          end.destroy();
          dir.destroy();
 
