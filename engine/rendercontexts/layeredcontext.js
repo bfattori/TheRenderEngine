@@ -1,10 +1,8 @@
 /**
  * The Render Engine
- * RenderContext2D
+ * LayeredContext
  *
- * @fileoverview The base 2D render context.  This context implements a number of
- *               methods which are then standard on all contexts which extend from
- *               it.
+ * @fileoverview A render context which is comprised of multiple layered contexts.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  * @author: $Author: bfattori $
@@ -34,299 +32,209 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.rendercontexts.RenderContext2D",
-   "requires": [
-      "R.rendercontexts.AbstractRenderContext",
-      "R.math.Math2D",
-      "R.struct.Container"
-   ]
+	"class": "R.rendercontexts.LayeredContext",
+	"requires": [
+		"R.rendercontexts.RenderContext2D"
+	]
 });
 
 /**
- * @class All 2D contexts should extend from this to inherit the
- * methods which abstract the drawing methods.
- * @extends R.rendercontexts.AbstractRenderContext
+ * @class A single context which is comprised of multiple contexts.  Each context is
+ *    a layer within the context that can be moved and updated independent of the
+ *    layered context itself.
+ *
+ * @extends R.rendercontexts.RenderContext2D
  * @constructor
- * @description Create a new instance of a 2d render context.
+ * @description Create a new instance of a layered context.
  * @param name {String} The name of the context
- * @param surface {HTMLElement} The element which represents the surface of the context
+ * @param baseLayer {R.rendercontexts.AbstractRenderContext} The base layer context
  */
-R.rendercontexts.RenderContext2D = function() {
-   return R.rendercontexts.AbstractRenderContext.extend(/** @scope R.rendercontexts.RenderContext2D.prototype */{
+R.rendercontexts.LayeredContext = function(){
+	return R.rendercontexts.RenderContext2D.extend(/** @scope R.rendercontexts.LayeredContext.prototype */{
 
-      width: 0,
-      height: 0,
-      lineStyle: null,
-      fillStyle: null,
-      lineWidth: 1,
-      position: null,
-      rotation: 0,
-      scaleX: 1,
-      scaleY: 1,
-      wPosition: null,
-      wRotation: 0,
-      wScale: null,
-      bBox: null,
-      backgroundColor: null,
-      font: "sans-serif",
-      fontWeight: "normal",
-      fontSize: "12px",
-      fontAlign: "left",
-      fontBaseline: "alphabetic",
-      fontStyle: "normal",
-      zBins: null,
-      postRenderList: null,
+      activeLayer: null,
+      layers: null,
 
-      /** @private */
-      constructor: function(name, surface) {
-         this.base(name || "RenderContext2D", surface);
-         this.wPosition = R.math.Point2D.create(0, 0);
-         this.wRotation = 0;
-         this.wScale = 1;
-         this.zBins = {
-            "0": {
-               all: R.struct.Container.create(),
-               vis: []
-            }
-         };
-         this.zBins.activeBins = [0];
-         this.postRenderList = [];
-      },
+		/** @private */
+		constructor: function(name, baseLayer){
+			this.base(name || "LayeredContext", baseLayer.getSurface());
+			//this.setViewport(baseLayer.getViewport());
+         this.activeLayer = baseLayer;
+         this.layers = R.struct.HashContainer().create();
+         this.layers.add(baseLayer.getName(), baseLayer);
+		},
 
       /**
-       * Releases the object back into the object pool.  See {@link R.engine.PooledObject#release}
-       * for more information.
-       */
-      release: function() {
-         this.base();
-         this.width = 0;
-         this.height = 0;
-         this.lineStyle = null;
-         this.fillStyle = null;
-         this.lineWidth = 1;
-         this.position = null;
-         this.rotation = 0;
-         this.scaleX = 1;
-         this.scaleY = 1;
-         this.bBox = null;
-         this.backgroundColor = null;
-         this.wPosition = null;
-         this.wRotation = 0;
-         this.wScale = null;
-         this.font = "sans-serif";
-         this.fontWeight = "normal";
-         this.fontSize = "12px";
-         this.fontAlign = "left";
-         this.fontBaseline = "alphabetic";
-         this.fontStyle = "normal";
-         this.zBins = null;
-      },
-
-      /**
-       * Clean up the render bins after cleaning up the contained objects.
-       */
-      cleanUp: function() {
-         this.base();
-         for (var b in this.zBins.activeBins) {
-            this.zBins[this.zBins.activeBins[b]].all.destroy();
-            this.zBins[this.zBins.activeBins[b]].all = null;
-            this.zBins[this.zBins.activeBins[b]].vis = null;
-         }
-         this.zBins = {
-            "0": {
-               all: R.struct.Container.create(),
-               vis: []
-            }
-         };
-         this.zBins.activeBins = [0];
-      },
-
-      /**
-       * Sorts objects by their {@link R.engine.Object2D#getZIndex z-index}.  Objects
-       * that don't have a z-index are untouched.
-       */
-      sort: function() {
-         this.base(R.rendercontexts.RenderContext2D.sortFn);
-      },
-
-      /**
-       * Add an object to the context.  Only objects
-       * within the context will be rendered.  If an object declared
-       * an <tt>afterAdd()</tt> method, it will be called after the object
-       * has been added to the context.
+       * Add a new layer to the rendering context.  The order in which layers
+       * are added is how they will be rendered.  You can set the active (current)
+       * layer by calling {@link #setActiveLayer}.  All renderig methods will
+       * be proxied to the active layer.
        *
-       * @param obj {R.engine.BaseObject} The object to add to the render list
+       * @param layer {R.rendercontexts.RenderContext2D} The new layer
        */
+      addLayer: function(layer) {
+         this.layers.add(layer.getName(), layer);
+         this.base(layer);
+      },
+
+      /**
+       * Remove a layer from the rendering context.
+       *
+       * @param layer {R.rendercontexts.RenderContext2D} The layer to remove
+       */
+      removeLayer: function(layer) {
+         this.layers.remove(layer);
+         this.base(layer);
+      },
+
+      /**
+       * Set the currently active layer.  All rendering methods will be
+       * proxied to the active layer.
+       * @param layerName {String} The name of the layer (rendering context)
+       */
+      setActiveLayer: function(layerName) {
+         this.activeLayer = this.layers.get(layerName);
+      },
+
+      /**
+       * Get the currently active layer.
+       * @return {R.rendercontexts.RenderContext2D}
+       */
+      getActiveLayer: function() {
+         return this.activeLayer;
+      },
+
+      /**
+       * Get a layer by name.
+       * @param layerName {String} The name of the layer to get
+       * @return {R.rendercontexts.RenderContext2D}
+       */
+      getLayer: function(layerName) {
+         return this.layers.get(layerName);
+      },
+
+      //================================================================
+      // Drawing functions
+
       add: function(obj) {
-         this.base(obj);
-
-         // Organize objects into bins by their zIndex so we can
-         // determine dirty rectangles
-         if (obj.getZIndex) {
-            this.swapBins(obj, R.rendercontexts.RenderContext2D.NO_ZBIN, obj.getZIndex());
-         } else {
-            // If they don't have a zIndex, put them in the zeroth bin
-            this.swapBins(obj, R.rendercontexts.RenderContext2D.NO_ZBIN, 0);
-         }
+         this.activeLayer.add(obj);
       },
 
-      /**
-       * Remove an object from the render context.  The object is
-       * not destroyed when it is removed from the container.  The removal
-       * occurs after each update to avoid disrupting the flow of object
-       * traversal.
-       *
-       * @param obj {Object} The object to remove from the container.
-       * @return {Object} The object that was removed
-       */
       remove: function(obj) {
-         this.base(obj);
+         this.activeLayer.remove(obj);
+      },
 
-         if (obj.getZIndex) {
-            // Remove the object from the zBins
-            var zBin = this.zBins[obj.getZIndex()];
-            zBin.all.remove(obj);
-            R.engine.Support.arrayRemove(zBin.vis, obj);
-         } else {
-            this.zBins["0"].all.remove(obj);
-            R.engine.Support.arrayRemove(this.zBins["0"].vis, obj);
-         }
+      removeAtIndex: function(idx) {
+         this.activeLayer.removeAtIndex(idx);
       },
 
       /**
-       * Swap the zBin that the object is contained within.
-       * @param obj {R.engine.Object2D} The object to swap
-       * @param oldBin {Number} The old bin number, or <tt>RenderContext2D.NO_ZBIN</tt> to just
-       *    insert into a new bin.
-       * @param newBin {Number} The new bin to put the object into
-       */
-      swapBins: function(obj, oldBin, newBin) {
-         var zBin;
-         if (oldBin != R.rendercontexts.RenderContext2D.NO_ZBIN) {
-            // Remove the object from the old zBin
-            zBin = this.zBins[oldBin];
-            zBin.remove(obj);
-         }
-
-         // We'll need to know the sorted order of bin numbers since there may be gaps
-         if (!this.zBins[newBin]) {
-            this.zBins.activeBins.push(newBin);
-            this.zBins.activeBins.sort();
-         }
-
-         // Add to a bin
-         zBin = this.zBins[newBin];
-         if (!zBin) {
-            this.zBins[newBin] = {
-               all: R.struct.Container.create(),         // List of all objects in the bin
-               vis: []                                   // Optimized list of only visible objects
-            };
-
-            zBin = this.zBins[newBin];
-         }
-
-         // Start objects out as "not visible"
-         this.getContextData(obj).isVisible = false;
-
-         // Add the object to the "all objects" container
-         zBin.all.add(obj);
-      },
-
-      /**
-       * Called to render all of the objects to the context.
+       * Set the world scale of the rendering context.  All objects should
+       * be adjusted by this scale when the context renders.
        *
-       * @param time {Number} The current render time in milliseconds from the engine.
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
+       * @param scale {Number} The uniform scale of the world
        */
-      render: function(time, dt) {
-         // Push the world transform
-         this.pushTransform();
-
-         this.setupWorld(time, dt);
-
-         // Run the objects in each bin
-         for (var zbin in this.zBins.activeBins) {
-            var bin = this.zBins[this.zBins.activeBins[zbin]];
-
-            // Don't want to push the entire bin onto the stack
-            this.processBin(this.zBins.activeBins[zbin]);
-            R.Engine.rObjs += bin.vis.length;
-
-            var objs = bin.vis;
-            this.renderBin(zbin, objs, time, dt);
-         }
-
-         // Restore the world transform
-         this.popTransform();
-
-         while (this.postRenderList.length > 0) {
-            var fn = this.postRenderList.shift();
-            fn.call(this);
-         }
-
-         // Safely remove any objects that were removed from
-         // the context while it was rendering
-         if (this.safeRemoveList.length > 0) {
-            this._safeRemove();
-         }
+      setWorldScale: function(scale) {
+         this.activeLayer.setWorldScale(scale);
       },
 
       /**
-       * A rendering function to perform in world coordinates.  After the world has
-       * been rendered, and all transformations have been reset to world coordinates,
-       * the list of post-render functions are executed.
-       * @param fn {Function} A function to execute
+       * Set the world rotation of the rendering context.  All objects
+       * should be adjusted by this rotation when the context renders.
+       * @param rotation {Number} The rotation angle
        */
-      postRender: function(fn) {
-         this.postRenderList.push(fn);
+      setWorldRotation: function(rotation) {
+         this.activeLayer.setWorldRotation(rotation);
       },
 
       /**
-       * Process all objects in a bin, optimizing the list down to only those that are visible.
-       * TODO: Hoping to put this in a Worker thead at some point for speed
-       * @param binId {String} The bin Id
-       * @private
+       * Set the world position of the rendering context.  All objects
+       * should be adjuest by this position when the context renders.
+       * @param point {R.math.Point2D|Number} The world position or X coordinate
+       * @param [y] {Number} If <tt>point</tt> is a number, this is the Y coordinate
        */
-      processBin: function(binId) {
-         var bin = this.zBins[binId];
-
-         // Spin through "all" objects to determine visibility.
-         var itr = bin.all.iterator();
-         while (itr.hasNext()) {
-            // Check if the object is visible, so it'll be processed.
-            var obj = itr.next(), contextModel = this.getContextData(obj);
-            if (!obj.getWorldBox || (this.getExpandedViewport().isIntersecting(obj.getWorldBox()))) {
-               // If the object isn't visible, push it into the "visibility" list
-               if (!contextModel.isVisible) {
-                  contextModel.isVisible = true;
-                  bin.vis.push(obj);
-               }
-            } else if (contextModel.isVisible) {
-               // The object isn't in the viewport and is marked visible, unmark it and
-               // remove from "visibility" list
-               contextModel.isVisible = false;
-               R.engine.Support.arrayRemove(bin.vis, obj);
-            }
-         }
-         itr.destroy();
+      setWorldPosition: function(point, y) {
+         this.activeLayer.setWorldPosition(point, y);
       },
 
       /**
-       * Render all of the objects in a single bin, grouped by z-index.
-       * @param bin {Number} The bin number being rendered
-       * @param objs {Array} Array of objects
-       * @param time {Number} The current render time in milliseconds from the engine.
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
+       * Gets an array representing the rendering scale of the world.
+       * @return {Array} The first element is the X axis, the second is the Y axis
        */
-      renderBin: function(bin, objs, time, dt) {
-         R.engine.Support.forEach(objs, function(e) {
-            this.renderObject(e, time, dt);
-         }, this);
+      getWorldScale: function() {
+         return this.activeLayer.getWorldScale();
       },
 
-      //------------------------------------------------------------------------
+      /**
+       * Gets the world rotation angle.
+       * @return {Number}
+       */
+      getWorldRotation: function() {
+         return this.activeLayer.getWorldRotation();
+      },
+
+      /**
+       * Get the world render position.
+       * @return {R.math.Point2D}
+       */
+      getWorldPosition: function() {
+         return this.activeLayer.getWorldPosition();
+      },
+
+      /**
+       * Set the world boundaries.  Set the world boundaries bigger than the viewport
+       * to create a virtual world.  By default, the world boundary matches the viewport.
+       * @param rect {R.math.Rectangle2D}
+       */
+      setWorldBoundary: function(rect) {
+         this.activeLayer.setWorldBoundary(rect);
+      },
+
+      /**
+       * get the world boundaries.
+       * @return {R.math.Rectangle2D}
+       */
+      getWorldBoundary: function(rect) {
+         return this.activeLayer.getWorldBoundary();
+      },
+
+      /**
+       * Set the viewport of the render context.  The viewport is a window
+       * upon the world so that not all of the world is rendered at one time.
+       * @param rect {R.math.Rectangle2D} A rectangle defining the viewport
+       */
+      setViewport: function(rect) {
+         this.activeLayer.setViewport(rect);
+      },
+
+      /**
+       * Get the viewport of the render context.
+       * @return {R.math.Rectangle2D}
+       */
+      getViewport: function() {
+         return this.activeLayer.getViewport();
+      },
+
+      /**
+       * Push a transform state onto the stack.
+       */
+      pushTransform: function() {
+         this.activeLayer.pushTransform();
+      },
+
+      /**
+       * Pop a transform state off the stack.
+       */
+      popTransform: function() {
+         this.activeLayer.popTransform();
+      },
+
+      /**
+       * Reset the entire context, clearing it and preparing it for drawing.
+       */
+      reset: function(rect) {
+         this.activeLayer.reset();
+      },
 
       /**
        * Set the background color of the context.
@@ -334,7 +242,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param color {String} An HTML color
        */
       setBackgroundColor: function(color) {
-         this.backgroundColor = color;
+         this.activeLayer.setBackgroundColor(color);
       },
 
       /**
@@ -342,7 +250,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getBackgroundColor: function() {
-         return this.backgroundColor;
+         return this.activeLayer.getBackgroundColor();
       },
 
       /**
@@ -351,7 +259,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param width {Number} The width in pixels
        */
       setWidth: function(width) {
-         this.width = width;
+         this.activeLayer.setWidth(width);
       },
 
       /**
@@ -359,7 +267,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {Number}
        */
       getWidth: function() {
-         return this.width;
+         return this.activeLayer.getWidth();
       },
 
       /**
@@ -368,7 +276,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param height {Number} The height in pixels
        */
       setHeight: function(height) {
-         this.height = height;
+         this.activeLayer.setHeight(height);
       },
 
       /**
@@ -376,7 +284,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @render {Number}
        */
       getHeight: function() {
-         return this.height;
+         return this.activeLayer.getHeight();
       },
 
       /**
@@ -384,10 +292,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {R.math.Rectangle2D}
        */
       getBoundingBox: function() {
-         if (!this.bBox) {
-            this.bBox = R.math.Rectangle2D.create(0, 0, this.getWidth(), this.getHeight());
-         }
-         return this.bBox;
+         return this.activeLayer.getBoundingBox();
       },
 
       /**
@@ -396,7 +301,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param point {R.math.Point2D} The translation
        */
       setPosition: function(point) {
-         this.position = point;
+         this.activeLayer.setPosition(point);
       },
 
       /**
@@ -404,7 +309,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {R.math.Point2D}
        */
       getPosition: function() {
-         return this.position;
+         return this.getCurrentLayer.getPosition();
       },
 
       /**
@@ -413,7 +318,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param angle {Number} An angle in degrees
        */
       setRotation: function(angle) {
-         this.rotation = angle;
+         this.activeLayer.setRotation(angle);
       },
 
       /**
@@ -421,7 +326,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {Number}
        */
       getRotation: function() {
-         return this.rotation;
+         return this.activeLayer.getRotation();
       },
 
       /**
@@ -432,8 +337,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param scaleY {Number} The Y scaling factor
        */
       setScale: function(scaleX, scaleY) {
-         this.scaleX = scaleX;
-         this.scaleY = scaleY || scaleX;
+         this.activeLayer.setScale(scaleX, scaleY);
       },
 
       /**
@@ -441,7 +345,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {Number}
        */
       getScaleX: function() {
-         return this.scaleX;
+         return this.activeLayer.getScaleX();
       },
 
       /**
@@ -449,7 +353,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {Number}
        */
       getScaleY: function() {
-         return this.scaleY;
+         return this.activeLayer.getScaleY();
       },
 
       /**
@@ -457,7 +361,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param font {String} A font string similar to CSS
        */
       setFont: function(font) {
-         this.font = font;
+         this.activeLayer.setFont(font);
       },
 
       /**
@@ -465,7 +369,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getFont: function() {
-         return this.font;
+         return this.activeLayer.getFont();
       },
 
       /**
@@ -474,7 +378,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getNormalizedFont: function() {
-         return this.getFontStyle() + " " + this.getFontWeight() + " " + this.getFontSize() + " " + this.getFont();
+         return this.activeLayer.getNormalizedFont();
       },
 
       /**
@@ -482,7 +386,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param size {String} The font size string
        */
       setFontSize: function(size) {
-         this.fontSize = size + "px";
+         this.activeLayer.setFontSize(size);
       },
 
       /**
@@ -490,7 +394,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getFontSize: function() {
-         return this.fontSize;
+         return this.activeLayer.getFontSize();
       },
 
       /**
@@ -498,7 +402,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param weight {String}
        */
       setFontWeight: function(weight) {
-         this.fontWeight = weight;
+         this.activeLayer.setFontWeight(weight);
       },
 
       /**
@@ -506,7 +410,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getFontWeight: function() {
-         return this.fontWeight;
+         return this.activeLayer.getFontWeight();
       },
 
       /**
@@ -514,7 +418,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param align {String} The font alignment
        */
       setFontAlign: function(align) {
-         this.fontAlign = align;
+         this.activeLayer.setFontAlign(align);
       },
 
       /**
@@ -522,7 +426,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getFontAlign: function() {
-         return this.fontAlign;
+         return this.activeLayer.getFontAlign();
       },
 
       /**
@@ -530,7 +434,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param baseline {String} The render baseline
        */
       setFontBaseline: function(baseline) {
-         this.fontBaseline = baseline;
+         this.activeLayer.setFontBaseline(baseline);
       },
 
       /**
@@ -538,7 +442,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getFontBaseline: function() {
-         return this.fontBaseline;
+         return this.activeLayer.getFontBaseline();
       },
 
       /**
@@ -546,7 +450,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param style {String} The font style
        */
       setFontStyle: function(style) {
-         this.fontStyle = style;
+         this.activeLayer.setFontStyle(style);
       },
 
       /**
@@ -555,7 +459,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {R.math.Rectangle2D}
        */
       getTextMetrics: function(text) {
-         return R.math.Rectangle2D.create(0, 0, 1, 1);
+         return this.currentLayerR.getTextMetrics(text);
       },
 
       /**
@@ -563,7 +467,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getFontStyle: function() {
-         return this.fontStyle;
+         return this.activeLayer.getFontStyle();
       },
 
       /**
@@ -572,6 +476,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param matrix {Matrix} The transformation matrix
        */
       setTransform: function(matrix) {
+         this.activeLayer.setTransform(matrix);
       },
 
       /**
@@ -582,6 +487,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param scale {Number}
        */
       setRenderTransform: function(mtx3) {
+         this.activeLayer.setRenderTransform(mtx3);
       },
 
       /**
@@ -589,7 +495,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {R.math.Point2D}
        */
       getRenderPosition: function() {
-         return R.math.Point2D.ZERO;
+         return this.activeLayer.getRenderPosition();
       },
 
       /**
@@ -597,7 +503,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {Number}
        */
       getRenderRotation: function() {
-         return 0;
+         return this.activeLayer.getRenderRotation();
       },
 
       /**
@@ -605,7 +511,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {Number}
        */
       getRenderScale: function() {
-         return 1.0;
+         return this.activeLayer.getRenderScale();
       },
 
       /**
@@ -614,7 +520,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param lineStyle {String} An HTML color or <tt>null</tt>
        */
       setLineStyle: function(lineStyle) {
-         this.lineStyle = lineStyle;
+         this.activeLayer.setLineStyle(lineStyle);
       },
 
       /**
@@ -623,7 +529,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getLineStyle: function() {
-         return this.lineStyle;
+         return this.activeLayer.getLineStyle();
       },
 
       /**
@@ -632,7 +538,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [width=1] {Number} The width of lines in pixels
        */
       setLineWidth: function(width) {
-         this.lineWidth = width;
+         this.activeLayer.setLineWidth(width);
       },
 
       /**
@@ -640,7 +546,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {Number}
        */
       getLineWidth: function() {
-         return this.lineWidth;
+         return this.activeLayer.getLineWidth();
       },
 
       /**
@@ -649,7 +555,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param fillStyle {String} An HTML color, or <tt>null</tt>.
        */
       setFillStyle: function(fillStyle) {
-         this.fillStyle = fillStyle;
+         this.activeLayer.setFillStyle(fillStyle);
       },
 
       /**
@@ -657,7 +563,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {String}
        */
       getFillStyle: function() {
-         return this.fillStyle;
+         return this.activeLayer.getFillStyle();
       },
 
       /**
@@ -667,6 +573,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawRectangle: function(rect /*, ref */) {
+         this.activeLayer.drawRectangle(rect, arguments[1]);
       },
 
       /**
@@ -676,6 +583,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawFilledRectangle: function(rect /*, ref */) {
+         this.activeLayer.drawFilledRectangle(rect, arguments[1]);
       },
 
       /**
@@ -689,6 +597,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawArc: function(point, radius, startAngle, endAngle /*, ref */) {
+         this.activeLayer.drawArc(point, radius, startAngle, endAngle, arguments[4]);
       },
 
       /**
@@ -702,6 +611,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawFilledArc: function(point, radius, startAngle, endAngle /*, ref */) {
+         this.activeLayer.drawFilledArc(point,radius,startAngle,endAngle,arguments[4]);
       },
 
       /**
@@ -713,7 +623,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawCircle: function(point, radius /*, ref */) {
-         this.drawArc(point, radius, 0, R.math.Math2D.TWO_PI);
+         this.activeLayer.drawCircle(point, radius, arguments[2]);
       },
 
       /**
@@ -725,45 +635,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawFilledCircle: function(point, radius /*, ref */) {
-         this.drawFilledArc(point, radius, 0, R.math.Math2D.TWO_PI);
-      },
-
-      /**
-       * Draw a polygon or polyline using a Duff's device for
-       * efficiency and loop unrolling with inversion for speed.
-       *
-       * @param pointArray {Array} An array of <tt>R.math.Point2D</tt> objects
-       * @param closedLoop {Boolean} <tt>true</tt> to close the polygon
-       * @private
-       */
-      _poly: function(pointArray, closedLoop) {
-         this.startPath();
-         this.moveTo(pointArray[0]);
-         var p = 1;
-
-         // Using Duff's device with loop inversion
-         switch ((pointArray.length - 1) & 0x3) {
-            case 3:
-               this.lineSeg(pointArray[p++]);
-            case 2:
-               this.lineSeg(pointArray[p++]);
-            case 1:
-               this.lineSeg(pointArray[p++]);
-         }
-
-         if (p < pointArray.length) {
-            do
-            {
-               this.lineSeg(pointArray[p++]);
-               this.lineSeg(pointArray[p++]);
-               this.lineSeg(pointArray[p++]);
-               this.lineSeg(pointArray[p++]);
-            } while (p < pointArray.length);
-         }
-
-         if (closedLoop) {
-            this.endPath();
-         }
+         this.activeLayer.drawFilledCircle(point, radius, arguments[2]);
       },
 
       /**
@@ -774,11 +646,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [radius] {Number} The radius of the polygon. Default: 100
        */
       drawRegularPolygon: function(sides, center, radius) {
-         var poly = R.math.Math2D.regularPolygon(sides, radius);
-         for (var p = 0; p < poly.length; p++) {
-            poly[p].add(center);
-         }
-         this.drawPolygon(poly);
+         this.activeLayer.drawRegularPolygon(sides, center, radius);
       },
 
       /**
@@ -788,9 +656,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawPolygon: function(pointArray /*, ref */) {
-         this._poly(pointArray, true);
-         this.strokePath();
-         this.lineSeg.moveTo = false;
+         this.activeLayer.drawPolygon(pointArray, arguments[1]);
       },
 
       /**
@@ -800,9 +666,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawPolyline: function(pointArray /*, ref */) {
-         this._poly(pointArray, false);
-         this.strokePath();
-         this.lineSeg.moveTo = false;
+         this.activeLayer.drawPolyline(pointArray, arguments[1]);
       },
 
       /**
@@ -812,9 +676,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawFilledPolygon: function(pointArray /*, ref */) {
-         this._poly(pointArray, true);
-         this.fillPath();
-         this.lineSeg.moveTo = false;
+         this.activeLayer.drawFilledPolygon(pointArray, arguments[1]);
       },
 
       /**
@@ -825,11 +687,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [radius] {Number} The radius of the polygon. Default: 100
        */
       drawFilledRegularPolygon: function(sides, center, radius) {
-         var poly = R.math.Math2D.regularPolygon(sides, radius);
-         for (var p = 0; p < poly.length; p++) {
-            poly[p].add(center);
-         }
-         this.drawFilledPolygon(poly);
+         this.activeLayer.drawFilledRegularPolygon(sides, center, radius);
       },
 
       /**
@@ -840,6 +698,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawLine: function(point1, point2 /*, ref */) {
+         this.activeLayer.drawLine(point1, point2, arguments[2]);
       },
 
       /**
@@ -849,6 +708,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawPoint: function(point /*, ref */) {
+         this.activeLayer.drawPoint(point, arguments[1]);
       },
 
       /**
@@ -861,6 +721,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawSprite: function(sprite, time, dt /*, ref */) {
+         this.activeLayer.drawSprite(sprite, time, dt, arguments[3]);
       },
 
       /**
@@ -874,6 +735,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawImage: function(rect, image, srcRect /*, ref */) {
+         this.activeLayer.drawImage(rect, image, srcRect, arguments[3]);
       },
 
       /**
@@ -883,6 +745,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @return {ImageData} Image data capture
        */
       getImage: function(rect) {
+         return this.activeLayer.getImage(rect);
       },
 
       /**
@@ -894,6 +757,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       putImage: function(imageData, point /*, ref */) {
+         this.activeLayer.putImage(imageData, point, arguments[2]);
       },
 
       /**
@@ -904,30 +768,35 @@ R.rendercontexts.RenderContext2D = function() {
        * @param [ref] {R.engine.GameObject} A reference game object
        */
       drawText: function(point, text /*, ref */) {
+         this.activeLayer.drawText(point, text, arguments[2]);
       },
 
       /**
        * Start a path.
        */
       startPath: function() {
+         this.activeLayer.startPath();
       },
 
       /**
        * End a path.
        */
       endPath: function() {
+         this.activeLayer.endPath();
       },
 
       /**
        * Stroke a path using the current line style and width.
        */
       strokePath: function() {
+         this.activeLayer.strokePath();
       },
 
       /**
        * Fill a path using the current fill style.
        */
       fillPath: function() {
+         this.activeLayer.fillPath();
       },
 
       /**
@@ -936,6 +805,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param point {R.math.Point2D} The point to move to
        */
       moveTo: function(point) {
+         this.activeLayer.moveTo(point);
       },
 
       /**
@@ -944,6 +814,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param point {R.math.Point2D} The point to draw a line to
        */
       lineTo: function(point) {
+         this.activeLayer.lineTo(point);
       },
 
       /**
@@ -954,20 +825,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param point {R.math.Point2D} The point to draw a line to, or null.
        */
       lineSeg: function(point) {
-         if (point == null) {
-            this.lineSeg.moveTo = true;
-            return;
-         }
-
-         if (this.lineSeg.moveTo) {
-            // Cannot have two subsequent nulls
-            Assert((point != null), "LineSeg repeated null!", this);
-            this.moveTo(point);
-            this.lineSeg.moveTo = false;
-         }
-         else {
-            this.lineTo(point);
-         }
+         this.activeLayer.lineSeg(point);
       },
 
       /**
@@ -977,6 +835,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param point {R.math.Point2D} The point to draw to
        */
       quadraticCurveTo: function(cPoint, point) {
+         this.activeLayer.quadraticCurveTo(cPoint, point);
       },
 
       /**
@@ -987,6 +846,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param point {R.math.Point2D} The point to draw to
        */
       bezierCurveTo: function(cPoint1, cPoint2, point) {
+         this.activeLayer.bezierCurveT(cPoint2, cPoint2, point);
       },
 
       /**
@@ -997,135 +857,19 @@ R.rendercontexts.RenderContext2D = function() {
        * @param radius {Number} The radius of the arc
        */
       arcTo: function(point1, point2, radius) {
+         this.activeLayer.arcTo(point1, point2, radius);
       }
-   }, /** @scope R.rendercontexts.RenderContext2D.prototype */{
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.rendercontexts.RenderContext2D"
-       */
-      getClassName: function() {
-         return "R.rendercontexts.RenderContext2D";
-      },
 
-      /**
-       * Sort the objects to draw from objects with the lowest
-       * z-index to the highest z-index.
-       * @static
-       */
-      sortFn: function(obj1, obj2) {
-         if (obj1.getZIndex && obj2.getZIndex) {
-            return obj1.getZIndex() - obj2.getZIndex();
-         }
-         return 0
-      },
+	}, /** @scope R.rendercontexts.LayeredContext.prototype */ {
 
-      /**
-       * Bold text weight
-       * @type {String}
-       */
-      FONT_WEIGHT_BOLD: "bold",
+		/**
+		 * Get the class name of this object
+		 *
+		 * @return {String} "R.rendercontexts.LayeredContext"
+		 */
+		getClassName: function(){
+			return "R.rendercontexts.LayeredContext";
+		}
+	});
 
-      /**
-       * Normal text weight
-       * @type {String}
-       */
-      FONT_WEIGHT_NORMAL: "normal",
-
-      /**
-       * Light text weight
-       * @type {String}
-       */
-      FONT_WEIGHT_LIGHT: "light",
-
-      /**
-       * Text align left
-       * @type {String}
-       */
-      FONT_ALIGN_LEFT: "left",
-
-      /**
-       * Text align right
-       * @type {String}
-       */
-      FONT_ALIGN_RIGHT: "right",
-
-      /**
-       * Text align center
-       * @type {String}
-       */
-      FONT_ALIGN_CENTER: "center",
-
-      /**
-       * Text align start of stroke
-       * @type {String}
-       */
-      FONT_ALIGN_START: "start",
-
-      /**
-       * Text align end of stroke
-       * @type {String}
-       */
-      FONT_ALIGN_END: "end",
-
-      /**
-       * Text baseline alphabetic
-       * @type {String}
-       */
-      FONT_BASELINE_ALPHABETIC: "alphabetic",
-
-      /**
-       * Text baseline top of em box
-       * @type {String}
-       */
-      FONT_BASELINE_TOP: "top",
-
-      /**
-       * Text baseline hanging ideograph
-       * @type {String}
-       */
-      FONT_BASELINE_HANGING: "hanging",
-
-      /**
-       * Text baseline middle of em square
-       * @type {String}
-       */
-      FONT_BASELINE_MIDDLE: "middle",
-
-      /**
-       * Text baseline ideographic bottom
-       * @type {String}
-       */
-      FONT_BASELINE_IDEOGRAPHIC: "ideographic",
-
-      /**
-       * Text baseline bottom of em square
-       * @type {String}
-       */
-      FONT_BASELINE_BOTTOM: "bottom",
-
-      /**
-       * Text style italic
-       * @type {String}
-       */
-      FONT_STYLE_ITALIC: "italic",
-
-      /**
-       * Text style normal
-       * @type {String}
-       */
-      FONT_STYLE_NORMAL: "normal",
-
-      /**
-       * Text style oblique
-       * @type {String}
-       */
-      FONT_STYLE_OBLIQUE: "oblique",
-
-      /**
-       * @private
-       */
-      NO_ZBIN: 0xDEADBEEF
-   });
-
-};
+}

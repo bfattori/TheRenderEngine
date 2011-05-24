@@ -104,15 +104,15 @@ R.collision.broadphase.SpatialGrid = function() {
          this.pclCache = {};
       },
 
-      // Debug the collision node
-      /*
-       if (!this.isDestroyed() && R.Engine.getDebugMode() && this.getComponent("collider").getSpatialNode())
-       {
-       renderContext.setLineStyle("orange");
-       renderContext.drawRectangle(this.getComponent("collider").getSpatialNode().getRect());
-       }
+      /**
+       * Reset the collision model, removing any references to objects
+       * from all collision nodes.
        */
-
+      reset: function() {
+         for (var pcl in this.pclCache) {
+            this.pclCache[pcl].clear();
+         }
+      },
 
       /**
        * Releases the spatial grid back into the object pool.  See {@link PooledObject#release}
@@ -196,7 +196,7 @@ R.collision.broadphase.SpatialGrid = function() {
        */
       checkNode: function(nodeList, x, y, id) {
          var node = this.getNode(x, y);
-         if (node.getCount() != 0 && node.isDirty()) {
+         if (node.isDirty()) {
             nodeList.push(node);
          }
       },
@@ -327,11 +327,11 @@ R.collision.broadphase.SpatialGrid = function() {
                cachedPCL.clear();
                for (var d = 0; d < nodes.length; d++) {
                   nodes[d].clearDirty();
-                  cachedPCL.append(nodes[d].getObjects());
+                  if (nodes[d].getCount() != 0) {
+                     cachedPCL.add(nodes[d]);
+                  }
                }
-            }/* else {
-               cachedPCL.clear();
-            }*/
+            }
 
             return cachedPCL;
          }
@@ -355,7 +355,31 @@ R.collision.broadphase.SpatialGrid = function() {
       }
 
       /* pragma:DEBUG_START */
-      ,update: function(renderContext, time, dt) {
+
+      /**
+       * Dump the cached PCLs to the console so they can be inspected.  Passing an
+       * object to the method will return the PCL which contains that object.
+       * @param [obj] {Object} The object to find in the PCL, or <code>null</code> to return
+       *    all caches.
+       */
+      ,debugPCLCaches: function(obj) {
+         R.debug.Console.setDebugLevel(R.debug.Console.DEBUGLEVEL_DEBUG);
+         for (var pcl in this.pclCache) {
+            for (var itr = this.pclCache[pcl].iterator(); itr.hasNext(); ) {
+               var node = itr.next();
+               if (obj) {
+                  if (node.getObjects.contains(obj)) {
+                     R.debug.Console.debug(pcl, node.getObjects());
+                     break;
+                  }
+               } else {
+                  R.debug.Console.debug(pcl, node.getObjects());
+               }
+            }
+         }
+      },
+
+      update: function(renderContext, time, dt) {
          if (!R.Engine.getDebugMode()) {
             return;
          }

@@ -111,7 +111,14 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 		setRoot: function(root){
 			this.root = root;
 		},
-		
+
+      /**
+       * [ABSTRACT] Reset the collision model, removing any references to objects
+       * from all collision nodes.
+       */
+      reset: function() {
+      },
+
 		/**
 		 * [ABSTRACT] Find the node that contains the specified point.
 		 *
@@ -152,8 +159,7 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 				if (!oldNode.contains(p)) {
 					// The object is no longer in the same node
 					oldNode.removeObject(obj);
-				}
-				else {
+				} else {
 					// The object hasn't left the node
                p.destroy();
 					return;
@@ -172,6 +178,19 @@ R.collision.broadphase.AbstractCollisionModel = function(){
          p.destroy();
 		},
 		
+      /**
+       * Remove an object from the collision model.
+       *
+       * @param obj {R.engine.BaseObject} The object to remove
+       */
+      removeObject: function(obj){
+         var oldNode = this.getObjectSpatialData(obj, "lastNode");
+         if (oldNode != null) {
+            oldNode.removeObject(obj);
+         }
+         this.clearObjectSpatialData(obj);
+      },
+
 		/**
 		 * Get the spatial data for the game object.  If <tt>key</tt> is provided, only the
 		 * data for <tt>key</tt> will be returned.  If the data has not yet been assigned,
@@ -184,8 +203,7 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 		getObjectSpatialData: function(obj, key){
 			var mData = obj.getObjectDataModel(R.collision.broadphase.AbstractCollisionModel.DATA_MODEL);
 			if (mData == null) {
-				obj.setObjectDataModel(R.collision.broadphase.AbstractCollisionModel.DATA_MODEL, {});
-				mData = obj.getObjectDataModel(R.collision.broadphase.AbstractCollisionModel.DATA_MODEL);
+				mData = obj.setObjectDataModel(R.collision.broadphase.AbstractCollisionModel.DATA_MODEL, {});
 			}
 			return key ? mData[key] : mData;
 		},
@@ -210,20 +228,7 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 		 * @param obj {R.engine.BaseObject} The object which has the data model
 		 */
 		clearObjectSpatialData: function(obj){
-			obj.setObjectDataMode(R.collision.broadphase.AbstractCollisionModel.DATA_MODEL, null);
-		},
-		
-		/**
-		 * Remove an object from the collision model.
-		 *
-		 * @param obj {R.engine.BaseObject} The object to remove
-		 */
-		removeObject: function(obj){
-			var oldNode = this.getObjectSpatialData(obj, "lastNode");
-			if (oldNode != null) {
-				oldNode.removeObject(obj);
-			}
-			obj[R.collision.broadphase.AbstractCollisionModel.DATA_MODEL] = null;
+			obj.setObjectDataModel(R.collision.broadphase.AbstractCollisionModel.DATA_MODEL, null);
 		},
 		
 		/**

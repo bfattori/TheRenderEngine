@@ -288,9 +288,9 @@ R.components.Transform2D = function() {
       if (R.Engine.getDebugMode())
       {
 			renderContext.setLineWidth(1);
-         renderContext.setLineStyle("red");
+         renderContext.setLineStyle("#f00");
          renderContext.drawLine(R.math.Point2D.ZERO, this._up);
-         renderContext.setLineStyle("blue");
+         renderContext.setLineStyle("#08f");
          renderContext.drawLine(R.math.Point2D.ZERO, this._left);
       }
       /* pragma:DEBUG_END */

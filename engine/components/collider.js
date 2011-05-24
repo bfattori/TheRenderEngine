@@ -333,7 +333,6 @@ R.components.Collider = function() {
        *          in milliseconds.
        */
       execute: function(renderContext, time, dt) {
-
          if (!this.collisionModel) {
             return;
          }
@@ -344,7 +343,7 @@ R.components.Collider = function() {
          this.updateModel();
 
          // If the host object needs to know about collisions...
-         var pcl = null;
+         var pclNodes = null;
 
          // onCollide
          if (this.hasCollideMethods[0]) {
@@ -352,27 +351,38 @@ R.components.Collider = function() {
             var hostMask = this.collisionModel.getObjectSpatialData(host, "collisionMask");
 
             // Get the PCL and check for collisions
-            pcl = this.getCollisionModel().getPCL(host.getPosition(), time, dt);
+            pclNodes = this.getCollisionModel().getPCL(host.getPosition(), time, dt);
             var status = R.components.Collider.CONTINUE;
             var collisionsReported = 0;
 
-            pcl.forEach(function(obj) {
-               var targetMask = this.collisionModel.getObjectSpatialData(obj, "collisionMask");
-               if (obj !== this.getGameObject() && // Cannot collide with itself
-                     (hostMask & targetMask) <= hostMask &&
-                     status == R.components.Collider.CONTINUE ||
-                     status == R.components.Collider.COLLIDE_AND_CONTINUE) {
+            pclNodes.forEach(function(node) {
+               for (var itr = R.lang.Iterator.create(node.getObjects()); itr.hasNext(); ) {
+                  if (this.isDestroyed()) {
+                     // If the object is destroyed while we're checking collisions against it,
+                     // get outta here
+                     break;
+                  }
 
-                  // Test for a collision
-                  status = this.testCollision(time, dt, obj, hostMask, targetMask);
+                  var obj = itr.next(),
+                      targetMask = this.collisionModel.getObjectSpatialData(obj, "collisionMask");
 
-                  // If they don't return  any value, assume CONTINUE
-                  status = (status == undefined ? R.components.Collider.CONTINUE : status);
+                  if (obj !== this.getGameObject() && // Cannot collide with itself
+                        (hostMask & targetMask) <= hostMask &&
+                        status == R.components.Collider.CONTINUE ||
+                        status == R.components.Collider.COLLIDE_AND_CONTINUE) {
 
-                  // Count actual collisions
-                  collisionsReported += (status == R.components.Collider.STOP ||
-                        status == R.components.Collider.COLLIDE_AND_CONTINUE ? 1 : 0);
+                     // Test for a collision
+                     status = this.testCollision(time, dt, obj, hostMask, targetMask);
+
+                     // If they don't return  any value, assume CONTINUE
+                     status = (status == undefined ? R.components.Collider.CONTINUE : status);
+
+                     // Count actual collisions
+                     collisionsReported += (status == R.components.Collider.STOP ||
+                           status == R.components.Collider.COLLIDE_AND_CONTINUE ? 1 : 0);
+                  }
                }
+               itr.destroy();
             }, this);
          }
 

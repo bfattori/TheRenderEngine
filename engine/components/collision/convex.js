@@ -182,7 +182,7 @@ R.components.collision.Convex = function() {
 
       /* pragma:DEBUG_START */
       ,execute: function(renderContext, time, dt) {
-         this.base(renderContext, time);
+         this.base(renderContext, time, dt);
          // Debug the collision hull
          if (R.Engine.getDebugMode() && !this.isDestroyed()) {
             renderContext.pushTransform();
@@ -517,7 +517,7 @@ R.components.collision.Convex = function() {
          }
 
          // The overlap is the nearest poly point to the center of the circle, minus the radius
-         var c = Vector2D.create(center);
+         var c = R.math.Vector2D.create(center);
          overlap = c.sub(closestVertex).len();
          overlap -= radius;
 

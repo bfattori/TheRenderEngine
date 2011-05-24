@@ -71,6 +71,7 @@ R.engine.Object2D = function(){
 		lastPosition: null,
       lastRenderPosition: null,
 		origin: null,
+      originNeg: null,
 		collisionHull: null,
 		genHull: null,
 		defaultTxfmComponent: null,
@@ -93,6 +94,7 @@ R.engine.Object2D = function(){
 			this.wCircle = R.math.Circle2D.create(0, 0, 1);
 			this.zIndex = 0;
 			this.origin = R.math.Point2D.create(0, 0);
+         this.originNeg = R.math.Point2D.create(0, 0);
 			this.collisionHull = null;
 			this.genHull = false;
 			
@@ -115,6 +117,10 @@ R.engine.Object2D = function(){
 			this.wCircle.destroy();
 			this.lastPosition.destroy();
          this.lastRenderPosition.destroy();
+         this.AABB.destroy();
+         this.wCircle.destroy();
+         this.origin.destroy();
+         this.originNeg.destroy();
 			if (this.collisionHull) {
 				this.collisionHull.destroy();
 			}
@@ -132,6 +138,10 @@ R.engine.Object2D = function(){
 			this.wCircle = null;
 			this.lastPosition = null;
          this.lastRenderPosition = null;
+         this.AABB = null;
+         this.wCircle = null;
+         this.origin = null;
+         this.originNeg = null;
 			this.collisionHull = null;
 			this.genHull = null;
 			
@@ -167,11 +177,12 @@ R.engine.Object2D = function(){
 			}
 			
 			// Scale
-			var sX = this.getScaleX();
-			var sY = this.getScaleY();
-			var sMtx = $M([[sX, 0, 0], [0, sY, 0], [0, 0, 1]]);
-			
-			return tMtx.multiply(rMtx).multiply(sMtx);
+			var sX = this.getScaleX(), sY = this.getScaleY(), sMtx = $M([[sX, 0, 0], [0, sY, 0], [0, 0, 1]]),
+             txfmMtx = tMtx.multiply(rMtx).multiply(sMtx);
+
+         rMtx = null;
+         sMtx = null;
+			return txfmMtx;
 		},
 		
 		/**
@@ -183,18 +194,18 @@ R.engine.Object2D = function(){
 		 */
 		setOrigin: function(x, y){
 			this.origin.set(x, y);
+         this.originNeg.set(x, y).neg();
 			
 			var pX = x;
 			var pY = y;
 			
-			if (x instanceof R.math.Point2D) {
+			if (x.__POINT2D) {
 				pX = x.x;
 				pY = x.y;
 			}
 			
 			this.oMtx.setElements([[1, 0, pX], [0, 1, pY], [0, 0, 1]]);
 			this.oMtxN.setElements([[1, 0, -pX], [0, 1, -pY], [0, 0, 1]]);
-			
 			this.markDirty();
 		},
 		
@@ -214,7 +225,7 @@ R.engine.Object2D = function(){
 		 * @param height {Number} If width is a number, this is the height
 		 */
 		setBoundingBox: function(width, height){
-			if (width instanceof R.math.Rectangle2D) {
+			if (width.__RECTANGLE2D) {
 				this.bBox.set(width);
 			}
 			else {
@@ -258,8 +269,7 @@ R.engine.Object2D = function(){
          }
 
 			this.wBox.set(this.getBoundingBox());
-			var rPos = R.math.Point2D.create(this.getRenderPosition());
-			rPos.sub(this.origin);
+			var rPos = R.math.Point2D.create(this.getRenderPosition()).add(this.originNeg);
 			this.wBox.offset(rPos);
 			rPos.destroy();
          this.lastRenderPosition.set(this.getRenderPosition());
@@ -283,8 +293,7 @@ R.engine.Object2D = function(){
 				this.wCircle.set(c);
 			}
 			
-			var rPos = R.math.Point2D.create(this.getRenderPosition());
-			rPos.sub(this.origin);
+			var rPos = R.math.Point2D.create(this.getRenderPosition()).add(this.originNeg);
 			this.wCircle.offset(rPos);
 			rPos.destroy();
 			return this.wCircle;
@@ -310,29 +319,13 @@ R.engine.Object2D = function(){
 			p4.y += bb.getDims().y;
 			var pts = [p1.transform(txfm), p2.transform(txfm), p3.transform(txfm), p4.transform(txfm)];
 			
-			// Now find the AABB
-			var x1 = R.lang.Math2.MAX_INT;
-			var x2 = -R.lang.Math2.MAX_INT;
-			var y1 = x1;
-			var y2 = x2;
-			
-			for (var p in pts) {
-				var pt = pts[p];
-				if (pt.x < x1) 
-					x1 = pt.x;
-				if (pt.x > x2) 
-					x2 = pt.x;
-				if (pt.y < y1) 
-					y1 = pt.y;
-				if (pt.y > y2) 
-					y2 = pt.y;
-			}
-			
+			// Now find the AABB of the points
+         R.math.Math2D.getBoundingBox(pts, this.AABB);
+
 			bb.destroy();
 			p2.destroy();
 			p3.destroy();
 			
-			this.AABB.set(x1, y1, x2 - x1, y2 - y1);
 			return this.AABB;
 		},
 		
@@ -351,7 +344,7 @@ R.engine.Object2D = function(){
 		
 		/**
 		 * Get the convex hull used for collision testing with a {@link R.components.ConvexCollider ConvexCollider}
-		 * component.  If no collision hull has been assigned, a simple {@link R.collision.OBBHull OBBHull} will
+		 * component.  If no collision hull has been assigned, a {@link R.collision.OBBHull OBBHull} will
 		 * be created and returned.
 		 *
 		 * @return {R.collision.ConvexHull}

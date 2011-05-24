@@ -351,8 +351,8 @@ R.struct.Container = function() {
    forEach: function(fn, thisp) {
       var itr = this.iterator();
       var result = true;
-      var hasMethod = thisp && thisp.isDestroyed;
-      while (itr.hasNext() && (hasMethod ? !thisp.isDestroyed() && result : result)) {
+      var hasMethod = !!(thisp && thisp.isDestroyed);
+      while ((hasMethod ? !thisp.isDestroyed() && result : result) && itr.hasNext()) {
          result = fn.call(thisp || this, itr.next());
          result = (result == undefined ? true : result);
       }

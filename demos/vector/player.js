@@ -248,7 +248,7 @@ var SpaceroidsPlayer = function() {
       respawn: function() {
          // Are there rocks in our area?
          if (this.getComponent("collider").getSpatialNode()) {
-            if (this.getComponent("collider").getSpatialNode().getObjects().size() > 1) {
+            if (this.getComponent("collider").getSpatialNode().getCount() > 1) {
                // There's something around us, hold off...
                var pl = this;
                R.lang.OneShotTimeout.create("respawn", 250, function() {
@@ -320,9 +320,8 @@ var SpaceroidsPlayer = function() {
        * The point is NOT guaranteed to be free of a collision.
        */
       hyperSpace: function() {
-
-         if (this.hyperjump) {
-            // Prevent hyperjumping while already hyperjumping (duh)
+         if (this.hyperjump || !this.alive) {
+            // Prevent hyperjumping while already hyperjumping, or dead (duh)
             return;
          }
 
@@ -333,22 +332,28 @@ var SpaceroidsPlayer = function() {
          this.hyperjump = true;
 
          var self = this;
-         OneShotTrigger.create("hyper", 250, function() {
+         R.lang.OneShotTrigger.create("hyper", 250, function() {
             self.getComponent("draw").setDrawMode(R.components.Render.NO_DRAW);
          }, 10, function() {
-            self.setScale(self.getScale() - 0.09);
+            self.setScale(self.getScale() + 1);
          });
 
          // Give it some time and move the player somewhere random
-         R.lang.OneShotTimeout.create("hyperspace", 800, function() {
-            self.getComponent("move").setVelocity(Point2D.ZERO);
-            var randPt = R.math.Math2D.randomPoint(Spaceroids.renderContext.getBoundingBox());
+         R.lang.OneShotTimeout.create("hyperspace", 300, function() {
+            self.getComponent("move").setVelocity(R.math.Point2D.ZERO);
+            var randPt = R.math.Math2D.randomPoint(Spaceroids.renderContext.getViewport());
             self.getComponent("move").setPosition(randPt);
-            self.setScale(1);
             self.getComponent("draw").setDrawMode(R.components.Render.DRAW);
-            self.alive = true;
-            self.hyperjump = false;
             randPt.destroy();
+            R.lang.OneShotTrigger.create("hyper", 250, function() {
+               self.alive = true;
+               self.hyperjump = false;
+               self.setScale(1);
+            }, 10, function() {
+               if (self.getScale() > 1) {
+                  self.setScale(self.getScale() - 1);
+               }
+            });
          });
       },
 
@@ -422,10 +427,10 @@ var SpaceroidsPlayer = function() {
 
          switch (event.keyCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
-               this.rotDir = -3;
+               this.rotDir = -5;
                break;
             case R.engine.Events.KEYCODE_RIGHT_ARROW:
-               this.rotDir = 3;
+               this.rotDir = 5;
                break;
             case R.engine.Events.KEYCODE_UP_ARROW:
                if (!this.thrusting) {
