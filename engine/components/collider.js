@@ -42,25 +42,37 @@ R.Engine.define({
 /**
  * @class Creates a collider component which tests the collision model for
  *              potential collisions. Each frame, the component will update a potential
- *              collision list (PCL) for the host object, using its current position
+ *              collision list (PCL) using the game objects current position
  *              obtained from {@link R.engine.Object2D#getPosition}. Each object which meets
  *              certain criteria will be passed to an <tt>onCollide()</tt> method which
- *              must be implemented by the host object.  By design, an object cannot
- *              collide with itself.
+ *              must be implemented by the game object.  By design, an object cannot
+ *              collide with itself.  However, this can be changed with the {@link #setCollideSame}
+ *              method.
  *              <p/>
- *              The event handler will be passed the potential collision object
- *              as its first argument, the time the collision was detected as the second,
- *              and the target's collision mask as the third.
- *              The host must determine if the collision is valid for itself, and then
+ *              The event handler will be passed the target object
+ *              as its first argument, the time the collision was detected and the time
+ *              since the last frame was generated as the second and third,
+ *              finally the target's collision mask as the fourth argument.  Example:
+ *              <pre>
+ *                 onCollide: function(obj, time, dt, targetMask) {
+ *                   if (targetMask == SomeObject.COLLISION_MASK) {
+ *                      obj.explode();
+ *                      return R.components.Collider.STOP;
+ *                   }
+ *
+ *                   return R.components.Collider.CONTINUE;
+ *                 }
+ *              </pre>
+ *              The game object must determine if the collision is valid for itself, and then
  *              return a value which indicates whether the component should contine to
  *              check for collisions, or if it should stop.
  *              <p/>
- *              If the <tt>onCollide()</tt> method is not implemented on the host, no
- *              collision events will be passed.
+ *              If the <tt>onCollide()</tt> method is not implemented on the game object, no
+ *              collision events will be passed to the game object.
  *              <p/>
- *              Additionally, the host can implement <tt>onCollideEnd()</tt> to be notified
- *              when collisions have stopped.  The time the collisions stopped will be the
- *              only argument.
+ *              Additionally, a game object can implement <tt>onCollideEnd()</tt> to be notified
+ *              when collisions have stopped.  The time the collisions stopped and the time since
+ *              the last frame was generated will be the only arguments.
  *
  * @param name {String} Name of the component
  * @param collisionModel {SpatialCollection} The collision model
@@ -301,19 +313,19 @@ R.components.Collider = function() {
 
       /**
        * Updates the object within the collision model and determines if
-       * the host object should to be alerted whenever a potential collision
+       * the game object should to be alerted whenever a potential collision
        * has occurred.  If a potential collision occurs, an array (referred to
        * as a Potential Collision List, or PCL) will be created which
-       * contains objects that might be colliding with the host object.  It
-       * is up to the host object to make the final determination that a
+       * contains objects that might be colliding with the game object.  It
+       * is up to the game object to make the final determination that a
        * collision has occurred.  If no collisions have occurred, that will be reported
        * as well.
        * <p/>
-       * The list of objects within the PCL will be passed to the <tt>onCollide()</tt>
-       * method (if declared) on the host object.  If a collision occurred and was
-       * handled, the <tt>onCollide()</tt> method should return {@link CollisionComponent#STOP},
-       * otherwise, it should return {@link CollisionComponent#CONTINUE} to continue
-       * checking objects from the PCL against the host object.
+       * Each object within the PCL will be tested and, if a collision occurs, is
+       * passed to the <tt>onCollide()</tt> method (if declared) of the game object.
+       * If a collision occurred and was handled, the <tt>onCollide()</tt> method should return
+       * {@link CollisionComponent#STOP}, otherwise, it should return {@link CollisionComponent#CONTINUE} to continue
+       * checking objects from the PCL against the game object.
        *
        * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context for the component
        * @param time {Number} The current engine time in milliseconds

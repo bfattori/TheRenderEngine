@@ -445,8 +445,8 @@ var Spaceroids = function() {
          //R.debug.Profiler.wireObjects([SpaceroidsRock]);
          //R.debug.Profiler.start();
 
-         R.Engine.setDebugMode(true);
-         R.debug.Metrics.showMetrics();
+         //R.Engine.setDebugMode(true);
+         //R.debug.Metrics.showMetrics();
 
          if (options.disableParticles) {
             R.Engine.options.disableParticleEngine = true;

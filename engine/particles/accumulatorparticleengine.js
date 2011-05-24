@@ -59,6 +59,7 @@ R.particles.AccumulatorParticleEngine = function() {
       accumulator: null,      // The accumulated frame
       fadeRate: 0,             // The rate at which particles fade out
       blur: false,
+      radius: 1,
 
       /** @private */
       constructor: function(fadeRate) {
@@ -141,18 +142,14 @@ R.particles.AccumulatorParticleEngine = function() {
                   renderContext.getViewport().w, renderContext.getViewport().h);
          }
 
-         this.accumulator.get2DContext().globalAlpha = 1.0;
-
-         // Fade the accumulator at a set rate
-         this.accumulator.get2DContext().globalCompositeOperation = "source-atop";
-         this.accumulator.setFillStyle("rgba(0,0,0," + this.fadeRate + ")");
-         this.accumulator.drawFilledRectangle(renderContext.getViewport());
-         this.accumulator.get2DContext().globalCompositeOperation = "source-over";
-
-         // Render particles to the accumulator
-         this.base(this.accumulator, time, dt);
-
-         if (this.blur) {
+         if (!this.blur) {
+            // Fade the accumulator at a set rate
+            this.accumulator.get2DContext().globalAlpha = this.fadeRate;
+            this.accumulator.get2DContext().globalCompositeOperation = "source-atop";
+            this.accumulator.setFillStyle("rgba(0,0,0)");
+            this.accumulator.drawFilledRectangle(renderContext.getViewport());
+            this.accumulator.get2DContext().globalCompositeOperation = "source-over";
+         } else {
             var vp = R.math.Rectangle2D.create(renderContext.getViewport()),
                ox = vp.x, oy = vp.y;
             this.accumulator.get2DContext().globalAlpha = 0.5;
@@ -164,6 +161,11 @@ R.particles.AccumulatorParticleEngine = function() {
             }
             vp.destroy();
          }
+
+         this.accumulator.get2DContext().globalAlpha = 1.0;
+
+         // Render particles to the accumulator
+         this.base(this.accumulator, time, dt);
 
          // Render the contents of the accumulator to the render context
          renderContext.drawImage(renderContext.getViewport(), this.accumulator.getSurface());

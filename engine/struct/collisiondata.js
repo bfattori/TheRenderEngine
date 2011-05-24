@@ -56,7 +56,7 @@ R.Engine.define({
  * @description Creates a collision data structure.
  */
 R.struct.CollisionData = function() {
-	return R.engine.PooledObject.extend({
+	return R.engine.PooledObject.extend(/** @scope R.struct.CollisionData.prototype */{
 
       /**
        * The overlap in pixels

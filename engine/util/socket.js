@@ -100,12 +100,12 @@ R.util.SocketUtil = /** @scope R.util.SocketUtil.prototype */{
     *    };
     *    socket.connect();
     * </pre>
-    * For information about using a socket, see {@link Socket}
+    * For information about using a socket, see {@link R.Socket}
     *
     * @param connectionURL {String} The URL to connect to
     * @param [port] {Number} The port to connect to (default: 8090)
     * @param [secure] {Boolean} <tt>true</tt> to use a secure connection (default: <tt>false</tt>)
-    * @return {Function} A socket object
+    * @return {R.Socket} A socket object
     */
    createSocket: function(connectionURL, port, secure)  {
 
@@ -130,249 +130,252 @@ R.util.SocketUtil = /** @scope R.util.SocketUtil.prototype */{
             pool = R.util.SocketUtil._socketPool[dest] = [];
          }
 
-         /**
-          * @class A web socket for two-way network communication.  You cannot
-          * create an object from this class directly.  Instead, see
-          * {@link R.util.SocketUtil#createSocket}
-          * 
-          * @constructor
-          * @name R.Socket
-          */
-         var Socket = function(/* ident, host */) {
-            this.id = arguments[0];
-            var inf = this.id.split(":");
-            this.socket = new io.Socket(arguments[1], {
-               secure: inf[2] == "1",
-               port: inf[1] == "0" ? undefined : Number(inf[1]),
-               // Really would like to avoid using Flash or ActiveX, if possible...
-               //transports: ['websocket','xhr-multipart','xhr-polling','jsonp-polling','htmlfile','flashsocket']
-               transports: ['websocket','xhr-multipart','xhr-polling','jsonp-polling'],
-               rememberTransport: false
-            });
-            this.packetNum = 1;
-            this.awaitingACK = [];
-            this.queued = [];
-            this.ready = false;
-
-            // Wire handlers into the socket
-            var self = this;
-
-            /**
-             * Attempt to connect the socket to its destination.  Upon
-             * successful connection, the <tt>listener()</tt> method
-             * attached to the socket will be triggered.
-             */
-            this.prototype.connect = function() {
-               this.socket.connect();
-            };
-
-            /**
-             * Internal method which tells the socket user that something has
-             * occurred.
-             * @param type {Number} The type of message
-             * @param message {String} A string message to pass along
-             * @private
-             */
-            this.prototype.notify = function(type, message) {
-               if ($.isFunction(self.listener)) {
-                  self.listener(type, message);
-               }
-            };
-
-            /**
-             * Call this method to complete all communications with the socket
-             * and return it to the pool.
-             */
-            this.prototype.done = function() {
-               // See if we're awaiting anything
-               if (this.awaitingACK.length > 0) {
-                  // There are guaranteed messages which haven't ACKed yet
-                  return false;
-               }
-
-               // Let the server know we're disconnecting (unless they
-               // disconnected us already)
-               if (this.ready) {
-                  this.socket.send('goodbye');
-                  this.socket.disconnect();
-               }
-
-               // All set, clean up and pool us
-               this.packetNum = 1;
-               this.awaitingACK.length = 0;
-               this.listener = undefined;
-
-               R.util.SocketUtil._socketPool[this.id].push(this);
-            };
-
-            /**
-             * Queues the message if the socket isn't connected yet,
-             * otherwise, sends the message.
-             * @param msg {Object} The message to send
-             * @private
-             */
-            this.prototype.queueOrSend = function(msg) {
-               // Queue messages if we're not yet connected
-               if (!this.ready) {
-                  this.queued.push(msg);
-               } else {
-                  this.socket.send(msg);
-               }
-            };
-
-            /**
-             * Send a message without a guarantee that the message was
-             * received or handled by the server.
-             * @param msg {Object} The message to send
-             */
-            this.prototype.send = function(msg) {
-               var wrap = {
-                  ack: TYPE_SEND,
-                  message: msg
-               };
-               this.queueOrSend(wrap);
-            };
-
-            /**
-             * Send a broadcast message to the server.  Broadcast messages
-             * are sent to all connected clients and are not guaranteed.
-             * @param msg {Object} The message to send
-             */
-            this.prototype.broadcast = function(msg) {
-               var wrap = {
-                  ack: TYPE_BROADCAST,
-                  message: msg
-               };
-               this.queueOrSend(wrap);
-            };
-
-            /**
-             * Sends a message with a guarantee that will be returned by
-             * the server when the message is received.
-             *
-             * @param msg {Object} The message to send
-             * @param [cb] {Function} The callback function, or <tt>null</tt>.
-             * @return {Number} The packet number
-             */
-            this.prototype.assure = function(msg, cb) {
-               var wrap = {
-                  ack: this.packetNum++,
-                  message: msg
-               };
-               this.await(wrap.ack, cb);
-               this.queueOrSend(wrap);
-               return wrap.ack;
-            };
-
-            /*
-            this.prototype.orderedAssure = function(prev, msg, cb) {
-               var wrap = {
-                  ack: this.packetNum++,
-                  message: msg
-               };
-
-               var curry = function(ack) {
-                  if ()
-               };
-
-               this.await(wrap.ack, curry);
-               this.queueOrSend(wrap);
-               return wrap.ack;
-            };
-            */
-
-            /**
-             * Guaranteed messages awaiting acknowledgement register so their
-             * callback will be triggered.
-             * @param packetNum {Number} The packet number
-             * @param [cb] {Function} the callback
-             * @private
-             */
-            this.prototype.await = function(packetNum, cb) {
-               this.awaitingACK.push({
-                  packet: packetNum,
-                  trigger: cb
-               });
-            };
-
-            //--------------------------------------------------------------------------
-
-            // Received a message from the server
-            this.socket.on('message', function(obj) {
-               if (obj.type == Socket.MSG_SERVER) {
-                  // A server message, pass it along
-                  self.notify(Socket.MSG_SERVER, obj.msg);
-
-               } else if (obj.type == Socket.MSG_ACK) {
-                  // An acknowledgement of a previously assured message
-                  var f = -1, ack = R.engine.Support.filter(this.awaitingACK, function(a, i) {
-                     if (a.packetNum == obj.packetNum) {
-                        f = i;
-                        return true;
-                     }
-                  });
-
-                  // Acknowledged
-                  if (f != -1) {
-                     if ($.isFunction(ack[0].cb)) {
-                        ack[0].cb(obj.packetNum);
-                     }
-
-                     // No longer waiting for ACK
-                     this.awaitingACK.slice(i,1);
-                  }
-               }
-            });
-
-            // Called when the socket creates a successful connectino
-            this.socket.on('connect', function() {
-               self.ready = true;
-
-               // Send any queued messages
-               while (this.queued.length > 0) {
-                  // First in, first out
-                  self.socket.send(this.queued.shift());
-               }
-               self.notify(Socket.MSG_CONNECT, 'hello');
-            });
-
-            // Disconnected by the server
-            this.socket.on('disconnect', function() {
-               self.ready = false;
-               self.notify(Socket.MSG_DISCONNECT, 'goodbye');
-            });
-
-         };
-
-         /**
-          * Socket connected message type
-          * @type {Number}
-          */
-         Socket.MSG_CONNECT = R.util.SocketUtil.MSG_CONNECT;
-
-         /**
-          * Socket disconnected message type
-          * @type {Number}
-          */
-         Socket.MSG_DISCONNECT = R.util.SocketUtil.MSG_DISCONNECT;
-
-         /**
-          * Socket acknowledges message received and handled type
-          * @type {Number}
-          */
-         Socket.MSG_ACK = R.util.SocketUtil.MSG_ACK;
-
-         /**
-          * Server broadcast message type
-          * @type {Number}
-          */
-         Socket.MSG_SERVER = R.util.SocketUtil.MSG_SERVER;
-
          // Add the socket to the pool
-         pool.push(new Socket(dest, connectionURL));
+         pool.push(new R.Socket(dest, connectionURL));
       }
 
       // Pop the first available socket from the pool and return it
       return pool.pop();
    }
 };
+
+/**
+ * @class A web socket for two-way network communication.  You should not
+ * create an object from this class directly.  Instead, see
+ * {@link R.util.SocketUtil#createSocket}
+ *
+ * @constructor
+ */
+R.Socket = function(/* ident, host */) {
+   this.id = arguments[0];
+   var inf = this.id.split(":");
+   this.socket = new io.Socket(arguments[1], {
+      secure: inf[2] == "1",
+      port: inf[1] == "0" ? undefined : Number(inf[1]),
+      // Really would like to avoid using Flash or ActiveX, if possible...
+      //transports: ['websocket','xhr-multipart','xhr-polling','jsonp-polling','htmlfile','flashsocket']
+      transports: ['websocket','xhr-multipart','xhr-polling','jsonp-polling'],
+      rememberTransport: false
+   });
+   this.packetNum = 1;
+   this.awaitingACK = [];
+   this.queued = [];
+   this.ready = false;
+
+   // Wire handlers into the socket
+   var self = this;
+   //--------------------------------------------------------------------------
+
+   // Received a message from the server
+   this.socket.on('message', function(obj) {
+      if (obj.type == Socket.MSG_SERVER) {
+         // A server message, pass it along
+         self.notify(Socket.MSG_SERVER, obj.msg);
+
+      } else if (obj.type == Socket.MSG_ACK) {
+         // An acknowledgement of a previously assured message
+         var f = -1, ack = R.engine.Support.filter(this.awaitingACK, function(a, i) {
+            if (a.packetNum == obj.packetNum) {
+               f = i;
+               return true;
+            }
+         });
+
+         // Acknowledged
+         if (f != -1) {
+            if ($.isFunction(ack[0].cb)) {
+               ack[0].cb(obj.packetNum);
+            }
+
+            // No longer waiting for ACK
+            self.awaitingACK.slice(i,1);
+         }
+      }
+   });
+
+   // Called when the socket creates a successful connectino
+   this.socket.on('connect', function() {
+      self.ready = true;
+
+      // Send any queued messages
+      while (this.queued.length > 0) {
+         // First in, first out
+         self.socket.send(this.queued.shift());
+      }
+      self.notify(Socket.MSG_CONNECT, 'hello');
+   });
+
+   // Disconnected by the server
+   this.socket.on('disconnect', function() {
+      self.ready = false;
+      self.notify(Socket.MSG_DISCONNECT, 'goodbye');
+   });
+
+};
+
+   /**
+    * Attempt to connect the socket to its destination.  Upon
+    * successful connection, the <tt>listener()</tt> method
+    * attached to the socket will be triggered.
+    */
+R.Socket.prototype.connect = function() {
+      this.socket.connect();
+   };
+
+   /**
+    * Internal method which tells the socket user that something has
+    * occurred.
+    * @param type {Number} The type of message
+    * @param message {String} A string message to pass along
+    * @private
+    */
+   R.Socket.prototype.notify = function(type, message) {
+      if ($.isFunction(self.listener)) {
+         self.listener(type, message);
+      }
+   };
+
+   /**
+    * Call this method to complete all communications with the socket
+    * and return it to the pool.
+    */
+   R.Socket.prototype.done = function() {
+      // See if we're awaiting anything
+      if (this.awaitingACK.length > 0) {
+         // There are guaranteed messages which haven't ACKed yet
+         return false;
+      }
+
+      // Let the server know we're disconnecting (unless they
+      // disconnected us already)
+      if (this.ready) {
+         this.socket.send('goodbye');
+         this.socket.disconnect();
+      }
+
+      // All set, clean up and pool us
+      this.packetNum = 1;
+      this.awaitingACK.length = 0;
+      this.listener = undefined;
+
+      R.util.SocketUtil._socketPool[this.id].push(this);
+   };
+
+   /**
+    * Queues the message if the socket isn't connected yet,
+    * otherwise, sends the message.
+    * @param msg {Object} The message to send
+    * @private
+    */
+   R.Socket.prototype.queueOrSend = function(msg) {
+      // Queue messages if we're not yet connected
+      if (!this.ready) {
+         this.queued.push(msg);
+      } else {
+         this.socket.send(msg);
+      }
+   };
+
+   /**
+    * Send a message without a guarantee that the message was
+    * received or handled by the server.
+    * @param msg {Object} The message to send
+    */
+   R.Socket.prototype.send = function(msg) {
+      var wrap = {
+         ack: R.Socket.TYPE_SEND,
+         message: msg
+      };
+      this.queueOrSend(wrap);
+   };
+
+   /**
+    * Send a broadcast message to the server.  Broadcast messages
+    * are sent to all connected clients and are not guaranteed.
+    * @param msg {Object} The message to send
+    */
+   R.Socket.prototype.broadcast = function(msg) {
+      var wrap = {
+         ack: R.Socket.TYPE_BROADCAST,
+         message: msg
+      };
+      this.queueOrSend(wrap);
+   };
+
+   /**
+    * Sends a message with a guarantee that will be returned by
+    * the server when the message is received.
+    *
+    * @param msg {Object} The message to send
+    * @param [cb] {Function} The callback function, or <tt>null</tt>.
+    * @return {Number} The packet number
+    */
+   R.Socket.prototype.assure = function(msg, cb) {
+      var wrap = {
+         ack: this.packetNum++,
+         message: msg
+      };
+      this.await(wrap.ack, cb);
+      this.queueOrSend(wrap);
+      return wrap.ack;
+   };
+
+   /*
+   Socket.prototype.orderedAssure = function(prev, msg, cb) {
+      var wrap = {
+         ack: this.packetNum++,
+         message: msg
+      };
+
+      var curry = function(ack) {
+         if ()
+      };
+
+      this.await(wrap.ack, curry);
+      this.queueOrSend(wrap);
+      return wrap.ack;
+   };
+   */
+
+   /**
+    * Guaranteed messages awaiting acknowledgement register so their
+    * callback will be triggered.
+    * @param packetNum {Number} The packet number
+    * @param [cb] {Function} the callback
+    * @private
+    */
+   R.Socket.prototype.await = function(packetNum, cb) {
+      this.awaitingACK.push({
+         packet: packetNum,
+         trigger: cb
+      });
+   };
+
+
+/**
+ * Socket connected message type
+ * @type {Number}
+ */
+R.Socket.MSG_CONNECT = R.util.SocketUtil.MSG_CONNECT;
+
+/**
+ * Socket disconnected message type
+ * @type {Number}
+ */
+R.Socket.MSG_DISCONNECT = R.util.SocketUtil.MSG_DISCONNECT;
+
+/**
+ * Socket acknowledges message received and handled type
+ * @type {Number}
+ */
+R.Socket.MSG_ACK = R.util.SocketUtil.MSG_ACK;
+
+/**
+ * Server broadcast message type
+ * @type {Number}
+ */
+R.Socket.MSG_SERVER = R.util.SocketUtil.MSG_SERVER;
+
+R.Socket.TYPE_SEND = -1;
+
+R.Socket.TYPE_BROADCAST = -2;

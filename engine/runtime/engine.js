@@ -7,8 +7,8 @@
  * http://www.renderengine.com for more information.
  *
  * author: Brett Fattori (brettf@renderengine.com)
- * version: v2.0.0
- * date: 4/18/2011
+ * version: v2.0.0.8a
+ * date: 5/23/2011
  *
  * Copyright (c) 2011 Brett Fattori
  *
@@ -2417,7 +2417,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
  * @static
  */
 R.Engine = Base.extend(/** @scope R.Engine.prototype */{
-   version: "v2.0.0",
+   version: "v2.0.0.8a",
    HOME_URL: "http://www.renderengine.com",
    REF_NAME: "The Render Engine",
 
