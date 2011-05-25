@@ -82,7 +82,7 @@ R.resources.types.TileMap = function() {
       },
 
       /**
-       * Destroy the sprite instance
+       * Destroy the tilemap instance
        */
       destroy: function() {
          this.base();
@@ -90,7 +90,7 @@ R.resources.types.TileMap = function() {
       },
 
       /**
-       * Release the sprite back into the pool for reuse
+       * Release the tilemap back into the pool for reuse
        */
       release: function() {
          this.base();
@@ -172,8 +172,10 @@ R.resources.types.TileMap = function() {
        *
        * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the object exists within
        * @param time {Number} The current engine time, in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      update: function(renderContext, time){
+      update: function(renderContext, time, dt){
          if (this.baseTile == null) {
             // Nothing to render yet
             return;

@@ -99,8 +99,7 @@ R.resources.loaders.SpriteLoader = function(){
 		 * @param name {String} The name of the resource
 		 * @param url {String} The URL where the resource is located
 		 */
-		load: function(name, url, info, path){
-		
+		load: function(name, url /*, info, path */){
 			if (url) {
 				var loc = window.location;
 				if (url.indexOf(loc.protocol) != -1 && url.indexOf(loc.host) == -1) {
@@ -119,6 +118,7 @@ R.resources.loaders.SpriteLoader = function(){
 				});
 			}
 			else {
+            var info = arguments[2], path = arguments[3];
 				info.bitmapImage = path + info.bitmapImage;
 				R.debug.Console.info("Loading sprite: " + name + " @ " + info.bitmapImage);
 				

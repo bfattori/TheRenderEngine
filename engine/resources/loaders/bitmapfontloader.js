@@ -63,7 +63,7 @@ R.resources.loaders.BitmapFontLoader = function(){
 		 * @param name {String} The name of the resource
 		 * @param url {String} The URL where the resource is located
 		 */
-		load: function(name, url, info){
+		load: function(name, url /*, info */){
 		
 			// The bitmap is in the same path
 			var path = R.Engine.getEnginePath() + "/fonts/";
@@ -83,6 +83,7 @@ R.resources.loaders.BitmapFontLoader = function(){
 				});
 			}
 			else {
+            var info = arguments[2];
 				R.debug.Console.log("Loading font: " + name + " @ " + path + info.bitmapImage);
 				
 				// Store the font info

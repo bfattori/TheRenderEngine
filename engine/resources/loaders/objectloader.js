@@ -64,9 +64,8 @@ R.resources.loaders.ObjectLoader = function(){
 		 *
 		 * @param name {String} The name of the resource
 		 * @param url {String} The URL where the resource is located
-		 * @param obj {Object} The object that was loaded
 		 */
-		load: function(name, url, obj){
+		load: function(name, url /*, obj */){
 		
 			if (url) {
 				var loc = window.location;
@@ -84,7 +83,7 @@ R.resources.loaders.ObjectLoader = function(){
 			}
 			else {
 				// The object has been loaded and is ready for use
-            this.afterLoad(name, this.base(name, obj, true));
+            this.afterLoad(name, this.base(name, arguments[2], true));
 			}
 		},
 

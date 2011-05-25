@@ -49,13 +49,8 @@ R.Engine.define({
  *        image are updated.  The best usage of this component is for infrequently
  *        changing vector drawn objects.  For example:
  *        <pre>
- *  constructor: function(size, position, pWidth, pHeight) {
- *     this.base("Spaceroid");
- *
- *     // Add components to move and draw the asteroid
- *     this.add(R.components.Mover2D.create("move"));
+ *     // Add component to draw the object
  *     this.add(R.components.Billboard2D.create("draw", R.components.Vector2D.create("vector")));
- *     this.add(R.components.Collider.create("collider", Spaceroids.collisionModel));
  *        </pre>
  *        Accessing the <tt>R.components.Vector2D</tt> within the <tt>R.components.Billboard2D</tt>
  *        is as simple as calling {@link #getComponent}.  If the contents of the linked
@@ -64,6 +59,7 @@ R.Engine.define({
  *
  *
  * @param name {String} The name of the component
+ * @param renderComponent {R.components.Render} A render component to create the billboard from
  * @param priority {Number} The priority of the component between 0.0 and 1.0
  * @constructor
  * @extends R.components.Render

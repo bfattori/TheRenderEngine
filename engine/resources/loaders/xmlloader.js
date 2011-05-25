@@ -61,9 +61,8 @@ R.resources.loaders.XMLLoader = function(){
 		 *
 		 * @param name {String} The name of the resource
 		 * @param url {String} The URL where the resource is located
-		 * @param doc {Object} The document that was loaded
 		 */
-		load: function(name, url, doc){
+		load: function(name, url /*, doc */){
 		
 			if (url) {
 				Assert(url.indexOf("http") == -1, "XML must be located relative to this server");
@@ -77,8 +76,8 @@ R.resources.loaders.XMLLoader = function(){
 			}
 			else {
 				// The object has been loaded and is ready for use
-				this.setReady(true);
-				this.base(name, doc);
+				this.setReady(name);
+				this.base(name, arguments[2]);
 			}
 		},
 		
