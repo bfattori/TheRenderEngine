@@ -68,7 +68,7 @@ R.math.Circle2D = function(){
 		 * Destroy the instance of the circle
 		 */
 		destroy: function(){
-			this.center.destroy();
+			//this.center.destroy();
 			this.base();
 		},
 		
@@ -176,16 +176,11 @@ R.math.Circle2D = function(){
 		 * @return {Boolean} <tt>true</tt> if the two circles intersect.
 		 */
 		isIntersecting: function(circle){
-			// Square root is slow...
-			//var d = this.getCenter().dist(circle.getCenter());
-			//return (d <= (this.getRadius() + circle.getRadius())); 
-			
-			// Faster
 			var c1 = this.getCenter();
 			var c2 = circle.getCenter();
-			var dX = Math.pow(c1.x - c2.x, 2);
-			var dY = Math.pow(c1.y - c2.y, 2);
-			var r2 = Math.pow(this.getRadius() + circle.getRadius(), 2);
+			var dX = (c1.x - c2.x) * (c1.x - c2.x);
+			var dY = (c1.y - c2.y) * (c1.y - c2.y);
+			var r2 = (this.getRadius() + circle.getRadius()) * (this.getRadius() + circle.getRadius());
 			return (dX + dY <= r2);
 		},
 		

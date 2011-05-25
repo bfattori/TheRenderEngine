@@ -356,7 +356,7 @@ R.components.Collider = function() {
             var collisionsReported = 0;
 
             pclNodes.forEach(function(node) {
-               for (var itr = R.lang.Iterator.create(node.getObjects()); itr.hasNext(); ) {
+               for (var itr = node.getObjects().iterator(); itr.hasNext(); ) {
                   if (this.isDestroyed()) {
                      // If the object is destroyed while we're checking collisions against it,
                      // get outta here

@@ -462,8 +462,9 @@ var Spaceroids = function() {
          // Create the 2D context
          this.fieldBox = R.math.Rectangle2D.create(0, 0, this.fieldWidth, this.fieldHeight);
          this.centerPoint = this.fieldBox.getCenter();
-         this.renderContext = R.rendercontexts.LayeredContext.create("layered",
-               R.rendercontexts.CanvasContext.create("playfield", this.fieldWidth, this.fieldHeight));
+//         this.renderContext = R.rendercontexts.LayeredContext.create("layered",
+//               R.rendercontexts.CanvasContext.create("playfield", this.fieldWidth, this.fieldHeight));
+         this.renderContext = R.rendercontexts.CanvasContext.create("playfield", this.fieldWidth, this.fieldHeight);
 
          this.renderContext.setWorldScale(this.areaScale);
          R.Engine.getDefaultContext().add(this.renderContext);

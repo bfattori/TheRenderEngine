@@ -88,7 +88,7 @@ R.collision.broadphase.AbstractCollisionNode = function(){
 		 * @return {R.struct.Container} Objects in the node
 		 */
 		getObjects: function(){
-			return this.objects.getObjects();
+			return this.objects;
 		},
 		
 		/**
