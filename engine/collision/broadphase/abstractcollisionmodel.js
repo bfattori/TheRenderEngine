@@ -165,7 +165,7 @@ R.collision.broadphase.AbstractCollisionModel = function(){
 					return;
 				}
 			}
-			
+
 			// Find the node by position and add the object to it
 			var node = this.findNodePoint(p);
 			if (node != null) {

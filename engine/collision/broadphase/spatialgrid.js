@@ -126,6 +126,59 @@ R.collision.broadphase.SpatialGrid = function() {
          this.accuracy = 0;
       },
 
+      /*
+      addObject: function(obj, point) {
+         var oldNodes = this.getObjectSpatialData(obj, "nodes"), wb = obj.getWorldBox();
+         if (oldNodes != null) {
+            // See if the object's world box is still in all of the nodes
+            var full = R.math.Rectangle2D.create(oldNodes[0].getRect()), n;
+            for (n = 1; n < oldNodes.length; n++) {
+               full.join(oldNodes[n].getRect());
+            }
+            if (!full.containsRect(wb)) {
+               // The object is not within the same nodes
+               for (n = 0; n < oldNodes.length; n++) {
+                  oldNodes.removeObject(obj);
+               }
+            } else {
+               // The object is in the same nodes
+               full.destroy();
+               return;
+            }
+         }
+
+         // Find the nodes which contain the world box
+         var pt = R.math.Point2D.create(0,0), tlNode = this.findNodePoint(pt.set(wb.x, wb.y)),
+             trNode = this.findNodePoint(pt.set(wb.x, wb.r)),
+             blNode = this.findNodePoint(pt.set(wb.x, wb.b)),
+             brNode = this.findNodePoint(pt.set(wb.r, wb.b)), addTo = [];
+
+         if (tlNode != null) {
+            tlNode.addObject(obj);
+            addTo.push(tlNode);
+         }
+         if (trNode != null) {
+            trNode.addObject(obj);
+            addTo.push(trNode);
+         }
+         if (blNode != null) {
+            blNode.addObject(obj);
+            addTo.push(blNode);
+         }
+         if (brNode != null) {
+            brNode.addObject(obj);
+            addTo.push(brNode);
+         }
+
+         if (addTo.length != 0) {
+            this.setObjectSpatialData(obj, "nodes", addTo);
+         }
+
+         pt.destroy();
+         full.destroy();
+      },
+      */
+      
       /**
        * Set the accuracy of the collision checks to either {@link #GOOD_ACCURACY},
        * {@link #BETTER_ACCURACY}, or {@link #HIGH_ACCURACY}.  See {@link #getPCL} for
