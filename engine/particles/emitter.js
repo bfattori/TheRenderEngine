@@ -41,10 +41,14 @@ R.Engine.define({
 
 /**
  * @class Particle emitter class.  A particle emitter emits particles at a regular
- *    interval as long as it is active.
+ *    interval as long as it is active.  The function that is passed to generate
+ *    the particles will be called with three arguments: an offset position, the
+ *    current world time, and the delta from when the last frame was drawn.  The function
+ *    can either return a single particle or an <code>Array</code> of particles.
+ *    Within the scope of the function, "this" refers to the {@link R.particles.Emitter}
+ *    object.
  *
- * @param emitFunc {Function} A function that emits a new particle.  The function will be passed
- *    the current world time and the delta to when the last frame was drawn.
+ * @param emitFunc {Function} A function that emits new particles.
  * @param interval {Number} The time between emissions
  * @param [active] {Boolean} A flag indicating whether the emitter should emit particles
  * @extends R.engine.PooledObject
@@ -134,7 +138,12 @@ R.particles.Emitter = function(){
 		emit: function(offset, time, dt){
          if (this.active && time > this.nextEmit) {
             this.nextEmit = time + this.interval;
-            this.engine.addParticle(this.emitFn(offset, time, dt));
+            var particles = this.emitFn.call(this, offset, time, dt);
+            if (particles.length) {
+               this.engine.addParticles(particles);
+            } else {
+               this.engine.addParticle(particles);
+            }
          }
 		}
 

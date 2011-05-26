@@ -102,6 +102,14 @@ R.components.render.ParticleEmitter = function() {
       },
 
       /**
+       * Set the active state of the particle emitter.
+       * @param state {Boolean} <code>true</code> to set the emitter to generate particles
+       */
+      setActive: function(state) {
+         this.emitter.setActive(state);
+      },
+
+      /**
        * Set the offset, from the rendering origin, where the particles are emitted
        * from.  This will default to the rendering origin.
        * @param ptOrX {Number|R.math.Point2D} The X offset, or a point

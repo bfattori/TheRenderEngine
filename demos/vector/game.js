@@ -165,11 +165,6 @@ var Spaceroids = function() {
          this.cleanupPlayfield();
          Spaceroids.isAttractMode = true;
 
-         if (R.engine.Support.sysInfo().browser == "chrome") {
-            // Chrome can handle a lot of particles
-            this.pEngine.setMaximum(5000);
-         }
-
          this.pEngine.setFadeRate(0.5);
 
          var pWidth = this.fieldWidth;
@@ -343,11 +338,6 @@ var Spaceroids = function() {
          this.playerObj = SpaceroidsPlayer.create();
          this.renderContext.add(this.playerObj);
          this.playerObj.setup();
-
-         if (R.engine.Support.sysInfo().browser == "chrome") {
-            // Chrome can handle a LOT!
-            this.pEngine.setMaximum(5000);
-         }
 
          this.addHiScore();
          this.addScore();

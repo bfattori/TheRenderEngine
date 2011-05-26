@@ -38,6 +38,7 @@ R.Engine.define({
       "R.components.render.Vector2D",
       "R.components.input.Keyboard",
       "R.components.collision.Convex",
+      "R.components.render.ParticleEmitter",
       "R.engine.Object2D",
       "R.struct.Container",
       "R.math.Math2D",
@@ -76,8 +77,29 @@ var SpaceroidsPlayer = function() {
             this.getComponent("input").startRecording();
          }
 
-         // Add the drawing components for ship and thrust
+         // Add the drawing components for ship
          this.add(R.components.render.Vector2D.create("draw"));
+
+         // Create the "nuke" emitter
+         var self = this, emitter = R.particles.Emitter.create(function(offset, time) {
+            if (!this._initialTime) {
+               // Store a bit of state on the emitter
+               this._initialTime = time;
+            }
+
+            // Create particles
+            var particles = [];
+            for (var p = 0; p < 4; p++) {
+               particles.push(TrailParticle.create(self.getRenderPosition(),
+               self.getRotation(), 350, SpaceroidsPlayer.NUKE_COLORS[(time - this._initialTime) % 3], 1500));
+            }
+            return particles;
+
+         }, 10, false);
+         emitter.setParticleEngine(Spaceroids.pEngine);
+
+         // Add the particle emitter component for the "nuking" effect
+         this.add(R.components.render.ParticleEmitter.create("emitter", emitter));
 
          // Set up collision component (convex hull [SAT])
          this.add(R.components.collision.Convex.create("collider", Spaceroids.collisionModel));
@@ -88,7 +110,7 @@ var SpaceroidsPlayer = function() {
          this.alive = true;
          this.rotDir = 0;
          this.thrusting = false;
-         this.nukes = 0;	// Have to earn your nukes
+         this.nukes = 1;	// Have to earn your nukes
          this.nuking = false;
          this.setZIndex(1);
       },
@@ -381,25 +403,20 @@ var SpaceroidsPlayer = function() {
          // So they are pulled toward the player gradually
          var self = this;
 
-         // Make some particles for the effect
-         var t = R.lang.MultiTimeout.create("particles", 3, 280, function(rep) {
-            var n = R.struct.Container.create();
-            for (var x = 0; x < 60; x++) {
-               n.add(TrailParticle.create(self.getPosition(), self.getRotation(), 350, SpaceroidsPlayer.NUKE_COLORS[rep], 1500));
-            }
-            Spaceroids.pEngine.addParticles(n);
-         });
+         // Activate the emitter
+         this.getComponent("emitter").setActive(true);
 
-         // Timing is everything
-         var t = R.lang.Timeout.create("nukerocks", 850, function() {
+         // Blow up the asteroids
+         R.lang.Timeout.create("nukerocks", 850, function() {
             this.destroy();
 
-            var rocks = Spaceroids.collisionModel.getObjectsOfType(SpaceroidsRock);
-            rocks.forEach(function(r) {
-               r.kill();
-            });
-            rocks.destroy();
+            R.engine.Support.forEach(Spaceroids.collisionModel.getObjectsOfType(SpaceroidsRock),
+               function(r) {
+                  r.kill();
+               });
 
+            // Turn off the emitter
+            self.getComponent("emitter").setActive(false);
             self.nuking = false;
          });
 
@@ -412,6 +429,10 @@ var SpaceroidsPlayer = function() {
        */
       onKeyDown: function(charCode, keyCode, ctrlKey, altKey, shiftKey, event) {
          if (!this.alive) {
+            return;
+         }
+
+         if (this.nuking) {
             return;
          }
 
@@ -489,7 +510,7 @@ var SpaceroidsPlayer = function() {
       ],
 
       TRAIL_COLORS: ["red", "orange", "yellow", "white", "lime"],
-      NUKE_COLORS: ["#1111ff", "#8833ff", "#ffff00"],
+      NUKE_COLORS: ["#1111ff", "#ff3300", "#ffff00"],
       KILL_PARTICLES: 40,
 
       COLLISION_MASK: R.lang.Math2.parseBin("010")

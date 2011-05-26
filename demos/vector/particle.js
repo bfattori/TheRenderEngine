@@ -110,7 +110,12 @@ var SimpleParticle = function() {
                colr = 255;
             }
 
-            rgba = "rgb(" + colr + "," + colr + "," + colr + ")";
+            if (R.lang.Math2.randomRange(0, 100, true) < 45) {
+               // 45% chance to get some red particles in there
+               rgba = "rgb(" + colr + ",0,0)";
+            } else {
+               rgba = "rgb(" + colr + "," + colr + "," + colr + ")";
+            }
          } else {
             rgba = "rgb(255,255,255)";
          }
@@ -230,7 +235,7 @@ var RockTrailParticle = function() {
          var colr,rgba;
          var s = time - this.getBirth();
          var e = this.getTTL() - this.getBirth();
-         colr = 180 - Math.floor(180 * (s / e));
+         colr = 90 - Math.floor(90 * (s / e));
          colr += (-10 + (Math.floor(R.lang.Math2.random() * 20)));
 
          rgba = "rgb(" + colr + "," + colr + "," + colr + ")";

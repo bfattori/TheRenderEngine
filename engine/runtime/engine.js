@@ -4310,23 +4310,24 @@ R.debug.Console.startup();
 
 // Default engine options
 R.Engine.defaultOptions = {
-   skipFrames: true,													// Skip missed frames
-   billboards: true,													// Use billboards to speed up rendering
-   textUseBillboards: true,										// Text will use billboards unless platform doesn't support
-   hardwareAccel: false,											// Hardware acceleration supported flag
-   pointAsArc: true,													// Draw points as arcs or rectangles
-	transientMathObject: false,									// Transient (non-pooled) MathObjects
-	useDirtyRectangles: false,										// Enable canvas dirty rectangles redraws
-   nativeAnimationFrame: true,                           // Enable the use of "requestAnimationFrame" for faster redraws
-   disableParticleEngine: false,                         // Disable the particle engine (if used)
-   "useVirtualControlPad": false,                        // Disable the display of the virtual control pad (for touch)
-   "virtualPad": {                                       // Virtual d-pad mappings
+   "skipFrames": true,													// Skip missed frames
+   "billboards": true,													// Use billboards to speed up rendering
+   "textUseBillboards": true,										   // Text will use billboards unless platform doesn't support
+   "hardwareAccel": false,											   // Hardware acceleration supported flag
+   "pointAsArc": true,													// Draw points as arcs or rectangles
+	"transientMathObject": false,									   // Transient (non-pooled) MathObjects
+	"useDirtyRectangles": false,										// Enable canvas dirty rectangles redraws
+   "nativeAnimationFrame": true,                            // Enable the use of "requestAnimationFrame" for faster redraws
+   "disableParticleEngine": false,                          // Disable the particle engine (if used)
+   "maxParticles": 250,                                     // Default maximum for particles
+   "useVirtualControlPad": false,                           // Disable the display of the virtual control pad (for touch)
+   "virtualPad": {                                          // Virtual d-pad mappings
       "up": "R.engine.Events.KEYCODE_UP_ARROW",
       "down": "R.engine.Events.KEYCODE_DOWN_ARROW",
       "left": "R.engine.Events.KEYCODE_LEFT_ARROW",
       "right": "R.engine.Events.KEYCODE_RIGHT_ARROW"
    },
-   "virtualButtons": {                                   // Virtual control button mappings
+   "virtualButtons": {                                      // Virtual control button mappings
       "A": "A",
       "B": "B",
       "C": "C"

@@ -257,7 +257,16 @@ R.math.Point2D = function(){
          this.x = v.elements[0]; this.y = v.elements[1];
 			return this;
 		},
-		
+
+      jitter: function(amt) {
+         var j = R.math.Point2D.create(R.lang.Math2.randomRange(-amt,amt,true),
+             R.lang.Math2.randomRange(-amt,amt,true));
+
+         this.add(j);
+         j.destroy();
+         return this;
+      },
+
 		/**
 		 * Returns a printable version of this object fixed to two decimal places.
 		 * @return {String} Formatted as "x,y"

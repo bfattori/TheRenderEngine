@@ -172,7 +172,7 @@ var SpaceroidsRock = function() {
                       rMtx = R.math.Math2D.rotationMatrix(self.getRotation());
 
                   // Transform the position of the particle
-                  R.math.Math2D.transformPoints(pt, rMtx);
+                  R.math.Math2D.transformPoints(pt.jitter(4), rMtx);
                   rp.add(pt);
 
                   // Create a particle

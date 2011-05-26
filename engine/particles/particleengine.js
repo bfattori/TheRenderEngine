@@ -44,20 +44,24 @@ R.Engine.define({
  * @class The particle engine is a system for updating and expiring
  *        particles within a game environment.  This is registered with the
  *        render context so it will be updated at regular intervals.  The maximum
- *        number of supported particles can be configured, but defaults to 120.
+ *        number of supported particles can be configured, but defaults to 250.
+ *        It is possible to run multiple particle engines within a render context.
  *        <p/>
  *        Particles should be simple objects which don't need to perform many
  *        calculations before being drawn.  All particles are rendered in world
  *        coordinates to speed up processing.
  *        <p/>
- *        It is possible to run multiple particle engines within a render context,
- *        but it might be non-productive to do so.
- *        <p/>
- *        A word of caution: <em>Using a particle engine will slow down your frame
+ *        A word of caution: <em>Using a particle engine will potentially slow down your frame
  *        rate depending on the amount of particles per frame.</em> While care has
  *        been taken to make the particle engine run as fast as possible, it is
- *        not uncommon to see a significant drop in frame rate when using a
- *        particle engine.
+ *        not uncommon to see a significant drop in frame rate when using a lot of
+ *        particles.
+ *        <p/>
+ *        You can modify the maximum number of particles the engine will allow
+ *        with the <code>R.Engine.options["maxParticles"]</code> setting.  Each
+ *        browser has been tailored for the best performance, but this values
+ *        can be changed in your game with either {@link #setMaximum} or by
+ *        changing the engine option.
  *
  * @extends R.engine.BaseObject
  * @constructor
@@ -76,7 +80,7 @@ R.particles.ParticleEngine = function() {
       constructor: function() {
          this.base("ParticleEngine");
          this.particles = R.struct.Container.create();
-         this.maximum = R.particles.ParticleEngine.MAX_PARTICLES;
+         this.maximum = R.Engine.options["maxParticles"];
          this.liveParticles = 0;
       },
 
@@ -108,7 +112,7 @@ R.particles.ParticleEngine = function() {
       addParticles: function(particles) {
          if ($.isArray(particles)) {
             // If the particles are an Array, convert to a LinkedList first
-            particles = R.struct.LinkedList.fromArray(particles);
+            particles = R.struct.Container.fromArray(particles);
          }
 
          if (R.Engine.options.disableParticleEngine) {
@@ -178,7 +182,10 @@ R.particles.ParticleEngine = function() {
       },
 
       /**
-       * Set the absolute maximum number of particles the engine will allow.
+       * Set the absolute maximum number of particles the engine will allow.  The
+       * engine is configured with a maximum number in <code>R.Engine.options["maxParticles"]</code>.
+       * You can override this value using configurations also.
+       * 
        * @param maximum {Number} The maximum particles the particle engine allows
        */
       setMaximum: function(maximum) {
@@ -271,15 +278,7 @@ R.particles.ParticleEngine = function() {
        */
       getClassName: function() {
          return "R.particles.ParticleEngine";
-      },
-
-      /**
-       * Default maximum number of particles in the system. To change
-       * the value, see {@link R.particles.ParticleEngine#setMaximum}
-       * @type Number
-       */
-      MAX_PARTICLES: 120
-
+      }
    });
 
 };
