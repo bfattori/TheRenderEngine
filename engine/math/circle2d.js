@@ -56,9 +56,11 @@ R.math.Circle2D = function(){
 	
 		center: null,
 		radius: 0,
+      __CIRCLE2D: true,
 		
 		/** @private */
 		constructor: function(x, y, radius){
+         this.__CIRCLE2D = true;
 			this.center = R.math.Point2D.create(0, 0);
 			this.radius = 0;
 			this.set(x, y, radius);
@@ -68,7 +70,9 @@ R.math.Circle2D = function(){
 		 * Destroy the instance of the circle
 		 */
 		destroy: function(){
-			//this.center.destroy();
+         if (this.center) {
+			   this.center.destroy();
+         }
 			this.base();
 		},
 		
@@ -89,7 +93,7 @@ R.math.Circle2D = function(){
 		 * @param radius {Number} An optional value to initialize the radius
 		 */
 		set: function(x, y, radius){
-			if (x instanceof R.math.Circle2D) {
+			if (x.__CIRCLE2D) {
 				this.center.set(x.getCenter());
 				this.radius = x.getRadius();
 			}

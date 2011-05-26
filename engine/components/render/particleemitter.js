@@ -46,6 +46,7 @@ R.Engine.define({
  *    to link a particle emitter to a game object.
  *
  * @param name {String} The name of the component
+ * @param emitter {R.particles.Emitter} The particle emitter to use with the component
  * @param [priority=0.1] {Number} The render priority
  * @extends R.components.Render
  * @constructor
@@ -60,11 +61,7 @@ R.components.render.ParticleEmitter = function() {
       /**
        * @private
        */
-      constructor: function(name, priority, emitter) {
-         if (priority instanceof R.particles.Emitter) {
-            emitter = priority;
-            priority = 0.1;
-         }
+      constructor: function(name, emitter, priority) {
          this.base(name, priority);
          this.emitter = emitter;
          this.offset = R.math.Point2D.create(0,0);
@@ -137,8 +134,7 @@ R.components.render.ParticleEmitter = function() {
 
          if (this.emitter) {
             this.transformOrigin(renderContext, true);
-            renderContext.setPosition(this.offset);
-            this.emitter.emit(time, dt);
+            this.emitter.emit(this.getOffset(), time, dt);
             this.transformOrigin(renderContext, false);
          }
       }

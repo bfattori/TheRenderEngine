@@ -192,3 +192,56 @@ var TrailParticle = function() {
       }
    });
 };
+
+R.Engine.define({
+   "class": "RockTrailParticle",
+   "requires": [
+      "R.particles.AbstractParticle",
+      "R.math.Math2D"
+   ]
+});
+
+/**
+ * @class A particle emitted by the asteroids
+ */
+var RockTrailParticle = function() {
+   return R.particles.AbstractParticle.extend(/** @scope RockTrailParticle.prototype */{
+
+      constructor: function(pos, ttl) {
+         this.base(ttl || 2000);
+         this.setPosition(pos);
+      },
+
+      release: function() {
+         this.base();
+         this.decel = 0;
+      },
+
+      /**
+       * Called by the particle engine to draw the particle to the rendering
+       * context.
+       *
+       * @param renderContext {RenderContext} The rendering context
+       * @param time {Number} The engine time in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
+       */
+      draw: function(renderContext, time, dt) {
+         var colr,rgba;
+         var s = time - this.getBirth();
+         var e = this.getTTL() - this.getBirth();
+         colr = 180 - Math.floor(180 * (s / e));
+         colr += (-10 + (Math.floor(R.lang.Math2.random() * 20)));
+
+         rgba = "rgb(" + colr + "," + colr + "," + colr + ")";
+
+         renderContext.setFillStyle(rgba);
+         renderContext.drawPoint(this.getPosition());
+      }
+
+   }, {
+      getClassName: function() {
+         return "RockTrailParticle";
+      }
+   });
+};
