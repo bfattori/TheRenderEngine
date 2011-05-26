@@ -38,7 +38,6 @@ R.Engine.define({
    "class": "Spaceroids",
    "requires": [
       "R.engine.Game",
-      "R.rendercontexts.LayeredContext2D",
       "R.rendercontexts.CanvasContext",
       "R.collision.broadphase.SpatialGrid",
       "R.text.TextRenderer",
