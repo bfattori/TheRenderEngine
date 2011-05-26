@@ -38,7 +38,6 @@ R.Engine.define({
    "class": "Spaceroids",
    "requires": [
       "R.engine.Game",
-      "R.rendercontexts.LayeredContext",
       "R.rendercontexts.CanvasContext",
       "R.collision.broadphase.SpatialGrid",
       "R.text.TextRenderer",
@@ -60,6 +59,7 @@ R.Engine.define({
       "SpaceroidsBullet",
       "SimpleParticle",
       "TrailParticle",
+      "RockTrailParticle",
       "SpaceroidsUFO"
    ]
 });
@@ -448,7 +448,7 @@ var Spaceroids = function() {
          //R.debug.Profiler.start();
 
          //R.Engine.setDebugMode(true);
-         R.debug.Metrics.showMetrics();
+         //R.debug.Metrics.showMetrics();
 
          if (options.disableParticles) {
             R.Engine.options.disableParticleEngine = true;
@@ -462,8 +462,6 @@ var Spaceroids = function() {
          // Create the 2D context
          this.fieldBox = R.math.Rectangle2D.create(0, 0, this.fieldWidth, this.fieldHeight);
          this.centerPoint = this.fieldBox.getCenter();
-//         this.renderContext = R.rendercontexts.LayeredContext.create("layered",
-//               R.rendercontexts.CanvasContext.create("playfield", this.fieldWidth, this.fieldHeight));
          this.renderContext = R.rendercontexts.CanvasContext.create("playfield", this.fieldWidth, this.fieldHeight);
 
          this.renderContext.setWorldScale(this.areaScale);
@@ -513,6 +511,10 @@ var Spaceroids = function() {
          if (R.engine.Support.checkBooleanParam("playback")) {
             Spaceroids.playDemo();
             return;
+         }
+
+         if (R.engine.Support.checkBooleanParam("blur")) {
+            this.pEngine.setBlur(true);
          }
 
          R.lang.Timeout.create("wait", 150, function() {

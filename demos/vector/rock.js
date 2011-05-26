@@ -36,8 +36,9 @@ R.Engine.define({
    "requires": [
       "R.components.transform.Mover2D",
       "R.components.render.Vector2D",
-      "R.components.render.Billboard2D",
       "R.components.collision.Convex",
+      "R.components.render.ParticleEmitter",
+      "R.particles.Emitter",
       "R.engine.Object2D",
       "R.struct.Container",
       "R.math.Math2D"
@@ -72,6 +73,8 @@ var SpaceroidsRock = function() {
          if (Spaceroids.isAttractMode) {
             // In attract mode, rocks can collide
             this.getComponent("collider").setCollideSame(true);
+         } else {
+            this.add(R.components.render.ParticleEmitter.create("particles"));
          }
 
          // Set size and position
@@ -157,6 +160,34 @@ var SpaceroidsRock = function() {
          c_draw.setLineStyle("white");
          c_draw.setLineWidth(0.8);
 
+         // Only add the particle emitter if this isn't attract mode
+         if (!Spaceroids.isAttractMode) {
+            var rr = R.lang.Math2.randomRange(0,100,true);
+            if (rr < 25) {
+               // 25% chance a rock will get an emitter
+               var self = this, emitter = R.particles.Emitter.create(function(offset) {
+                  // Create the transformation
+                  var pt = R.math.Point2D.create(offset),
+                      rp = R.math.Point2D.create(self.getRenderPosition()),
+                      rMtx = R.math.Math2D.rotationMatrix(self.getRotation());
+
+                  // Transform the position of the particle
+                  R.math.Math2D.transformPoints(pt, rMtx);
+                  rp.add(pt);
+
+                  // Create a particle
+                  var particle = RockTrailParticle.create(rp, 500);
+                  pt.destroy();
+                  rp.destroy();
+                  return particle;
+
+               }, 30);
+               emitter.setParticleEngine(Spaceroids.pEngine);
+               this.getComponent("particles").setEmitter(emitter);
+               this.getComponent("particles").setOffset(s[0]);
+            }
+         }
+
          // Set the bounding box, collision hull, and origin
          this.setOrigin(c_draw.getCenter());
          this.setCollisionHull(c_draw.getConvexHull());
@@ -172,7 +203,7 @@ var SpaceroidsRock = function() {
 
          // Pick a random rotation and spin speed
          c_mover.setRotation(Math.floor(R.lang.Math2.random() * 360));
-         c_mover.setAngularVelocity(Math.floor(R.lang.Math2.random() * 10) > 5 ? 0.2 : -0.2);
+         c_mover.setAngularVelocity(Math.floor(R.lang.Math2.random() * 10) > 5 ? 3 : -3);
 
          // Select a random direction
          var vec = R.math.Math2D.getDirectionVector(R.math.Point2D.ZERO, R.math.Vector2D.UP, Math.floor(R.lang.Math2.random() * 360));

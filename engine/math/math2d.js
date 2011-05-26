@@ -565,16 +565,20 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
    },
 
 	/**
-	 * Transform all of the points by the given matrix.  This method
-	 * transforms all of the points in the array by mutating the points.
-	 * @param points {Array} An array of {@link R.math.Point2D}
+	 * Transform a point or an array of points by the given matrix.  This method
+	 * transforms the points by mutating them.
+	 * @param points {R.math.Point2D|Array} A single point or an array of {@link R.math.Point2D}
 	 * @param matrix {Matrix} The matrix to transform the points with
 	 */
 	transformPoints: function(points, matrix) {
-		for (var pt = 0; pt < points.lengt; pt++) {
-			points[pt].transform(matrix);
-		}
-		return points;
+      if (points.length) {
+         for (var pt = 0; pt < points.length; pt++) {
+            points[pt].transform(matrix);
+         }
+         return points;
+      } else {
+         return points.transform(matrix);
+      }
 	},
 	
 	/**
@@ -622,7 +626,7 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
 				[0,0,1]
 			]);
 			// Rotate
-			rMtx = rMtx.multiply(Matrix.Rotation(R.math.Math2D.degToRad(a), $V([0,0,1])));
+			rMtx = rMtx.multiply(Matrix.Rotation(R.math.Math2D.degToRad(angle), $V([0,0,1])));
 			// Move the origin back
 			rMtx = rMtx.multiply($M([
 				[1,0,-origin.x],
