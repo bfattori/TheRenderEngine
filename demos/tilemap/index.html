@@ -5,13 +5,10 @@
 <!--
    /**
     * The Render Engine
-    * SpriteTest
+    * TilemapDemo
     *
     * This example tests the sprite engine and its capabilities.  It also
-    * shows off the scrolling background context.  The example is a simple
-    * implementation of the first level of Super Mario Bros (c)Nintendo
-    * Corporation.  The images used in this example were acquired via the
-    * Internet.
+    * shows off the Level editor.
     *
     *
     * @author: Brett Fattori (brettf@renderengine.com)
@@ -44,7 +41,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
    <head>
-      <title>The Render Engine - Super Mario Brothers Clone</title>
+      <title>The Render Engine - Tilemap Demo</title>
 
       <!-- Supporting Libraries -->
       <script type="text/javascript" src="../../engine/libs/base.js"></script>
@@ -59,19 +56,8 @@
       <script type="text/javascript">
       	$(document).ready(function() {
 	         // Load the game script
-	         R.Engine.loadGame('game.js','SpriteDemo', 'Sprite Game Demo');
+	         R.Engine.loadGame('game.js','TilemapDemo', 'Tile Map Demo');
 			});
-      </script>
-
-      <!-- Track demo views via Google Analytics -->
-      <script type="text/javascript">
-         var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-         document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-      </script>
-      <script type="text/javascript">
-         var pageTracker = _gat._getTracker("UA-3494542-3");
-         pageTracker._initData();
-         pageTracker._trackPageview();
       </script>
    </body>
 </html>
