@@ -126,6 +126,13 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 	 * @memberOf R.engine.Script
 	 */
 	ajaxLoad: function(path, data, callback) {
+      /* pragma:DEBUG_START */
+      // If we're in debug mode, force the browser to grab the latest
+      if (R.Engine.getDebugMode()) {
+         path += (path.indexOf("?") == -1 ? "?" : "&") + "_debug=" + R.now();
+      }
+      /* pragma:DEBUG_END */
+
 		// Use our own internal method to load a file with the JSON
 		// data.  This way, we don't fail silently when loading a file
 		// that doesn't exist.
@@ -317,6 +324,13 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 	         R.engine.Script.callbacks[simplePath] = cb;
 	      }
 
+         /* pragma:DEBUG_START */
+         // If we're in debug mode, force the browser to grab the latest
+         if (R.Engine.getDebugMode()) {
+            scriptPath += (scriptPath.indexOf("?") == -1 ? "?" : "&") + "_debug=" + R.now();
+         }
+         /* pragma:DEBUG_END */
+
          if ($.browser.Wii) {
 
             $.get(scriptPath, function(data) {
@@ -359,7 +373,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
                   R.debug.Console.debug("Loaded '" + sPath + "'");
                   R.engine.Script.handleScriptDone();
                   if ($.isFunction(callBack)) {
-                  	R.debug.Console.debug("Callback for '" + sPath + "'");
+                  	R.debug.Console.info("Callback for '" + sPath + "'");
                      callBack(simplePath, R.engine.Script.SCRIPT_LOADED);
                      
                      // Delete the callback
@@ -656,6 +670,14 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     */
    loadStylesheet: function(stylesheetPath, relative, noInject) {
       stylesheetPath = (relative ? "" : R.Engine.getEnginePath()) + stylesheetPath;
+
+      /* pragma:DEBUG_START */
+      // If we're in debug mode, force the browser to grab the latest
+      if (R.Engine.getDebugMode()) {
+         stylesheetPath += (stylesheetPath.indexOf("?") == -1 ? "?" : "&") + "_debug=" + R.now();
+      }
+      /* pragma:DEBUG_END */
+
       var f = function() {
 			if (noInject) {
 				$("head", document).append($("<link type='text/css' rel='stylesheet' href='" + stylesheetPath + "'/>"));	

@@ -120,8 +120,7 @@ var Spaceroids = function() {
        * @param event {Event} The event object
        */
       onKeyPress: function(event) {
-         if (event.keyCode == R.engine.Events.KEYCODE_ENTER ||
-               event.keyCode == 65 || event.keyCode == 97) {
+         if (event.which == R.engine.Events.KEYCODE_ENTER) {
             Spaceroids.startGame();
          }
       },
@@ -277,6 +276,12 @@ var Spaceroids = function() {
          if (this.playerScore > this.hiScore) {
             this.hiScore = this.playerScore;
             this.hscoreObj.setText(this.hiScore);
+         }
+
+         if (Spaceroids.playerObj && this.playerScore > 1500 && !Spaceroids.playerObj.freeGuy) {
+            // Extra guy at 1500 points
+            Spaceroids.playerObj.players++;
+            Spaceroids.playerObj.freeGuy = true;
          }
 
          this.scoreObj.setText(this.playerScore);
@@ -470,7 +475,7 @@ var Spaceroids = function() {
          this.collisionModel.setAccuracy(R.collision.broadphase.SpatialGrid.HIGH_ACCURACY);
 
          // Prepare for keyboard input to start the game
-         R.Engine.getDefaultContext().addEvent(null, "keydown", Spaceroids.onKeyPress);
+         R.Engine.getDefaultContext().addEvent(Spaceroids, "keydown", Spaceroids.onKeyPress);
 
          // Load the sounds, use a SoundManager2 sound system
          this.soundLoader = R.resources.loaders.SoundLoader.create(new R.sound.SM2());

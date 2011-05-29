@@ -63,6 +63,7 @@ var SpaceroidsPlayer = function() {
       playerShape: null,
       nukes: null,
       nuking: null,
+      freeGuy: false,
 
       rec: false,
 
@@ -110,8 +111,9 @@ var SpaceroidsPlayer = function() {
          this.alive = true;
          this.rotDir = 0;
          this.thrusting = false;
-         this.nukes = 1;	// Have to earn your nukes
+         this.nukes = 0;	// Have to earn your nukes
          this.nuking = false;
+         this.freeGuy = false;
          this.setZIndex(1);
       },
 
@@ -131,6 +133,7 @@ var SpaceroidsPlayer = function() {
          this.playerShape = null;
          this.nukes = null;
          this.nuking = null;
+         this.freeGuy = false;
       },
 
       /**
@@ -148,7 +151,7 @@ var SpaceroidsPlayer = function() {
          var c_mover = this.getComponent("move");
          var p = R.math.Point2D.create(c_mover.getPosition());
          c_mover.setPosition(Spaceroids.wrap(p, this.getBoundingBox()));
-         c_mover.setRotation(c_mover.getRotation() + this.rotDir);
+         c_mover.setAngularVelocity(this.rotDir);
          p.destroy();
 
          if (this.thrusting) {
@@ -436,22 +439,22 @@ var SpaceroidsPlayer = function() {
             return;
          }
 
-         if (event.keyCode == R.engine.Events.keyCodeForChar("a")) {
+         if (charCode == R.engine.Events.keyCodeForChar("a")) {
             this.hyperSpace();
          }
 
-         if (event.keyCode == R.engine.Events.keyCodeForChar("z")) {
+         if (charCode == R.engine.Events.keyCodeForChar("z")) {
             if (this.bullets < 5) {
                this.shoot();
             }
          }
 
-         switch (event.keyCode) {
+         switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
-               this.rotDir = -5;
+               this.rotDir = -3;
                break;
             case R.engine.Events.KEYCODE_RIGHT_ARROW:
-               this.rotDir = 5;
+               this.rotDir = 3;
                break;
             case R.engine.Events.KEYCODE_UP_ARROW:
                if (!this.thrusting) {
@@ -475,7 +478,7 @@ var SpaceroidsPlayer = function() {
             return;
          }
 
-         switch (event.keyCode) {
+         switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
             case R.engine.Events.KEYCODE_RIGHT_ARROW:
                this.rotDir = 0;

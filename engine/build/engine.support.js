@@ -572,13 +572,13 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
          if (key.indexOf("R.engine.Events.") != -1) {
             return R.engine.Events[key.split(".")[3]];
          } else {
-            return key.charCodeAt(0);
+            return key.toUpperCase().charCodeAt(0);
          }
       }
 
       // Don't allow touches in the virtual pads to propagate
-      dpad.bind(downEvent, function(evt) { evt.preventDefault(); });
-      vpad.bind(downEvent, function(evt) { evt.preventDefault(); });
+      dpad.bind(downEvent, function(evt) { evt.preventDefault(); evt.stopPropagation(); });
+      vpad.bind(downEvent, function(evt) { evt.preventDefault(); evt.stopPropagation(); });
 
       // D-pad buttons
       $.each(R.Engine.options.virtualPad, function(key, v) {
@@ -608,17 +608,18 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
       // Wire up the buttons to fire keyboard events on the context
       var allButtons = dpButtons.concat(vbButtons);
       $.each(allButtons, function() {
-
          var key = this;
          key[2].bind(downEvent, function() {
             R.debug.Console.debug("virtual keydown: " + key[1]);
-            var e = $.Event("keydown");
-            e.which = key[1];
+            var e = $.Event("keydown", {
+               which: key[1]
+            });
             R.Engine.getDefaultContext().jQ().trigger(e);
          }).bind(upEvent, function() {
             R.debug.Console.debug("virtual keyup: " + key[1]);
-            var e = $.Event("keyup");
-            e.which = key[1];
+            var e = $.Event("keyup", {
+               which: key[1]
+            });
             R.Engine.getDefaultContext().jQ().trigger(e);
          });
       });
