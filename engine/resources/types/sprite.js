@@ -271,7 +271,7 @@ R.resources.types.Sprite = function() {
       } else {
          var f = R.math.Rectangle2D.create(this.frame);
          var fn = this.calcFrameNumber(time, dt);
-         return f.offset(f.dims.x * fn, 0);
+         return f.offset(f.w * fn, 0);
       }
    },
 

@@ -282,7 +282,7 @@ R.components.Transform2D = function() {
       renderContext.setPosition(this.getRenderPosition());
       renderContext.setRotation(this.getRenderRotation());
       renderContext.setScale(this.getRenderScaleX(), this.getRenderScaleY());
-		
+
       /* pragma:DEBUG_START */
       // Debug the origin
       if (R.Engine.getDebugMode())

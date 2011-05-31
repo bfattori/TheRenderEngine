@@ -55,7 +55,7 @@ R.Engine.define({
 
       // Game objects
       "R.objects.SpriteActor",
-      "R.objects.CollisionBox"
+      "R.objects.Fixture"
    ],
 
    "includes": [
@@ -98,6 +98,7 @@ var LevelEditor = function() {
       pStore: null,
       dialogBase: null,
       currentLevel: null,
+      lastPos: null,
 
       constructor: null,
       dirty: false,
@@ -133,7 +134,7 @@ var LevelEditor = function() {
 
          // Wire up a keystroke to show the editor
          R.Engine.getDefaultContext().addEvent(null, "keydown", function(evt) {
-            if (evt.which == R.engine.Events.KEYCODE_F3) {
+            if (evt.which == R.engine.Events.KEYCODE_F4) {
                LevelEditor.toggleEditor();
             }
          });
@@ -161,6 +162,7 @@ var LevelEditor = function() {
          LevelEditor.loaders.tile = [];
          LevelEditor.loaders.sound = [];
          LevelEditor.loaders.level = [];
+         LevelEditor.lastPos = R.math.Point2D.create(0,0);
 
          LevelEditor.gameRenderContext = renderContext;
 
@@ -411,17 +413,18 @@ var LevelEditor = function() {
             // We may need scrollbars to move the world
             var game = LevelEditor.getGame();
             var viewWidth = game.getRenderContext().getViewport().w;
-            var sb = $("<div style='height: 25px; width: " + viewWidth + "px; overflow-x: auto;'><div style='width: " +
-            game.getLevel().getFrame().w + "px; border: 1px dashed'></div></div>").bind("scroll", function() {
-               game.getRenderContext().setHorizontalScroll(this.scrollLeft);
-            });
-            $(document.body).append(sb);
+//            var sb = $("<div style='height: 25px; width: " + viewWidth + "px; overflow-x: auto;'><div style='width: " +
+//            game.getLevel().getFrame().w + "px; border: 1px dashed'></div></div>").bind("scroll", function() {
+//               game.getRenderContext().setHorizontalScroll(this.scrollLeft);
+//            });
+//            $(document.body).append(sb);
 
             // Add an event handler to the context
             var ctx = game.getRenderContext();
             ctx.addEvent(this, "mousedown", function(evt) {
                LevelEditor.selectObject(evt.pageX, evt.pageY);
                LevelEditor.mouseDown = true;
+               LevelEditor.lastPos.set(evt.pageX, evt.pageY);
             });
 
             ctx.addEvent(this, "mouseup", function() {
@@ -431,9 +434,15 @@ var LevelEditor = function() {
 
             ctx.addEvent(this, "mousemove", function(evt) {
                if (LevelEditor.mouseDown) {
-                  LevelEditor.moveSelected(evt.pageX, evt.pageY);
+                  if (LevelEditor.currentSelectedObject) {
+                     LevelEditor.moveSelected(evt.pageX, evt.pageY);
+                  } else {
+                     LevelEditor.moveWorld(evt.pageX, evt.pageY);
+                  }
                }
             });
+
+            ctx.jQ().css("border", "1px solid red");
 
             // Menu across the top
             var mb = {
@@ -512,6 +521,9 @@ var LevelEditor = function() {
             setTimeout(function() {
                LevelEditor.contextOffset = ctx.jQ().offset();
             }, 750);
+
+            LevelEditor.showing = true;
+
          } else {
             // Clean up
             $("#editPanel").remove();
@@ -529,6 +541,8 @@ var LevelEditor = function() {
             ctx.removeEvent(this, "mousemove");
 
             $("ul.jd_menu").remove();
+
+            LevelEditor.showing = false;
          }
       },
 
@@ -1240,9 +1254,9 @@ var LevelEditor = function() {
       moveSelected: function(x, y) {
          // Adjust for scroll and if the context was moved in the dom
          x += LevelEditor.gameRenderContext.getHorizontalScroll() - LevelEditor.contextOffset.left;
-         y -= LevelEditor.contextOffset.top;
+         y += LevelEditor.gameRenderContext.getVerticalScroll() - LevelEditor.contextOffset.top;
 
-         var viewWidth = LevelEditor.gameRenderContext.getViewport().get().w;
+         var viewWidth = LevelEditor.gameRenderContext.getViewport().w;
 
          if (this.currentSelectedObject) {
             var grid = viewWidth / this.gridSize;
@@ -1349,6 +1363,17 @@ var LevelEditor = function() {
 
          // Append the new property table
          $("#editPanel div.props").append(pTable);
+      },
+
+      moveWorld: function(x, y) {
+         var cpt = R.math.Point2D.create(x, y),
+            vp = R.math.Point2D.create(LevelEditor.gameRenderContext.getWorldPosition());
+         LevelEditor.lastPos.sub(cpt);
+         vp.add(LevelEditor.lastPos);
+         LevelEditor.gameRenderContext.setScroll(vp);
+         LevelEditor.lastPos.set(x,y);
+         cpt.destroy();
+         vp.destroy();
       },
 
       //=====================================================================================================

@@ -39,7 +39,7 @@ R.Engine.define({
       "R.engine.Events",
 
       // The render context
-      "R.rendercontexts.CanvasContext",
+      "R.rendercontexts.VirtualCanvasContext",
 
       // Resource loaders and types
       "R.resources.loaders.SoundLoader",
@@ -133,9 +133,11 @@ var TilemapDemo = function() {
 
       run: function() {
          // Create the 2D context
-         this.renderContext = R.rendercontexts.CanvasContext.create("playfield", 640, 480);
+         this.renderContext = R.rendercontexts.VirtualCanvasContext.create("playfield", 640, 480, 1920, 1440);
          this.renderContext.setWorldScale(this.areaScale);
          R.Engine.getDefaultContext().add(this.renderContext);
+         this.renderContext.setBackgroundColor("#000000")
+         LevelEditor.edit(this, this.renderContext);
       },
 
       getRenderContext: function() {
