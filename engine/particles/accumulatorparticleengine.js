@@ -48,6 +48,9 @@ R.Engine.define({
  *        effects such as bloom, glow, and tail can be achieved.  A note
  *        of caution, using the accumulator particle engine <em>will be
  *        slow</em> compared with the basic particle engine.
+ *        <p/>
+ *        Because of the effect used by the accumulator particle engine,
+ *        background imagery will be darkened slightly.
  *
  * @extends R.engine.BaseObject
  * @constructor
@@ -60,6 +63,7 @@ R.particles.AccumulatorParticleEngine = function() {
       fadeRate: 0,             // The rate at which particles fade out
       blur: false,
       radius: 1,
+      hasBackground: false,
 
       /** @private */
       constructor: function(fadeRate) {
@@ -68,12 +72,14 @@ R.particles.AccumulatorParticleEngine = function() {
          this.fadeRate = fadeRate || 0.5;
          this.blur = false;
          this.radius = 1;
+         this.hasBackground = false;
       },
 
       /**
        * Destroy the particle engine
        */
       destroy: function() {
+         this.accumulator.destroy();
          this.base();
       },
 
@@ -86,6 +92,7 @@ R.particles.AccumulatorParticleEngine = function() {
          this.fadeRate = 0;
          this.blur = false;
          this.radius = 1;
+         this.hasBackground = false;
       },
 
       /**
@@ -111,6 +118,16 @@ R.particles.AccumulatorParticleEngine = function() {
        */
       setBlurRadius: function(radius) {
          this.radius = radius;
+      },
+
+      /**
+       * Set this value to <code>true</code> if the particle engine is atop a background image.
+       * This will have the effect of slightly darkening the background image.  If the background
+       * is solid black, you can set this to <code>false</code>.
+       * @param state {Boolean} The background state
+       */
+      setBackgroundState: function(state) {
+         this.hasBackground = state;
       },
 
       /**
@@ -145,8 +162,8 @@ R.particles.AccumulatorParticleEngine = function() {
          if (!this.blur) {
             // Fade the accumulator at a set rate
             this.accumulator.get2DContext().globalAlpha = this.fadeRate;
-            this.accumulator.get2DContext().globalCompositeOperation = "source-atop";
-            this.accumulator.setFillStyle("rgba(0,0,0,0)");
+            this.accumulator.get2DContext().globalCompositeOperation = this.hasBackground ? "xor" : "source-atop";
+            this.accumulator.setFillStyle("rgb(0,0,0)");
             this.accumulator.drawFilledRectangle(renderContext.getViewport());
             this.accumulator.get2DContext().globalCompositeOperation = "source-over";
          } else {

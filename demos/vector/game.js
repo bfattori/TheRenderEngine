@@ -87,7 +87,7 @@ var Spaceroids = function() {
 
       fieldBox: null,
       centerPoint: null,
-      areaScale: $.browser.Wii ? 0.7 : 1,
+      areaScale: 1,
 
       collisionModel: null,
 
@@ -169,7 +169,9 @@ var Spaceroids = function() {
          this.cleanupPlayfield();
          Spaceroids.isAttractMode = true;
 
+         // Set the background image
          var img = this.imageLoader.getImage("apod2");
+         this.backgroundImage.empty();
          this.backgroundImage.append($(img.getImage()).clone());
 
          this.pEngine.setFadeRate(0.5);
@@ -343,6 +345,14 @@ var Spaceroids = function() {
 
          this.playerScore = 0;
          this.cleanupPlayfield();
+
+         // Set the background image
+         var rnd = R.lang.Math2.randomRange(0,5,true),
+             imgName = "apod" + (rnd + (rnd == 1 ? 2 : 1)),
+             img = this.imageLoader.getImage(imgName);
+
+         this.backgroundImage.empty();
+         this.backgroundImage.append($(img.getImage()).clone());
 
          this.pEngine.setFadeRate(0.2);
 
@@ -520,6 +530,7 @@ var Spaceroids = function() {
 
          // Start up a particle engine
          this.pEngine = R.particles.AccumulatorParticleEngine.create();
+         this.pEngine.setBackgroundState(true);
 
          // Demo recording and playback
          if (R.engine.Support.checkBooleanParam("record")) {
