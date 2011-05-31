@@ -1903,13 +1903,13 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
          if (key.indexOf("R.engine.Events.") != -1) {
             return R.engine.Events[key.split(".")[3]];
          } else {
-            return key.charCodeAt(0);
+            return key.toUpperCase().charCodeAt(0);
          }
       }
 
       // Don't allow touches in the virtual pads to propagate
-      dpad.bind(downEvent, function(evt) { evt.preventDefault(); });
-      vpad.bind(downEvent, function(evt) { evt.preventDefault(); });
+      dpad.bind(downEvent, function(evt) { evt.preventDefault(); evt.stopPropagation(); });
+      vpad.bind(downEvent, function(evt) { evt.preventDefault(); evt.stopPropagation(); });
 
       // D-pad buttons
       $.each(R.Engine.options.virtualPad, function(key, v) {
@@ -1939,17 +1939,18 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
       // Wire up the buttons to fire keyboard events on the context
       var allButtons = dpButtons.concat(vbButtons);
       $.each(allButtons, function() {
-
          var key = this;
          key[2].bind(downEvent, function() {
             R.debug.Console.debug("virtual keydown: " + key[1]);
-            var e = $.Event("keydown");
-            e.which = key[1];
+            var e = $.Event("keydown", {
+               which: key[1]
+            });
             R.Engine.getDefaultContext().jQ().trigger(e);
          }).bind(upEvent, function() {
             R.debug.Console.debug("virtual keyup: " + key[1]);
-            var e = $.Event("keyup");
-            e.which = key[1];
+            var e = $.Event("keyup", {
+               which: key[1]
+            });
             R.Engine.getDefaultContext().jQ().trigger(e);
          });
       });
@@ -2042,7 +2043,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
 			throw new ReferenceError("Class '" + className + "' is already defined!");
 		}
 
-		R.debug.Console.debug("R.engine.Linker => Process definition for ", className);
+		R.debug.Console.info("R.engine.Linker => Process definition for ", className);
 
 		R.engine.Linker.classDefinitions[className] = classDef;	
 		var deps = [];
@@ -2180,7 +2181,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
 		
 		if (result === R.engine.Script.SCRIPT_LOADED) {
 			// Push the class into the processing queue
-			R.debug.Console.log("R.engine.Linker => Initializing " + className);	
+			R.debug.Console.info("R.engine.Linker => Initializing " + className);
 			R.engine.Linker.queuedClasses[className] = true;
 		} else {
 			R.debug.Console.error("R.engine.Linker => " + className + " failed to load!");
@@ -2342,7 +2343,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
 			pkg[shortName].resolved();
 		}
 
-		R.debug.Console.log("R.engine.Linker => " + className + " initialized");
+		R.debug.Console.info("R.engine.Linker => " + className + " initialized");
 		R.engine.Linker.resolvedClasses[className] = true;
 	},
 	
@@ -3382,6 +3383,13 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 	 * @memberOf R.engine.Script
 	 */
 	ajaxLoad: function(path, data, callback) {
+      /* pragma:DEBUG_START */
+      // If we're in debug mode, force the browser to grab the latest
+      if (R.Engine.getDebugMode()) {
+         path += (path.indexOf("?") == -1 ? "?" : "&") + "_debug=" + R.now();
+      }
+      /* pragma:DEBUG_END */
+
 		// Use our own internal method to load a file with the JSON
 		// data.  This way, we don't fail silently when loading a file
 		// that doesn't exist.
@@ -3573,6 +3581,13 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 	         R.engine.Script.callbacks[simplePath] = cb;
 	      }
 
+         /* pragma:DEBUG_START */
+         // If we're in debug mode, force the browser to grab the latest
+         if (R.Engine.getDebugMode()) {
+            scriptPath += (scriptPath.indexOf("?") == -1 ? "?" : "&") + "_debug=" + R.now();
+         }
+         /* pragma:DEBUG_END */
+
          if ($.browser.Wii) {
 
             $.get(scriptPath, function(data) {
@@ -3615,7 +3630,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
                   R.debug.Console.debug("Loaded '" + sPath + "'");
                   R.engine.Script.handleScriptDone();
                   if ($.isFunction(callBack)) {
-                  	R.debug.Console.debug("Callback for '" + sPath + "'");
+                  	R.debug.Console.info("Callback for '" + sPath + "'");
                      callBack(simplePath, R.engine.Script.SCRIPT_LOADED);
                      
                      // Delete the callback
@@ -3912,6 +3927,14 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     */
    loadStylesheet: function(stylesheetPath, relative, noInject) {
       stylesheetPath = (relative ? "" : R.Engine.getEnginePath()) + stylesheetPath;
+
+      /* pragma:DEBUG_START */
+      // If we're in debug mode, force the browser to grab the latest
+      if (R.Engine.getDebugMode()) {
+         stylesheetPath += (stylesheetPath.indexOf("?") == -1 ? "?" : "&") + "_debug=" + R.now();
+      }
+      /* pragma:DEBUG_END */
+
       var f = function() {
 			if (noInject) {
 				$("head", document).append($("<link type='text/css' rel='stylesheet' href='" + stylesheetPath + "'/>"));	

@@ -357,6 +357,11 @@ R.components.collision.Convex = function() {
             }
          }
 
+         if (unitVec == null) {
+            // Something is wrong
+            return null;
+         }
+
          // If you're here, there is a collision
          var cData = R.struct.CollisionData.create(overlap,
                unitVec,

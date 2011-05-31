@@ -108,7 +108,7 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
    
    /**
     * Get the key code for the provided character.  The value returned
-    * will be for the lowercase key value, unless the second argument is
+    * will be for the uppercase key value, unless the second argument is
     * set to <code>true</code> which will return the exact key code for the
     * provided character.
     * @param charStr {String} A single character to get the key code for

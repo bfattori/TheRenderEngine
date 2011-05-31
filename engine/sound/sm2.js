@@ -66,8 +66,9 @@ R.sound.SM2 = function(){
 				
 				// directory where SM2 .SWFs live
 				this.soundManager.url = R.Engine.getEnginePath() + '/libs/';
-				
-				if (GetSwfVer() != null) {
+
+            var swfVer = GetSwfVer();
+				if (swfVer && swfVer != -1) {
 					// Detect the version of flash available.  If 9 or higher, use 9
 					var hasReqestedVersion = DetectFlashVer(9, 0, 0);
 					if (hasReqestedVersion) {
@@ -104,12 +105,14 @@ R.sound.SM2 = function(){
 				}
 				else {
 					// Flash not installed
+               R.debug.Console.warn("SoundManager failed: No Flash Installed");
 					this.init = false;
 				}
 				
 			}
 			else {
 				// SoundManager isn't defined
+            R.debug.Console.warn("SoundManager failed: Not loaded or defined");
 				this.init = false;
 			}
 		},
@@ -166,7 +169,7 @@ R.sound.SM2 = function(){
        * @param sound {R.resources.types.Sound} The sound object
        */
 		destroySound: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.unload();
@@ -177,7 +180,7 @@ R.sound.SM2 = function(){
        * @param sound {R.resources.types.Sound} The sound object
        */
 		playSound: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.play();
@@ -188,7 +191,7 @@ R.sound.SM2 = function(){
        * @param sound {R.resources.types.Sound} The sound object
        */
 		stopSound: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.stop();
@@ -199,7 +202,7 @@ R.sound.SM2 = function(){
        * @param sound {R.resources.types.Sound} The sound object
        */
 		pauseSound: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.pause();
@@ -210,7 +213,7 @@ R.sound.SM2 = function(){
        * @param sound {R.resources.types.Sound} The sound object
        */
 		resumeSound: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.resume();
@@ -221,7 +224,7 @@ R.sound.SM2 = function(){
        * @param sound {R.resources.types.Sound} The sound object
        */
 		muteSound: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.mute();
@@ -232,7 +235,7 @@ R.sound.SM2 = function(){
        * @param sound {R.resources.types.Sound} The sound object
        */
 		unmuteSound: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.unmute();
@@ -244,7 +247,7 @@ R.sound.SM2 = function(){
        * @param volume {Number} A value between 0 and 100, with 0 being muted
        */
 		setSoundVolume: function(sound, volume){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.setVolume(volume);
@@ -257,7 +260,7 @@ R.sound.SM2 = function(){
        * 		and zero being center
        */
 		setSoundPan: function(sound, pan){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.setPan(pan);
@@ -270,7 +273,7 @@ R.sound.SM2 = function(){
        * 		the sounds duration
        */
 		setSoundPosition: function(sound, millisecondOffset){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return;
 			}
 			sound.setPosition(millisecondOffset);
@@ -282,7 +285,7 @@ R.sound.SM2 = function(){
        * @return {Number}
        */
 		getSoundPosition: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return 0;
 			}
 			return sound.position;
@@ -294,7 +297,7 @@ R.sound.SM2 = function(){
        * @return {Number}
        */
 		getSoundSize: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return 0;
 			}
 			return sound.bytesTotal;
@@ -306,7 +309,7 @@ R.sound.SM2 = function(){
        * @return {Number}
        */
 		getSoundDuration: function(sound){
-			if (!(this.init || this.getSoundReadyState(sound))) {
+			if (!(this.init && this.getSoundReadyState(sound))) {
 				return 0;
 			}
 			return sound.duration;

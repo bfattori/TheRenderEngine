@@ -79,6 +79,7 @@ R.components.transform.Mover2D = function() {
       constructor: function(name, priority) {
          this.base(name, priority || 1.0);
          this.velocity = R.math.Vector2D.create(0, 0);
+         this.angularVelocity = 0;
          this._nVel = R.math.Vector2D.create(0, 0);
          this.acceleration = R.math.Vector2D.create(0, 0);
          this.lPos = R.math.Point2D.create(0, 0);
@@ -155,6 +156,7 @@ R.components.transform.Mover2D = function() {
             // quick addition of the velocity.
             if (this.firstFrame) {
                this.setPosition(this.lPos.add(this.velocity).add(this.acceleration).add(this.gravity));
+               this.setRotation(rot);
             } else {
                if (this.getVelocityDecay() != 0 && this.velocity.len() > 0) {
                   // We need to decay the velocity by the amount
@@ -175,7 +177,8 @@ R.components.transform.Mover2D = function() {
                this.setPosition(this.lPos.add(this._vec));
 
                // TODO: Actually implement angular velocity per time step
-               this.setRotation(rot + this.angularVelocity);
+               var angVel = this.angularVelocity * (dt / R.Engine.fpsClock);
+               this.setRotation(rot + angVel);
             }
 
             // Check rest state

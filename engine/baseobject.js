@@ -174,7 +174,7 @@ R.engine.BaseObject = function(){
 			}
 			else 
 				if (this.getElement()) {
-					R.debug.Console.info(ref.getName() + " attach event '" + type + "' to " + this.getName());
+					R.debug.Console.debug(ref.getName() + " attach event '" + type + "' to " + this.getName());
 					R.engine.Events.setHandler(this.getElement(), type, data || fn, fn);
 					
 					// Remember the handler by the reference object's name and event type

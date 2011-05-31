@@ -84,7 +84,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
 			throw new ReferenceError("Class '" + className + "' is already defined!");
 		}
 
-		R.debug.Console.debug("R.engine.Linker => Process definition for ", className);
+		R.debug.Console.info("R.engine.Linker => Process definition for ", className);
 
 		R.engine.Linker.classDefinitions[className] = classDef;	
 		var deps = [];
@@ -222,7 +222,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
 		
 		if (result === R.engine.Script.SCRIPT_LOADED) {
 			// Push the class into the processing queue
-			R.debug.Console.log("R.engine.Linker => Initializing " + className);	
+			R.debug.Console.info("R.engine.Linker => Initializing " + className);
 			R.engine.Linker.queuedClasses[className] = true;
 		} else {
 			R.debug.Console.error("R.engine.Linker => " + className + " failed to load!");
@@ -384,7 +384,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
 			pkg[shortName].resolved();
 		}
 
-		R.debug.Console.log("R.engine.Linker => " + className + " initialized");
+		R.debug.Console.info("R.engine.Linker => " + className + " initialized");
 		R.engine.Linker.resolvedClasses[className] = true;
 	},
 	
