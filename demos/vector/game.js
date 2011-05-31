@@ -1,11 +1,10 @@
 /**
  * The Render Engine
- * Example Game: Spaceroids - an Asteroids clone
+ * Demo Game: Asteroids Evolution
  *
- * This is an example of using The Render Engine to create a simple
+ * This is an example of using The Render Engine to create a complete
  * game.  This game is based off of the popular vector shooter, Asteroids,
  * which is (c)Copyright 1979 - Atari Corporation.
- *
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  *
@@ -120,8 +119,7 @@ var Spaceroids = function() {
       backgroundImage: null,
 
       /**
-       * Handle the keypress which starts the game
-       *
+       * Handle the key press which starts the game
        * @param event {Event} The event object
        */
       onKeyPress: function(event) {
@@ -137,12 +135,13 @@ var Spaceroids = function() {
        */
       cleanupPlayfield: function() {
 
-         // Detach the collision model & particle engine
+         // Detach and reset the collision model & particle engine
          this.renderContext.remove(this.collisionModel);
          this.renderContext.remove(this.pEngine);
          this.pEngine.reset();
          this.collisionModel.reset();
 
+         // Eliminate the score and high score objects
          this.scoreObj = null;
          this.hscoreObj = null;
          this.start = null;
@@ -152,14 +151,13 @@ var Spaceroids = function() {
          this.rocks = 0;
          this.level = 0;
 
-         // Put the particle engine and collision model back again
+         // Re-attach the particle engine and collision model
          this.renderContext.add(this.pEngine);
          this.renderContext.add(this.collisionModel);
       },
 
       /**
-       * A simple mode where the title, highscore, game over message,
-       * and start message are displayed with asteroids in the background
+       * A way to attract players to play the game.
        */
       attractMode: function() {
          var center = this.fieldBox.getCenter();
@@ -187,6 +185,7 @@ var Spaceroids = function() {
             rock.killTimer = R.Engine.worldTime + 2000;
          }
 
+         // Draw the user interface
          var title = R.text.TextRenderer.create(R.text.VectorText.create(), "Asteroids", 2);
          title.setPosition(titlePos);
          title.setColor("#ffffff");
@@ -236,12 +235,14 @@ var Spaceroids = function() {
             }
          };
 
+         // This will cause the "start text" to blink
          Spaceroids.intv = R.lang.Timeout.create("startkey", 1000, flash);
 
+         // In attract mode, show "GAME OVER" and the high score
          this.addHiScore();
          this.gameOver();
 
-         // Create a new rock every 20 seconds
+         // Create a new asteroid every 20 seconds
          Spaceroids.attractTimer = R.lang.IntervalTimer.create("attract", 20000,
                function() {
                   var rock = SpaceroidsRock.create(null, null, Spaceroids.fieldWidth, Spaceroids.fieldHeight);
@@ -335,6 +336,7 @@ var Spaceroids = function() {
          this.gameRunning = true;
 
          if (!Spaceroids.rec && !Spaceroids.play) {
+            // Shut down the attract mode timer which spawns new asteroids
             this.attractTimer.destroy();
             this.attractTimer = null;
             Spaceroids.isAttractMode = false;
@@ -343,6 +345,7 @@ var Spaceroids = function() {
             this.intv = null;
          }
 
+         // Prepare the playfield
          this.playerScore = 0;
          this.cleanupPlayfield();
 
@@ -354,19 +357,23 @@ var Spaceroids = function() {
          this.backgroundImage.empty();
          this.backgroundImage.append($(img.getImage()).clone());
 
+         // Change the fade rate on the particle engine
          this.pEngine.setFadeRate(0.2);
 
+         // Begin the next level
          this.nextLevel();
 
+         // Create the player
          this.playerObj = SpaceroidsPlayer.create();
          this.renderContext.add(this.playerObj);
          this.playerObj.setup();
 
+         // Add the scores to the playfield and reset the player's score
          this.addHiScore();
          this.addScore();
          this.scorePoints(0);
 
-         // Start the "music" track
+         // Start the background "music" track
          Spaceroids.soundNum = 1;
          Spaceroids.gameSound = R.lang.IntervalTimer.create("gameSound", 1000, function() {
             if (Spaceroids.soundNum == 1) {
@@ -386,18 +393,19 @@ var Spaceroids = function() {
          Spaceroids.level++;
 
          if (Spaceroids.level > 7) {
+            // Max level of 7 so the asteroid count isn't insane
             Spaceroids.level = 7;
          }
 
-         // Add some asteroids
-         var pWidth = this.fieldWidth;
-         var pHeight = this.fieldHeight;
          if (this.playerObj) {
-            // Max of 3 nukes
+            // Allow the player a maximum of 3 nukes
             this.playerObj.nukes++;
             this.playerObj.nukes = this.playerObj.nukes > 3 ? 3 : this.playerObj.nukes;
          }
 
+         // Add asteroids to the level
+         var pWidth = this.fieldWidth;
+         var pHeight = this.fieldHeight;
          for (var a = 0; a < Spaceroids.level + 1; a++) {
             var rock = SpaceroidsRock.create(null, null, pWidth, pHeight);
             this.renderContext.add(rock);
@@ -418,6 +426,7 @@ var Spaceroids = function() {
             return;
          }
 
+         // Draw the "GAME OVER" text
          var g = R.text.TextRenderer.create(R.text.VectorText.create(), "Game Over", 3);
          g.setPosition(R.math.Point2D.create(this.fieldBox.getCenter().x, 260));
          g.setTextWeight(0.8);
@@ -429,6 +438,7 @@ var Spaceroids = function() {
             return;
          }
 
+         // Shut down the background "music"
          Spaceroids.gameSound.destroy();
          Spaceroids.gameSound = null;
 
@@ -440,7 +450,7 @@ var Spaceroids = function() {
             this.playerObj = null;
          }
 
-         // Back to attract mode in 10sec
+         // Return to attract mode in 10sec
          R.lang.OneShotTimeout.create("gameover", 10000, function() {
             // Overwrite the high score
             Spaceroids.pStore.save("highScore", Spaceroids.hiScore);
@@ -453,16 +463,10 @@ var Spaceroids = function() {
        * the game to its running state.
        */
       setup: function(options) {
-         // Need info level to get profiles
-         //R.debug.Console.setDebugLevel(1);
-
-         // Wire up the canvas for profiling
-         //R.debug.Profiler.wireObjects([SpaceroidsRock]);
-         //R.debug.Profiler.start();
-
          //R.Engine.setDebugMode(true);
          //R.debug.Metrics.showMetrics();
 
+         // Handle configuration options
          if (options.disableParticles) {
             R.Engine.options.disableParticleEngine = true;
          }
@@ -489,6 +493,7 @@ var Spaceroids = function() {
             zIndex: 20
          });
 
+         // Set up the element for background images
          this.backgroundImage = $("<div class='bg'>&nbsp;</div>").css({
             position: "absolute",
             left: (R.Engine.getDefaultContext().jQ().width() - this.renderContext.jQ().width()) / 2,
@@ -496,31 +501,27 @@ var Spaceroids = function() {
          });
          $("body", document).append(this.backgroundImage);
 
-         // We'll need a broad-phase collision model
+         // Use the spatial grid broad-phase collision model
          this.collisionModel = R.collision.broadphase.SpatialGrid.create(this.fieldWidth, this.fieldHeight, 5);
          this.collisionModel.setAccuracy(R.collision.broadphase.SpatialGrid.HIGH_ACCURACY);
 
-         // Prepare for keyboard input to start the game
+         // Wire the event handler to start the game
          R.Engine.getDefaultContext().addEvent(Spaceroids, "keydown", Spaceroids.onKeyPress);
 
-         // Load the sounds, use a SoundManager2 sound system
+         // Load the sounds, using a SoundManager2 sound system
          this.soundLoader = R.resources.loaders.SoundLoader.create(new R.sound.SM2());
-         this.soundLoader.load("explode", this.getFilePath("resources/explode1.mp3"));
-         this.soundLoader.load("shoot", this.getFilePath("resources/shoot.mp3"));
-         this.soundLoader.load("death", this.getFilePath("resources/explode2.mp3"));
-         this.soundLoader.load("thrust", this.getFilePath("resources/thrust.mp3"));
-         this.soundLoader.load("lowboop", this.getFilePath("resources/low.mp3"));
-         this.soundLoader.load("hiboop", this.getFilePath("resources/hi.mp3"));
-         this.soundLoader.load("ufosmall", this.getFilePath("resources/ufosmall.mp3"));
-         this.soundLoader.load("ufobig", this.getFilePath("resources/ufobig.mp3"));
+         var sounds = [['explode','explode1'],['shoot','shoot'],['death','explode2'],['thrust','thrust'],
+                       ['lowboop','low'],['hiboop','hi'],['ufosmall','ufosmall'],['ufobig','ufobig']];
 
+         $.each(sounds, function() {
+            Spaceroids.soundLoader.load(this[0], Spaceroids.getFilePath("resources/" + this[1] + ".mp3"));
+         });
+
+         // Load the background images
          this.imageLoader = R.resources.loaders.ImageLoader.create();
-         this.imageLoader.load("apod1", this.getFilePath("resources/apod1.jpg"), 500, 580);
-         this.imageLoader.load("apod2", this.getFilePath("resources/apod2.jpg"), 500, 580);
-         this.imageLoader.load("apod3", this.getFilePath("resources/apod3.jpg"), 500, 580);
-         this.imageLoader.load("apod4", this.getFilePath("resources/apod4.jpg"), 500, 580);
-         this.imageLoader.load("apod5", this.getFilePath("resources/apod5.jpg"), 500, 580);
-         this.imageLoader.load("apod6", this.getFilePath("resources/apod6.jpg"), 500, 580);
+         $.each(['apod1','apod2','apod3','apod4','apod5','apod6'], function() {
+            Spaceroids.imageLoader.load(this, Spaceroids.getFilePath("resources/" + this + ".jpg"), 500, 580);
+         });
 
          // Use persistent storage to keep the high score
          this.pStore = R.storage.PersistentStorage.create("AsteroidsEvolutionStorage");
@@ -532,7 +533,8 @@ var Spaceroids = function() {
          this.pEngine = R.particles.AccumulatorParticleEngine.create();
          this.pEngine.setBackgroundState(true);
 
-         // Demo recording and playback
+         // Demo recording and playback - not currently used
+         /*
          if (R.engine.Support.checkBooleanParam("record")) {
             Spaceroids.recordDemo();
             return;
@@ -542,11 +544,14 @@ var Spaceroids = function() {
             Spaceroids.playDemo();
             return;
          }
+         */
 
+         // Experimental effect for blurring
          if (R.engine.Support.checkBooleanParam("blur")) {
             this.pEngine.setBlur(true);
          }
 
+         // Wait for resources to finish loading before starting
          R.lang.Timeout.create("wait", 150, function() {
             if (Spaceroids.soundLoader.isReady() &&
                 Spaceroids.imageLoader.isReady()) {
@@ -575,12 +580,8 @@ var Spaceroids = function() {
          this.pEngine.destroy();
       },
 
-      /**
-       * Cause the playfield to flash
-       */
-      blinkScreen: function(color) {
-         // Not used
-      },
+      // NOT USED
+      blinkScreen: function(color) {},
 
       /**
        * A simple method that determines if the position is within the supplied bounding
@@ -645,7 +646,7 @@ var Spaceroids = function() {
        * @return {String}
        */
       getName: function() {
-         return "Asteroids Evolved";
+         return "Asteroids Evolution";
       }
    });
 };

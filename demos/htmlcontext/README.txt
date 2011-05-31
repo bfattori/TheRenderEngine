@@ -8,5 +8,3 @@ This demo uses the HTMLContext to draw multiple rotating shapes on screen.  On b
 * CSS Transformations on supported systems
 * Loading and playing sounds
 * The DOM rendering context
-* Manually stepping the world with static rendering contexts
-* The particle engine and custom particles

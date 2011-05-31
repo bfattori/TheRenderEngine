@@ -7,5 +7,5 @@ The isometric demonstration is intended to highlight the tile map capabilities o
 * Using the DOM context to render the world
 * Mouse and keyboard input
 * Loading additional resources on the fly via AJAX streaming
-* Multiplayer gaming
+* Simple Multiplayer positioning and socket communication
 * Persistent world state
