@@ -542,7 +542,10 @@ R.rendercontexts.AbstractRenderContext = function() {
                   mouseInfo.moveTimer = null;
                }
                mouseInfo.lastPosition.set(mouseInfo.position);
-               mouseInfo.position.set(evt.offsetX, evt.offsetY);
+
+               // BAF: 05/31/2011 - https://github.com/bfattori/TheRenderEngine/issues/7
+               // TODO: Determine if this is the right way to handle mouse position relative to element
+               mouseInfo.position.set(evt.offsetX || evt.layerX, evt.offsetY || evt.layerY);
                mouseInfo.moveVec.set(mouseInfo.position);
                mouseInfo.moveVec.sub(mouseInfo.lastPosition);
                if (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON) {
