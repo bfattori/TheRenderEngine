@@ -44,6 +44,8 @@ R.Engine.define({
       "R.text.AbstractTextRenderer",
       "R.text.VectorText",
       "R.resources.loaders.SoundLoader",
+      "R.resources.loaders.ImageLoader",
+      "R.resources.types.Image",
       "R.sound.SM2",
       "R.storage.PersistentStorage",
       "R.engine.Events",
@@ -80,6 +82,8 @@ var Spaceroids = function() {
       constructor: null,
 
       renderContext: null,
+      soundLoader: null,
+      imageLoader: null,
 
       fieldBox: null,
       centerPoint: null,
@@ -113,6 +117,7 @@ var Spaceroids = function() {
       play: false,
 
       pStore: null,
+      backgroundImage: null,
 
       /**
        * Handle the keypress which starts the game
@@ -164,6 +169,9 @@ var Spaceroids = function() {
          var copyPos = R.math.Point2D.create(center.x, 570);
          this.cleanupPlayfield();
          Spaceroids.isAttractMode = true;
+
+         var img = this.imageLoader.getImage("apod2");
+         this.backgroundImage.append($(img.getImage()).clone());
 
          this.pEngine.setFadeRate(0.5);
 
@@ -456,14 +464,22 @@ var Spaceroids = function() {
 
          this.renderContext.setWorldScale(this.areaScale);
          R.Engine.getDefaultContext().add(this.renderContext);
-         this.renderContext.setBackgroundColor("#000000");
+         this.renderContext.setBackgroundColor("transparent");
 
          R.Engine.getDefaultContext().setBackgroundColor("#000000");
          this.renderContext.jQ().css({
             position: "absolute",
             left: (R.Engine.getDefaultContext().jQ().width() - this.renderContext.jQ().width()) / 2,
-            border: "1px solid gray"
+            border: "1px solid gray",
+            zIndex: 20
          });
+
+         this.backgroundImage = $("<div class='bg'>&nbsp;</div>").css({
+            position: "absolute",
+            left: (R.Engine.getDefaultContext().jQ().width() - this.renderContext.jQ().width()) / 2,
+            zIndex: 5
+         });
+         $("body", document).append(this.backgroundImage);
 
          // We'll need a broad-phase collision model
          this.collisionModel = R.collision.broadphase.SpatialGrid.create(this.fieldWidth, this.fieldHeight, 5);
@@ -482,6 +498,14 @@ var Spaceroids = function() {
          this.soundLoader.load("hiboop", this.getFilePath("resources/hi.mp3"));
          this.soundLoader.load("ufosmall", this.getFilePath("resources/ufosmall.mp3"));
          this.soundLoader.load("ufobig", this.getFilePath("resources/ufobig.mp3"));
+
+         this.imageLoader = R.resources.loaders.ImageLoader.create();
+         this.imageLoader.load("apod1", this.getFilePath("resources/apod1.jpg"), 500, 580);
+         this.imageLoader.load("apod2", this.getFilePath("resources/apod2.jpg"), 500, 580);
+         this.imageLoader.load("apod3", this.getFilePath("resources/apod3.jpg"), 500, 580);
+         this.imageLoader.load("apod4", this.getFilePath("resources/apod4.jpg"), 500, 580);
+         this.imageLoader.load("apod5", this.getFilePath("resources/apod5.jpg"), 500, 580);
+         this.imageLoader.load("apod6", this.getFilePath("resources/apod6.jpg"), 500, 580);
 
          // Use persistent storage to keep the high score
          this.pStore = R.storage.PersistentStorage.create("AsteroidsEvolutionStorage");
@@ -508,7 +532,8 @@ var Spaceroids = function() {
          }
 
          R.lang.Timeout.create("wait", 150, function() {
-            if (Spaceroids.soundLoader.isReady()) {
+            if (Spaceroids.soundLoader.isReady() &&
+                Spaceroids.imageLoader.isReady()) {
                // Go into attract mode as soon as the sounds are loaded
                this.destroy();
                Spaceroids.attractMode();
@@ -528,6 +553,7 @@ var Spaceroids = function() {
          this.hscoreObj = null;
 
          R.engine.Events.clearHandler(document, "keypress", Spaceroids.onKeyPress);
+         this.backgroundImage.remove();
 
          this.renderContext.destroy();
          this.pEngine.destroy();

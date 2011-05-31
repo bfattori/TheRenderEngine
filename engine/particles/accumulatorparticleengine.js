@@ -146,7 +146,7 @@ R.particles.AccumulatorParticleEngine = function() {
             // Fade the accumulator at a set rate
             this.accumulator.get2DContext().globalAlpha = this.fadeRate;
             this.accumulator.get2DContext().globalCompositeOperation = "source-atop";
-            this.accumulator.setFillStyle("rgba(0,0,0)");
+            this.accumulator.setFillStyle("rgba(0,0,0,0)");
             this.accumulator.drawFilledRectangle(renderContext.getViewport());
             this.accumulator.get2DContext().globalCompositeOperation = "source-over";
          } else {
