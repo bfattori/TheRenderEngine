@@ -333,7 +333,7 @@ R.rendercontexts.HTMLElementContext = function(){
 			if (this.hasTxfm) {
 				css[this.txfmBrowser] = this.txfm[0] + " " +
 				(ref && ref.getRotation() != 0 ? this.txfm[1] + " " : "") +
-				(ref && ref.getScale() != 1 ? this.txfm[2] : "");
+				(ref && ref.getScale().len() != 1 ? this.txfm[2] : "");
 			}
 			else {
 				css.top = this.cursorPos.y;

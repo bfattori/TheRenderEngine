@@ -64,8 +64,8 @@ R.objects.Fixture = function(){
 			this.base("Fixture");
 			this.editing = false;
          this.visible = visible;
-			this.setPosition(R.math.Point2D.create(rect.topLeft()));
-         rect.topLeft.set(0,0);
+			this.setPosition(R.math.Point2D.create(rect.getTopLeft()));
+         rect.setTopLeft(0,0);
 			this.setBoundingBox(rect);
 			this.type = R.objects.Fixture.TYPE_COLLIDER;
 			this.action = "";

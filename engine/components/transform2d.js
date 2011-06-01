@@ -75,7 +75,7 @@ R.components.Transform2D = function() {
       this.lastPosition = R.math.Point2D.create(0,0);
       this.lastRenderPosition = R.math.Point2D.create(0,0);
       this.rotation = 0;
-      this.scale = [1.0, 1.0];
+      this.scale = R.math.Vector2D.create(1, 1);
 
 		/* pragma:DEBUG_START */
 		this._up = R.math.Vector2D.create(R.math.Vector2D.UP).mul(10);
@@ -211,7 +211,7 @@ R.components.Transform2D = function() {
     */
    setScale: function(scaleX, scaleY) {
    	scaleX = scaleX || 1.0;
-      this.scale = [scaleX, scaleY || scaleX];
+      this.scale.set(scaleX, scaleY || scaleX);
 		this.getGameObject().markDirty();
    },
 
@@ -220,7 +220,7 @@ R.components.Transform2D = function() {
     * @return {Number}
     */
    getScale: function() {
-      return this.getScaleX();
+      return this.scale;
    },
 
 	/**
@@ -228,7 +228,7 @@ R.components.Transform2D = function() {
 	 * @return {Number}
 	 */
 	getScaleX: function() {
-		return this.scale[0];
+		return this.scale.x;
 	},
 	
 	/**
@@ -236,7 +236,7 @@ R.components.Transform2D = function() {
 	 * @return {Number}
 	 */
 	getScaleY: function() {
-		return this.scale[1];
+		return this.scale.y;
 	},
 
    /**
@@ -246,7 +246,7 @@ R.components.Transform2D = function() {
    getRenderScale: function() {
 //    var wS = this.getGameObject().getRenderContext().getWorldScale();
 //      return wS * this.scale;
-      return this.scale[0];
+      return this.scale;
    },
 
    /**
@@ -256,7 +256,7 @@ R.components.Transform2D = function() {
    getRenderScaleX: function() {
 //    var wS = this.getGameObject().getRenderContext().getWorldScale();
 //      return wS * this.scale;
-      return this.scale[0];
+      return this.scale.x;
    },
 
    /**
@@ -266,7 +266,7 @@ R.components.Transform2D = function() {
    getRenderScaleY: function() {
 //    var wS = this.getGameObject().getRenderContext().getWorldScale();
 //      return wS * this.scale;
-      return this.scale[1];
+      return this.scale.y;
    },
 
    /**

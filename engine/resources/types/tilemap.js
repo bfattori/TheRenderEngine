@@ -60,6 +60,7 @@ R.resources.types.TileMap = function() {
       width: 0,
       height: 0,
       renderState: 0,
+      tileScale: null,
 
       /** @private */
       constructor: function(name, width, height) {
@@ -77,6 +78,7 @@ R.resources.types.TileMap = function() {
          this.image = null;
          this.width = width;
          this.height = height;
+         this.tileScale = R.math.Vector2D.create(1, 1);
 
          this.renderState = R.resources.types.TileMap.REDRAW;
       },
@@ -127,6 +129,8 @@ R.resources.types.TileMap = function() {
             };
             this.animatedTiles.push(aTile);
          }
+
+         this.forceRedraw();
       },
 
       /**
@@ -222,6 +226,34 @@ R.resources.types.TileMap = function() {
          rect.set(wp.x, wp.y, vp.w, vp.h);
 			renderContext.drawImage(vp, this.image, rect);
          rect.destroy();
+      },
+
+      /**
+       * When editing objects, this method returns an object which
+       * contains the properties with their getter and setter methods.
+       * @return {Object} The properties object
+       */
+      getProperties: function(){
+         var self = this;
+         var prop = this.base(self);
+         return $.extend(prop, {
+            "TileScaleX": [function(){
+               return self.tileScale.x;
+            }, function(i){
+               self.tileScale.setX(i);
+            }, true],
+            "TileScaleY": [function(){
+               return self.tileScale.y;
+            }, function(i){
+               self.tileScale.setY(i);
+            }, true],
+            "TileSizeX": [function(){
+               return self.baseTile ? self.baseTile.getBoundingBox().w : "";
+            }, null, false],
+            "TileSizeY": [function(){
+               return self.baseTile ? self.baseTile.getBoundingBox().h : "";
+            }, null, false]
+         });
       }
 
    }, /** @scope R.resources.types.TileMap.prototype */{

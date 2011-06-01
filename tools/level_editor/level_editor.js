@@ -109,6 +109,13 @@ var LevelEditor = function() {
          return "LevelEditor";
       },
 
+      init: function() {
+         R.engine.Script.load("/../tools/level_editor/dialogs.js");
+         R.engine.Script.load("/../tools/level_editor/load_save.js");
+         R.engine.Script.load("/../tools/level_editor/object_edit.js")
+         R.engine.Script.load("/../tools/level_editor/edit_tilemaps.js")
+      },
+
       //=====================================================================================================
       // INITIALIZATION
 
@@ -125,7 +132,7 @@ var LevelEditor = function() {
        */
       edit: function(game, renderContext) {
          // Set the Game object which is being edited
-         this.setGame(game, renderContext);
+         LevelEditor.setGame(game, renderContext);
 
          LevelEditor.currentLevel = {
             "id": -1,
@@ -166,16 +173,17 @@ var LevelEditor = function() {
 
          LevelEditor.gameRenderContext = renderContext;
 
-         for (var o in this.game) {
+         for (var o in LevelEditor.game) {
             try {
-               if (LevelEditor.game[o] instanceof R.resources.loaders.SpriteLoader) {
+               // TileLoader is a subclass of SpriteLoader, so it has to come first
+               if (LevelEditor.game[o] instanceof R.resources.loaders.TileLoader) {
+                  LevelEditor.loaders.tiles.push(LevelEditor.game[o]);
+               } else if (LevelEditor.game[o] instanceof R.resources.loaders.SpriteLoader) {
                   LevelEditor.loaders.sprite.push(LevelEditor.game[o]);
                } else if (LevelEditor.game[o] instanceof R.resources.loaders.SoundLoader) {
                   LevelEditor.loaders.sound.push(LevelEditor.game[o]);
                } else if (LevelEditor.game[o] instanceof R.resources.loaders.LevelLoader) {
                   LevelEditor.loaders.level.push(LevelEditor.game[o]);
-               } else if (LevelEditor.game[o] instanceof R.resources.loaders.TileLoader) {
-                  LevelEditor.loaders.tiles.push(LevelEditor.game[o]);
                } else if (!LevelEditor.gameRenderContext &&
                      LevelEditor.game[o] instanceof R.rendercontexts.AbstractRenderContext) {
 
@@ -212,6 +220,9 @@ var LevelEditor = function() {
          R.engine.Script.loadStylesheet("/../tools/level_editor/css/jdMenu.slate.css", false, true);
       },
 
+      /**
+       * Toggle the editor on and off
+       */
       toggleEditor: function() {
          if (!LevelEditor.showing) {
             // Create the areas for the scene graph and the object properties
@@ -246,9 +257,21 @@ var LevelEditor = function() {
             $("#editPanel div.sceneGraph").bind("select_node.jstree", function(e, data) {
                var id = $(data.args[0]).attr("id") || "";
                if (id == "") {
-                  id = $(data.args[0]).parent().attr("id") || "";
+                  var pId = $(data.args[0]).parent().attr("id"),
+                     isObject = $(data.args[0]).parents("li.objects").length == 1;
+                  if (pId != "" && isObject) {
+                     // Try to center the object in the view
+                     var p = R.clone(LevelEditor.getObjectById(pId).getPosition()),
+                         d = R.clone(LevelEditor.gameRenderContext.getViewport().getDims());
+                     p.sub(d.div(2));
+                     LevelEditor.gameRenderContext.scrollTo(300, p);
+                     LevelEditor.selectById(pId);
+                     p.destroy();
+                     d.destroy();
+                  } else if (pId != "") {
+                     LevelEditor.editTileMap(pId);
+                  }
                }
-               LevelEditor.selectById(id);
             });
 
             // Dialog for script editor
@@ -421,18 +444,18 @@ var LevelEditor = function() {
 
             // Add an event handler to the context
             var ctx = game.getRenderContext();
-            ctx.addEvent(this, "mousedown", function(evt) {
+            ctx.addEvent(LevelEditor, "mousedown", function(evt) {
                LevelEditor.selectObject(evt.pageX, evt.pageY);
                LevelEditor.mouseDown = true;
                LevelEditor.lastPos.set(evt.pageX, evt.pageY);
             });
 
-            ctx.addEvent(this, "mouseup", function() {
+            ctx.addEvent(LevelEditor, "mouseup", function() {
                LevelEditor.mouseDown = false;
                LevelEditor.createPropertiesTable(LevelEditor.currentSelectedObject);
             });
 
-            ctx.addEvent(this, "mousemove", function(evt) {
+            ctx.addEvent(LevelEditor, "mousemove", function(evt) {
                if (LevelEditor.mouseDown) {
                   if (LevelEditor.currentSelectedObject) {
                      LevelEditor.moveSelected(evt.pageX, evt.pageY);
@@ -536,9 +559,9 @@ var LevelEditor = function() {
             LevelEditor.dialogBase.append($("#SaveDialog").remove());
 
             var ctx = LevelEditor.gameRenderContext;
-            ctx.removeEvent(this, "mousedown");
-            ctx.removeEvent(this, "mouseup");
-            ctx.removeEvent(this, "mousemove");
+            ctx.removeEvent(LevelEditor, "mousedown");
+            ctx.removeEvent(LevelEditor, "mouseup");
+            ctx.removeEvent(LevelEditor, "mousemove");
 
             $("ul.jd_menu").remove();
 
@@ -873,8 +896,8 @@ var LevelEditor = function() {
          var loader = sprite.getSpriteLoader(), loaderIdx = 0;
 
          // Locate the sprite loader index
-         for (var l in this.loaders.sprite) {
-            if (loader === this.loaders.sprite) {
+         for (var l in LevelEditor.loaders.sprite) {
+            if (loader === LevelEditor.loaders.sprite) {
                loaderIdx = l;
                break;
             }
@@ -882,390 +905,6 @@ var LevelEditor = function() {
 
          // Return the canonical name which contains the loader index, resource name, and sprite name
          return loaderIdx + ":" + sprite.getSpriteResource().resourceName + ":" + sprite.getName();
-      },
-
-      //=====================================================================================================
-      // DIALOGS
-
-      /**
-       * Show the script editor dialog
-       * @param obj {Object2D} The object being edited
-       * @param propName {String} The property of the object where the script is saved
-       * @param script {String} The initial value
-       * @private
-       */
-      showScriptDialog: function(obj, propName, script) {
-         script = script || "";
-         $("#scriptVal").val(script);
-         $("#ScriptDialog").dialog("option", {
-            "_REObjectId": obj.getId(),
-            "_REPropName": propName
-         }).dialog("open");
-      },
-
-      /**
-       * Show the actor config dialog
-       * @private
-       */
-      showActorConfig: function() {
-         // Get the currently selected object
-         var obj = LevelEditor.currentSelectedObject;
-
-         // Is this a SpriteActor?
-         if (!(obj instanceof R.objects.SpriteActor)) {
-            return;
-         }
-
-         // Get the config object
-         var cfg = obj.getConfig();
-
-         // Build the UI for the entries
-         var fs = $("#ActorConfigDialog form fieldset.optional");
-         for (var cName in cfg) {
-            // Depending on the type, this is either a text or textarea input
-            var el, name = cName + ":", val;
-            switch (cfg[cName]) {
-               case "var":
-                  val = obj.getVariable(cName);
-                  el = $("<input type='text' size='20' name='" + cName + "' value='" + val + "'/>");
-                  break;
-               case "script":
-                  val = obj.getActorEvent(cName);
-                  val = val && val.script ? val.script : "";
-                  name += "</br>";
-                  el = $("<textarea cols='68' rows='3' name='" + cName + "'>").text(val);
-                  break;
-            }
-
-            fs.append($("<span class='label'>").html(name)).append(el).append("<br/>");
-         }
-
-         $("#ActorConfigDialog").dialog("option", { "_REObjectId": obj.getId() }).dialog("open");
-      },
-
-      /**
-       * Save the script onto the object, for the given property
-       * @param objId {String} The object's Id
-       * @param propName {String} The name of the property being modified
-       * @param script {String} The script
-       * @private
-       */
-      saveScript: function(objId, propName, script) {
-         var obj = LevelEditor.getObjectById(objId);
-         LevelEditor.storePropertyValue(obj, propName, script);
-      },
-
-      /**
-       * Save the actor configuration
-       * @param objId {String} The object's Id
-       * @private
-       */
-      saveActorConfig: function(objId, cfgForm) {
-         var obj = LevelEditor.getObjectById(objId);
-
-         // Store the values
-         obj.setActorId($("#ac_id", cfgForm).val());
-         obj.setCollisionMask($("#ac_bitmask", cfgForm).val());
-
-         $("fieldset.optional textarea", cfgForm).each(function() {
-            var fld = $(this);
-            if (fld.val() != "") {
-               obj.setActorEvent(fld.attr("name"), fld.val());
-            }
-         });
-      },
-
-      //=====================================================================================================
-      // CREATORS
-
-      /**
-       * Create a sprite actor object
-       * @param actorName {String} The canonical name of the sprite
-       * @private
-       */
-      createActor: function(actorName) {
-         var ctx = LevelEditor.gameRenderContext;
-         var actor = R.objects.SpriteActor.create();
-
-         // Set the sprite given the canonical name for it
-         actor.setSprite(LevelEditor.getSpriteForName(actorName));
-
-         // Adjust for scroll
-         var s = ctx.getHorizontalScroll();
-
-         var vPort = LevelEditor.gameRenderContext.getViewport().get();
-         var hCenter = Math.floor(vPort.w / 2), vCenter = Math.floor(vPort.h / 2);
-         var pT = R.math.Point2D.create(hCenter + s, vCenter);
-         actor.setPosition(pT);
-         actor.setZIndex(LevelEditor.nextZ++);
-
-         ctx.add(actor);
-         this.setSelected(actor);
-
-         // Add the actor to the tree
-         $("#editPanel div.sceneGraph").jstree("create", "#sg_actors", "last", {
-            "attr": { "id": actor.getId() },
-            "data": actor.getName() + " [" + actor.getId() + "]"
-         }, false, true);
-         LevelEditor.dirty = true;
-      },
-
-      /**
-       * Create a collision box to impede movement
-       * @param {Object} game
-       * @private
-       */
-      createCollisionBox: function() {
-         var ctx = LevelEditor.gameRenderContext;
-         var cbox = R.objects.CollisionBox.create();
-
-         // Adjust for scroll
-         var s = ctx.getHorizontalScroll();
-         var vPort = ctx.getViewport();
-         var hCenter = Math.floor(vPort.w / 2), vCenter = Math.floor(vPort.h / 2);
-         var pT = R.math.Point2D.create(hCenter + s, vCenter);
-
-         cbox.setPosition(pT);
-         cbox.setBoxSize(80, 80);
-         cbox.setZIndex(LevelEditor.nextZ++);
-         ctx.add(cbox);
-         this.setSelected(cbox);
-
-         // Add the box to the tree
-         $("#editPanel div.sceneGraph").jstree("create", "#sg_fixture", "last", {
-            "attr": { "id": cbox.getId() },
-            "data": cbox.getName() + " [" + cbox.getId() + "]"
-         }, false, true);
-         LevelEditor.dirty = true;
-      },
-
-      /**
-       * Create a collision box that when touched triggers an action
-       * @param {Object} game
-       * @private
-       */
-      createTriggerBox: function() {
-         var ctx = LevelEditor.gameRenderContext;
-         var cbox = R.objects.CollisionBox.create();
-
-         // Adjust for scroll
-         var s = ctx.getHorizontalScroll();
-         var vPort = ctx.getViewport();
-         var hCenter = Math.floor(vPort.w / 2), vCenter = Math.floor(vPort.h / 2);
-         var pT = R.math.Point2D.create(hCenter + s, vCenter);
-
-         cbox.setPosition(pT);
-         cbox.setBoxSize(80, 80);
-         cbox.setZIndex(LevelEditor.nextZ++);
-         cbox.setType(R.objects.CollisionBox.TYPE_TRIGGER);
-         ctx.add(cbox);
-         this.setSelected(cbox);
-
-         // Add the box to the tree
-         $("#editPanel div.sceneGraph").jstree("create", "#sg_trigger", "last", {
-            "attr": { "id": cbox.getId() },
-            "data": cbox.getName() + " [" + cbox.getId() + "]"
-         }, false, true);
-         LevelEditor.dirty = true;
-      },
-
-      //=====================================================================================================
-      // EDITOR METHODS
-
-      /**
-       * Copy an object and all of its properties into a new object of the same type
-       * @param obj {Object2D} The object to copy
-       * @private
-       */
-      copyObject: function(obj) {
-         obj = obj || LevelEditor.currentSelectedObject;
-         if (obj != null) {
-            var original = obj;
-
-            // What type of object is this?
-            if (obj instanceof R.objects.SpriteActor) {
-               // Create a new actor
-               var cName = LevelEditor.getSpriteCanonicalName(obj.getSprite());
-               LevelEditor.createActor(cName);
-            } else if (obj instanceof R.objects.CollisionBox) {
-               LevelEditor.createCollisionBox();
-            }
-            /* else if (obj instanceof TriggerBox) {
-
-             }*/
-
-            var bean = LevelEditor.currentSelectedObject.getProperties(), origProps = original.getProperties();
-
-            for (var p in bean) {
-               // Regardless if the editable flag is true, if there is a setter, we'll
-               // call it to copy the value over.
-               if (bean[p][1]) {
-                  if (bean[p][1].multi && bean[p][1].multi === true) {
-                     // Multi-option
-                     bean[p][1].fn(origProps[p][0]());
-                  } else if (bean[p][1].checkbox && bean[p][1].checkbox === true) {
-                     // Checkbox toggle
-                  } else if (bean[p][1].editor && bean[p][1].editor === true) {
-                     // Custom editor
-                     bean[p][1].fn(origProps[p][0]());
-                  } else {
-                     // Single value
-                     bean[p][1](origProps[p][0]());
-                  }
-               }
-            }
-
-            // If the object isn't in the current viewport, move it to the viewport's center
-            // otherwise, offset it by half width and height down and to the right
-            var newObj = LevelEditor.currentSelectedObject,
-            ctx = LevelEditor.gameRenderContext, s = ctx.getHorizontalScroll(), pT;
-
-            if (!ctx.getViewport().isIntersecting(newObj.getWorldBox())) {
-               var vPort = LevelEditor.gameRenderContext.getViewport();
-               var hCenter = Math.floor(vPort.w / 2), vCenter = Math.floor(vPort.h / 2);
-               pT = R.math.Point2D.create(hCenter + s, vCenter);
-            } else {
-               var offs = R.math.Point2D.create(newObj.getBoundingBox().getHalfWidth() + s, newObj.getBoundingBox().getHalfHeight());
-               pT = R.math.Point2D.create(newObj.getRenderPosition()).add(offs);
-               offs.destroy();
-            }
-
-            newObj.setPosition(pT);
-            pT.destroy();
-
-            // Make sure the label in the tree matches the new object's name and Id
-            $("#editPanel div.sceneGraph").jstree("set_text", "#" + newObj.getId(), newObj.getName() + " [" + newObj.getId() + "]");
-         }
-      },
-
-      /**
-       * Select the object which is at the given coordinates
-       * @param {Object} x
-       * @param {Object} y
-       * @private
-       */
-      selectObject: function(x, y) {
-         this.deselectObject();
-
-         // Adjust for context location
-         var ctx = LevelEditor.gameRenderContext;
-         x -= LevelEditor.contextOffset.left;
-         y -= LevelEditor.contextOffset.top;
-
-         // Check to see if this object falls on top of an object
-         var pt = R.math.Point2D.create(x, y);
-         var itr = ctx.iterator();
-         itr.reverse();
-         while (itr.hasNext()) {
-            var obj = itr.next();
-            if (obj.isEditable &&
-            obj.getWorldBox().containsPoint(pt)) {
-               this.setSelected(obj);
-               break;
-            }
-         }
-         itr.destroy();
-         pt.destroy();
-      },
-
-      /**
-       * Deselect the given object, or the currently selected object if "obj" is null
-       * @param {Object} obj
-       * @private
-       */
-      deselectObject: function(obj) {
-         var objId;
-         if (obj == null) {
-            if (this.currentSelectedObject) {
-               objId = this.currentSelectedObject.getId();
-               this.currentSelectedObject.setEditing(false);
-               this.currentSelectedObject = null;
-            }
-         } else {
-            obj.setEditing(false);
-            objId = obj.getId();
-         }
-
-         // Deselect node in tree
-         $("#editPanel div.sceneGraph").jstree("deselect_node", "#" + objId);
-      },
-
-      /**
-       * Delete the given object, or delete the currently selected object if "obj" is null
-       * @param {Object} obj
-       * @private
-       */
-      deleteObject: function(obj) {
-         var objId;
-         if (obj == null) {
-            if (this.currentSelectedObject) {
-               objId = this.currentSelectedObject.getId();
-               this.getGame().getRenderContext().remove(LevelEditor.currentSelectedObject);
-               LevelEditor.currentSelectedObject.destroy();
-               LevelEditor.currentSelectedObject = null;
-            }
-         } else {
-            objId = obj.getId();
-            this.getGame().getRenderContext().remove(obj);
-            obj.destroy();
-         }
-         LevelEditor.createPropertiesTable(null);
-
-         // Update the scene graph tree
-         $("#editPanel div.sceneGraph").jstree("remove", "#" + objId);
-         LevelEditor.dirty = true;
-      },
-
-      /**
-       * Select an object by its Id
-       * @param {Object} objId
-       * @private
-       */
-      selectById: function(objId) {
-         LevelEditor.setSelected(LevelEditor.getObjectById(objId));
-      },
-
-      /**
-       * Set the selected object
-       * @param {Object} obj
-       * @private
-       */
-      setSelected: function(obj) {
-         LevelEditor.deselectObject();
-
-         if (obj) {
-            // Update the selection in the tree
-            $("#editPanel div.sceneGraph").jstree("select_node", "#" + obj.getId());
-         }
-
-         LevelEditor.currentSelectedObject = obj;
-         if (obj) {
-            obj.setEditing(true);
-         }
-         LevelEditor.createPropertiesTable(obj);
-      },
-
-      /**
-       * Move the currently selected object relative to the given coordinates
-       * @param {Object} x
-       * @param {Object} y
-       * @private
-       */
-      moveSelected: function(x, y) {
-         // Adjust for scroll and if the context was moved in the dom
-         x += LevelEditor.gameRenderContext.getHorizontalScroll() - LevelEditor.contextOffset.left;
-         y += LevelEditor.gameRenderContext.getVerticalScroll() - LevelEditor.contextOffset.top;
-
-         var viewWidth = LevelEditor.gameRenderContext.getViewport().w;
-
-         if (this.currentSelectedObject) {
-            var grid = viewWidth / this.gridSize;
-            x = x - x % this.gridSize;
-            y = y - y % this.gridSize;
-            var pt = R.math.Point2D.create(x, y);
-            this.currentSelectedObject.setPosition(pt);
-            pt.destroy();
-         }
       },
 
       //=====================================================================================================
@@ -1280,7 +919,7 @@ var LevelEditor = function() {
          // Remove any existing property table
          $("#propTable").remove();
 
-         if (obj == null || this.currentSelectedObject == null) {
+         if (obj == null && LevelEditor.currentSelectedObject == null) {
             return;
          }
 
@@ -1374,409 +1013,6 @@ var LevelEditor = function() {
          LevelEditor.lastPos.set(x,y);
          cpt.destroy();
          vp.destroy();
-      },
-
-      //=====================================================================================================
-      // IMPORT AND EXPORT
-
-      /**
-       * Setup the initial schema if it doesn't exist
-       * @private
-       */
-      setupDataSchema: function() {
-         // Check to see if the data schema exists already.  If so, early out
-         var db = LevelEditor.getStorage();
-
-         // See if the levels table exists
-         if (!db.tableExists("Maint")) {
-            // Create the schema
-
-            // -- Maintenance
-            db.createTable("Maint", ["id", "next_level_id"], ["Number","Number"]);
-            var sql = "INSERT INTO Maint (id, next_level_id) VALUES (0,0)";
-            db.execSql(sql);
-
-            // -- Levels
-            db.createTable("Levels", ["level_id","name"], ["Number","String"]);
-
-            // -- Objects
-            db.createTable("Objects", ["object_id","type_id","level_id"], ["Number","Number","Number"]);
-
-            // -- ObjectProps
-            db.createTable("ObjectProps", ["object_id","level_id","name","value"], ["Number","Number","String","String"]);
-         }
-
-         return;
-      },
-
-      /**
-       * Drop the data schema from storage
-       * @private
-       */
-      dropDataSchema: function() {
-         var db = LevelEditor.getStorage();
-
-         // Drop the schema
-         db.dropTable("Maint");
-         db.dropTable("Levels");
-         db.dropTable("Objects");
-         db.dropTable("ObjectProps");
-      },
-
-      /**
-       * Open the Save As... dialog, populated with the level name
-       * @private
-       */
-      saveAs: function() {
-         $("#sv_levelName").val(LevelEditor.currentLevel.name);
-         $("#SaveAsDialog").dialog("open");
-      },
-
-      /**
-       * Save the level to storage
-       * @param lvlName {String} The name of the level or null to just save current level
-       * @param dlg {Object} The dialog
-       * @private
-       */
-      saveLevel: function(lvlName, dlg) {
-         // Get the render context
-         var ctx = LevelEditor.gameRenderContext,
-         db = LevelEditor.getStorage();
-
-         LevelEditor.setupDataSchema();
-
-         // If we got a level name, we should check if it exists first
-         var levelName = LevelEditor.currentLevel.name,
-         levelId = LevelEditor.currentLevel.id,
-         exists = true;
-
-         var sql, result;
-         if (lvlName) {
-            exists = false;
-            sql = "SELECT * FROM Levels WHERE Levels.name == '" + lvlName + "'";
-            result = db.execSql(sql);
-            if (result.length > 0) {
-               exists = true;
-               if (!confirm("A level with that name already exists.  Overwrite?")) {
-                  return;
-               }
-
-               // Initiate the level overwrite
-               levelId = result[0].level_id;
-            }
-
-            levelName = lvlName;
-         }
-
-         if (levelId == -1) {
-            exists = false;
-
-            // If we don't have an Id yet, get the next Id from the database and add one
-            sql = "SELECT Maint.next_level_id FROM Maint WHERE Maint.id == 0";
-            result = db.execSql(sql);
-            levelId = result[0].next_level_id;
-
-            sql = "UPDATE Maint SET next_level_id = " + (levelId + 1) + " WHERE Maint.id == 0";
-            db.execSql(sql);
-         }
-
-         // Add or update the level
-         if (exists) {
-            // Get all of the object Ids in the level
-            sql = "SELECT Objects.object_id FROM Objects WHERE Objects.level_id = " + levelId;
-            var objs = db.execSql(sql);
-
-            // Delete the properties for all of the objects
-            for (var o in objs) {
-               sql = "DELETE ObjectProps FROM ObjectProps WHERE ObjectProps.object_id == " + objs[o].object_id + " AND ObjectProps.level_id == " + levelId;
-               db.execSql(sql);
-            }
-
-            // Delete the objects from the level (in the database)
-            sql = "DELETE Objects FROM Objects WHERE Objects.level_id == " + levelId;
-            db.execSql(sql);
-         } else {
-            // Create the level entry
-            sql = "INSERT INTO Levels (level_id, name) VALUES (" + levelId + ",'" + levelName + "')";
-            db.execSql(sql);
-         }
-
-         // Get all of the objects of type SpriteActor or CollisionBox
-         var levelObjects = LevelEditor.getGameObjects();
-
-         // Spin through the objects and store properties which have setters to an object which
-         // we'll serialize into the database
-         for (var o = 0; o < levelObjects.length; o++) {
-            var obj = levelObjects[o],
-            props = LevelEditor.getWritablePropertiesObject(obj),
-            oType = (obj instanceof R.objects.SpriteActor ? 1 :
-            obj.getType() == R.objects.CollisionBox.TYPE_COLLIDER ? 2 : 3);
-
-            // Storing JSON doesn't work...
-            //var s = JSON.stringify(props);
-            sql = "INSERT INTO Objects (object_id, type_id, level_id) VALUES (" + o + "," + oType + "," + levelId + ")";
-            db.execSql(sql);
-
-            // Insert all of the properties
-            for (var p in props) {
-               sql = "INSERT INTO ObjectProps (object_id, level_id, name, value) VALUES (" + o + "," + levelId + ",'" + p + "','" + props[p] + "')";
-               db.execSql(sql);
-            }
-         }
-
-         LevelEditor.dirty = false;
-
-         if (dlg) {
-            $(dlg).dialog("close");
-         }
-      },
-
-      /**
-       * Open the export dialog and export the level to a JSON object
-       * @private
-       */
-      exportLevel: function() {
-         var lvlJSON = {
-            "name": LevelEditor.currentLevel.name,
-            "version": LevelEditor.LEVEL_VERSION_NUMBER,
-            "actors": [],
-            "fixtures": [],
-            "triggers": []
-         };
-
-         // Enumerate all of the actors
-         var actors = LevelEditor.getGameObjects(function(e) {
-            return (e instanceof R.objects.SpriteActor);
-         });
-         var cBlocks = LevelEditor.getGameObjects(function(e) {
-            return (e instanceof R.objects.CollisionBox && e.getType() == R.objects.CollisionBox.TYPE_COLLIDER);
-         });
-         var tBlocks = LevelEditor.getGameObjects(function(e) {
-            return (e instanceof R.objects.CollisionBox && e.getType() == R.objects.CollisionBox.TYPE_TRIGGER);
-         });
-
-         // Add them to the JSON object
-         for (var a in actors) {
-            lvlJSON["actors"].push(LevelEditor.getWritablePropertiesObject(actors[a]));
-         }
-         for (var c in cBlocks) {
-            lvlJSON["fixtures"].push(LevelEditor.getWritablePropertiesObject(cBlocks[c]));
-         }
-         for (var t in tBlocks) {
-            lvlJSON["triggers"].push(LevelEditor.getWritablePropertiesObject(tBlocks[t]));
-         }
-
-         // Open the dialog
-         $("#exportInfo").val(JSON.stringify(lvlJSON, null, 3));
-         $("#ExportDialog").dialog("open");
-      },
-
-      /**
-       * Show the dialog to load level from storage
-       * @private
-       */
-      openLevel: function() {
-         // If they're editing a level, make sure they are ok with this
-         if (LevelEditor.dirty &&
-         !confirm("Any unsaved changes you've made to the current level will be lost.  Proceed?")) {
-            return;
-         }
-
-         LevelEditor.setupDataSchema();
-
-         // Get the names of all levels from storage
-         var db = LevelEditor.getStorage(),
-         sql = "SELECT Levels.* FROM Levels ORDER BY Levels.name",
-         results = db.execSql(sql);
-
-         for (var l in results) {
-            $("#ld_levelNames").append($("<option value='" + results[l].level_id + "'>").text(results[l].name));
-         }
-
-         // Select the first level by default
-         $("#ld_levelNames")[0].selectedIndex = 0;
-
-         // Display the dialog
-         $("#LoadDialog").dialog("open");
-      },
-
-      /**
-       * Load a level from storage
-       * @private
-       */
-      loadLevel: function(levelId, dlg) {
-         LevelEditor.resetLevel();
-
-         // Get the render context
-         var ctx = LevelEditor.gameRenderContext,
-         db = LevelEditor.getStorage(),
-         newObj, treeParent;
-
-         LevelEditor.setupDataSchema();
-
-         // Find the level
-         var sql = "SELECT * FROM Levels WHERE Levels.level_id == " + levelId;
-         var result = db.execSql(sql);
-         if (result.length != 0) {
-            // The level exists... let's load it up
-            LevelEditor.currentLevel = {
-               "id": levelId,
-               "name": result[0].name
-            };
-
-            sql = "SELECT * FROM Objects WHERE Objects.level_id == " + levelId;
-            result = db.execSql(sql);
-
-            for (var o in result) {
-               var oType = result[o].type_id, newObj;
-               if (oType == 1) {
-                  newObj = R.objects.SpriteActor.create();
-                  treeParent = "#sg_actors";
-               } else {
-                  newObj = R.objects.CollisionBox.create();
-                  newObj.setType(oType == 2 ? R.objects.CollisionBox.TYPE_COLLIDER : R.objects.CollisionBox.TYPE_TRIGGER);
-                  treeParent = (oType == 2 ? "#sg_fixture" : "#sg_trigger");
-               }
-
-               // Get the properties for the object and set them
-               var pSql = "SELECT * FROM ObjectProps WHERE ObjectProps.object_id == " + result[o].object_id + " AND ObjectProps.level_id == " + levelId;
-               var pRes = db.execSql(pSql);
-
-               for (var p in pRes) {
-                  LevelEditor.storePropertyValue(newObj, pRes[p].name, pRes[p].value);
-               }
-
-               // Add the object to the context
-               ctx.add(newObj);
-
-               // Add the object to the scene graph
-               $("#editPanel div.sceneGraph").jstree("create", treeParent, "last", {
-                  "attr": { "id": newObj.getId() },
-                  "data": newObj.getName() + " [" + newObj.getId() + "]"
-               }, false, true);
-            }
-         }
-
-         if (dlg) {
-            $(dlg).dialog("close");
-         }
-      },
-
-      /**
-       * Clear everything about the level out and start fresh
-       * @private
-       */
-      newLevel: function() {
-         if (LevelEditor.dirty &&
-         !confirm("This will remove everything from the level.  Any unsaved data will be lost.  Proceed?")) {
-            return;
-         }
-         LevelEditor.resetLevel();
-      },
-
-      /**
-       * Clean up the level and remove everything
-       * @private
-       */
-      resetLevel: function() {
-         // We're only going to remove actors and collision/trigger blocks,
-         // in case the game being edited has added something else to the context
-         var objs = LevelEditor.getGameObjects();
-         for (var i in objs) {
-            // Update the scene graph tree
-            $("#editPanel div.sceneGraph").jstree("remove", "#" + objs[i].getId());
-            objs[i].destroy();
-         }
-         LevelEditor.currentLevel.id = -1;
-         LevelEditor.currentLevel.name = "New Level";
-      },
-
-      /**
-       * Perform the import
-       * @private
-       */
-      doImport: function(lvl, dlg) {
-         // If they are currently editing a level, ask if they want to import
-         if (LevelEditor.dirty &&
-         !confirm("If you import now, any unsaved changes you've made will be lost.  Proceed?")) {
-            return;
-         }
-
-         // Parse the JSON to see if it's valid
-         var lvlJSON;
-         try {
-            lvlJSON = JSON.parse(lvl);
-         } catch (ex) {
-            alert("The JSON object provided is not valid and could not be parsed");
-            return;
-         }
-
-         // Check the version in the file to see if it's lower than the version of the editor
-         if (lvlJSON.version < LevelEditor.LEVEL_VERSION_NUMBER) {
-            if (!confirm("The version in the file is older than the editor version.  There may be differences which cannot be imported.  Do you want to continue?")) {
-               return;
-            }
-         }
-
-         // See if the version in the file is higher than the version of the editor
-         if (lvlJSON.version > LevelEditor.LEVEL_VERSION_NUMBER) {
-            alert("The version of the file cannot be loaded by this editor.");
-            return;
-         }
-
-         // Now the the formalities are out of the way, let's get to importing the data
-         LevelEditor.resetLevel();
-
-         // Get the level name
-         LevelEditor.name = lvlJSON.name;
-
-         // Import all of the actors, collision blocks, and trigger blocks
-         var newObj, ctx = LevelEditor.gameRenderContext;
-         for (var a in lvlJSON["actors"]) {
-            newObj = R.objects.SpriteActor.create();
-            LevelEditor.storeObjectProperties(newObj, lvlJSON["actors"][a]);
-
-            // Add the object to the context
-            ctx.add(newObj);
-
-            // Add the object to the scene graph
-            $("#editPanel div.sceneGraph").jstree("create", "#sg_actors", "last", {
-               "attr": { "id": newObj.getId() },
-               "data": newObj.getName() + " [" + newObj.getId() + "]"
-            }, false, true);
-         }
-
-         for (var f in lvlJSON["fixtures"]) {
-            newObj = R.objects.CollisionBox.create();
-            LevelEditor.storeObjectProperties(newObj, lvlJSON["fixtures"][f]);
-
-            // Add the object to the context
-            ctx.add(newObj);
-
-            // Add the object to the scene graph
-            $("#editPanel div.sceneGraph").jstree("create", "#sg_fixture", "last", {
-               "attr": { "id": newObj.getId() },
-               "data": newObj.getName() + " [" + newObj.getId() + "]"
-            }, false, true);
-         }
-
-         for (var t in lvlJSON["triggers"]) {
-            newObj = R.objects.CollisionBox.create();
-            newObj.setType(R.objects.CollisionBox.TYPE_TRIGGER);
-            LevelEditor.storeObjectProperties(newObj, lvlJSON["triggers"][t]);
-
-            // Add the object to the context
-            ctx.add(newObj);
-
-            // Add the object to the scene graph
-            $("#editPanel div.sceneGraph").jstree("create", "#sg_trigger", "last", {
-               "attr": { "id": newObj.getId() },
-               "data": newObj.getName() + " [" + newObj.getId() + "]"
-            }, false, true);
-         }
-
-         // All good!
-         $(dlg).dialog("close");
       }
 
    });

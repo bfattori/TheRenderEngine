@@ -291,7 +291,7 @@ R.math.Point2D = function(){
             Object.freeze(R.math.Point2D.ZERO);
          }
 		},
-		
+
 		/**
 		 * The "zero" point. This point should not be modified.
 		 * @type {Point2D}

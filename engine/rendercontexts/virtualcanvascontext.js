@@ -59,9 +59,11 @@ R.Engine.define({
 R.rendercontexts.VirtualCanvasContext = function(){
 	return R.rendercontexts.CanvasContext.extend(/** @scope R.rendercontexts.ScrollingBackgroundContext.prototype */{
 
+      scrollFromPt: null,
       scrollToPt: null,
       moving: false,
       expireTime: 0,
+      duration: 0,
 
 		/** @private */
 		constructor: function(name, windowWidth, windowHeight, worldWidth, worldHeight){
@@ -69,36 +71,34 @@ R.rendercontexts.VirtualCanvasContext = function(){
 			this.base(name || "VirtualCanvasContext", windowWidth, windowHeight);
          this.setWorldBoundary(R.math.Rectangle2D.create(0, 0, worldWidth, worldHeight));
          this.scrollToPt = R.math.Point2D.create(0,0);
+         this.scrollFromPt = R.math.Point2D.create(0,0);
          this.moving = false;
          this.expireTime = 0;
+         this.duration = 0;
 		},
 		
 		/**
-		 * Set the horizontal position in pixels.  Setting the position will
-       * cancel a current transition made with {@link #scrollTo}
+		 * Set the horizontal position in pixels.
 		 *
 		 * @param x {Number} The horizontal scroll in pixels
 		 */
 		setHorizontalScroll: function(x){
 			var maxX = this.getWorldBoundary().w - this.getViewport().w;
-         //x = (x < 0 ? 0 : (x > maxX ? maxX : x));
+         x = (x < 0 ? 0 : (x > maxX ? maxX : x));
          this.getWorldPosition().setX(x);
          this.getViewport().getTopLeft().setX(x);
-         this.moving = false;
 		},
 		
       /**
-       * Set the vertical position in pixels.  Setting the position will
-       * cancel a current transition made with {@link #scrollTo}
+       * Set the vertical position in pixels.
        *
 		 * @param y {Number} The vertical scroll in pixels
 		 */
 		setVerticalScroll: function(y){
          var maxY = this.getWorldBoundary().h - this.getViewport().h;
-         //y = (y < 0 ? 0 : (y > maxY ? maxY : y));
+         y = (y < 0 ? 0 : (y > maxY ? maxY : y));
          this.getWorldPosition().setY(y);
          this.getViewport().getTopLeft().setY(y);
-         this.moving = false;
 		},
 
       setScroll: function(pt) {
@@ -113,9 +113,11 @@ R.rendercontexts.VirtualCanvasContext = function(){
        * @param [y] {Number} The Y coordinate, if <tt>ptOrX</tt> is a number
        */
       scrollTo: function(duration, ptOrX, y) {
+         this.scrollFromPt.set(this.getWorldPosition());
          this.scrollToPt.set(ptOrX, y);
          this.moving = true;
          this.expireTime = R.Engine.worldTime + duration;
+         this.duration = duration;
       },
 		
 		/**
@@ -144,25 +146,22 @@ R.rendercontexts.VirtualCanvasContext = function(){
        */
       setupWorld: function(worldTime, dt) {
          if (this.moving) {
-            if (this.worldTime < this.expireTime) {
+            if (worldTime < this.expireTime) {
                // Moving
-               var sc = R.math.Point2D.create(this.scrollToPt).sub(this.getViewport())
-                  .mul(worldTime / this.expireTime);
-
-               this.getViewport().setTopLeft(sc);
+               var sc = R.math.Point2D.create(this.scrollToPt).sub(this.scrollFromPt)
+                  .mul((this.duration - (this.expireTime - worldTime)) / this.duration),
+                   sp = R.math.Point2D.create(this.scrollFromPt).add(sc);
+               this.setScroll(sp);
                sc.destroy();
+               sp.destroy();
             } else {
                // Arrived
                this.moving = false;
                this.expireTime = 0;
-               this.getViewport().setTopLeft(this.scrollToPt);
+               this.setScroll(this.scrollToPt);
             }
          }
-
          this.base(worldTime, dt);
-
-         this.setLineStyle("blue");
-         this.drawRectangle(this.getViewport());
       }
 		
 	}, /** @scope R.rendercontexts.VirtualCanvasContext.prototype */ {

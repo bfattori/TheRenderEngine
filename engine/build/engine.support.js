@@ -529,11 +529,6 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
       return R.engine.Support._sysInfo;
    },
 
-/**
- * Displays the virtual D-pad on the screen, if enabled via <tt>R.Engine.options.useVirtualControlPad</tt>,
- * and wires up the appropriate events for the current browser.
- */
-
    /**
     * When the object is no longer <tt>undefined</tt>, the function will
     * be executed.
@@ -548,6 +543,11 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
          setTimeout(arguments.callee, 50);
       }
    },
+
+   /**
+    * Displays the virtual D-pad on the screen, if enabled via <tt>R.Engine.options.useVirtualControlPad</tt>,
+    * and wires up the appropriate events for the current browser.
+    */
    showDPad: function() {
       if (!R.Engine.options.useVirtualControlPad) {
          return;

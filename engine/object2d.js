@@ -69,12 +69,15 @@ R.engine.Object2D = function(){
 		wBox: null,
 		wCircle: null,
 		lastPosition: null,
-      lastRenderPosition: null,
 		origin: null,
       originNeg: null,
 		collisionHull: null,
 		genHull: null,
 		defaultTxfmComponent: null,
+
+      oldRenderPosition: null,
+      oldBbox: null,
+      oldScale: null,
 
       // Simple flag indicating object is descendant of Object2D
       __OBJECT2D: true,
@@ -87,7 +90,9 @@ R.engine.Object2D = function(){
 		constructor: function(name, transformComponent){
 			this.base(name);
 			this.lastPosition = R.math.Point2D.create(5, 5);
-         this.lastRenderPosition = R.math.Point2D.create(5, 5);
+         this.oldRenderPosition = R.math.Point2D.create(5, 5);
+         this.oldBbox = R.math.Rectangle2D.create(0, 0, 1, 1);
+         this.oldScale = R.math.Vector2D.create(1, 1);
 			this.bBox = R.math.Rectangle2D.create(0, 0, 1, 1);
 			this.AABB = R.math.Rectangle2D.create(0, 0, 1, 1);
 			this.wBox = R.math.Rectangle2D.create(0, 0, 1, 1);
@@ -116,7 +121,9 @@ R.engine.Object2D = function(){
 			this.wBox.destroy();
 			this.wCircle.destroy();
 			this.lastPosition.destroy();
-         this.lastRenderPosition.destroy();
+         this.oldRenderPosition.destroy();
+         this.oldBbox.destroy();
+         this.oldScale.destroy();
          this.AABB.destroy();
          this.wCircle.destroy();
          this.origin.destroy();
@@ -137,7 +144,9 @@ R.engine.Object2D = function(){
 			this.wBox = null;
 			this.wCircle = null;
 			this.lastPosition = null;
-         this.lastRenderPosition = null;
+         this.oldRenderPosition = null;
+         this.oldBbox = null;
+         this.oldScale = null;
          this.AABB = null;
          this.wCircle = null;
          this.origin = null;
@@ -262,17 +271,26 @@ R.engine.Object2D = function(){
 		 * @return {R.math.Rectangle2D} The world bounding rectangle
 		 */
 		getWorldBox: function(){
-         // TODO: Should probably also check to see if the
-         // bounding box has changed size or origin has moved
-         if (this.getRenderPosition().equals(this.lastRenderPosition)) {
+         // Only update if the object has moved, changed size, or has been scaled
+         if (this.getRenderPosition().equals(this.oldRenderPosition) &&
+             this.bBox.equals(this.oldBbox) && this.getScale().equals(this.oldScale)) {
             return this.wBox;
          }
 
 			this.wBox.set(this.getBoundingBox());
+
+         // Need to apply scaling
+         this.wBox.setWidth(this.wBox.w * this.getScaleX());
+         this.wBox.setHeight(this.wBox.h * this.getScaleY());
+
 			var rPos = R.math.Point2D.create(this.getRenderPosition()).add(this.originNeg);
 			this.wBox.offset(rPos);
 			rPos.destroy();
-         this.lastRenderPosition.set(this.getRenderPosition());
+
+         // Remember the changes
+         this.oldRenderPosition.set(this.getRenderPosition());
+         this.oldBbox.set(this.bBox);
+         this.oldScale.set(this.getScale());
 			return this.wBox;
 		},
 		
@@ -454,12 +472,11 @@ R.engine.Object2D = function(){
 		},
 		
 		/**
-		 * Get the uniform scale of the object.  If the object is using a non-uniform
-		 * scale, only the X scale is returned.
-		 * @return {Number}
+		 * Get the scale of the object along both the X and Y axis.
+		 * @return {R.math.Vector2D}
 		 */
 		getScale: function(){
-			return this.getScaleX();
+			return this.getDefaultTransformComponent().getScale();
 		},
 		
 		/**
