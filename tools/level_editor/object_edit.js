@@ -18,13 +18,10 @@ LevelEditor.extend({
       actor.setSprite(LevelEditor.getSpriteForName(actorName));
 
       // Adjust for scroll
-      var s = ctx.getHorizontalScroll();
-
-      var vPort = LevelEditor.gameRenderContext.getViewport().get();
-      var hCenter = Math.floor(vPort.w / 2), vCenter = Math.floor(vPort.h / 2);
-      var pT = R.math.Point2D.create(hCenter + s, vCenter);
+      var pT = R.clone(LevelEditor.gameRenderContext.getViewport().getDims()).div(2).add(ctx.getWorldPosition());
       actor.setPosition(pT);
-      actor.setZIndex(LevelEditor.nextZ++);
+      pT.destroy();
+      actor.setZIndex(1);
 
       ctx.add(actor);
       LevelEditor.setSelected(actor);
@@ -47,16 +44,14 @@ LevelEditor.extend({
       var cbox = R.objects.Fixture.create();
 
       // Adjust for scroll
-      var s = ctx.getHorizontalScroll();
-      var vPort = ctx.getViewport();
-      var hCenter = Math.floor(vPort.w / 2), vCenter = Math.floor(vPort.h / 2);
-      var pT = R.math.Point2D.create(hCenter + s, vCenter);
+      var pT = R.clone(LevelEditor.gameRenderContext.getViewport().getDims()).div(2).add(ctx.getWorldPosition());
 
       cbox.setPosition(pT);
       cbox.setBoxSize(80, 80);
-      cbox.setZIndex(LevelEditor.nextZ++);
+      cbox.setZIndex(2);
       ctx.add(cbox);
       LevelEditor.setSelected(cbox);
+      pT.destroy();
 
       // Add the box to the tree
       $("#editPanel div.sceneGraph").jstree("create", "#sg_fixture", "last", {
@@ -76,17 +71,15 @@ LevelEditor.extend({
       var cbox = R.objects.Fixture.create();
 
       // Adjust for scroll
-      var s = ctx.getHorizontalScroll();
-      var vPort = ctx.getViewport();
-      var hCenter = Math.floor(vPort.w / 2), vCenter = Math.floor(vPort.h / 2);
-      var pT = R.math.Point2D.create(hCenter + s, vCenter);
+      var pT = R.clone(LevelEditor.gameRenderContext.getViewport().getDims()).div(2).add(ctx.getWorldPosition());
 
       cbox.setPosition(pT);
       cbox.setBoxSize(80, 80);
-      cbox.setZIndex(LevelEditor.nextZ++);
+      cbox.setZIndex(3);
       cbox.setType(R.objects.Fixture.TYPE_TRIGGER);
       ctx.add(cbox);
       LevelEditor.setSelected(cbox);
+      pT.destroy();
 
       // Add the box to the tree
       $("#editPanel div.sceneGraph").jstree("create", "#sg_trigger", "last", {

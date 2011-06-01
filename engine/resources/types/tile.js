@@ -60,11 +60,13 @@ R.resources.types.Tile = function() {
       solidityMap: null,
       status: null,
       sparsity: null,
+      tileObj: null,
 
       /** @private */
       constructor: function(name, tileObj, tileResource, tileLoader) {
-         this.base(name, tileObj, spriteResource, 2, spriteLoader);
+         this.base(name, tileObj, tileResource, 2, tileLoader);
          this.solidityMap = [];
+         this.tileObj = tileObj;
          R.resources.types.Tile.computeSolidityMap(this);
       },
 
@@ -145,6 +147,16 @@ R.resources.types.Tile = function() {
        */
       getClassName: function() {
          return "R.resources.types.Tile";
+      },
+
+      /**
+       * Specialized method to allow tiles to be cloned from one another.  This method is also
+       * called by {@link R#clone} when cloning objects.
+       *
+       * @param tile {R.resources.types.Tile} Tile to clone from
+       */
+      clone: function(tile) {
+         return R.resources.types.Tile.create(tile.getName(), tile.tileObj, tile.getTileResource(), tile.getTileLoader());
       },
 
       /**

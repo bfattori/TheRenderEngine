@@ -130,7 +130,30 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 		// Return the image data
 		return ctx.getDataURL();
 	},
-	
+
+   /**
+    * Extract the image data URL from the provided image.  The image can either be an HTML &lt;img&gt; element,
+    * or it can be another render context.  This method typically only works with the canvas context.
+    * @param image {Object} Image or context
+    * @param [cropRect] {R.math.Rectangle2D} A rectangle to crop to, or <code>null</code> to use the entire image
+    * @param [contextType] {R.rendercontexts.RenderContext2D} Optional render context class, or <code>null</code> to
+    * 	assume a canvas context.
+    * @return {Object} Image data object with "width", "height", and an Array of each pixel, represented as
+    * 	RGBA data where each element is represented by an integer 0-255.
+    */
+   extractDataURL: function(image, cropRect, contextType) {
+      contextType = contextType || R.rendercontexts.CanvasContext;
+      var img = $(image), w = img.attr("width"), h = img.attr("height");
+      var imgRect = R.math.Rectangle2D.create(0,0,w,h);
+
+      // Get the temporary context
+      var ctx = R.util.RenderUtil.getTempContext(contextType, w, h);
+      ctx.drawImage(imgRect, image, cropRect);
+
+      // Return the image data from the temp context
+      return ctx.getDataURL("image/png");
+   },
+
 	/**
 	 * Extract the image data from the provided image.  The image can either be an HTML &lt;img&gt; element,
 	 * or it can be another render context.  This method typically only works with the canvas context.
@@ -143,7 +166,7 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 	 */
 	extractImageData: function(image, cropRect, contextType) {
 		contextType = contextType || R.rendercontexts.CanvasContext;
-		var w = image.attr("width"), h = image.attr("height");
+		var img = $(image), w = img.attr("width"), h = img.attr("height");
 		var imgRect = R.math.Rectangle2D.create(0,0,w,h);
 		
 		// Get the temporary context

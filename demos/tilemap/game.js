@@ -80,8 +80,8 @@ var TilemapDemo = function() {
       centerPoint: null,
       areaScale: 1.0,
 
-      fieldWidth: 640,
-      fieldHeight: 448,
+      fieldWidth: 800,
+      fieldHeight: 600,
 
       spriteLoader: null,
       tileLoader: null,
@@ -133,7 +133,7 @@ var TilemapDemo = function() {
 
       run: function() {
          // Create the 2D context
-         this.renderContext = R.rendercontexts.VirtualCanvasContext.create("playfield", 640, 480, 1920, 1440);
+         this.renderContext = R.rendercontexts.VirtualCanvasContext.create("playfield", 800, 600, 3200, 3200);
          this.renderContext.setWorldScale(this.areaScale);
          R.Engine.getDefaultContext().add(this.renderContext);
          this.renderContext.setBackgroundColor("#000000")

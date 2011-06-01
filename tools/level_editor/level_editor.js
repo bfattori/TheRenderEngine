@@ -89,7 +89,7 @@ var LevelEditor = function() {
          level: null
       },
       gameRenderContext: null,
-      nextZ: 1,
+      currentZIndex: 1,
       defaultSprite: null,
       spriteOptions: null,
       allSprites: null,
@@ -99,6 +99,8 @@ var LevelEditor = function() {
       dialogBase: null,
       currentLevel: null,
       lastPos: null,
+
+      editingTiles: false,
 
       constructor: null,
       dirty: false,
@@ -177,7 +179,7 @@ var LevelEditor = function() {
             try {
                // TileLoader is a subclass of SpriteLoader, so it has to come first
                if (LevelEditor.game[o] instanceof R.resources.loaders.TileLoader) {
-                  LevelEditor.loaders.tiles.push(LevelEditor.game[o]);
+                  LevelEditor.loaders.tile.push(LevelEditor.game[o]);
                } else if (LevelEditor.game[o] instanceof R.resources.loaders.SpriteLoader) {
                   LevelEditor.loaders.sprite.push(LevelEditor.game[o]);
                } else if (LevelEditor.game[o] instanceof R.resources.loaders.SoundLoader) {
@@ -268,8 +270,13 @@ var LevelEditor = function() {
                      LevelEditor.selectById(pId);
                      p.destroy();
                      d.destroy();
+                     if ($("#TileSelector").length != 0) {
+                        LevelEditor.dialogBase.append($("#TileSelector").remove());
+                     }
+                     LevelEditor.editingTiles = false;
                   } else if (pId != "") {
                      LevelEditor.editTileMap(pId);
+                     LevelEditor.editingTiles = true;
                   }
                }
             });
@@ -445,7 +452,9 @@ var LevelEditor = function() {
             // Add an event handler to the context
             var ctx = game.getRenderContext();
             ctx.addEvent(LevelEditor, "mousedown", function(evt) {
-               LevelEditor.selectObject(evt.pageX, evt.pageY);
+               if (!LevelEditor.editingTiles) {
+                  LevelEditor.selectObject(evt.pageX, evt.pageY);
+               }
                LevelEditor.mouseDown = true;
                LevelEditor.lastPos.set(evt.pageX, evt.pageY);
             });
@@ -456,12 +465,14 @@ var LevelEditor = function() {
             });
 
             ctx.addEvent(LevelEditor, "mousemove", function(evt) {
-               if (LevelEditor.mouseDown) {
+               if (!LevelEditor.editingTiles && LevelEditor.mouseDown) {
                   if (LevelEditor.currentSelectedObject) {
                      LevelEditor.moveSelected(evt.pageX, evt.pageY);
                   } else {
                      LevelEditor.moveWorld(evt.pageX, evt.pageY);
                   }
+               } else if (LevelEditor.editingTiles && LevelEditor.mouseDown) {
+                  LevelEditor.drawTile(evt.pageX, evt.pageY);
                }
             });
 
@@ -697,7 +708,7 @@ var LevelEditor = function() {
                   for (var t in tiles) {
                      LevelEditor.allTiles.push({
                         lookup: l + ":" + resources[r] + ":" + tiles[t],
-                        sprite: resources[r] + ": " + tiles[t]
+                        tile: resources[r] + ": " + tiles[t]
                      });
                   }
                }
@@ -883,6 +894,18 @@ var LevelEditor = function() {
          var spriteIdent = spriteOpt.split(":");
          var loader = LevelEditor.loaders.sprite[spriteIdent[0]];
          return loader.getSprite(spriteIdent[1], spriteIdent[2]);
+      },
+
+      /**
+       * Get the tile object for the given canonical name
+       * @param {Object} spriteOpt
+       * @private
+       */
+      getTileForName: function(tileOpt) {
+         // Determine the loader, sheet, and sprite
+         var tileIdent = tileOpt.split(":");
+         var loader = LevelEditor.loaders.tile[tileIdent[0]];
+         return loader.getTile(tileIdent[1], tileIdent[2]);
       },
 
       /**
