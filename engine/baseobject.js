@@ -175,17 +175,17 @@ R.engine.BaseObject = function(){
 		 * @param fn {Function} The function to trigger when the event fires
 		 */
 		addEvent: function(ref, type, data, fn){
+         fn = $.isFunction(data) ? data : fn;
+         data = $.isFunction(data) ? null : data;
 			if (ref == null) {
 				// This is a global assignment to the document body.  Many listeners
 				// may collect data from the event handler.
 				R.debug.Console.info("Global assignment of event '" + type + "'");
 				R.engine.Events.setHandler(document.body, type, data || fn, fn);
-				this.events["document," + type] = func;
+				this.events["document," + type] = fn;
 			}
 			else {
             R.debug.Console.debug(ref.getName() + " attach event '" + type + "' to " + this.getName());
-            fn = $.isFunction(data) ? data : fn;
-            data = $.isFunction(data) ? null : data;
 				if (this.getElement()) {
 					R.engine.Events.setHandler(this.getElement(), type, data || fn, fn);
 					
