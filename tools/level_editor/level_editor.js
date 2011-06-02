@@ -271,7 +271,7 @@ var LevelEditor = function() {
                      var pos = R.clone(LevelEditor.getObjectById(pId).getPosition()),
                          d = R.clone(LevelEditor.gameRenderContext.getViewport().getDims());
                      pos.sub(d.div(2));
-                     LevelEditor.gameRenderContext.scrollTo(300, p);
+                     LevelEditor.gameRenderContext.scrollTo(300, pos);
                      LevelEditor.selectById(pId);
                      pos.destroy();
                      d.destroy();
