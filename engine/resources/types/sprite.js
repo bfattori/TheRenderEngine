@@ -40,7 +40,20 @@ R.Engine.define({
 });
 
 /**
- * @class Represents a sprite
+ * @class A 2D sprite object.  Sprites are either a single frame, or an animation composed of
+ *        multiple frames run at a specified frame speed.  Animations can be run once, loop
+ *        continuously, or toggle back and forth through the frames.  It is possible to start
+ *        and stop animations, and also modify the speed at which each frame is played.
+ *        <p/>
+ *        In addition to the normal controls for an animation, a developer can also respond
+ *        to events triggered on the sprite.  Linking to the events is done through
+ *        {@link R.engine.BaseObject#addEvent}. The following are the events, and their
+ *        descriptions:
+ *        <ul>
+ *           <li><tt>finished</tt> - A "run once" animation has played and completed</li>
+ *           <li><tt>loopRestarted</tt> - A looping animation has begun a new cycle</li>
+ *           <li><tt>toggled</tt> - A toggle animation has changed animation direction</li>
+ *        </ul>
  *
  * @constructor
  * @param name {String} The name of the sprite within the resource
@@ -276,14 +289,13 @@ R.resources.types.Sprite = function() {
    },
 
 	/**
-	 * Calculate the frame number for the type of animation
+	 * Calculate the frame number for the type of animation.
 	 * @param time {Number} The current world time
     * @param dt {Number} The delta between the world time and the last time the world was updated
     *          in milliseconds.
 	 * @private
 	 */
 	calcFrameNumber: function(time, dt) {
-      // TODO: Update to use delta time and world time to get correct frame when synchronized
 		if (!this.playing) {
 			return this.frameNum;
 		}
@@ -298,31 +310,36 @@ R.resources.types.Sprite = function() {
 			}
 			
 			// How much time has elapsed since the last frame update?
-			this.frameNum += (time - this.lastTime > this.speed ? this.toggleDir : 0);
+         if (dt > this.speed) {
+            // Engine is lagging, skip to correct frame
+            this.frameNum += (Math.floor(dt / this.speed) * this.toggleDir);
+         } else {
+			   this.frameNum += (time - this.lastTime > this.speed ? this.toggleDir : 0);
+         }
 			
 			// Modify the frame number for the animation mode
 			if (this.isOnce()) {
-				// Play animation once from beinning to end
-				if (this.frameNum == this.count) {
+				// Play animation once from beginning to end
+				if (this.frameNum >= this.count) {
 					this.frameNum = this.count - 1;
 					if (!this.finished) {
 						// Call event when finished
 						this.finished = true;
-						// TRIGGER: onSpriteFinished
+						this.triggerEvent("finished");
 					}
 				}
 			} else if (this.isLoop()) {
 				if (this.frameNum > this.count - 1) {
 					// Call event when loop restarts
 					this.frameNum = 0;
-					// TRIGGER: onSpriteLoopRestart
+               this.triggerEvent("loopRestarted");
 				}
 			} else {
 				if (this.frameNum == this.count - 1 || this.frameNum == 0) {
 					// Call event when animation toggles
 					this.toggleDir *= -1;
 					this.frameNum += this.toggleDir;
-					// TRIGGER: onSpriteToggle
+               this.triggerEvent("toggled");
 				}
 			}
 			
@@ -335,20 +352,20 @@ R.resources.types.Sprite = function() {
 			if (this.isLoop()) {
 				this.frameNum = Math.floor(time / this.speed) % this.count;
 				if (this.frameNum < lastFrame) {
-					// TRIGGER: onSpriteLoopRestart
-				}				
+               this.triggerEvent("loopRestarted");
+				}
 			} else if (this.isOnce() && !this.finished) {
 				this.frameNum = Math.floor(time / this.speed) % this.count;
 				if (this.frameNum < lastFrame) {
 					this.finished = true;
 					this.frameNum = this.count - 1;
-					// TRIGGER: onSpriteFinished
+               this.triggerEvent("finished");
 				}
 			} else if (this.isToggle()) {
 				this.frameNum = Math.floor(time / this.speed) % (this.count * 2);
 				if (this.frameNum > this.count - 1) {
 					this.frameNum = this.count - (this.frameNum - (this.count - 1));
-					// TRIGGER: onSpriteToggle
+               this.triggerEvent("toggled");
 				}
 			}
 		}
