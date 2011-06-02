@@ -182,7 +182,11 @@ R.make = function(clazz, props) {
 R.clone = function(obj) {
    if (obj instanceof R.engine.PooledObject) {
       var ctor = obj.constructor;
-      return ctor.create(obj);
+      if (ctor.clone) {
+         return ctor.clone(obj);
+      } else {
+         return ctor.create(obj);
+      }
    } else {
       return $.extend({}, obj);
    }

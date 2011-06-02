@@ -61,12 +61,14 @@ R.resources.types.Tile = function() {
       status: null,
       sparsity: null,
       tileObj: null,
+      tileImg: null,
 
       /** @private */
       constructor: function(name, tileObj, tileResource, tileLoader) {
          this.base(name, tileObj, tileResource, 2, tileLoader);
          this.solidityMap = [];
          this.tileObj = tileObj;
+         this.tileImg = null;
          R.resources.types.Tile.computeSolidityMap(this);
       },
 
@@ -81,6 +83,9 @@ R.resources.types.Tile = function() {
        * Release the sprite back into the pool for reuse
        */
       release: function() {
+         this.solidityMap = null;
+         this.tileImg = null;
+         this.tileObj = null;
          this.base();
       },
 
@@ -98,6 +103,34 @@ R.resources.types.Tile = function() {
        */
       getTileLoader: function() {
          return this.loader;
+      },
+
+      /**
+       * Get the image of the tile.
+       * @return {HTMLImage}
+       */
+      getTileImage: function() {
+         if (!this.tileImg) {
+            this.tileImg = $("<img>");
+            var f = this.getFrame(0,0);
+            if (!this.isAnimation()) {
+               this.tileImg.attr({
+                  width: f.w,
+                  height: f.h,
+                  src: R.util.RenderUtil.extractDataURL(tile.getSourceImage(), f)
+               });
+            } else {
+               var w = this.getBoundingBox().w * this.getFrameCount(), h = this.getBoundingBox().h,
+                   fr = R.math.Rectangle2D.create(f);
+               fr.w += w;
+               this.tileImg.attr({
+                  width: w,
+                  height: h,
+                  src: R.util.RenderUtil.extractDataURL(tile.getSourceImage(), fr)
+               });
+            }
+         }
+         return this.tileImg[0];
       },
 
       /**
@@ -188,8 +221,7 @@ R.resources.types.Tile = function() {
             var tmpMap = [], opaque = 0;
             for (var y = 0; y < fr.h; y++) {
                for (var x = 0; x < fr.w; x++) {
-                  var pix = imgData[(x + y * fr.w) + 3] > threshold ? 1 : 0;
-                  opaque += pix;
+                  opaque += imgData[(x + y * fr.w) + 3] > threshold ? 1 : 0;
                }
             }
 

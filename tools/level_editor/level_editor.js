@@ -259,16 +259,21 @@ var LevelEditor = function() {
             $("#editPanel div.sceneGraph").bind("select_node.jstree", function(e, data) {
                var id = $(data.args[0]).attr("id") || "";
                if (id == "") {
-                  var pId = $(data.args[0]).parent().attr("id"),
+                  var p = $(data.args[0]).parent(), pId = p.attr("id"),
                      isObject = $(data.args[0]).parents("li.objects").length == 1;
-                  if (pId != "" && isObject) {
+                  if (p.hasClass("objects")) {
+                     LevelEditor.editingTiles = false;
+                     return;
+                  }
+
+                  if (pId && isObject) {
                      // Try to center the object in the view
-                     var p = R.clone(LevelEditor.getObjectById(pId).getPosition()),
+                     var pos = R.clone(LevelEditor.getObjectById(pId).getPosition()),
                          d = R.clone(LevelEditor.gameRenderContext.getViewport().getDims());
-                     p.sub(d.div(2));
+                     pos.sub(d.div(2));
                      LevelEditor.gameRenderContext.scrollTo(300, p);
                      LevelEditor.selectById(pId);
-                     p.destroy();
+                     pos.destroy();
                      d.destroy();
                      if ($("#TileSelector").length != 0) {
                         LevelEditor.dialogBase.append($("#TileSelector").remove());
@@ -472,7 +477,7 @@ var LevelEditor = function() {
                      LevelEditor.moveWorld(evt.pageX, evt.pageY);
                   }
                } else if (LevelEditor.editingTiles && LevelEditor.mouseDown) {
-                  LevelEditor.drawTile(evt.pageX, evt.pageY);
+                  LevelEditor.drawTile(evt);
                }
             });
 

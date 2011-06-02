@@ -106,6 +106,10 @@ R.resources.types.TileMap = function() {
          this.renderState = R.resources.types.TileMap.REDRAW;
       },
 
+      getBaseTile: function() {
+         return this.baseTile;
+      },
+
       /**
        * Set the tile at the given position.
        * @param tile {R.resources.types.Tile} The tile
@@ -117,11 +121,19 @@ R.resources.types.TileMap = function() {
          Assert(this.baseTile == null || tile.getBoundingBox().equals(this.baseTile.getBoundingBox()),
                "Tiles in a TileMap must be the same size!");
 
-         this.tilemap[x + y * this.width] = tile;
-         this.baseTile = tile;
+         if (this.tilemap[x + y * this.width] != null) {
+            this.tilemap[x + y * this.width].destroy();
+         }
 
+         var newTile = R.clone(tile);
+         this.tilemap[x + y * this.width] = newTile;
+         if (!this.baseTile) {
+            this.baseTile = newTile;
+         }
+
+/*
          // See if the tile is animated, and if so, store it in a special list
-         if (tile.isAnimation()) {
+         if (newTile.isAnimation()) {
             var aTile = {
                x: x,
                y: y,
@@ -129,6 +141,7 @@ R.resources.types.TileMap = function() {
             };
             this.animatedTiles.push(aTile);
          }
+*/
 
          this.forceRedraw();
       },
@@ -154,6 +167,7 @@ R.resources.types.TileMap = function() {
          var tile = this.tilemap[x + y * this.width];
          this.tilemap[x + y * this.width] = null;
 
+/*
          // See if the tile is in the animated tiles list
          var found = false, t;
          for (t = 0; t < this.animatedTiles.length; t++) {
@@ -167,6 +181,7 @@ R.resources.types.TileMap = function() {
             // Remove the animated tile
             this.animatedTiles.splice(t, 1);
          }
+*/
 
          return tile;
       },
@@ -185,46 +200,27 @@ R.resources.types.TileMap = function() {
             return;
          }
 
-         var tile, f, tl, d, t, rect = R.math.Rectangle2D.create(0,0,1,1),
-               tileWidth = this.baseTile.getBoundingBox().w, tileHeight = this.baseTile.getBoundingBox().h;
+         var tile, t, rect = R.math.Rectangle2D.create(0,0,1,1), wp = renderContext.getWorldPosition(),
+             tileWidth = this.baseTile.getBoundingBox().w, tileHeight = this.baseTile.getBoundingBox().h;
 
-         // If the image is null, render the tilemap to an image first
-         if (this.renderState == R.resources.types.TileMap.REDRAW || this.image == null) {
-            this.image = R.rendercontexts.CanvasContext.create("TileMap_" + this.getName(),
-                      tileWidth * this.width, tileHeight * this.height);
+         // Render out all of the static tiles
+         for (t = 0; t < this.tilemap.length; t++) {
+            tile = this.tilemap[t];
+            if (!tile)
+               continue;
 
-            // Render out all of the static tiles
-            for (t = 0; t < this.tilemap.length; t++) {
-               tile = this.tilemap[t];
-               var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
+            var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
+            rect.set(x - wp.x, y - wp.y, tileWidth, tileHeight);
 
-               rect.set(x, y, tileWidth, tileHeight);
+            // If the rect isn't visible, skip it
+            if (!rect.isIntersecting(renderContext.getViewport()))
+               continue;
 
-               f = tile.getFrame(0);
-               tl = f.getTopLeft();
-               d = f.getDims();
-               this.image.get2DContext().drawImage(tile.getSourceImage(), tl.x, tl.y, d.x, d.y, rect.x, rect.y, d.x, d.y);
-               f.destroy();
-            }
-
-            this.renderState = 0;
-         }
-
-         // Render all of the animated tiles
-         for (t = 0; t < this.animatedTiles.length; t++) {
-            tile = this.animatedTiles[t];
-            rect.set(tile.x * this.width, tile.y * this.height, tileWidth, tileHeight);
-            f = tile.tile.getFrame(time);
-            tl = f.getTopLeft();
-            d = f.getDims();
-            this.image.get2DContext().drawImage(tile.getSourceImage(), tl.x, tl.y, d.x, d.y, rect.x, rect.y, d.x, d.y);
+            var f = tile.getFrame(time);
+            renderContext.drawImage(rect, tile.getSourceImage(), f);
             f.destroy();
          }
 
-         // Draw the visible slice of the tile map
-         var wp = renderContext.getWorldPosition(), vp = renderContext.getViewport();
-         rect.set(wp.x, wp.y, vp.w, vp.h);
-			renderContext.drawImage(vp, this.image, rect);
          rect.destroy();
       },
 

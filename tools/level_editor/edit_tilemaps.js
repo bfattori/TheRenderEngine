@@ -29,10 +29,19 @@ LevelEditor.extend({
 
       // Only do this once
       if ($("#TileSelector div.tile").length == 0) {
+         var tile,tileDiv;
+         // Special tiles first
+         tileDiv = $("<div class='tile'></div>");
+         tileDiv.append($("<div style='border: 1px solid; width: 32px; height:32px; margin-left: 51px'></div>"))
+            .append($("<div class='title'>empty</div>"));
+         $("#TileSelector").append(tileDiv);
+         
          var tiles = LevelEditor.getAllTiles();
          for (var t = 0; t < tiles.length; t++) {
-            var tile = LevelEditor.getTileForName(tiles[t].lookup),
-                tileDiv = $("<div class='tile'></div>"), f = tile.getFrame(0,0), obj = $("<img>");
+            tile = LevelEditor.getTileForName(tiles[t].lookup);
+            tileDiv = $("<div class='tile'></div>");
+
+            var f = tile.getFrame(0,0), obj = $("<img>");
 
             tileDiv.attr("tileIdent", tiles[t].lookup);
 
@@ -43,16 +52,24 @@ LevelEditor.extend({
             }).css({
                marginLeft: (f.w / 2) + 35
             });
-            tileDiv.append(obj).append($("<div class='title'>" + tiles[t].tile + "</div>")).click(function() {
-               $("#TileSelector div.tile").removeClass("selected");
-               $(this).addClass("selected");
-               LevelEditor.setCurrentTile($(this).attr("tileIdent"));
-            });
 
+            tileDiv.append(obj).append($("<div class='title'>" + tiles[t].tile + "</div>"));
             $("#TileSelector").append(tileDiv);
             tile.destroy();
          }
       }
+
+      $("#TileSelector div.tile").click(function() {
+         $("#TileSelector div.tile").removeClass("selected");
+         $(this).addClass("selected");
+         var ident = $(this).attr("tileIdent");
+         if (ident) {
+            LevelEditor.setCurrentTile(ident);
+         } else {
+            LevelEditor.currentTile = null;
+         }
+      });
+
    },
 
    setCurrentTile: function(tileIdent) {
@@ -63,19 +80,28 @@ LevelEditor.extend({
       LevelEditor.currentTile = LevelEditor.getTileForName(tileIdent);
    },
 
-   drawTile: function(x, y) {
+   drawTile: function(evt) {
+      var which = evt.which, x = evt.pageX, y = evt.pageY;
+
       // Adjust for scroll and if the context was moved in the dom
       x += LevelEditor.gameRenderContext.getHorizontalScroll() - LevelEditor.contextOffset.left;
       y += LevelEditor.gameRenderContext.getVerticalScroll() - LevelEditor.contextOffset.top;
 
-      var viewWidth = LevelEditor.gameRenderContext.getViewport().w;
+      var viewWidth = LevelEditor.gameRenderContext.getViewport().w,
+          baseTile = LevelEditor.currentTileMap.getBaseTile(), bbox;
 
-      if (LevelEditor.currentTile) {
-         x = x - x % currentTile.getBoundingBox().w;
-         y = y - y % currentTile.getBoundingBox().h;
+      if (LevelEditor.currentTile || baseTile) {
+         bbox = (baseTile || LevelEditor.currentTile).getBoundingBox();
+         x = (x - x % bbox.w) / bbox.w;
+         y = (y - y % bbox.h) / bbox.h;
          var pt = R.math.Point2D.create(x, y);
-         LevelEditor.currentTileMap.setTile(LevelEditor.currentTile, x, y);
-         pt.destroy();
+
+         if (LevelEditor.currentTile) {
+            LevelEditor.currentTileMap.setTile(LevelEditor.currentTile, x, y);
+            pt.destroy();
+         } else if (baseTile) {
+            LevelEditor.currentTileMap.clearTile(x, y);
+         }
       }
    }
 

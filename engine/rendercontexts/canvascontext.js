@@ -447,13 +447,11 @@ R.rendercontexts.CanvasContext = function() {
     *                <tt>null</tt> the entire image is used
     */
    drawImage: function(rect, image, srcRect) {
-      var d = rect.get();
       if (srcRect) {
-         var s = srcRect.get();
          this.get2DContext().drawImage(image,
-            s.x, s.y, s.w, s.h, d.x, d.y, d.w, d.h);
+            srcRect.x, srcRect.y, srcRect.w, srcRect.h, rect.x, rect.y, rect.w, rect.h);
       } else {
-         this.get2DContext().drawImage(image, d.x, d.y, d.w, d.h);
+         this.get2DContext().drawImage(image, rect.x, rect.y, rect.w, rect.h);
       }
       this.base(rect, image);
    },

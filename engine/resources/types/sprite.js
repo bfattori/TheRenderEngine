@@ -60,10 +60,10 @@ R.Engine.define({
  * @param spriteObj {Object} Passed in by a {@link SpriteLoader}.  An array which defines the
  *                  sprite frame, and parameters.
  * @param spriteResource {Object} The sprite resource loaded by the {@link SpriteLoader}
- * @extends R.engine.PooledObject
+ * @extends R.engine.BaseObject
  */
 R.resources.types.Sprite = function() {
-	return R.engine.PooledObject.extend(/** @scope R.resources.types.Sprite.prototype */{
+	return R.engine.BaseObject.extend(/** @scope R.resources.types.Sprite.prototype */{
 
    // The type of sprite: Single or Animation
    type: -1,
