@@ -18,6 +18,18 @@ LevelEditor.extend({
       // See if there's a tilemap yet
       if (!LevelEditor.tileMaps[mapName]) {
          LevelEditor.tileMaps[mapName] = R.resources.types.TileMap.create(mapName, 200, 200);
+
+         // Determine the zIndex of the map
+         var zIndex = -1;
+         switch(mapName) {
+            case "tm_background": zIndex = 0; break;
+            case "tm_playfield": zIndex = 1; break;
+            case "tm_foreground": zIndex = 2; break;
+         }
+
+         LevelEditor.tileMaps[mapName].setZIndex(zIndex);
+
+         // Add the tilemap
          LevelEditor.gameRenderContext.add(LevelEditor.tileMaps[mapName]);
       }
 

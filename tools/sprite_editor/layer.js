@@ -35,7 +35,7 @@ R.Engine.define({
 	"class": "SpriteLayer",
 	"requires": [
 		"R.engine.Object2D",
-		"R.struct.HashContainer"
+		"R.struct.HashContainer",
 
 		// Math objects
 		"R.math.Math2D"

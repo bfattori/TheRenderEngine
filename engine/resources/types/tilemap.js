@@ -61,6 +61,7 @@ R.resources.types.TileMap = function() {
       height: 0,
       renderState: 0,
       tileScale: null,
+      zIndex: 0,
 
       /** @private */
       constructor: function(name, width, height) {
@@ -225,6 +226,22 @@ R.resources.types.TileMap = function() {
       },
 
       /**
+       * Get the z-index of the tile map.
+       * @return {Number}
+       */
+      getZIndex: function() {
+         return this.zIndex;
+      },
+
+      /**
+       * Set the z-index of the tile map.
+       * @param zIndex {Number} The z-index (depth) of the tile map.
+       */
+      setZIndex: function(zIndex) {
+         this.zIndex = zIndex;
+      },
+
+      /**
        * When editing objects, this method returns an object which
        * contains the properties with their getter and setter methods.
        * @return {Object} The properties object
@@ -248,7 +265,12 @@ R.resources.types.TileMap = function() {
             }, null, false],
             "TileSizeY": [function(){
                return self.baseTile ? self.baseTile.getBoundingBox().h : "";
-            }, null, false]
+            }, null, false],
+            "ZIndex": [function(){
+					return self.getZIndex();
+				}, function(i){
+					self.setZIndex(i);
+				}, true]
          });
       }
 

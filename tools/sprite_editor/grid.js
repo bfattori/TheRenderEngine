@@ -35,7 +35,7 @@ R.Engine.define({
 	"class": "SpriteGrid",
 	"requires": [
 		"R.engine.Object2D",
-		"R.struct.Container"
+		"R.struct.Container",
 
 		// Math objects
 		"R.math.Math2D"
