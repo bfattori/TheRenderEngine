@@ -190,6 +190,52 @@ R.math.Rectangle2D = function() {
       },
 
       /**
+       * A mutator method that multiplies the top left of this rectangle with the
+       * point specified.
+       * @param point {R.math.Point2D}
+       */
+      convolve: function(point) {
+         this.x *= point.x;
+         this.y *= point.y;
+         this._upd();
+         return this;
+      },
+
+      /**
+       * A mutator method that divides the top left of this rectangle with the
+       * point specified.
+       * @param point {R.math.Point2D}
+       */
+      convolveInverse: function(point) {
+         this.x /= point.x;
+         this.y /= point.y;
+         this._upd();
+         return this;
+      },
+
+      /**
+       * A mutator method that adds the point to the top left of this rectangle.
+       * @param point {R.math.Point2D}
+       */
+      add: function(point) {
+         this.x += point.x;
+         this.y += point.y;
+         this._upd();
+         return this;
+      },
+
+      /**
+       * A mutator method that subtracts the point from the top left of this rectangle.
+       * @param point {R.math.Point2D}
+       */
+      sub: function(point) {
+         this.x -= point.x;
+         this.y -= point.y;
+         this._upd();
+         return this;
+      },
+
+      /**
        * Set the top left of this rectangle to the point, or coordinates specified.
        *
        * @param ptOrX {R.math.Point2D|Number} The top left {@link R.math.Point2D}, or the X coordinate

@@ -59,14 +59,16 @@ R.resources.types.TileMap = function() {
       image: null,
       width: 0,
       height: 0,
-      renderState: 0,
       tileScale: null,
       zIndex: 0,
+      parallax: null,
 
       /** @private */
       constructor: function(name, width, height) {
          this.base(name);
          this.baseTile = null;
+         this.zIndex = 0;
+         this.parallax = R.math.Point2D.create(1,1);
 
          // The tile map is a dense array
          this.tilemap = [];
@@ -80,8 +82,6 @@ R.resources.types.TileMap = function() {
          this.width = width;
          this.height = height;
          this.tileScale = R.math.Vector2D.create(1, 1);
-
-         this.renderState = R.resources.types.TileMap.REDRAW;
       },
 
       /**
@@ -131,20 +131,6 @@ R.resources.types.TileMap = function() {
          if (!this.baseTile) {
             this.baseTile = newTile;
          }
-
-/*
-         // See if the tile is animated, and if so, store it in a special list
-         if (newTile.isAnimation()) {
-            var aTile = {
-               x: x,
-               y: y,
-               tile: tile
-            };
-            this.animatedTiles.push(aTile);
-         }
-*/
-
-         this.forceRedraw();
       },
 
       /**
@@ -167,24 +153,30 @@ R.resources.types.TileMap = function() {
       clearTile: function(x, y) {
          var tile = this.tilemap[x + y * this.width];
          this.tilemap[x + y * this.width] = null;
-
-/*
-         // See if the tile is in the animated tiles list
-         var found = false, t;
-         for (t = 0; t < this.animatedTiles.length; t++) {
-            if (this.animatedTiles[t].x == x && this.animatedTiles[t].y == y) {
-               found = true;
-               break;
-            }
-         }
-
-         if (found) {
-            // Remove the animated tile
-            this.animatedTiles.splice(t, 1);
-         }
-*/
-
          return tile;
+      },
+
+      /**
+       * Set the parallax offset of the tile map when rendered.  Setting the parallax offset
+       * can create the illusion of depth when layers move at different rates along the X
+       * and Y axis.  The offset is a vector which specifies the amount of offset along each
+       * axis, with 1 being none.  Each value should be a floating point number with numbers
+       * closer to zero meaning more offset (or faster change) and numbers greater than 1
+       * meaning less offset (or slower change).
+       *
+       * @param xOrPt {Number|R.math.Vector2D} The X offset, or a vector indicating the amount of offset
+       * @param [y] {Number} The Y offset if <code>xOrPt</code> was a number
+       */
+      setParallax: function(xOrPt, y) {
+         this.parallax.set(xOrPt, y);
+      },
+
+      /**
+       * Returns the parallax offset of the tile map.
+       * @return {R.math.Point2D}
+       */
+      getParallax: function() {
+         return this.parallax;
       },
 
       /**
@@ -204,7 +196,11 @@ R.resources.types.TileMap = function() {
          var tile, t, rect = R.math.Rectangle2D.create(0,0,1,1), wp = renderContext.getWorldPosition(),
              tileWidth = this.baseTile.getBoundingBox().w, tileHeight = this.baseTile.getBoundingBox().h;
 
-         // Render out all of the static tiles
+         var topLeft = R.clone(wp);
+         topLeft.convolve(this.parallax);
+         topLeft.sub(wp);
+
+         // Render out all of the tiles
          for (t = 0; t < this.tilemap.length; t++) {
             tile = this.tilemap[t];
             if (!tile)
@@ -212,6 +208,8 @@ R.resources.types.TileMap = function() {
 
             var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
             rect.set(x - wp.x, y - wp.y, tileWidth, tileHeight);
+
+            rect.add(topLeft);
 
             // If the rect isn't visible, skip it
             if (!rect.isIntersecting(renderContext.getViewport()))
@@ -266,11 +264,17 @@ R.resources.types.TileMap = function() {
             "TileSizeY": [function(){
                return self.baseTile ? self.baseTile.getBoundingBox().h : "";
             }, null, false],
-            "ZIndex": [function(){
+            "Zindex": [function(){
 					return self.getZIndex();
 				}, function(i){
 					self.setZIndex(i);
-				}, true]
+				}, true],
+            "Parallax": [function() {
+               return self.getParallax()
+            }, function(i){
+               var coords = i.split(",");
+               self.setParallax(coords[0],coords[1]);
+            }, true]
          });
       }
 
@@ -281,11 +285,6 @@ R.resources.types.TileMap = function() {
        */
       getClassName: function() {
          return "R.resources.types.TileMap";
-      },
-
-      /**
-       * Set the tile map to regenerate its image
-       */
-      REDRAW: 1
+      }
    });
 };

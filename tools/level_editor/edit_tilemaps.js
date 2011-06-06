@@ -20,14 +20,15 @@ LevelEditor.extend({
          LevelEditor.tileMaps[mapName] = R.resources.types.TileMap.create(mapName, 200, 200);
 
          // Determine the zIndex of the map
-         var zIndex = -1;
+         var zIndex = -1, parallax = R.math.Point2D.create(1,1);
          switch(mapName) {
-            case "tm_background": zIndex = 0; break;
+            case "tm_background": zIndex = 0; /*parallax.set(0.3, 1);*/ break;
             case "tm_playfield": zIndex = 1; break;
-            case "tm_foreground": zIndex = 2; break;
+            case "tm_foreground": zIndex = 2; /*parallax.set(1.5, 1);*/ break;
          }
 
          LevelEditor.tileMaps[mapName].setZIndex(zIndex);
+         LevelEditor.tileMaps[mapName].setParallax(parallax);
 
          // Add the tilemap
          LevelEditor.gameRenderContext.add(LevelEditor.tileMaps[mapName]);
