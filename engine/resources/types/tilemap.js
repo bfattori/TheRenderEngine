@@ -157,12 +157,12 @@ R.resources.types.TileMap = function() {
       },
 
       /**
-       * Set the parallax offset of the tile map when rendered.  Setting the parallax offset
+       * Set the parallax distance of the tile map from the viewer's eye.  Setting the parallax distance
        * can create the illusion of depth when layers move at different rates along the X
-       * and Y axis.  The offset is a vector which specifies the amount of offset along each
-       * axis, with 1 being none.  Each value should be a floating point number with numbers
-       * closer to zero meaning more offset (or faster change) and numbers greater than 1
-       * meaning less offset (or slower change).
+       * and Y axis.  The distance is a vector which specifies the amount of offset along each
+       * axis, from the viewer's eye, with 1 being the middle plane.  Each value should be a floating
+       * point number with numbers closer to zero meaning closer to the eye (or faster change) and
+       * numbers greater than 1 meaning farther from the eye (or slower change).
        *
        * @param xOrPt {Number|R.math.Vector2D} The X offset, or a vector indicating the amount of offset
        * @param [y] {Number} The Y offset if <code>xOrPt</code> was a number
@@ -172,8 +172,8 @@ R.resources.types.TileMap = function() {
       },
 
       /**
-       * Returns the parallax offset of the tile map.
-       * @return {R.math.Point2D}
+       * Returns the parallax distance of the tile map along each axis.
+       * @return {R.math.Vector2D}
        */
       getParallax: function() {
          return this.parallax;
