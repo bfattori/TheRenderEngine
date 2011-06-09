@@ -42,7 +42,7 @@ R.Engine.define({
 
 /**
  * @class Represents a 2d tile.  The difference between a sprite and a tile is that
- *    tiles contain a "sparsity map" which allows for raycasting when testing for collisions.
+ *    tiles contain a "solidity map" which allows for raycasting when testing for collisions.
  *    Otherwise, tiles and sprites are identical.
  *
  * @constructor
@@ -69,7 +69,13 @@ R.resources.types.Tile = function() {
          this.solidityMap = [];
          this.tileObj = tileObj;
          this.tileImg = null;
-         R.resources.types.Tile.computeSolidityMap(this);
+         if (tileResource.info.assumeOpaque) {
+            for (var f = 0; f < this.getFrameCount(); f++) {
+               this.setSolidityMap(f, null, R.resources.types.Tile.ALL_OPAQUE);
+            }
+         } else {
+            R.resources.types.Tile.computeSolidityMap(this);
+         }
       },
 
       /**
@@ -139,6 +145,7 @@ R.resources.types.Tile = function() {
        * A solidity map will be computed for each frame of the tile, if the tile
        * is animated.
        *
+       * @apram frame {Number} The frame number
        * @param solidityMap {Array} An array of bits which indicate if a pixel is opaque or transparent
        * @param statusFlag {Number} Flag used to assist in short-circuit testing
        */
@@ -164,12 +171,12 @@ R.resources.types.Tile = function() {
              frame = (time / fSpeed) % this.getFrameCount();
 
          var sMap = this.solidityMap[frame];
-         if (sMap.s == R.resources.types.Tile.ALL_OPAQUE) {
+         if (sMap.status == R.resources.types.Tile.ALL_OPAQUE) {
             return true;
-         } else if (sMap.s == R.resources.types.Tile.ALL_TRANSPARENT) {
+         } else if (sMap.status == R.resources.types.Tile.ALL_TRANSPARENT) {
             return false;
          } else {
-            return !!sMap.m[point.x + (point.y * this.getBoundingBox().w)];
+            return !!sMap.map[point.x + (point.y * this.getBoundingBox().w)];
          }
       }
 
@@ -203,14 +210,14 @@ R.resources.types.Tile = function() {
          var fSpeed = tile.getFrameSpeed() == -1 ? 0 : tile.getFrameSpeed();
 
          // The alpha value above which pixels will be considered solid
-         var threshold = tile.getTileLoader().getThreshold();
+         var threshold = tile.getTileResource().info.transparencyThreshold;
 
          // For each frame, we'll need to compute a solidity map
          for (var f = 0; f < count; f++) {
             // Create the entry for each frame
             tile.solidityMap.push({
-               m: null,
-               s: R.resources.types.Tile.ALL_MIXED
+               map: null,
+               status: R.resources.types.Tile.ALL_MIXED
             });
 
             // Get the image data for the frame
@@ -227,14 +234,14 @@ R.resources.types.Tile = function() {
 
             // Determine if either of the short-circuit cases apply
             if (opaque == 0) {
-               tile.solidityMap[f].s = R.resources.types.Tile.ALL_TRANSPARENT;
+               tile.solidityMap[f].status = R.resources.types.Tile.ALL_TRANSPARENT;
             } else if (opaque == fr.h * fr.w) {
-               tile.solidityMap[f].s = R.resources.types.Tile.ALL_OPAQUE;
+               tile.solidityMap[f].status = R.resources.types.Tile.ALL_OPAQUE;
             }
 
             // If the map is mixed, store the map for raycast tests
-            if (tile.solidityMap[f].s == R.resources.types.Tile.ALL_MIXED) {
-               tile.solidityMap[f].m = tmpMap;
+            if (tile.solidityMap[f].status == R.resources.types.Tile.ALL_MIXED) {
+               tile.solidityMap[f].map = tmpMap;
             }
          }
       },
@@ -247,13 +254,13 @@ R.resources.types.Tile = function() {
       ALL_MIXED: 0,
 
       /**
-       * All pixels are transparent to collisions.  Short-circuit test for raycasting.
+       * All pixels are transparent to collisions.  Short-circuit test for ray casting.
        * @type {Number}
        */
       ALL_TRANSPARENT: 1,
 
       /**
-       * All pixels are opaque to collisions.  Short-circuit test for raycasting.
+       * All pixels are opaque to collisions.  Short-circuit test for ray casting.
        * @type {Number}
        */
       ALL_OPAQUE: 2

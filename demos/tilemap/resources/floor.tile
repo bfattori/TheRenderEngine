@@ -5,6 +5,7 @@
     32
   ],
   "version": 2,
+  "assumeOpaque": true,
   "sprites": {
     "wires": [0,0,32,32],
     "glassblock": [32,0,32,32],

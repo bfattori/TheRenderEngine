@@ -63,7 +63,9 @@ R.Engine.define({
  *        The sparsity value is used to produce each tile's solidity map so that the map
  *        will consist of averaged pixels, resulting in a simplified map for collisions.
  *        The transparencyThreshold determines above what alpha value a pixel is no longer
- *        considered transparent, but solid.
+ *        considered transparent, but solid.  Setting the assumeOpaque flag will short-circuit
+ *        all solidity map calculations and assume all tiles to be completely opaque.
+ *
  * <pre>
  * {
  *    // Tile definition file v2
@@ -72,6 +74,7 @@ R.Engine.define({
  *    "version": 2
  *    "sparsity": 1,
  *    "transparencyThreshold": 0,
+ *    "assumeOpaque": false,
  *    "tiles": {
  *        "girder": [0, 0, 32, 32],
  *        "gears": [32, 0, 32, 32, 3, 150, "loop"]
@@ -91,12 +94,14 @@ R.resources.loaders.TileLoader = function(){
 	
 		sparsity: 1,
 		threshold: 0,
+      assumeOpaque: false,
 	
 		/** @private */
 		constructor: function(name){
 			this.base(name || "TileLoader");
 			this.sparsity = 1;
 			this.threshold = 0;
+         this.assumeOpaque = false;
 		},
 		
 		/**
@@ -108,6 +113,7 @@ R.resources.loaders.TileLoader = function(){
 		afterLoad: function(name, info) {
 			this.sparsity = info.sparsity || 1;
 			this.threshold = info.transparencyThreshold || 0;
+         this.assumeOpaque = info.assumeOpaque || false;
 		},
 		
 		/**
@@ -145,22 +151,33 @@ R.resources.loaders.TileLoader = function(){
 		 * The higher the sparsity, the more pixels will be averaged together to get a smaller map.
 		 * This has the potential to improve performance when performing ray casting by eliminating
 		 * the need to calculate collisions per pixel.
+       * @param resource {String} The name of the tile resource
 		 * @return {Number}
 		 */
-		getSparsity: function() {
-			return this.sparsity;
+		getSparsity: function(resource) {
+			return this.get(resource).info.sparsity;
 		},
 		
 		/**
 		 * Get the transparency threshold at which pixels are considered to be either transparent or
 		 * solid.  Pixel alpha values above the specified threshold will be considered solid when
 		 * calculating the solidity map of a tile.
+       * @param resource {String} The name of the tile resource
 		 * @return {Number} Value between 0 and 255
 		 */
-		getThreshold: function() {
-			return this.threshold;
+		getThreshold: function(resource) {
+         return this.get(resource).info.transparencyThreshold;
 		},
-		
+
+      /**
+       * Get the state of the flag indicating if all tiles should be considered fully opaque.
+       * @param resource {String} The name of the tile resource
+       * @return {Boolean} 
+       */
+      getOpacityFlag: function(resource) {
+         return this.get(resource).info.assumeOpaque;
+      },
+
 		/**
 		 * The name of the resource this loader will get.
 		 * @returns {String} The string "tile"

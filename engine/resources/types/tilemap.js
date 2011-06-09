@@ -101,12 +101,11 @@ R.resources.types.TileMap = function() {
       },
 
       /**
-       * Force the tile map to be redrawn, including all static sprites.
+       * Get the basis tile for the tile map.  The first tile within a tile map determines
+       * the basis of all tiles.  Thus, if you drop a 32x32 tile into the tile map, all tiles
+       * must be divisible by 32 along each axis.
+       * @return {R.resources.types.Tile}
        */
-      forceRedraw: function() {
-         this.renderState = R.resources.types.TileMap.REDRAW;
-      },
-
       getBaseTile: function() {
          return this.baseTile;
       },
@@ -119,7 +118,8 @@ R.resources.types.TileMap = function() {
        */
       setTile: function(tile, x, y) {
          // Check to see if the tile is the same size as the last added tile
-         Assert(this.baseTile == null || tile.getBoundingBox().equals(this.baseTile.getBoundingBox()),
+         var tbb = tile.getBoundingBox();
+         Assert(this.baseTile == null || (tbb.w % this.baseTile.getBoundingBox().w == 0 && tbb.w % this.baseTile.getBoundingBox().w == 0),
                "Tiles in a TileMap must be the same size!");
 
          if (this.tilemap[x + y * this.width] != null) {

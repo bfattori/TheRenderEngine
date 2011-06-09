@@ -143,12 +143,17 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
     */
    extractDataURL: function(image, cropRect, contextType) {
       contextType = contextType || R.rendercontexts.CanvasContext;
-      var img = $(image), w = img.attr("width"), h = img.attr("height");
-      var imgRect = R.math.Rectangle2D.create(0,0,w,h);
+      var img = $(image), imgRect = R.math.Rectangle2D.create(0,0,img.attr("width"),img.attr("height"));
+
+      if (cropRect) {
+         imgRect.sub(cropRect.getTopLeft());
+      }
 
       // Get the temporary context
-      var ctx = R.util.RenderUtil.getTempContext(contextType, w, h);
-      ctx.drawImage(imgRect, image, cropRect);
+      var w = cropRect ? cropRect.w : imgRect.w, h = cropRect ? cropRect.h : imgRect.h,
+          ctx = R.util.RenderUtil.getTempContext(contextType, w, h);
+
+      ctx.drawImage(imgRect, image);
 
       // Return the image data from the temp context
       return ctx.getDataURL("image/png");

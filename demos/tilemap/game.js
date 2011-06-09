@@ -108,6 +108,9 @@ var TilemapDemo = function() {
 
          // Load the sprites
          this.spriteLoader.load("sprites", this.getFilePath("resources/smbtiles.sprite"));
+
+         // Load the tiles
+         this.tileLoader.load("sprites", this.getFilePath("resources/smbtiles.sprite"));
          this.tileLoader.load("tiles", this.getFilePath("resources/floor.tile"));
          this.tileLoader.load("fore", this.getFilePath("resources/pipes.tile"));
          this.tileLoader.load("back", this.getFilePath("resources/pipes2.tile"));
