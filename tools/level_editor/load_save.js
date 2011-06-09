@@ -167,18 +167,23 @@ LevelEditor.extend({
          "version": LevelEditor.LEVEL_VERSION_NUMBER,
          "actors": [],
          "fixtures": [],
-         "triggers": []
+         "triggers": [],
+         "tilemaps": {}
       };
 
       // Enumerate all of the actors
       var actors = LevelEditor.getGameObjects(function(e) {
          return (e instanceof R.objects.SpriteActor);
       });
+
+      // Enumerate all of the collision blocks
       var cBlocks = LevelEditor.getGameObjects(function(e) {
-         return (e instanceof R.objects.CollisionBox && e.getType() == R.objects.CollisionBox.TYPE_COLLIDER);
+         return (e instanceof R.objects.Fixture && e.getType() == R.objects.Fixture.TYPE_COLLIDER);
       });
+
+      // Enumerate all of the trigger blocks
       var tBlocks = LevelEditor.getGameObjects(function(e) {
-         return (e instanceof R.objects.CollisionBox && e.getType() == R.objects.CollisionBox.TYPE_TRIGGER);
+         return (e instanceof R.objects.Fixture && e.getType() == R.objects.Fixture.TYPE_TRIGGER);
       });
 
       // Add them to the JSON object
@@ -190,6 +195,38 @@ LevelEditor.extend({
       }
       for (var t in tBlocks) {
          lvlJSON["triggers"].push(LevelEditor.getWritablePropertiesObject(tBlocks[t]));
+      }
+
+      for (var tm in LevelEditor.tileMaps) {
+         var tmap = [].concat(LevelEditor.tileMaps[tm].getTileMap()),tmap2 = [];
+         // Quick run through to convert to zeros (empty) and tiles
+         for (var tile = 0; tile < tmap.length; tile++) {
+            tmap[tile] = tmap[tile] != null ? LevelEditor.getTileCanonicalName(tmap[tile]) : 0;
+         }
+
+         // Second pass, collapse all empties into RLE
+         var eCount = 0;
+         for (tile = 0; tile < tmap.length; tile++) {
+            if (tmap[tile] == 0) {
+               eCount++;
+            } else {
+               if (eCount > 0) {
+                  tmap2.push("e:" + eCount);
+                  eCount = 0;
+               }
+               tmap2.push(tmap[tile]);
+            }
+         }
+
+         // Capture any remaining empties
+         if (eCount > 0) {
+            tmap2.push("e:" + eCount);
+         }
+
+         lvlJSON["tilemaps"][tm] = {
+            "props": LevelEditor.getWritablePropertiesObject(LevelEditor.tileMaps[tm]),
+            "map": tmap2
+         }
       }
 
       // Open the dialog

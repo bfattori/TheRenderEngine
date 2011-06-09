@@ -121,6 +121,17 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
       return (literal ? charStr : charStr.toUpperCase()).charCodeAt(0);
    },
 
+   /**
+    * Returns true if the key pressed is either the lower or upper case version of
+    * the key specified in "keyStr".
+    * @param eventObj
+    * @param keyStr
+    */
+   isKey: function(eventObj, keyStr) {
+      return (eventObj.which == R.engine.Events.keyCodeForChar(keyStr) ||
+              eventObj.which == R.engine.Events.keyCodeForChar(keyStr, true));
+   },
+
    //====================================================================================================================
    // MOUSE BUTTON CONSTANTS
 

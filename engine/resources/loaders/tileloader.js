@@ -92,16 +92,9 @@ R.Engine.define({
 R.resources.loaders.TileLoader = function(){
 	return R.resources.loaders.SpriteLoader.extend(/** @scope R.resources.loaders.TileLoader.prototype */{
 	
-		sparsity: 1,
-		threshold: 0,
-      assumeOpaque: false,
-	
 		/** @private */
 		constructor: function(name){
 			this.base(name || "TileLoader");
-			this.sparsity = 1;
-			this.threshold = 0;
-         this.assumeOpaque = false;
 		},
 		
 		/**
@@ -111,9 +104,7 @@ R.resources.loaders.TileLoader = function(){
 		 * @param info {Object} The sprite resource definition
 		 */
 		afterLoad: function(name, info) {
-			this.sparsity = info.sparsity || 1;
-			this.threshold = info.transparencyThreshold || 0;
-         this.assumeOpaque = info.assumeOpaque || false;
+         this.base(name, info);
 		},
 		
 		/**

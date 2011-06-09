@@ -481,7 +481,16 @@ var LevelEditor = function() {
                }
             });
 
-            ctx.jQ().css("border", "1px solid red");
+            //ctx.jQ().css("border", "1px solid red");
+            ctx.addEvent(null, "keypress", function(evt) {
+               if (R.engine.Events.isKey(evt, "z")) {
+                  ctx.setWorldScale(0.25,0.25);
+               }
+
+               if (R.engine.Events.isKey(evt, "x")) {
+                  ctx.setWorldScale(1,1);
+               }
+            });
 
             // Menu across the top
             var mb = {
@@ -934,6 +943,29 @@ var LevelEditor = function() {
          // Return the canonical name which contains the loader index, resource name, and sprite name
          return loaderIdx + ":" + sprite.getSpriteResource().resourceName + ":" + sprite.getName();
       },
+
+      /**
+       * Get the tiles's canonical name.
+       * "loaderIndex:resourceName:spriteName"
+       *
+       * @param sprite {Sprite}
+       * @private
+       */
+      getTileCanonicalName: function(tile) {
+         var loader = tile.getTileLoader(), loaderIdx = 0;
+
+         // Locate the sprite loader index
+         for (var l in LevelEditor.loaders.tile) {
+            if (loader === LevelEditor.loaders.tile) {
+               loaderIdx = l;
+               break;
+            }
+         }
+
+         // Return the canonical name which contains the loader index, resource name, and sprite name
+         return loaderIdx + ":" + tile.getSpriteResource().resourceName + ":" + tile.getName();
+      },
+
 
       //=====================================================================================================
       // INTERFACE

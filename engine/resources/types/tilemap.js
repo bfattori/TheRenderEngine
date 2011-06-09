@@ -62,6 +62,7 @@ R.resources.types.TileMap = function() {
       tileScale: null,
       zIndex: 0,
       parallax: null,
+      dimensions: null,
 
       /** @private */
       constructor: function(name, width, height) {
@@ -73,6 +74,7 @@ R.resources.types.TileMap = function() {
          // The tile map is a dense array
          this.tilemap = [];
          R.engine.Support.fillArray(this.tilemap, width * height, null);
+         this.dimensions = R.math.Point2D.create(width, height);
 
          // A list of tiles which are animated and need to be updated each frame
          this.animatedTiles = [];
@@ -101,6 +103,17 @@ R.resources.types.TileMap = function() {
       },
 
       /**
+       * Set the dimensions of the tile map.  Setting the dimensions will clear the tile map.
+       * @param x {Number|R.math.Point2D}
+       * @param y {Number}
+       */
+      setDimensions: function(x, y) {
+         this.dimensions.set(x, y);
+         this.tilemap = [];
+         R.engine.Support.fillArray(this.tilemap, this.dimensions.x * this.dimensions.y, null);
+      },
+
+      /**
        * Get the basis tile for the tile map.  The first tile within a tile map determines
        * the basis of all tiles.  Thus, if you drop a 32x32 tile into the tile map, all tiles
        * must be divisible by 32 along each axis.
@@ -108,6 +121,10 @@ R.resources.types.TileMap = function() {
        */
       getBaseTile: function() {
          return this.baseTile;
+      },
+
+      getTileMap: function() {
+         return this.tilemap;
       },
 
       /**
@@ -248,6 +265,12 @@ R.resources.types.TileMap = function() {
          var self = this;
          var prop = this.base(self);
          return $.extend(prop, {
+            "Dimensions": [function() {
+               return self.dimensions.toString()
+            }, function(i) {
+               var coords = i.split(",");
+               self.setDimensions(coords[0],coords[1]);
+            },true],
             "TileScaleX": [function(){
                return self.tileScale.x;
             }, function(i){
@@ -270,7 +293,7 @@ R.resources.types.TileMap = function() {
 					self.setZIndex(i);
 				}, true],
             "Parallax": [function() {
-               return self.getParallax()
+               return self.getParallax().toString();
             }, function(i){
                var coords = i.split(",");
                self.setParallax(coords[0],coords[1]);

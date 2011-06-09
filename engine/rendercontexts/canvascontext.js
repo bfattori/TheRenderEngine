@@ -82,7 +82,14 @@ R.rendercontexts.CanvasContext = function() {
       
       canvas.id = this.getId();
       this.setWorldScale(this.getWorldScale());
-		
+
+      // Adjust the element accordingly
+      $(this.getElement())
+         .attr({
+            "width": this.getWidth(),
+            "height": this.getHeight()
+         });
+
 		// Set the number of divisions along X and Y
 		this.divisions = 5;
 		this.dirtyBins = {};
@@ -119,11 +126,12 @@ R.rendercontexts.CanvasContext = function() {
 
       scaleY = scaleY ? scaleY : scaleX;
       // Adjust the element accordingly
-      $(this.getElement())
-         .attr("width", this.getWidth() * scaleX)
-         .attr("height", this.getHeight() * scaleY);
+//      $(this.getElement())
+//         .attr("width", this.getWidth() * scaleX)
+//         .attr("height", this.getHeight() * scaleY);
+//
 
-      this.setViewport(R.math.Rectangle2D.create(0, 0, this.getWidth(), this.getHeight()));
+      this.setViewport(R.math.Rectangle2D.create(0, 0, this.getWidth() * (1 / scaleX), this.getHeight() * (1 / scaleY)));
    },
 
    /**
