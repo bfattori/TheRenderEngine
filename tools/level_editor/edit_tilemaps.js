@@ -42,30 +42,32 @@ LevelEditor.extend({
 
       // Only do this once
       if ($("#TileSelector div.tile").length == 0) {
-         var tile,tileDiv;
+         var tile,tileDiv,special=[['empty','transparent'],['collision','#ff00ff']];
          // Special tiles first
-         tileDiv = $("<div class='tile'></div>");
-         tileDiv.append($("<div style='border: 1px solid; width: 32px; height:32px; margin-left: 51px'></div>"))
-            .append($("<div class='title'>empty</div>"));
-         $("#TileSelector").append(tileDiv);
-         
+         for (var st = 0; st < special.length; st++) {
+            tileDiv = $("<div class='tile'></div>");
+            tileDiv.append($("<div tileIdent='$$" + special[st][0] + "' style='border: 1px solid; background-color:" + special[st][1] + "; width: 32px; height:32px; margin-left: 51px'></div>"))
+               .append($("<div class='title'>" + special[st][0] + "</div>"));
+            $("#TileSelector").append(tileDiv);
+         }
+
          var tiles = LevelEditor.getAllTiles();
          for (var t = 0; t < tiles.length; t++) {
             tile = LevelEditor.getTileForName(tiles[t].lookup);
             tileDiv = $("<div class='tile'></div>");
 
-            var f = tile.getFrame(0,0), obj = $("<img>");
-
+            var f = tile.getFrame(0,0), obj = $("<div>");
             tileDiv.attr("tileIdent", tiles[t].lookup);
 
-            obj.attr({
+            obj.css({
                width: f.w,
                height: f.h,
-               src: R.util.RenderUtil.extractDataURL(tile.getSourceImage(), f)
-            }).css({
+               backgroundPosition: -f.x + "px " + -f.y + "px",
+               backgroundImage: 'url(' + tile.getSourceImage().src + ')',
                marginLeft: (f.w / 2) + 35
             });
-
+            f.destroy();
+            
             tileDiv.append(obj).append($("<div class='title'>" + tiles[t].tile + "</div>"));
             $("#TileSelector").append(tileDiv);
             tile.destroy();
@@ -76,7 +78,7 @@ LevelEditor.extend({
          $("#TileSelector div.tile").removeClass("selected");
          $(this).addClass("selected");
          var ident = $(this).attr("tileIdent");
-         if (ident) {
+         if (ident.indexOf("$$") == -1) {
             LevelEditor.setCurrentTile(ident);
          } else {
             LevelEditor.currentTile = null;

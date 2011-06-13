@@ -61,20 +61,21 @@ R.resources.types.Tile = function() {
       status: null,
       sparsity: null,
       tileObj: null,
-      tileImg: null,
 
       /** @private */
       constructor: function(name, tileObj, tileResource, tileLoader) {
          this.base(name, tileObj, tileResource, 2, tileLoader);
-         this.solidityMap = [];
          this.tileObj = tileObj;
-         this.tileImg = null;
+         this.solidityMap = null;
+
          if (tileResource.info.assumeOpaque) {
-            for (var f = 0; f < this.getFrameCount(); f++) {
-               this.setSolidityMap(f, null, R.resources.types.Tile.ALL_OPAQUE);
-            }
+            // Short-circuit
+            this.solidityMap = {
+               map: null,
+               status: R.resources.types.Tile.ALL_OPAQUE
+            };
          } else {
-            R.resources.types.Tile.computeSolidityMap(this);
+            this.solidityMap = R.resources.types.TileMap.computeSolidityMap(this);
          }
       },
 
@@ -90,7 +91,6 @@ R.resources.types.Tile = function() {
        */
       release: function() {
          this.solidityMap = null;
-         this.tileImg = null;
          this.tileObj = null;
          this.base();
       },
@@ -112,34 +112,6 @@ R.resources.types.Tile = function() {
       },
 
       /**
-       * Get the image of the tile.
-       * @return {HTMLImage}
-       */
-      getTileImage: function() {
-         if (!this.tileImg) {
-            this.tileImg = $("<img>");
-            var f = this.getFrame(0,0);
-            if (!this.isAnimation()) {
-               this.tileImg.attr({
-                  width: f.w,
-                  height: f.h,
-                  src: R.util.RenderUtil.extractDataURL(tile.getSourceImage(), f)
-               });
-            } else {
-               var w = this.getBoundingBox().w * this.getFrameCount(), h = this.getBoundingBox().h,
-                   fr = R.math.Rectangle2D.create(f);
-               fr.w += w;
-               this.tileImg.attr({
-                  width: w,
-                  height: h,
-                  src: R.util.RenderUtil.extractDataURL(tile.getSourceImage(), fr)
-               });
-            }
-         }
-         return this.tileImg[0];
-      },
-
-      /**
        * Set the solidity map for the tile, used during raycasts.  The status
        * flag is used to indicate if the pixels of the map need to be tested.
        * A solidity map will be computed for each frame of the tile, if the tile
@@ -150,7 +122,7 @@ R.resources.types.Tile = function() {
        * @param statusFlag {Number} Flag used to assist in short-circuit testing
        */
       setSolidityMap: function(frame, solidityMap, statusFlag) {
-         this.solidityMap[frame] = {
+         this.solidityMap = {
             map: solidityMap,
             status: statusFlag
          };
@@ -165,12 +137,7 @@ R.resources.types.Tile = function() {
        *          in milliseconds.
        */
       testPoint: function(point, time, dt) {
-         // TODO: The frame calc needs to be modified for sync/unsync
-         // Get the frame for the current time
-         var fSpeed = tile.getFrameSpeed() == -1 ? 0 : tile.getFrameSpeed(),
-             frame = (time / fSpeed) % this.getFrameCount();
-
-         var sMap = this.solidityMap[frame];
+         var sMap = this.solidityMap;
          if (sMap.status == R.resources.types.Tile.ALL_OPAQUE) {
             return true;
          } else if (sMap.status == R.resources.types.Tile.ALL_TRANSPARENT) {
@@ -197,53 +164,6 @@ R.resources.types.Tile = function() {
        */
       clone: function(tile) {
          return R.resources.types.Tile.create(tile.getName(), tile.tileObj, tile.getTileResource(), tile.getTileLoader());
-      },
-
-      /**
-       * Compute the solidity map for a tile, based on the alpha value of each pixel in the
-       * tile image.  The resource defines what the alpha threshold is.
-       * @param tile {R.resources.types.tile} The tile to compute the map for
-       */
-      computeSolidityMap: function(tile) {
-         // Is the tile a single frame, or animated?
-         var count = tile.getFrameCount();
-         var fSpeed = tile.getFrameSpeed() == -1 ? 0 : tile.getFrameSpeed();
-
-         // The alpha value above which pixels will be considered solid
-         var threshold = tile.getTileResource().info.transparencyThreshold;
-
-         // For each frame, we'll need to compute a solidity map
-         for (var f = 0; f < count; f++) {
-            // Create the entry for each frame
-            tile.solidityMap.push({
-               map: null,
-               status: R.resources.types.Tile.ALL_MIXED
-            });
-
-            // Get the image data for the frame
-            var fr = tile.getFrame(f * tile.getFrameSpeed());
-            var imgData = R.util.RenderUtil.extractImageData(tile.getSourceImage(), fr).data;
-
-            // Compute the map, based on the alpha values
-            var tmpMap = [], opaque = 0;
-            for (var y = 0; y < fr.h; y++) {
-               for (var x = 0; x < fr.w; x++) {
-                  opaque += imgData[(x + y * fr.w) + 3] > threshold ? 1 : 0;
-               }
-            }
-
-            // Determine if either of the short-circuit cases apply
-            if (opaque == 0) {
-               tile.solidityMap[f].status = R.resources.types.Tile.ALL_TRANSPARENT;
-            } else if (opaque == fr.h * fr.w) {
-               tile.solidityMap[f].status = R.resources.types.Tile.ALL_OPAQUE;
-            }
-
-            // If the map is mixed, store the map for raycast tests
-            if (tile.solidityMap[f].status == R.resources.types.Tile.ALL_MIXED) {
-               tile.solidityMap[f].map = tmpMap;
-            }
-         }
       },
 
       /**

@@ -1,0 +1,554 @@
+{
+   "name": "New Level",
+   "version": 1,
+   "actors": [
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2816.00,2048.00",
+         "Sprite": "0:sprites:red_koopa",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2720.00,2720.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "336.00,320.00",
+         "Sprite": "0:sprites:goomba",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "496.00,448.00",
+         "Sprite": "0:sprites:goomba",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "704.00,384.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "144.00,64.00",
+         "Sprite": "0:sprites:super_walk",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "736.00,416.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "768.00,448.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "1040.00,640.00",
+         "Sprite": "0:sprites:q_block",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "1168.00,640.00",
+         "Sprite": "0:sprites:q_block",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "1520.00,1056.00",
+         "Sprite": "0:sprites:mushroom",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2928.00,2048.00",
+         "Sprite": "0:sprites:princess",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2768.00,2048.00",
+         "Sprite": "0:sprites:red_koopa",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2688.00,2752.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2752.00,2720.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2784.00,2720.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2816.00,2720.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2848.00,2720.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2880.00,2720.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2912.00,2752.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2944.00,2752.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "2976.00,2784.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "3008.00,2784.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "3040.00,2816.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "3072.00,2816.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      },
+      {
+         "Name": "Actor",
+         "ZIndex": 1,
+         "Position": "3104.00,2816.00",
+         "Sprite": "0:sprites:coin",
+         "Collidable": false,
+         "ACTOR_CONFIG": {
+            "actorId": "",
+            "bitMask": "0"
+         }
+      }
+   ],
+   "fixtures": [],
+   "triggers": [],
+   "tilemaps": {
+      "tm_playfield": {
+         "props": {
+            "Name": "tm_playfield",
+            "Dimensions": "200.00,200.00",
+            "TileScaleX": 1,
+            "TileScaleY": 1,
+            "Zindex": 1,
+            "Parallax": "1.00,1.00"
+         },
+         "map": [
+            "e:202",
+            "0:tiles:glassblock",
+            "e:198",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:198",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:2",
+            "0:tiles:glassblock",
+            "e:196",
+            "0:tiles:glassblock",
+            "e:2",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:193",
+            "0:tiles:glassblock",
+            "e:5",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:191",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:6",
+            "0:tiles:glassblock",
+            "e:191",
+            "0:tiles:glassblock",
+            "e:7",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:186",
+            "0:tiles:glassblock",
+            "e:12",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:185",
+            "0:tiles:glassblock",
+            "e:13",
+            "0:tiles:glassblock",
+            "e:185",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:6",
+            "0:tiles:glassblock",
+            "e:192",
+            "0:tiles:glassblock",
+            "e:6",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:191",
+            "0:tiles:glassblock",
+            "e:7",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:189",
+            "0:tiles:glassblock",
+            "e:9",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:188",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:6",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:1006",
+            "0:sprites:brick",
+            "0:sprites:brick",
+            "0:sprites:brick",
+            "0:sprites:brick",
+            "0:sprites:brick",
+            "0:sprites:brick",
+            "0:sprites:brick",
+            "0:sprites:brick",
+            "e:792",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "e:200",
+            "0:tiles:glassblock",
+            "e:200",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:3",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:194",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:1204",
+            "0:tiles:glassblock",
+            "e:18",
+            "0:tiles:glassblock",
+            "e:181",
+            "0:tiles:glassblock",
+            "e:17",
+            "0:tiles:glassblock",
+            "e:181",
+            "0:tiles:glassblock",
+            "e:17",
+            "0:tiles:glassblock",
+            "e:181",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:16",
+            "0:tiles:glassblock",
+            "e:182",
+            "0:tiles:glassblock",
+            "e:16",
+            "0:tiles:glassblock",
+            "e:183",
+            "0:tiles:glassblock",
+            "e:15",
+            "0:tiles:glassblock",
+            "e:183",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:14",
+            "0:tiles:glassblock",
+            "e:184",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:12",
+            "0:tiles:glassblock",
+            "e:186",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:10",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:188",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:7",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:191",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:3213",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:189",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:7",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:186",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:11",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:3386",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:193",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:4",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:199",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "0:tiles:glassblock",
+            "e:22102"
+         ]
+      }
+   }
+}

@@ -5,6 +5,7 @@
     288
   ],
   "version": 2,
+  "assumeOpaque": true,
   "sprites": {
     "curveright": [
       0,

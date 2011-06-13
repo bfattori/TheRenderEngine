@@ -350,6 +350,13 @@ LevelEditor.extend({
          $("#editPanel div.sceneGraph").jstree("remove", "#" + objs[i].getId());
          objs[i].destroy();
       }
+
+      // Blow away the tile maps
+      for (var maps in LevelEditor.tileMaps) {
+         LevelEditor.tileMaps[maps].destroy();
+      }
+      LevelEditor.tileMaps = {};
+
       LevelEditor.currentLevel.id = -1;
       LevelEditor.currentLevel.name = "New Level";
    },
@@ -387,7 +394,7 @@ LevelEditor.extend({
          return;
       }
 
-      // Now the the formalities are out of the way, let's get to importing the data
+      // Now that the formalities are out of the way, let's get to importing the data
       LevelEditor.resetLevel();
 
       // Get the level name
@@ -410,7 +417,7 @@ LevelEditor.extend({
       }
 
       for (var f in lvlJSON["fixtures"]) {
-         newObj = R.objects.CollisionBox.create();
+         newObj = R.objects.Fixture.create();
          LevelEditor.storeObjectProperties(newObj, lvlJSON["fixtures"][f]);
 
          // Add the object to the context
@@ -424,8 +431,8 @@ LevelEditor.extend({
       }
 
       for (var t in lvlJSON["triggers"]) {
-         newObj = R.objects.CollisionBox.create();
-         newObj.setType(R.objects.CollisionBox.TYPE_TRIGGER);
+         newObj = R.objects.Fixture.create();
+         newObj.setType(R.objects.Fixture.TYPE_TRIGGER);
          LevelEditor.storeObjectProperties(newObj, lvlJSON["triggers"][t]);
 
          // Add the object to the context
@@ -436,6 +443,13 @@ LevelEditor.extend({
             "attr": { "id": newObj.getId() },
             "data": newObj.getName() + " [" + newObj.getId() + "]"
          }, false, true);
+      }
+
+      // Now import the tile maps
+      for (var tMap in lvlJSON["tilemaps"]) {
+         newObj = R.resources.types.TileMap.load(tMap, LevelEditor.loaders.tile, lvlJSON["tilemaps"][tMap]);
+         ctx.add(newObj);
+         LevelEditor.tileMaps[newObj.getName()] = newObj;
       }
 
       // All good!

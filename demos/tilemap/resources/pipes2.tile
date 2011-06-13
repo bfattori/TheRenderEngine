@@ -5,6 +5,7 @@
     320
   ],
   "version": 2,
+  "assumeOpaque": false,
   "sprites": {
     "animation0": [
       0,

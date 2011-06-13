@@ -123,6 +123,11 @@ R.resources.types.TileMap = function() {
          return this.baseTile;
       },
 
+      /**
+       * Get the internal representation of the tile map.
+       * @return {Array}
+       * @private
+       */
       getTileMap: function() {
          return this.tilemap;
       },
@@ -308,6 +313,114 @@ R.resources.types.TileMap = function() {
        */
       getClassName: function() {
          return "R.resources.types.TileMap";
+      },
+
+      /**
+       * Load a tile map from a raw array of tile data.  The tile data must be in a format
+       * exported from the Level Editor.
+       *
+       * @param name {String} The name of the tile map
+       * @param tileLoaders {Array} An array of {@link R.resources.loaders.TileLoader} instances
+       * @param mapData {Object} The tile map data object from the level file
+       * @return {R.resources.types.TileMap}
+       */
+      load: function(name, tileLoaders, mapData) {
+         // Searches the tile loaders for the resource and tile,
+         // returning the first instance of the tile found
+         function findTile(res, name) {
+            var tile = null;
+            for (var tl = 0; tl < tileLoaders.length; tl++) {
+               tile = tileLoaders[tl].getTile(res, name);
+               if (tile != null) break;
+            }
+            return tile;
+         }
+
+         var props = mapData.props, dims = props.Dimensions.split(","), par = props.Parallax.split(","),
+             tileMap = R.resources.types.TileMap.create(name, parseInt(dims[0]), parseInt(dims[1]));
+
+         // Set up the tile map properties
+         tileMap.zIndex = props.Zindex;
+         tileMap.tileScale.set(props.TileScaleX, props.TileScaleY);
+         tileMap.setParallax(parseInt(par[0]), parseInt(par[1]));
+
+         // Now load the tile map
+         var ptr = 0, map = mapData.map;
+         for (var tile = 0; tile < map.length; tile++) {
+            // Check for empties
+            if (map[tile].indexOf("e:") == 0) {
+               // Skip empties
+               ptr += parseInt(map[tile].split(":")[1]);
+            } else {
+               // Populate a tile
+               var t = findTile(resource, tileName);
+               if (t != null && tileMap.baseTile == null) {
+                  tileMap.baseTile = t;
+               }
+               var tileDesc = map[tile].split(":"), resource = tileDesc[1], tileName = tileDesc[2];
+               tileMap.tilemap[ptr++] = t;
+            }
+         }
+
+         return tileMap;
+      },
+
+      /** @private */
+      solidityMaps: {},
+
+      /**
+       * Compute the solidity map for a tile, based on the alpha value of each pixel in the
+       * tile image.  The resource defines what the alpha threshold is.
+       * @param tile {R.resources.types.tile} The tile to compute the map for
+       */
+      computeSolidityMap: function(tile) {
+         // Is there a solidity map for this tile already?
+         var uniqueId = tile.getTileResource().resourceName + tile.getName();
+         if (R.resources.types.TileMap.solidityMaps[uniqueId]) {
+            return R.resources.types.TileMap.solidityMaps[uniqueId];
+         }
+
+         // Is the tile a single frame, or animated?
+         var count = tile.getFrameCount();
+         var fSpeed = tile.getFrameSpeed() == -1 ? 0 : tile.getFrameSpeed();
+
+         // The alpha value above which pixels will be considered solid
+         var threshold = tile.getTileResource().info.transparencyThreshold;
+
+         // The solidity map is only calculated for the first frame
+         var sMap = {
+            map: null,
+            status: R.resources.types.Tile.ALL_MIXED
+         };
+
+         // Get the image data for the frame
+         var fr = tile.getFrame(0,0);
+         var imgData = R.util.RenderUtil.extractImageData(tile.getSourceImage(), fr).data;
+
+         // Compute the map, based on the alpha values
+         var tmpMap = [], opaque = 0;
+         for (var y = 0; y < fr.h; y++) {
+            for (var x = 0; x < fr.w; x++) {
+               opaque += imgData[(x + y * fr.w) + 3] > threshold ? 1 : 0;
+            }
+         }
+
+         // Determine if either of the short-circuit cases apply
+         if (opaque == 0) {
+            sMap.status = R.resources.types.Tile.ALL_TRANSPARENT;
+         } else if (opaque == fr.h * fr.w) {
+            sMap.status = R.resources.types.Tile.ALL_OPAQUE;
+         }
+
+         // If the map is mixed, store the map for raycast tests
+         if (sMap.status == R.resources.types.Tile.ALL_MIXED) {
+            sMap.map = tmpMap;
+         }
+
+         // Store the solidity map
+         R.resources.types.TileMap.solidityMaps[uniqueId] = sMap;
+         return R.resources.types.TileMap.solidityMaps[uniqueId];
       }
+
    });
 };

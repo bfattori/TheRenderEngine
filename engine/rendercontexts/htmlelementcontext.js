@@ -422,7 +422,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		 * @param ref {R.math.HostObject} A reference game object
 		 */
 		drawSprite: function(sprite, time, dt, ref){
-			var f = sprite.getFrame(time, dt), tl = f.getTopLeft(), rD = f.getDims();
+			var f = sprite.getFrame(time, dt);
 			
 			// The reference object is a host object it
 			// will give us a reference to the HTML element which we can then
@@ -431,9 +431,10 @@ R.rendercontexts.HTMLElementContext = function(){
          var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<img>");
 
          var css = this._mergeTransform(ref, {
-            width: rD.w,
-            height: rD.h,
-            backgroundPosition: -tl.x + "px " + tl.y + "px"
+            width: f.w,
+            height: f.h,
+            backgroundPosition: -f.x + "px " + -f.y + "px",
+            backgroundImage: 'url:(' + sprite.getSourceImage().src + ')'
          });
          obj.css(css);
          this.base(sprite, time, dt);

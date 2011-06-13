@@ -107,6 +107,11 @@ var LevelEditor = function() {
 
       showing: false,
 
+      editToggle: {
+         zoom: false,
+         parallax: false
+      },
+
       getName: function() {
          return "LevelEditor";
       },
@@ -483,12 +488,30 @@ var LevelEditor = function() {
 
             //ctx.jQ().css("border", "1px solid red");
             ctx.addEvent(null, "keypress", function(evt) {
+               // Toggle Zoom
                if (R.engine.Events.isKey(evt, "z")) {
-                  ctx.setWorldScale(0.25,0.25);
+                  LevelEditor.editToggle.zoom = !LevelEditor.editToggle.zoom;
+                  if (LevelEditor.editToggle.zoom) {
+                     ctx.setWorldScale(0.25,0.25);
+                  } else {
+                     ctx.setWorldScale(1,1);
+                  }
                }
 
-               if (R.engine.Events.isKey(evt, "x")) {
-                  ctx.setWorldScale(1,1);
+               // Toggle Parallax
+               if (R.engine.Events.isKey(evt, "a")) {
+                  LevelEditor.editToggle.parallax = !LevelEditor.editToggle.parallax;
+                  var parallax = R.math.Point2D.create(1,1);
+                  if (LevelEditor.editToggle.parallax) {
+                     parallax.set(1.3,1.3);
+                     LevelEditor.tileMaps["tm_background"].setParallax(parallax);
+                     parallax.set(0.4,0.4);
+                     LevelEditor.tileMaps["tm_foreground"].setParallax(parallax);
+                  } else {
+                     LevelEditor.tileMaps["tm_background"].setParallax(parallax);
+                     LevelEditor.tileMaps["tm_foreground"].setParallax(parallax);
+                  }
+                  parallax.destroy();
                }
             });
 

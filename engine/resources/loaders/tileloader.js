@@ -116,7 +116,11 @@ R.resources.loaders.TileLoader = function(){
 		 */
 		getTile: function(resource, tile){
 			var info = this.get(resource).info;
-			return R.resources.types.Tile.create(tile, info.sprites[tile], this.get(resource), this);
+         if (info != null) {
+			   return R.resources.types.Tile.create(tile, info.sprites[tile], this.get(resource), this);
+         } else {
+            return null;
+         }
 		},
 		
 		/**
