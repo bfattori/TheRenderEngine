@@ -22,6 +22,7 @@ LevelEditor.extend({
       actor.setPosition(pT);
       pT.destroy();
       actor.setZIndex(1);
+      actor.getDefaultTransformComponent().setTileMap(LevelEditor.tileMaps["tm_playfield"]);
 
       ctx.add(actor);
       LevelEditor.setSelected(actor);

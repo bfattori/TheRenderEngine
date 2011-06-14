@@ -45,8 +45,8 @@ LevelEditor.extend({
          var tile,tileDiv,special=[['empty','transparent'],['collision','#ff00ff']];
          // Special tiles first
          for (var st = 0; st < special.length; st++) {
-            tileDiv = $("<div class='tile'></div>");
-            tileDiv.append($("<div tileIdent='$$" + special[st][0] + "' style='border: 1px solid; background-color:" + special[st][1] + "; width: 32px; height:32px; margin-left: 51px'></div>"))
+            tileDiv = $("<div class='tile' tileIdent='$$" + special[st][0] + "'></div>");
+            tileDiv.append($("<div style='border: 1px solid; background-color:" + special[st][1] + "; width: 32px; height:32px; margin-left: 51px'></div>"))
                .append($("<div class='title'>" + special[st][0] + "</div>"));
             $("#TileSelector").append(tileDiv);
          }
@@ -70,7 +70,6 @@ LevelEditor.extend({
             
             tileDiv.append(obj).append($("<div class='title'>" + tiles[t].tile + "</div>"));
             $("#TileSelector").append(tileDiv);
-            tile.destroy();
          }
       }
 
@@ -88,10 +87,6 @@ LevelEditor.extend({
    },
 
    setCurrentTile: function(tileIdent) {
-      if (LevelEditor.currentTile != null) {
-         LevelEditor.currentTile.destroy();
-      }
-
       LevelEditor.currentTile = LevelEditor.getTileForName(tileIdent);
    },
 

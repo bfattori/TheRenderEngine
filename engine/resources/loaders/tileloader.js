@@ -91,10 +91,13 @@ R.Engine.define({
  */
 R.resources.loaders.TileLoader = function(){
 	return R.resources.loaders.SpriteLoader.extend(/** @scope R.resources.loaders.TileLoader.prototype */{
-	
+
+      tiles: null,
+
 		/** @private */
 		constructor: function(name){
 			this.base(name || "TileLoader");
+         this.tiles = {};
 		},
 		
 		/**
@@ -116,8 +119,13 @@ R.resources.loaders.TileLoader = function(){
 		 */
 		getTile: function(resource, tile){
 			var info = this.get(resource).info;
-         if (info != null) {
-			   return R.resources.types.Tile.create(tile, info.sprites[tile], this.get(resource), this);
+         if (info != null && info.sprites[tile]) {
+            var aTile = this.tiles[tile];
+            if (!aTile) {
+               // We want to make sure we only create a tile singleton, not instances for each tile
+               aTile = this.tiles[tile] = R.resources.types.Tile.create(tile, info.sprites[tile], this.get(resource), this);
+            }
+		      return aTile;
          } else {
             return null;
          }

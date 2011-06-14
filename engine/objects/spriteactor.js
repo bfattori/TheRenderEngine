@@ -39,6 +39,7 @@ R.Engine.define({
 		"R.components.render.Sprite",
 		"R.components.input.Keyboard",
 		"R.components.collision.Convex",
+      "R.components.transform.PlatformMover2D",
 		"R.collision.OBBHull"
 	]
 });
@@ -65,7 +66,7 @@ R.objects.SpriteActor = function(){
 		
 		/** @private */
 		constructor: function(name){
-			this.base(name || "Actor");
+			this.base(name || "Actor", R.components.transform.PlatformMover2D.create("move"));
 			
 			this.editing = false;
 			

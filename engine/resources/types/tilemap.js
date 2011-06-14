@@ -144,25 +144,54 @@ R.resources.types.TileMap = function() {
          Assert(this.baseTile == null || (tbb.w % this.baseTile.getBoundingBox().w == 0 && tbb.w % this.baseTile.getBoundingBox().w == 0),
                "Tiles in a TileMap must be the same size!");
 
-         if (this.tilemap[x + y * this.width] != null) {
-            this.tilemap[x + y * this.width].destroy();
-         }
+         //if (this.tilemap[x + y * this.width] != null) {
+         //   this.tilemap[x + y * this.width].destroy();
+         //}
 
-         var newTile = R.clone(tile);
-         this.tilemap[x + y * this.width] = newTile;
+         this.tilemap[x + y * this.width] = tile;
          if (!this.baseTile) {
-            this.baseTile = newTile;
+            this.baseTile = tile;
          }
       },
 
       /**
-       * Get the tile at the given position.
+       * Get the tile at the given position.  The position is a tile location between
+       * zero and the dimensions of the tile map along the X and Y axis.  For a tile map
+       * that is 200 x 200, X and Y would be between 0 and 200.
+       *
        * @param x {Number} The X position
        * @param y {Number} The Y position
        * @return {R.resources.types.Tile}
        */
       getTile: function(x, y) {
          return this.tilemap[x + y * this.width];
+      },
+
+      /**
+       * Get the tile at the given point.  The point is a world location which will be
+       * transformed into a tile location.  The point will be adjusted to reflect the
+       * position within the tile.
+       *
+       * @param point {R.math.Point2D} The point to retrieve the tile for
+       * @return {R.resources.types.Tile} The tile, or <code>null</code>
+       */
+      getTileAtPoint: function(point) {
+         if (!this.baseTile) {
+            return null;
+         }
+
+         var bw = this.baseTile.getBoundingBox().w, bh = this.baseTile.getBoundingBox().h,
+             x = Math.floor(point.x / bw), y = Math.floor(point.y / bh),
+             tile = this.getTile(x, y);
+
+         // If there's no tile at this location, return null
+         if (tile == null) {
+            return tile;
+         }
+
+         // Adjust the point to be within the tile's bounding box and return the tile
+         point.set(tile.getBoundingBox().w - (point.x % bw), tile.getBoundingBox().h - (point.y % bh));
+         return tile;
       },
 
       /**
@@ -420,7 +449,97 @@ R.resources.types.TileMap = function() {
          // Store the solidity map
          R.resources.types.TileMap.solidityMaps[uniqueId] = sMap;
          return R.resources.types.TileMap.solidityMaps[uniqueId];
-      }
+      },
+
+      /**
+       * Cast a ray through the tile map, looking for collisions along the
+       * ray.  If a collision is found, a {@link R.struct.CollisionData} object
+       * will be returned or <code>null</code> if otherwise.
+       * <p/>
+       * If a collision occurs, the value stored in {@link R.struct.CollisionData#shape1}
+       * is the tile which was collided with.  The value in {@link R.struct.CollisionData#impulseVector}
+       * is a vector to separate the game object from the tile.
+       *
+       * @param tileMap {R.resources.types.TileMap} The tile map to test against
+       * @param fromPoint {R.math.Point2D} The origination of the ray
+       * @param direction {R.math.Vector2D} A vector whose magnitude specifies the direction and
+       *    length of the ray being cast.  The ray will be truncated at {@link #MAX_RAY_LENGTH}.
+       * @return {R.struct.CollisionData} The collision info, or <code>null</code> if
+       *    no collision would occur.
+       */
+      castRay: function(tileMap, fromPoint, direction) {
+         // Get all of the points along the line and test them against the
+         // collision model.  At the first collision, we stop performing any more checks.
+         var begin = R.math.Point2D.create(fromPoint), end = R.math.Point2D.create(fromPoint),
+             dir = R.math.Vector2D.create(direction), line,
+             pt = 0, test, tile, itr, object, wt = R.Engine.worldTime, dt = R.Engine.lastTime,
+             vec = R.math.Vector2D.create(direction).neg(), did = false;
+
+         // Create the collision structure only once
+         var collision = R.struct.CollisionData.create(0, vec, null, null, null, wt, dt);
+
+         // Make sure the length isn't greater than the max
+         if (dir.len() > R.resources.types.TileMap.MAX_RAY_LENGTH) {
+            dir.normalize().mul(R.resources.types.TileMap.MAX_RAY_LENGTH);
+         }
+
+         // Use Bresenham's algorithm to calculate the points along the line
+         end.add(dir);
+         line = R.math.Math2D.bresenham(begin, end);
+
+         /* pragma:DEBUG_START */
+         if (R.Engine.getDebugMode() && arguments[4])
+         {
+            var start = R.math.Point2D.create(begin), finish = R.math.Point2D.create(end);
+
+            arguments[4].postRender(function() {
+               this.setLineStyle("orange");
+               this.setLineWidth(1);
+               this.drawLine(start, end);
+               start.destroy();
+               end.destroy();
+            });
+         }
+         /* pragma:DEBUG_END */
+
+         while (!collision.shape1 && pt < line.length) {
+            test = line[pt++];
+
+            // Find the tile for the current point
+            tile = tileMap.getTileAtPoint(test);
+
+            if (tile && tile.testPoint(test)) {
+               // A collision occurs at the adjusted point within the tile
+               collision.shape1 = tile;
+
+               // Determine the overlap
+               collision.impulseVector = R.math.Vector2D.ZERO;
+            }
+         }
+
+         // Clean up a bit
+         begin.destroy();
+         end.destroy();
+         dir.destroy();
+
+         // Destroy the points in the line
+         while (line.length > 0) {
+            line.shift().destroy();
+         }
+
+         if (collision.shape1 == null) {
+            collision.destroy();
+            collision = null;
+         }
+
+         return collision;
+      },
+
+      /**
+       * The maximum length of a cast ray (1000)
+       * @type {Number}
+       */
+      MAX_RAY_LENGTH: 1000
 
    });
 };
