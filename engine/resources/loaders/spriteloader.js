@@ -110,10 +110,10 @@ R.resources.loaders.SpriteLoader = function(){
 				var thisObj = this;
 				
 				// Get the file from the server
-				R.engine.Script.loadJSON(url, function(spriteInfo, status){
+				R.engine.Script.loadJSON(url, function(spriteInfo){
 					// get the path to the resource file
 					var path = url.substring(0, url.lastIndexOf("/"));
-					thisObj.load(name, null, spriteInfo, path + "/");
+					thisObj.load(name, url, spriteInfo, path + "/");
 					thisObj.afterLoad(name, spriteInfo, path + "/");
 				});
 			}

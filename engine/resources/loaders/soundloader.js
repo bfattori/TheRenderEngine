@@ -118,7 +118,7 @@ R.resources.loaders.SoundLoader = function(){
 				this.init = true;
 			}
 			
-			this.base(name, soundObj);
+			this.base(name, url, soundObj);
 		},
 		
 		/**

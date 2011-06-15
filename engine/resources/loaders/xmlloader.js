@@ -64,20 +64,20 @@ R.resources.loaders.XMLLoader = function(){
 		 */
 		load: function(name, url /*, doc */){
 		
-			if (url) {
+			if (!arguments[2]) {
 				Assert(url.indexOf("http") == -1, "XML must be located relative to this server");
 				var thisObj = this;
 				
 				// Get the file from the server
 				$.get(url, function(data){
 					// 2nd pass - store the XML
-					thisObj.load(name, null, data);
+					thisObj.load(name, url, data);
 				}, "xml");
 			}
 			else {
 				// The object has been loaded and is ready for use
 				this.setReady(name);
-				this.base(name, arguments[2]);
+				this.base(name, url, arguments[2]);
 			}
 		},
 		

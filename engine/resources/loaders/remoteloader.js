@@ -49,10 +49,13 @@ R.Engine.define({
  */
 R.resources.loaders.RemoteLoader = function(){
 	return R.resources.loaders.AbstractResourceLoader.extend(/** @scope R.resources.loaders.RemoteLoader.prototype */{
-	
+
+      pathUrls: null,
+
 		/** @private */
 		constructor: function(name){
 			this.base(name || "RemoteLoader");
+         this.pathUrls = {};
 		},
 		
 		/**
@@ -83,7 +86,28 @@ R.resources.loaders.RemoteLoader = function(){
 		 */
 		getResourceType: function(){
 			return "remote";
-		}
+		},
+
+      /**
+       * Load an resource from a remote URL.
+       *
+       * @param name {String} The name of the resource
+       * @param url {String} The URL where the resource is located
+       * @param data {Object} The loaded data to cache
+       */
+      load: function(name, url, data) {
+         this.base(name, data);
+         this.pathUrls[name] = url;
+      },
+
+      /**
+       * Get the URL where the resource is located.
+       * @param name {String} The name of the resource
+       * @return {String}
+       */
+      getPathUrl: function(name) {
+         return this.pathUrls[name];
+      }
 		
 	}, /** @scope R.resources.loaders.RemoteLoader.prototype */{
 		/**

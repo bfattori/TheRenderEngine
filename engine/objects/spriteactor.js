@@ -115,7 +115,7 @@ R.objects.SpriteActor = function(){
 			var self = this;
 			var prop = this.base(self);
 			return $.extend(prop, {
-				"Sprite": [typeof LevelEditor !== "undefined" ? function(){ return LevelEditor.getSpriteCanonicalName(self.sprite); } : function(){ return self.sprite.getName(); },
+				"Sprite": [function(){ return self.sprite.getSpriteResource().resourceName + ":" + self.sprite.getName(); },
 							  typeof LevelEditor !== "undefined" ? { "multi": true,
 							  											 "opts": LevelEditor.getSpriteOptions,
 																		 "fn": function(s) { self.setSprite(LevelEditor.getSpriteForName(s)); }} : null, 
@@ -379,7 +379,34 @@ R.objects.SpriteActor = function(){
 		 */
 		getClassName: function(){
 			return "R.objects.SpriteActor";
-		}
+		},
+
+      /**
+       * Get a properties object with values for the given object.
+       * @param obj {R.engine.SpriteActor} The object to query
+       * @return {Object}
+       */
+      valueOf: function(actor) {
+         var propObj = R.objects.Object2D.valueOf(actor);
+
+         // Get the actor config
+         var aCfg = {
+            "actorId": actor.getActorId(),
+            "bitMask": actor.getCollisionMask()
+         };
+
+         for (var c in actor.getConfig()) {
+            var val = actor.getConfig()[c] == "var" ? actor.getVariable(c) :
+                  (actor.getActorEvent(c) && actor.getActorEvent(c).script ? actor.getActorEvent(c).script : "");
+            if (val) {
+               aCfg[c] = val;
+            }
+         }
+
+         // Add in the actor config
+         propObj["ACTOR_CONFIG"] = aCfg;
+         return propObj;
+      }
 	});
 	
-}
+};

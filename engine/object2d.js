@@ -585,7 +585,39 @@ R.engine.Object2D = function(){
 		getClassName: function(){
 			return "R.engine.Object2D";
 		},
-		
+
+      /**
+       * Get a properties object with values for the given object.
+       * @param obj {R.engine.Object2D} The object to query
+       * @return {Object}
+       */
+      valueOf: function(obj) {
+         var bean = obj.getProperties(),
+         propObj = {},
+         val;
+
+         // Defaults for object properties which can be skipped if no different
+         var defaults = {
+            "Position":"0.00,0.00",
+            "Origin":"0.00,0.00",
+            "Rotation":"0",
+            "ScaleX":"1",
+            "ScaleY":"1",
+            "Action":""
+         };
+
+         for (var p in bean) {
+            if (bean[p][1]) {
+               val = bean[p][0]();
+               if (val != defaults[p]) {
+                  propObj[p] = bean[p][0]();
+               }
+            }
+         }
+
+         return propObj;
+      },
+
 		/**
 		 * The axis of rotation
 		 * @private

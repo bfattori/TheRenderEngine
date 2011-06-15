@@ -162,6 +162,8 @@ LevelEditor.extend({
     * @private
     */
    exportLevel: function() {
+      var level = R.resources.types.Level.create(LevelEditor.currentLevel.name, 200, 200);
+
       var lvlJSON = {
          "name": LevelEditor.currentLevel.name,
          "version": LevelEditor.LEVEL_VERSION_NUMBER,

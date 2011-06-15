@@ -101,7 +101,7 @@ R.resources.loaders.ImageLoader = function(){
 				imageInfo = this.loadImageResource(name, url, width, height);
 			}
 			
-			this.base(name, imageInfo);
+			this.base(name, url, imageInfo);
 		},
 		
 		/**

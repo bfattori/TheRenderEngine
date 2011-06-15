@@ -35,7 +35,10 @@ R.Engine.define({
 	"class": "R.resources.types.Level",
 	"requires": [
 		"R.engine.PooledObject",
-		"R.math.Rectangle2D"
+      "R.resources.loaders.SpriteLoader",
+      "R.resources.loaders.TileLoader",
+      "R.resources.types.Sound",
+      "R.resources.types.TileMap"
 	]
 });
 
@@ -50,103 +53,111 @@ R.Engine.define({
 R.resources.types.Level = function(){
 	return R.engine.PooledObject.extend(/** @scope R.resources.types.Level.prototype */{
 	
-		// The level resource
-		levelResource: null,
-		
-		// The level frame
-		frame: null,
-		
-		// The map of all collision rects defined for the level
-		collisionMap: null,
-		
+      actors: null,
+      fixtures: null,
+      tilemaps: null,
+      backgroundMusic: null,
+      width: 0,
+      height: 0,
+
 		/** @private */
-		constructor: function(name, levelResource){
-		
-			this.levelResource = levelResource;
-			this.collisionMap = [];
-			
-			// Run through the collision map to recreate
-			// the collision rectangles
-			for (var r in levelResource.info.collisionMap) {
-				var rA = levelResource.info.collisionMap[r];
-				this.collisionMap.push(R.math.Rectangle2D.create(rA[0], rA[1], rA[2], rA[3]));
-			}
-			
-			return this.base(name);
+		constructor: function(name, width, height){
+			this.base(name);
+         this.actors = R.struct.Container.create("Actors");
+         this.fixtures = R.struct.Container.create("Fixtures");
+         this.tilemaps = R.struct.HashContainer.create("Tilemaps");
+         this.backgroundMusic = null;
+         this.width = width;
+         this.height = height;
+
+         // Add the three tilemaps
+         this.tilemaps.add("background", R.resources.types.TileMap.create("background", width, height));
+         this.tilemaps.add("playfield", R.resources.types.TileMap.create("playfield", width, height));
+         this.tilemaps.add("foreground", R.resources.types.TileMap.create("foreground", width, height));
 		},
-		
+
+      destroy: function() {
+         this.actors.cleanUp();
+         this.actors.destroy();
+         this.fixtures.cleanUp();
+         this.fixtures.destroy();
+         this.tilemaps.cleanUp();
+         this.tilemaps.destroy();
+
+         if (this.backgroundMusic) {
+            this.backgroundMusic.destroy();
+         }
+
+         this.base();
+      },
+
 		/**
 		 * Release the level back into the pool for reuse
 		 */
 		release: function(){
 			this.base();
-			this.levelResource = null;
-			this.frame = null;
-			this.collisionMap = null;
-		},
-		
+			this.actors = null;
+			this.fixtures = null;
+         this.tilemaps = null;
+         this.backgroundMusic = null;
+         this.width = 0;
+         this.height = 0;
+   	},
+
 		/**
-		 * Gets a potential collision list (PCL) for the point and radius specified.
-		 * This routine, and the entire collision mechanism for levels, could be optimized for speed
-		 * using a BSP tree, or other structure.
-		 *
-		 * @param point {R.math.Point2D} The position to check for a collision
-		 * @param radius {Number} The distance from the point to check for collisions
-		 * @return {Array} An array of {@link Rectangle2D} instances which might be possible collisions
-		 */
-		getPCL: function(point, radius){
-			// Create a rectangle which represents the position and radius
-			var cRect = R.math.Rectangle2D.create(point.x - radius, point.y - radius, radius * 2, radius * 2);
-			
-			// Check the collision map for possible collisions
-			var pcl = [];
-			for (var r in this.collisionMap) {
-				if (this.collisionMap[r].isIntersecting(cRect)) {
-					pcl.push(this.collisionMap[r]);
-				}
-			}
-			cRect.destroy();
-			
-			return pcl;
-		},
-		
-		/**
-		 * Get the width of the level image.
-		 * @return {Number} The width of the level in pixels
+		 * Get the width of the level, in tiles.
+		 * @return {Number} The width of the level in tiles
 		 */
 		getWidth: function(){
-			return this.levelResource.info.bitmapWidth;
+			return this.width;
 		},
 		
 		/**
-		 * Get the height of the level image.
-		 * @return {Number} The height of the level in pixels
+		 * Get the height of the level, in tiles.
+		 * @return {Number} The height of the level in tiles
 		 */
 		getHeight: function(){
-			return this.levelResource.info.bitmapHeight;
+			return this.height;
 		},
 		
-		/**
-		 * Get a {@link R.math.Rectangle2D} which encloses this level.
-		 * @return {R.math.Rectangle2D} A {@link Rectangle2D} which encloses the level
-		 */
-		getFrame: function(){
-			if (!this.frame) {
-				this.frame = R.math.Rectangle2D.create(0, 0, this.getWidth(), this.getHeight());
-			}
-			
-			return this.frame;
-		},
-		
-		/**
-		 * The source image loaded by the {@link R.resources.loaders.LevelLoader} when the level was
-		 * created.
-		 * @return {HTMLImage} The source image of the level
-		 */
-		getSourceImage: function(){
-			return this.levelResource.image;
-		}
-		
+      addActor: function(actor) {
+         this.actors.add(actor);
+      },
+
+      removeActor: function(actor) {
+         this.actors.remove(actor);
+      },
+
+      getActors: function() {
+         return this.actors;
+      },
+
+      addFixture: function(fixture) {
+         this.fixtures.add(fixture);
+      },
+
+      removeFixture: function(fixture) {
+         this.fixtures.remove(fixture);
+      },
+
+      getFixtures: function(type) {
+         if (!type) {
+            return this.fixtures;
+         } else {
+            return this.fixtures.filter(function(fixture) {
+               return (fixture.getType() == type);
+            });
+         }
+      },
+
+      getTilemap: function(name) {
+         return this.tilemaps.get(name);
+      },
+
+      setBackgroundMusic: function(sound) {
+         this.backgroundMusic = sound;
+      }
+
 	}, /** @scope R.resources.types.Level.prototype */ {
 		/**
 		 * Gets the class name of this object.
@@ -154,7 +165,107 @@ R.resources.types.Level = function(){
 		 */
 		getClassName: function(){
 			return "R.resources.types.Level";
-		}
+		},
+
+      /**
+       * Generate an object which represents the level as a complete
+       * entity, including resource locations.
+       * @param level {R.resources.types.Level}
+       * @return {Object}
+       */
+      valueOf: function(level) {
+         function getCanonicalName(obj) {
+            return obj.getSpriteResource().resourceName + ":" + obj.getName();
+         }
+
+         var lvl = {
+            name: level.getName(),
+            resources: {
+               sprites: [],
+               tiles: [],
+               sounds: []
+            },
+            actors: [],
+            fixtures: [],
+            tilemaps: {
+               background: null,
+               playfield: null,
+               foreground: null
+            }
+         };
+
+         // Get all of the resource URLs
+         var resourceURL, obj, t, itr;
+
+         // SPRITES & ACTORS
+         for (itr = level.getActors().iterator(); itr.hasNext(); ) {
+            obj = itr.next();
+            resourceURL = obj.getSprite().getSpriteLoader().getPathUrl(obj.getSprite().getSpriteResource().resourceName);
+            if (R.engine.Support.indexOf(lvl.resources.sprites, resourceURL) == -1) {
+               lvl.resources.sprites.push(resourceURL);
+            }
+
+            // Do the actors at the same time
+            lvl.actors.push(R.objects.SpriteActor.valueOf(obj));
+         }
+         itr.destroy();
+
+         // FIXTURES
+         for (itr = level.getFixtures().iterator(); itr.hasNext(); ) {
+            lvl.fixtures.push(R.engine.Object2D.valueOf(itr.next()));
+         }
+
+         // TILES & TILEMAPS
+         $.each(["background", "playfield", "foreground"], function(e) {
+            var tile;
+            obj = level.getTilemap(e);
+            for (t = 0; t < obj.getTileMap().length; t++) {
+               tile = obj.getTileMap()[t];
+               if (tile) {
+                  resourceURL = tile.getTileLoader().getPathUrl(tile.getTileResource().resourceName);
+                  if (R.engine.Support.indexOf(lvl.resources.tiles, resourceURL) == -1) {
+                     lvl.resources.tiles.push(resourceURL);
+                  }
+               }
+            }
+
+            // Do the tilemap at the same time
+            lvl.tilemaps[e].props = obj.getProperties();
+
+            var tmap = [].concat(obj.getTileMap()), tmap2 = [];
+
+            // Quick run through to convert to zeros (empty) and tiles
+            for (tile = 0; tile < tmap.length; tile++) {
+               tmap[tile] = tmap[tile] != null ? tmap[tile].getTileResource().resourceName + ":" + tmap[tile].getName() : 0;
+            }
+
+            // Second pass, collapse all empties into RLE
+            var eCount = 0;
+            for (tile = 0; tile < tmap.length; tile++) {
+               if (tmap[tile] == 0) {
+                  eCount++;
+               } else {
+                  if (eCount > 0) {
+                     tmap2.push("e:" + eCount);
+                     eCount = 0;
+                  }
+                  tmap2.push(tmap[tile]);
+               }
+            }
+
+            // Capture any remaining empties
+            if (eCount > 0) {
+               tmap2.push("e:" + eCount);
+            }
+
+            lvl.tilemaps[e].map = tmap2;
+         });
+
+         // SOUNDS
+         // ...
+
+         return lvl;
+      }
 	});
 	
 }
