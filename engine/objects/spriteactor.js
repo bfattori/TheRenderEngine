@@ -66,7 +66,7 @@ R.objects.SpriteActor = function(){
 		
 		/** @private */
 		constructor: function(name){
-			this.base(name || "Actor", R.components.transform.PlatformMover2D.create("move"));
+			this.base(name || "Actor"); //, R.components.transform.PlatformMover2D.create("move"));
 			
 			this.editing = false;
 			

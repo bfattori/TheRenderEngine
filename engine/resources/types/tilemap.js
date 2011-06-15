@@ -190,7 +190,8 @@ R.resources.types.TileMap = function() {
          }
 
          // Adjust the point to be within the tile's bounding box and return the tile
-         point.set(tile.getBoundingBox().w - (point.x % bw), tile.getBoundingBox().h - (point.y % bh));
+         point.set((tile.getBoundingBox().w - bw) + (point.x % bw),
+                   (tile.getBoundingBox().h - bh) + (point.y % bh));
          return tile;
       },
 
@@ -461,78 +462,67 @@ R.resources.types.TileMap = function() {
        * is a vector to separate the game object from the tile.
        *
        * @param tileMap {R.resources.types.TileMap} The tile map to test against
-       * @param fromPoint {R.math.Point2D} The origination of the ray
-       * @param direction {R.math.Vector2D} A vector whose magnitude specifies the direction and
-       *    length of the ray being cast.  The ray will be truncated at {@link #MAX_RAY_LENGTH}.
-       * @return {R.struct.CollisionData} The collision info, or <code>null</code> if
-       *    no collision would occur.
+       * @param rayInfo {R.start.rayInfo} The ray info structure that defines the ray to test
+       * @return {R.struct.rayInfo} The ray info structure passed into the cast method.  If
+       *    a collision occurred, the shape and impact point will be set.
        */
-      castRay: function(tileMap, fromPoint, direction) {
+      castRay: function(tileMap, rayInfo) {
          // Get all of the points along the line and test them against the
          // collision model.  At the first collision, we stop performing any more checks.
-         var begin = R.math.Point2D.create(fromPoint), end = R.math.Point2D.create(fromPoint),
-             dir = R.math.Vector2D.create(direction), line,
-             pt = 0, test, tile, itr, object, wt = R.Engine.worldTime, dt = R.Engine.lastTime,
-             vec = R.math.Vector2D.create(direction).neg(), did = false;
+         var begin = R.math.Point2D.create(rayInfo.startPoint), end = R.math.Point2D.create(rayInfo.startPoint),
+             line, pt = 0, tile, test = R.math.Vector2D.create(0,0);
 
-         // Create the collision structure only once
-         var collision = R.struct.CollisionData.create(0, vec, null, null, null, wt, dt);
 
          // Make sure the length isn't greater than the max
-         if (dir.len() > R.resources.types.TileMap.MAX_RAY_LENGTH) {
-            dir.normalize().mul(R.resources.types.TileMap.MAX_RAY_LENGTH);
+         if (rayInfo.direction.len() > R.resources.types.TileMap.MAX_RAY_LENGTH) {
+            rayInfo.direction.normalize().mul(R.resources.types.TileMap.MAX_RAY_LENGTH);
          }
 
-         // Use Bresenham's algorithm to calculate the points along the line
-         end.add(dir);
-         line = R.math.Math2D.bresenham(begin, end);
+         end.add(rayInfo.direction);
 
          /* pragma:DEBUG_START */
-         if (R.Engine.getDebugMode() && arguments[4])
+         if (R.Engine.getDebugMode() && arguments[2])
          {
-            var start = R.math.Point2D.create(begin), finish = R.math.Point2D.create(end);
+            var f = R.clone(begin), t = R.clone(end);
 
-            arguments[4].postRender(function() {
+            arguments[2].postRender(function() {
                this.setLineStyle("orange");
-               this.setLineWidth(1);
-               this.drawLine(start, end);
-               start.destroy();
-               end.destroy();
+               this.setLineWidth(2);
+               this.drawLine(f, t);
+               f.destroy();
+               t.destroy();
             });
          }
          /* pragma:DEBUG_END */
 
-         while (!collision.shape1 && pt < line.length) {
-            test = line[pt++];
+         // Use Bresenham's algorithm to calculate the points along the line
+         line = R.math.Math2D.bresenham(begin, end);
+
+         while (!tile && pt < line.length) {
+            test.set(line[pt]);
 
             // Find the tile for the current point
             tile = tileMap.getTileAtPoint(test);
 
             if (tile && tile.testPoint(test)) {
                // A collision occurs at the adjusted point within the tile
-               collision.shape1 = tile;
-
-               // Determine the overlap
-               collision.impulseVector = R.math.Vector2D.ZERO;
+               rayInfo.set(line[pt], tile, R.clone(test));
             }
+
+            pt++;
          }
 
          // Clean up a bit
          begin.destroy();
          end.destroy();
-         dir.destroy();
+         test.destroy();
 
          // Destroy the points in the line
          while (line.length > 0) {
             line.shift().destroy();
          }
 
-         if (collision.shape1 == null) {
-            collision.destroy();
-            collision = null;
-         }
-
-         return collision;
+         return rayInfo;
       },
 
       /**
