@@ -170,8 +170,9 @@ R.components.input.Mouse = function() {
             gameObject.onMouseOut(mouseInfo);
          }
 
-         // Mouse button clicked
-         if (gameObject.onMouseDown && (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
+         // BAF: 06/17/2011 - https://github.com/bfattori/TheRenderEngine/issues/8
+         // Mouse button clicked on object
+         if (gameObject.onMouseDown && mouseOver && (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
             dataModel.mouseDown = true;
             gameObject.onMouseDown(mouseInfo);
          }
