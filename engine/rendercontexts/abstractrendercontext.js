@@ -81,6 +81,12 @@ R.rendercontexts.AbstractRenderContext = function() {
          this.base(contextName || "RenderContext");
          this.surface = surface;
          this.setElement(surface);
+
+         var pType = this.jQ().css("position");
+         if (pType === "" || pType === "auto" || pType === "static") {
+            // Make it relative so we can get it's offset in the document
+            this.jQ().css("position", "relative");
+         }
       },
 
       /**
@@ -162,10 +168,14 @@ R.rendercontexts.AbstractRenderContext = function() {
        */
       captureMouse: function() {
          R.rendercontexts.AbstractRenderContext.assignMouseHandler(this);
+         var self = this;
+         R.Engine.onShutdown(function() {
+            self.uncaptureMouse();
+         });
       },
 
       /**
-       * Disabled mouse event capturing within the render context.
+       * Disable mouse event capturing within the render context.
        */
       uncaptureMouse: function() {
          R.rendercontexts.AbstractRenderContext.removeMouseHandler(this);
@@ -544,8 +554,10 @@ R.rendercontexts.AbstractRenderContext = function() {
                mouseInfo.lastPosition.set(mouseInfo.position);
 
                // BAF: 05/31/2011 - https://github.com/bfattori/TheRenderEngine/issues/7
-               // TODO: Determine if this is the right way to handle mouse position relative to element
-               mouseInfo.position.set(evt.offsetX || evt.layerX, evt.offsetY || evt.layerY);
+               // BAF: 06/17/2011 - https://github.com/bfattori/TheRenderEngine/issues/9
+               // Adjust for position of context
+               var x = evt.pageX, y = evt.pageY, cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
+               mouseInfo.position.set(x - cX, y - cY);
                mouseInfo.moveVec.set(mouseInfo.position);
                mouseInfo.moveVec.sub(mouseInfo.lastPosition);
                if (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON) {
