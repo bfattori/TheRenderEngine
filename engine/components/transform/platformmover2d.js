@@ -148,11 +148,12 @@ R.components.transform.PlatformMover2D = function() {
             }
 
             this.setPosition(newPos.add(this.moveVel));
+
+            dir.destroy();
+            oldPos.destroy();
+            newPos.destroy();
+            testPt.destroy();
          }
-         dir.destroy();
-         oldPos.destroy();
-         newPos.destroy();
-         testPt.destroy();
 
          this.base(renderContext, time, dt);
       }

@@ -351,7 +351,53 @@ R.engine.PooledObject =  Base.extend(/** @scope R.engine.PooledObject.prototype 
       }
       return "R.engine.PooledObject";
    },
-	
+
+   /**
+    * Serialize the pooled object into an object.
+    * @param obj {R.engine.PooledObject} The object to serialize
+    * @param [defaults] {Object} An optional set of defaults to ignore if the values
+    *    are no different than the default.
+    */
+   serialize: function(obj, defaults) {
+      var bean = obj.getProperties(), propObj = {}, val;
+      defaults = defaults || [];
+      for (var p in bean) {
+         if (bean[p][1]) {
+            val = bean[p][0]();
+            if (val != defaults[p]) {
+               propObj[p] = bean[p][0]();
+            }
+         }
+      }
+      return propObj;
+   },
+
+   /**
+    * Deserialize the object back into a Pooled Object.
+    * @param obj {Object} The object to deserialize
+    * @param [clazz] {Class} The object class to populate
+    * @return {R.engine.PooledObject} The object which was deserialized
+    */
+   deserialize: function(obj, clazz) {
+      clazz = clazz || R.engine.PooledObject.create(obj.name);
+      var bean = obj.getProperties();
+      for (var p in obj) {
+         // Regardless if the editable flag is true, if there is a setter, we'll
+         // call it to copy the value over.
+         if (bean[p][1]) {
+            if (bean[p][1].multi || bean[p][1].toggle || bean[p][1].editor) {
+               // Multi-select, toggle, or custom editor
+               bean[p][1].fn(obj[p]);
+            } else {
+               // Single value
+               bean[propName][1](obj[p]);
+            }
+         }
+      }
+
+      return clazz;
+   },
+
 	/**
 	 * @private
 	 */

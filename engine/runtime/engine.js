@@ -193,6 +193,24 @@ R.clone = function(obj) {
 };
 
 /**
+ * Get the class for the given class name string.
+ * @param className {String} The class name string
+ * @return {Class} The class object for the given name
+ * @throws ReferenceError if the class is invalid or unknown
+ */
+R.getClassForName = function(className) {
+   var cn = className.split("."), c = R.global;
+   try {
+      while (cn.length > 0) {
+         c = c[cn.shift()];
+      }
+      return c;
+   } catch (ex) {
+      throw new ReferenceError("Invalid or unknown class name '" + classname + "'");
+   }
+};
+
+/**
  * Method to request an animation frame for timing (alternate loop)
  * framerate fixed at 60fps
  */

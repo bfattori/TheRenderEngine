@@ -59,6 +59,10 @@ R.resources.types.Level = function(){
       backgroundMusic: null,
       width: 0,
       height: 0,
+      renderContext: null,
+      notAdded: null,
+      version: 0,
+      resourceLoaders: null,
 
 		/** @private */
 		constructor: function(name, width, height){
@@ -69,14 +73,40 @@ R.resources.types.Level = function(){
          this.backgroundMusic = null;
          this.width = width;
          this.height = height;
+         this.renderContext = null;
+         this.notAdded = [];
+         this.version = 0;
+         this.resourceLoaders = {
+            sprite: [R.resources.loaders.SpriteLoader.create("LevelSpriteLoader")],
+            tile: [R.resources.loaders.TileLoader.create("LevelTileLoader")],
+            sound: []
+         };
 
-         // Add the three tilemaps
+         // Add the three tile maps
          this.tilemaps.add("background", R.resources.types.TileMap.create("background", width, height));
          this.tilemaps.add("playfield", R.resources.types.TileMap.create("playfield", width, height));
          this.tilemaps.add("foreground", R.resources.types.TileMap.create("foreground", width, height));
+
+         // Set the z-index for each tile map
+         this.getTileMap("background").setZIndex(0);
+         this.getTileMap("playfield").setZIndex(1);
+         this.getTileMap("foreground").setZIndex(2);
 		},
 
       destroy: function() {
+         if (this.renderContext) {
+            // Remove actors and tile maps from the render context
+            var itr;
+            for (itr = this.actors.iterator(); itr.hasNext(); ) {
+               this.renderContext.remove(itr.next());
+            }
+
+            for (itr = this.tilemaps.iterator(); itr.hasNext(); ) {
+               this.renderContext.remove(itr.next());
+            }
+         }
+
+         // Clean up and destroy the actors, fixtures, and tile maps
          this.actors.cleanUp();
          this.actors.destroy();
          this.fixtures.cleanUp();
@@ -84,6 +114,7 @@ R.resources.types.Level = function(){
          this.tilemaps.cleanUp();
          this.tilemaps.destroy();
 
+         // If there's background music, get rid of that too
          if (this.backgroundMusic) {
             this.backgroundMusic.destroy();
          }
@@ -100,9 +131,65 @@ R.resources.types.Level = function(){
 			this.fixtures = null;
          this.tilemaps = null;
          this.backgroundMusic = null;
+         this.renderContext = null;
          this.width = 0;
          this.height = 0;
+         this.version = 0;
    	},
+
+      /**
+       * Add a new resource loader to the set of resource loaders that the
+       * level has access to.  By default, there is already a sprite and
+       * tile loader when a level object is created.
+       *
+       * @param resourceLoader {R.resources.loaders.AbstractResourceLoader} The resource loader to add
+       */
+      addResourceLoader: function(resourceLoader) {
+         var loaderCache;
+         if (resourceLoader instanceof R.resources.loaders.TileLoader) {
+            loaderCache = this.resourceLoaders.tile;
+         } else if (resourceLoader instanceof R.resources.loaders.SpriteLoader) {
+            loaderCache = this.resourceLoaders.sprite;
+         } else {
+            loaderCache = this.resourceLoaders.sound;
+         }
+         loaderCache.push(resourceLoader);
+      },
+
+      /**
+       * Set a version number for the level.
+       * @param version {Number} A version number
+       */
+      setVersion: function(version) {
+         this.version = version;
+      },
+
+      /**
+       * Get the version number associated with the level
+       * @return {Number}
+       */
+      getVersion: function() {
+         return this.version;
+      },
+
+      /**
+       * Associate the level with its render context so the tile maps can
+       * be rendered properly.
+       * @param renderContext {R.rendercontexts.AbstractRenderContext}
+       */
+      setRenderContext: function(renderContext) {
+         if (!this.renderContext) {
+            this.renderContext = renderContext;
+            renderContext.add(this.getTileMap("background"));
+            renderContext.add(this.getTileMap("playfield"));
+            renderContext.add(this.getTileMap("foreground"));
+
+            while (this.notAdded.length > 0) {
+               // Add objects which aren't a part of the render context yet
+               this.renderContext.add(this.notAdded.shift());
+            }
+         }
+      },
 
 		/**
 		 * Get the width of the level, in tiles.
@@ -122,6 +209,12 @@ R.resources.types.Level = function(){
 		
       addActor: function(actor) {
          this.actors.add(actor);
+
+         if (this.renderContext) {
+            this.renderContext.add(actor);
+         } else {
+            this.notAdded.push(actor);
+         }
       },
 
       removeActor: function(actor) {
@@ -150,7 +243,7 @@ R.resources.types.Level = function(){
          }
       },
 
-      getTilemap: function(name) {
+      getTileMap: function(name) {
          return this.tilemaps.get(name);
       },
 
@@ -173,14 +266,17 @@ R.resources.types.Level = function(){
        * @param level {R.resources.types.Level}
        * @return {Object}
        */
-      valueOf: function(level) {
+      serialize: function(level) {
          function getCanonicalName(obj) {
             return obj.getSpriteResource().resourceName + ":" + obj.getName();
          }
 
          var lvl = {
             name: level.getName(),
-            resources: {
+            version: level.getVersion(),
+            width: level.getWidth(),
+            height: level.getHeight(),
+            resourceURLs: {
                sprites: [],
                tiles: [],
                sounds: []
@@ -195,70 +291,52 @@ R.resources.types.Level = function(){
          };
 
          // Get all of the resource URLs
-         var resourceURL, obj, t, itr;
+         var resourceName, resourceURL, obj, t, itr;
 
          // SPRITES & ACTORS
          for (itr = level.getActors().iterator(); itr.hasNext(); ) {
             obj = itr.next();
-            resourceURL = obj.getSprite().getSpriteLoader().getPathUrl(obj.getSprite().getSpriteResource().resourceName);
-            if (R.engine.Support.indexOf(lvl.resources.sprites, resourceURL) == -1) {
-               lvl.resources.sprites.push(resourceURL);
+            resourceName = obj.getSprite().getSpriteResource().resourceName;
+            resourceURL = obj.getSprite().getSpriteLoader().getPathUrl(resourceName);
+            if (R.engine.Support.filter(lvl.resourceURLs.sprites, function(e) {
+               return (e && e[resourceName]);
+            }).length == 0) {
+               var o = {};
+               o[resourceName] = resourceURL;
+               lvl.resourceURLs.sprites.push(o);
             }
 
             // Do the actors at the same time
-            lvl.actors.push(R.objects.SpriteActor.valueOf(obj));
+            lvl.actors.push(R.objects.SpriteActor.serialize(obj));
          }
          itr.destroy();
 
          // FIXTURES
          for (itr = level.getFixtures().iterator(); itr.hasNext(); ) {
-            lvl.fixtures.push(R.engine.Object2D.valueOf(itr.next()));
+            lvl.fixtures.push(R.engine.Object2D.serialize(itr.next()));
          }
 
          // TILES & TILEMAPS
-         $.each(["background", "playfield", "foreground"], function(e) {
+         $.each(["background", "playfield", "foreground"], function(i,e) {
             var tile;
-            obj = level.getTilemap(e);
+            obj = level.getTileMap(e);
             for (t = 0; t < obj.getTileMap().length; t++) {
                tile = obj.getTileMap()[t];
                if (tile) {
-                  resourceURL = tile.getTileLoader().getPathUrl(tile.getTileResource().resourceName);
-                  if (R.engine.Support.indexOf(lvl.resources.tiles, resourceURL) == -1) {
-                     lvl.resources.tiles.push(resourceURL);
+                  resourceName = tile.getTileResource().resourceName;
+                  resourceURL = tile.getTileLoader().getPathUrl(resourceName);
+                  if (R.engine.Support.filter(lvl.resourceURLs.tiles, function(e) {
+                     return (e && e[resourceName]);
+                  }).length == 0) {
+                     var o = {};
+                     o[resourceName] = resourceURL;
+                     lvl.resourceURLs.tiles.push(o);
                   }
                }
             }
 
-            // Do the tilemap at the same time
-            lvl.tilemaps[e].props = obj.getProperties();
-
-            var tmap = [].concat(obj.getTileMap()), tmap2 = [];
-
-            // Quick run through to convert to zeros (empty) and tiles
-            for (tile = 0; tile < tmap.length; tile++) {
-               tmap[tile] = tmap[tile] != null ? tmap[tile].getTileResource().resourceName + ":" + tmap[tile].getName() : 0;
-            }
-
-            // Second pass, collapse all empties into RLE
-            var eCount = 0;
-            for (tile = 0; tile < tmap.length; tile++) {
-               if (tmap[tile] == 0) {
-                  eCount++;
-               } else {
-                  if (eCount > 0) {
-                     tmap2.push("e:" + eCount);
-                     eCount = 0;
-                  }
-                  tmap2.push(tmap[tile]);
-               }
-            }
-
-            // Capture any remaining empties
-            if (eCount > 0) {
-               tmap2.push("e:" + eCount);
-            }
-
-            lvl.tilemaps[e].map = tmap2;
+            // Do the tile map at the same time
+            lvl.tilemaps[e] = R.resources.types.TileMap.serialize(obj);
          });
 
          // SOUNDS

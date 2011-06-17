@@ -5,7 +5,6 @@ LevelEditor.extend({
    //=====================================================================================================
    // TILEMAP EDITING
 
-   tileMaps: {},
    currentTile: null,
    currentTileMap: null,
 
@@ -15,32 +14,13 @@ LevelEditor.extend({
     * @param mapName {String} The name of the tilemap to edito
     */
    editTileMap: function(mapName) {
-      // See if there's a tilemap yet
-      if (!LevelEditor.tileMaps[mapName]) {
-         LevelEditor.tileMaps[mapName] = R.resources.types.TileMap.create(mapName, 200, 200);
-
-         // Determine the zIndex of the map
-         var zIndex = -1, parallax = R.math.Point2D.create(1,1);
-         switch(mapName) {
-            case "tm_background": zIndex = 0; /*parallax.set(0.3, 1);*/ break;
-            case "tm_playfield": zIndex = 1; break;
-            case "tm_foreground": zIndex = 2; /*parallax.set(1.5, 1);*/ break;
-         }
-
-         LevelEditor.tileMaps[mapName].setZIndex(zIndex);
-         LevelEditor.tileMaps[mapName].setParallax(parallax);
-
-         // Add the tilemap
-         LevelEditor.gameRenderContext.add(LevelEditor.tileMaps[mapName]);
-      }
-
-      LevelEditor.currentTileMap = LevelEditor.tileMaps[mapName];
+      LevelEditor.currentTileMap = LevelEditor.currentLevel.getTileMap(mapName.split("_")[1]);
       LevelEditor.createPropertiesTable(LevelEditor.currentTileMap);
 
       // Show the tiles that are available
       $("body", document).append($("#TileSelector", LevelEditor.dialogBase));
 
-      // Only do this once
+      // If we haven't built the tile selector, do that now
       if ($("#TileSelector div.tile").length == 0) {
          var tile,tileDiv,special=[['empty','transparent'],['collision','#ff00ff']];
          // Special tiles first
@@ -73,6 +53,7 @@ LevelEditor.extend({
          }
       }
 
+      // Make tiles selectable
       $("#TileSelector div.tile").click(function() {
          $("#TileSelector div.tile").removeClass("selected");
          $(this).addClass("selected");

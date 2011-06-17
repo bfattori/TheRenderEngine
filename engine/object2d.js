@@ -589,33 +589,50 @@ R.engine.Object2D = function(){
       /**
        * Get a properties object with values for the given object.
        * @param obj {R.engine.Object2D} The object to query
+       * @param [defaults] {Object} Default values that don't need to be serialized unless
+       *    they are different.
        * @return {Object}
        */
-      valueOf: function(obj) {
-         var bean = obj.getProperties(),
-         propObj = {},
-         val;
-
+      serialize: function(obj, defaults) {
          // Defaults for object properties which can be skipped if no different
-         var defaults = {
+         defaults = defaults || [];
+         $.extend(defaults, {
             "Position":"0.00,0.00",
             "Origin":"0.00,0.00",
             "Rotation":"0",
             "ScaleX":"1",
             "ScaleY":"1",
             "Action":""
-         };
+         });
+         var propObj = R.engine.PooledObject.serialize(obj, defaults);
+         if (obj.getDefaultTransformComponent().getName() !== "dTxfm__") {
+            // They assigned a different transform component, make sure to export it
+            propObj.DTXFM_COMP = obj.getDefaultTransformComponent().constructor.getClassName();
+            propObj.DTXFM_NAME = obj.getDefaultTransformComponent().getName();
+         }
+         return propObj;
+      },
 
-         for (var p in bean) {
-            if (bean[p][1]) {
-               val = bean[p][0]();
-               if (val != defaults[p]) {
-                  propObj[p] = bean[p][0]();
-               }
-            }
+      /**
+       * Deserialize the object back into a 2d object.
+       * @param obj {Object} The object to deserialize
+       * @param [clazz] {Class} The object class to populate
+       * @return {R.engine.Object2D} The object which was deserialized
+       */
+      deserialize: function(obj, clazz) {
+         // Is there a special transform component assigned to this object?
+         var txfmComponent;
+         if (obj.DTXFM_COMP) {
+            txfmComponent = R.getClassForName(obj.DTXFM_COMP).create(obj.DTXFM_NAME);
+            delete obj.DTXFM_COMP;
+            delete obj.DTXFM_NAME;
          }
 
-         return propObj;
+         // Now we can create the class
+         clazz = clazz || R.engine.Object2D.create(obj.name, txfmComponent);
+         R.engine.PooledObject.deserialize(obj, clazz);
+
+         return clazz;
       },
 
 		/**

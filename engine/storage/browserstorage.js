@@ -114,6 +114,22 @@ R.storage.BrowserStorage = function(){
          return value;
       },
 
+      /**
+       * Get all of the keys associated with this storage object.
+       * @return {Array} An array of key names
+       */
+      getKeys: function() {
+         var key, keys = [], l = this.getStorageObject().length;
+         while (l > 0) {
+            key = this.getStorageObject().key(--l);
+            var actual = key.split(":")[1];
+            if (key.indexOf(this.getTableUID(actual)) == 0) {
+               keys.push(actual);
+            }
+         }
+         return keys;
+      },
+
 		/**
 		 * Create a new table to store data in.
 		 *

@@ -345,56 +345,6 @@ R.resources.types.TileMap = function() {
          return "R.resources.types.TileMap";
       },
 
-      /**
-       * Load a tile map from a raw array of tile data.  The tile data must be in a format
-       * exported from the Level Editor.
-       *
-       * @param name {String} The name of the tile map
-       * @param tileLoaders {Array} An array of {@link R.resources.loaders.TileLoader} instances
-       * @param mapData {Object} The tile map data object from the level file
-       * @return {R.resources.types.TileMap}
-       */
-      load: function(name, tileLoaders, mapData) {
-         // Searches the tile loaders for the resource and tile,
-         // returning the first instance of the tile found
-         function findTile(res, name) {
-            var tile = null;
-            for (var tl = 0; tl < tileLoaders.length; tl++) {
-               tile = tileLoaders[tl].getTile(res, name);
-               if (tile != null) break;
-            }
-            return tile;
-         }
-
-         var props = mapData.props, dims = props.Dimensions.split(","), par = props.Parallax.split(","),
-             tileMap = R.resources.types.TileMap.create(name, parseInt(dims[0]), parseInt(dims[1]));
-
-         // Set up the tile map properties
-         tileMap.zIndex = props.Zindex;
-         tileMap.tileScale.set(props.TileScaleX, props.TileScaleY);
-         tileMap.setParallax(parseInt(par[0]), parseInt(par[1]));
-
-         // Now load the tile map
-         var ptr = 0, map = mapData.map;
-         for (var tile = 0; tile < map.length; tile++) {
-            // Check for empties
-            if (map[tile].indexOf("e:") == 0) {
-               // Skip empties
-               ptr += parseInt(map[tile].split(":")[1]);
-            } else {
-               // Populate a tile
-               var t = findTile(resource, tileName);
-               if (t != null && tileMap.baseTile == null) {
-                  tileMap.baseTile = t;
-               }
-               var tileDesc = map[tile].split(":"), resource = tileDesc[1], tileName = tileDesc[2];
-               tileMap.tilemap[ptr++] = t;
-            }
-         }
-
-         return tileMap;
-      },
-
       /** @private */
       solidityMaps: {},
 
@@ -523,6 +473,86 @@ R.resources.types.TileMap = function() {
          }
 
          return rayInfo;
+      },
+
+      /**
+       * Serialize the tile map into an object.
+       * @param tilemap {R.resources.types.TileMap} The tile map to serialize
+       * @return {Object}
+       */
+      serialize: function(tilemap, defaults) {
+         defaults = defaults || [];
+         var propObj = { properties: R.engine.PooledObject.serialize(tilemap, defaults)},
+             tmap = [].concat(tilemap.getTileMap()), tmap2 = [], tile;
+
+         // First pass, convert to zeros (empty) and tile references
+         for (tile = 0; tile < tmap.length; tile++) {
+            tmap[tile] = tmap[tile] != null ? tmap[tile].getTileResource().resourceName + ":" + tmap[tile].getName() : 0;
+         }
+
+         // Second pass, collapse tiles using RLE
+         var rle = 0, lastTile = null;
+         for (tile = 0; tile < tmap.length; tile++) {
+            if (tmap[tile] !== lastTile) {
+               if (lastTile !== null) {
+                  tmap2.push((lastTile == 0 ? "e:" : lastTile + ":") + rle);
+               }
+               rle = 0;
+               lastTile = tmap[tile];
+            }
+            rle++;
+         }
+
+         // Capture remaining tiles
+         tmap2.push((lastTile == 0 ? "e:" : lastTile + ":") + rle);
+
+         propObj.map = tmap2;
+         return propObj;
+      },
+
+      /**
+       * Deserialize the object back into a tile map.
+       * @param obj {Object} The object to deserialize
+       * @param [clazz] {Class} The object class to populate
+       */
+      deserialize: function(obj, tileLoaders, clazz) {
+         // Searches the tile loaders for the resource and tile,
+         // returning the first instance of the tile found
+         function findTile(res, name) {
+            var tile = null;
+            for (var tl = 0; tl < tileLoaders.length; tl++) {
+               tile = tileLoaders[tl].getTile(res, name);
+               if (tile != null) break;
+            }
+            return tile;
+         }
+
+         // Extract the properties and map from the object
+         var props = obj.properties, map = obj.map;
+         clazz = clazz || R.resources.types.TileMap.create(props.name,1,1);
+         R.engine.PooledObject.deserialize(props, clazz);
+
+         // Repopulate the map
+         var ptr = 0;
+         for (var tile = 0; tile < map.length; tile++) {
+            // Check for empties
+            if (map[tile].indexOf("e:") == 0) {
+               // Skip empties
+               ptr += parseInt(map[tile].split(":")[1]);
+            } else {
+               // Populate tiles
+               var t = findTile(resource, tileName);
+               if (t != null && clazz.baseTile == null) {
+                  clazz.baseTile = t;
+               }
+               var tileDesc = map[tile].split(":"), resource = tileDesc[0], tileName = tileDesc[1], qty = parseInt(tileDesc[2]);
+               for (var c = 0; c < qty; c++) {
+                  clazz.tilemap[ptr++] = t;
+               }
+            }
+         }
+
+         return clazz;
       },
 
       /**

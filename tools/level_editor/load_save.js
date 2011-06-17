@@ -6,55 +6,11 @@ LevelEditor.extend({
    // IMPORT AND EXPORT
 
    /**
-    * Setup the initial schema if it doesn't exist
-    * @private
-    */
-   setupDataSchema: function() {
-      // Check to see if the data schema exists already.  If so, early out
-      var db = LevelEditor.getStorage();
-
-      // See if the levels table exists
-      if (!db.tableExists("Maint")) {
-         // Create the schema
-
-         // -- Maintenance
-         db.createTable("Maint", ["id", "next_level_id"], ["Number","Number"]);
-         var sql = "INSERT INTO Maint (id, next_level_id) VALUES (0,0)";
-         db.execSql(sql);
-
-         // -- Levels
-         db.createTable("Levels", ["level_id","name"], ["Number","String"]);
-
-         // -- Objects
-         db.createTable("Objects", ["object_id","type_id","level_id"], ["Number","Number","Number"]);
-
-         // -- ObjectProps
-         db.createTable("ObjectProps", ["object_id","level_id","name","value"], ["Number","Number","String","String"]);
-      }
-
-      return;
-   },
-
-   /**
-    * Drop the data schema from storage
-    * @private
-    */
-   dropDataSchema: function() {
-      var db = LevelEditor.getStorage();
-
-      // Drop the schema
-      db.dropTable("Maint");
-      db.dropTable("Levels");
-      db.dropTable("Objects");
-      db.dropTable("ObjectProps");
-   },
-
-   /**
     * Open the Save As... dialog, populated with the level name
     * @private
     */
    saveAs: function() {
-      $("#sv_levelName").val(LevelEditor.currentLevel.name);
+      $("#sv_levelName").val(LevelEditor.currentLevel.getName());
       $("#SaveAsDialog").dialog("open");
    },
 
@@ -68,88 +24,12 @@ LevelEditor.extend({
       // Get the render context
       var ctx = LevelEditor.gameRenderContext,
       db = LevelEditor.getStorage();
+      lvlName = lvlName || LevelEditor.currentLevel.getName();
 
-      LevelEditor.setupDataSchema();
-
-      // If we got a level name, we should check if it exists first
-      var levelName = LevelEditor.currentLevel.name,
-      levelId = LevelEditor.currentLevel.id,
-      exists = true;
-
-      var sql, result;
-      if (lvlName) {
-         exists = false;
-         sql = "SELECT * FROM Levels WHERE Levels.name == '" + lvlName + "'";
-         result = db.execSql(sql);
-         if (result.length > 0) {
-            exists = true;
-            if (!confirm("A level with that name already exists.  Overwrite?")) {
-               return;
-            }
-
-            // Initiate the level overwrite
-            levelId = result[0].level_id;
-         }
-
-         levelName = lvlName;
-      }
-
-      if (levelId == -1) {
-         exists = false;
-
-         // If we don't have an Id yet, get the next Id from the database and add one
-         sql = "SELECT Maint.next_level_id FROM Maint WHERE Maint.id == 0";
-         result = db.execSql(sql);
-         levelId = result[0].next_level_id;
-
-         sql = "UPDATE Maint SET next_level_id = " + (levelId + 1) + " WHERE Maint.id == 0";
-         db.execSql(sql);
-      }
-
-      // Add or update the level
-      if (exists) {
-         // Get all of the object Ids in the level
-         sql = "SELECT Objects.object_id FROM Objects WHERE Objects.level_id = " + levelId;
-         var objs = db.execSql(sql);
-
-         // Delete the properties for all of the objects
-         for (var o in objs) {
-            sql = "DELETE ObjectProps FROM ObjectProps WHERE ObjectProps.object_id == " + objs[o].object_id + " AND ObjectProps.level_id == " + levelId;
-            db.execSql(sql);
-         }
-
-         // Delete the objects from the level (in the database)
-         sql = "DELETE Objects FROM Objects WHERE Objects.level_id == " + levelId;
-         db.execSql(sql);
-      } else {
-         // Create the level entry
-         sql = "INSERT INTO Levels (level_id, name) VALUES (" + levelId + ",'" + levelName + "')";
-         db.execSql(sql);
-      }
-
-      // Get all of the objects of type SpriteActor or CollisionBox
-      var levelObjects = LevelEditor.getGameObjects();
-
-      // Spin through the objects and store properties which have setters to an object which
-      // we'll serialize into the database
-      for (var o = 0; o < levelObjects.length; o++) {
-         var obj = levelObjects[o],
-         props = LevelEditor.getWritablePropertiesObject(obj),
-         oType = (obj instanceof R.objects.SpriteActor ? 1 :
-         obj.getType() == R.objects.CollisionBox.TYPE_COLLIDER ? 2 : 3);
-
-         // Storing JSON doesn't work...
-         //var s = JSON.stringify(props);
-         sql = "INSERT INTO Objects (object_id, type_id, level_id) VALUES (" + o + "," + oType + "," + levelId + ")";
-         db.execSql(sql);
-
-         // Insert all of the properties
-         for (var p in props) {
-            sql = "INSERT INTO ObjectProps (object_id, level_id, name, value) VALUES (" + o + "," + levelId + ",'" + p + "','" + props[p] + "')";
-            db.execSql(sql);
-         }
-      }
-
+      // Tag levels with the editor's version number
+      LevelEditor.currentLevel.setVersion(LevelEditor.LEVEL_VERSION_NUMBER);
+      
+      db.save(lvlName, R.resources.types.Level.serialize(LevelEditor.currentLevel));
       LevelEditor.dirty = false;
 
       if (dlg) {
@@ -162,77 +42,12 @@ LevelEditor.extend({
     * @private
     */
    exportLevel: function() {
-      var level = R.resources.types.Level.create(LevelEditor.currentLevel.name, 200, 200);
+      // Tag levels with the editor's version number
+      LevelEditor.currentLevel.setVersion(LevelEditor.LEVEL_VERSION_NUMBER);
 
-      var lvlJSON = {
-         "name": LevelEditor.currentLevel.name,
-         "version": LevelEditor.LEVEL_VERSION_NUMBER,
-         "actors": [],
-         "fixtures": [],
-         "triggers": [],
-         "tilemaps": {}
-      };
-
-      // Enumerate all of the actors
-      var actors = LevelEditor.getGameObjects(function(e) {
-         return (e instanceof R.objects.SpriteActor);
-      });
-
-      // Enumerate all of the collision blocks
-      var cBlocks = LevelEditor.getGameObjects(function(e) {
-         return (e instanceof R.objects.Fixture && e.getType() == R.objects.Fixture.TYPE_COLLIDER);
-      });
-
-      // Enumerate all of the trigger blocks
-      var tBlocks = LevelEditor.getGameObjects(function(e) {
-         return (e instanceof R.objects.Fixture && e.getType() == R.objects.Fixture.TYPE_TRIGGER);
-      });
-
-      // Add them to the JSON object
-      for (var a in actors) {
-         lvlJSON["actors"].push(LevelEditor.getWritablePropertiesObject(actors[a]));
-      }
-      for (var c in cBlocks) {
-         lvlJSON["fixtures"].push(LevelEditor.getWritablePropertiesObject(cBlocks[c]));
-      }
-      for (var t in tBlocks) {
-         lvlJSON["triggers"].push(LevelEditor.getWritablePropertiesObject(tBlocks[t]));
-      }
-
-      for (var tm in LevelEditor.tileMaps) {
-         var tmap = [].concat(LevelEditor.tileMaps[tm].getTileMap()),tmap2 = [];
-         // Quick run through to convert to zeros (empty) and tiles
-         for (var tile = 0; tile < tmap.length; tile++) {
-            tmap[tile] = tmap[tile] != null ? LevelEditor.getTileCanonicalName(tmap[tile]) : 0;
-         }
-
-         // Second pass, collapse all empties into RLE
-         var eCount = 0;
-         for (tile = 0; tile < tmap.length; tile++) {
-            if (tmap[tile] == 0) {
-               eCount++;
-            } else {
-               if (eCount > 0) {
-                  tmap2.push("e:" + eCount);
-                  eCount = 0;
-               }
-               tmap2.push(tmap[tile]);
-            }
-         }
-
-         // Capture any remaining empties
-         if (eCount > 0) {
-            tmap2.push("e:" + eCount);
-         }
-
-         lvlJSON["tilemaps"][tm] = {
-            "props": LevelEditor.getWritablePropertiesObject(LevelEditor.tileMaps[tm]),
-            "map": tmap2
-         }
-      }
-
-      // Open the dialog
-      $("#exportInfo").val(JSON.stringify(lvlJSON, null, 3));
+      // Serialize the level and show the dialog
+      var json = JSON.stringify(R.resources.types.Level.serialize(LevelEditor.currentLevel), null, 2);
+      $("#exportInfo").val(json);
       $("#ExportDialog").dialog("open");
    },
 
@@ -247,15 +62,12 @@ LevelEditor.extend({
          return;
       }
 
-      LevelEditor.setupDataSchema();
-
       // Get the names of all levels from storage
       var db = LevelEditor.getStorage(),
-      sql = "SELECT Levels.* FROM Levels ORDER BY Levels.name",
-      results = db.execSql(sql);
+      results = db.getKeys();
 
       for (var l in results) {
-         $("#ld_levelNames").append($("<option value='" + results[l].level_id + "'>").text(results[l].name));
+         $("#ld_levelNames").append($("<option value='" + results[l] + "'>").text(results[l]));
       }
 
       // Select the first level by default
@@ -383,6 +195,12 @@ LevelEditor.extend({
          return;
       }
 
+      // Check to see if the JSON is a level object
+      if (!(lvlJSON.name && lvlJSON.resourceURLs && lvlJSON.actors && lvlJSON.fixtures && lvlJSON.tilemaps)) {
+         alert("The JSON object provided does not appear to be a level object.");
+         return;
+      }
+
       // Check the version in the file to see if it's lower than the version of the editor
       if (lvlJSON.version < LevelEditor.LEVEL_VERSION_NUMBER) {
          if (!confirm("The version in the file is older than the editor version.  There may be differences which cannot be imported.  Do you want to continue?")) {
@@ -392,7 +210,7 @@ LevelEditor.extend({
 
       // See if the version in the file is higher than the version of the editor
       if (lvlJSON.version > LevelEditor.LEVEL_VERSION_NUMBER) {
-         alert("The version of the file cannot be loaded by this editor.");
+         alert("The level object cannot be loaded by this version of the editor.");
          return;
       }
 
@@ -400,6 +218,8 @@ LevelEditor.extend({
       LevelEditor.resetLevel();
 
       // Get the level name
+      LevelEditor.currentLevel = R.resources.types.Level.deserialize(lvlJSON);
+
       LevelEditor.name = lvlJSON.name;
 
       // Import all of the actors, collision blocks, and trigger blocks

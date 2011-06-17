@@ -46,6 +46,7 @@ R.Engine.define({
       "R.resources.types.Sound",
       "R.resources.types.Tile",
       "R.resources.types.TileMap",
+      "R.resources.types.Level",
 
       // Persistent storage to save level
       "R.storage.PersistentStorage",
@@ -141,10 +142,9 @@ var LevelEditor = function() {
          // Set the Game object which is being edited
          LevelEditor.setGame(game, renderContext);
 
-         LevelEditor.currentLevel = {
-            "id": -1,
-            "name": "New Level"
-         };
+         // Create an empty level container
+         LevelEditor.currentLevel = R.resources.types.Level.create("New Level", 100, 100);
+         LevelEditor.currentLevel.setRenderContext(renderContext);
 
          // Wire up a keystroke to show the editor
          R.Engine.getDefaultContext().addEvent(null, "keydown", function(evt) {
@@ -177,9 +177,9 @@ var LevelEditor = function() {
          LevelEditor.loaders.sound = [];
          LevelEditor.loaders.level = [];
          LevelEditor.lastPos = R.math.Point2D.create(0,0);
-
          LevelEditor.gameRenderContext = renderContext;
 
+         // Enumerate all of the objects which can be used to construct a level
          for (var o in LevelEditor.game) {
             try {
                // TileLoader is a subclass of SpriteLoader, so it has to come first
@@ -338,6 +338,35 @@ var LevelEditor = function() {
                   $("#ac_id").val("");
                   $("#ac_bitmask").val("0");
                   $("#ActorConfigDialog fieldset.optional").empty();
+               }
+            });
+
+            // Dialog for New Level
+            $("body", document).append($("#NewLevelDialog", LevelEditor.dialogBase));
+            $("#NewLevelDialog").dialog({
+               autoOpen: false,
+               width: 570,
+               draggable: true,
+               title: "Create New Level",
+               buttons: {
+                  "Create": function() {
+                     // Clear out the render context
+                     LevelEditor.gameRenderContext.cleanUp();
+
+                     // Create the new level container and make it current
+                     LevelEditor.currentLevel = R.resources.types.Level.create($("#nl_name").val(),
+                        $("#nl_width").val(), $("#nl_height").val());
+
+                     $(this).dialog("close");
+                  },
+                  "Cancel": function() {
+                     $(this).dialog("close");
+                  }
+               },
+               close: function() {
+                  $("#nl_name").val("New Level");
+                  $("#nl_width").val("100");
+                  $("#nl_height").val("100");
                }
             });
 
@@ -605,6 +634,7 @@ var LevelEditor = function() {
             LevelEditor.dialogBase.append($("#SaveAsDialog").remove());
             LevelEditor.dialogBase.append($("#LoadDialog").remove());
             LevelEditor.dialogBase.append($("#SaveDialog").remove());
+            LevelEditor.dialogBase.append($("#TileSelector").remove());
 
             var ctx = LevelEditor.gameRenderContext;
             ctx.removeEvent(LevelEditor, "mousedown");

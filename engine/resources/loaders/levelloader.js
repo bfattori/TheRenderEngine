@@ -36,7 +36,6 @@ R.Engine.define({
 	"requires": [
 		"R.math.Math2D",
 		"R.resources.loaders.ObjectLoader",
-      "R.resources.loaders.TileLoader",
 		"R.resources.types.Level"
 	]
 });
@@ -54,139 +53,85 @@ R.resources.loaders.LevelLoader = function(){
 	return R.resources.loaders.ObjectLoader.extend(/** @scope R.resources.loaders.LevelLoader.prototype */{
 
       tileLoader: null,
+      queuedLevels: 0,
+      levels: {},
 
 		/** @private */
 		constructor: function(name){
 			this.base(name || "LevelLoader");
-         this.tileLoader = R.resources.loaders.TileLoader.create("LevelTileLoader");
+         this.queuedLevels = 0;
+         this.levels = {};
 		},
 
-      /*
-
-      {
-         path: "/resources/level1/",
-         backgrounds: [
-            { map: "map1",
-              tileset: "bkgtiles.png" }],
-         playfield: {
-            map: "map2",
-            tileset: "playtiles.png"},
-         foregrounds: [],
-         maps: {
-            map1: {
-               size: [100,80],
-               data: [0,0,0,1,2,4,0,0,5...]
-            }
-            map2: {
-               size: [100,80],
-               data: [0,0,0,1,2,4,0,0,5...]
-            },
-            cMap: {
-               size: [100,80],
-               data: [0,0,0,0,0,0,1,0,0,1...]
-            },
-            tMap: [{pos:[10,10],action:"foo();"},{pos:[4,0],action:"die();"},...],
-            actors: [
-               { name: "actor1",pos:[32,5],type:"grub" },
-               { name: "actor2",pos:[86,30],type:"shooter" },...
-            ]
-         }
-      }
-
+      /**
+       * Load a level object from a URL.
+       *
+       * @param name {String} The name of the level
+       * @param url {String} The URL where the resource is located
        */
+      load: function(name, url /*, obj */){
+         this.base(name, url, arguments[2]);
+         if (!arguments[2]) {
+            this.queuedLevels++;
+         }
+      },
 
       afterLoad: function(name, obj) {
          // We need to mark this as "not ready" since we'll be loading tiles
          // and other things before this object is actually ready
          this.setReady(name, false);
 
-         var path = obj.path, tilemaps = [];
+         // Create the level
+         var level = this.levels[name] = R.resources.types.Level.create(name, obj.width, obj.height);
 
-         // Load all of the tile maps
-         // BACKGROUNDS
-         for (var bgMap = 0; bgMap < obj.backgrounds.length; bgMap++) {
-            var bg = obj.backgrounds[bgMap];
-            this.tileLoader.load(bg.map, path + bg.tileset);
-            tilemaps.push(bg.map);
-         }
-
-         // FOREGROUNDS
-         for (var fgMap = 0; fgMap < obj.foregrounds.length; fgMap++) {
-            var fg = obj.foregrounds[bgMap];
-            this.tileLoader.load(fg.map, path + fg.tileset);
-            tilemaps.push(fg.map);
-         }
-
-         // PLAYFIELD
-         for (var pfMaps = 0; pfMaps < obj.playfield.tilesets.length; pfMaps++) {
-            var pf = obj.playfield.tilesets[pfMaps], name = obj.playfield.map + "_" + pfMaps;
-            this.tileLoader.load(name, path + pf);
-            tilemaps.push(name);
-         }
-
-         // Have the level remember what tilemaps it needs to load
-         obj.tilemapsToLoad = tilemaps;
-
-         var self = this;
-         if (!R.resources.loaders.LevelLoader.checkTimer) {
-            R.resources.loaders.LevelLoader.checkTimer = setTimeout(function() {
-               self.checkReady();
-            }, 500);
-         }
-      },
-
-      checkReady: function() {
-         // Run through all the levels that aren't yet ready and see if their
-         // tilemaps are loaded.  Once all tilemaps are loaded, the level is
-         // ready to use.
-         var resources = this.getResources(), count = resources.length;
-         if (resources.length == 0) {
-            return;
-         }
-
-         var cached = this.getCachedObjects();
-         for (var r = 0; r < resources.length; r++) {
-            if (this.isReady(resources[r])) {
-               break;
+         // Pull together all of the resources
+         var loader;
+         for (var resType in obj.resourceURLs) {
+            if (resType === "sprite") {
+               loader = level.resourceLoaders.sprite[0];
+            } else if (resType === "tile") {
+               loader = level.resourceLoaders.tile[0];
+            } else {
+               loader = level.resourceLoaders.sound[0];
             }
-
-            var allSet = true;
-            for (var tSet = 0; tSet < cached[resources[r]].data.tilemapsToLoad.length; tSet++) {
-               if (!this.tileLoader.isReady(cached[resources[r]].data.tilemapsToLoad[tSet])) {
-                  allSet = false;
-                  break;
+            for (var res in obj.resourceURLs[resType]) {
+               for (var rName in obj.resourceURLs[resType][res]) {
+                  loader.load(rName, obj.resourceURLs[resType][res][rName]);
                }
-               count--;
             }
-
-            this.setReady(resources[r], true);
          }
 
-         if (count > 0) {
-            var self = this;
-            R.resources.loaders.LevelLoader.checkTimer = setTimeout(function() {
-               self.checkReady();
-            }, 500);
-         }
+         // Now that we've started the resource loading, we need to wait until
+         // all resources are loaded before we can finish loading the level
+         var self = this;
+         R.lang.Timeout.create("waitForLevel", 250, function() {
+            if (level.resourceLoaders.sprite[0].isReady() &&
+                level.resourceLoaders.tile[0].isReady()) {
+               this.destroy();
+               self.finishLoading(level, obj);
+            } else {
+               this.restart();
+            }
+         });
       },
 
-		/**
-		 * Get the level resource with the specified name from the cache.  The
-		 * object returned contains the bitmap as <tt>image</tt> and
-		 * the level definition as <tt>info</tt>.
-		 *
-		 * @param name {String} The name of the object to retrieve
-		 * @return {Object} The level resource specified by the name
-		 */
-		get: function(name){
-			var bitmap = this.base(name);
-			var level = {
-				image: bitmap,
-				info: this.levels[name]
-			};
-			return level;
-		},
-		
+      finishLoading: function(level, obj) {
+         // Deserialize the tile maps
+         for (var tilemap in obj.tilemaps) {
+            R.resources.types.TileMap.deserialize(obj.tilemaps[tilemap], level.resourceLoaders.tile,
+               level.getTileMap(tilemap));
+         }
+
+         // Deserialize the actors
+         for (var actor in obj.actors) {
+            var spriteActor = R.objects.SpriteActor.deserialize(obj.actors[actor], level.resourceLoaders.sprite);
+            level.addActor(spriteActor);
+         }
+
+         this.setReady(level.getName(), true);
+         this.queuedLevels--;
+      },
+
 		/**
 		 * Creates a {@link R.resources.types.Level} object representing the named level.
 		 *
@@ -194,7 +139,7 @@ R.resources.loaders.LevelLoader = function(){
 		 * @returns {R.resources.types.Level} A {@link R.resources.types.Level} object
 		 */
 		getLevel: function(level){
-			return R.resources.types.Level.create(level, this.get(level));
+			return this.levels[level];
 		},
 		
 		/**
@@ -212,10 +157,7 @@ R.resources.loaders.LevelLoader = function(){
 		 */
 		getClassName: function(){
 			return "R.resources.loaders.LevelLoader";
-		},
-
-      /** @private */
-      checkTimer: null
+		}
 	});
 	
 }

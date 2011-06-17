@@ -17,14 +17,13 @@ LevelEditor.extend({
       // Set the sprite given the canonical name for it
       actor.setSprite(LevelEditor.getSpriteForName(actorName));
 
-      // Adjust for scroll
-      var pT = R.clone(LevelEditor.gameRenderContext.getViewport().getDims()).div(2).add(ctx.getWorldPosition());
+      // Position actor at center of render context
+      var pT = R.clone(ctx.getViewport().getDims()).div(2).add(ctx.getWorldPosition());
       actor.setPosition(pT);
       pT.destroy();
       actor.setZIndex(1);
-      actor.getDefaultTransformComponent().setTileMap(LevelEditor.tileMaps["tm_playfield"]);
 
-      ctx.add(actor);
+      LevelEditor.currentLevel.addActor(actor);
       LevelEditor.setSelected(actor);
 
       // Add the actor to the tree

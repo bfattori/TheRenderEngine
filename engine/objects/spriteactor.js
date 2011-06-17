@@ -66,7 +66,7 @@ R.objects.SpriteActor = function(){
 		
 		/** @private */
 		constructor: function(name){
-			this.base(name || "Actor"); //, R.components.transform.PlatformMover2D.create("move"));
+			this.base(name || "Actor", R.components.transform.PlatformMover2D.create("move"));
 			
 			this.editing = false;
 			
@@ -213,7 +213,7 @@ R.objects.SpriteActor = function(){
 		 * @return {Object} The value of the variable
 		 */
 		getVariable: function(varName) {
-			return this.scriptedVar[varName];
+			return this.scriptedVars[varName];
 		},
 		
 		/**
@@ -222,7 +222,7 @@ R.objects.SpriteActor = function(){
 		 * @param value {Object} The value to assign to the variable
 		 */
 		setVariable: function(varName, value) {
-			this.scriptedVar[varName] = value;	
+			this.scriptedVars[varName] = value;
 		},
 
 		/**
@@ -382,12 +382,15 @@ R.objects.SpriteActor = function(){
 		},
 
       /**
-       * Get a properties object with values for the given object.
-       * @param obj {R.engine.SpriteActor} The object to query
+       * Serialize the sprite actor into an object.
+       * @param actor {R.engine.SpriteActor} The object to serialize
+       * @param [defaults] {Object} Default values that don't need to be serialized unless
+       *    they are different.
        * @return {Object}
        */
-      valueOf: function(actor) {
-         var propObj = R.objects.Object2D.valueOf(actor);
+      serialize: function(actor, defaults) {
+         defaults = defaults || [];
+         var propObj = R.engine.Object2D.serialize(actor, defaults);
 
          // Get the actor config
          var aCfg = {
@@ -404,9 +407,52 @@ R.objects.SpriteActor = function(){
          }
 
          // Add in the actor config
-         propObj["ACTOR_CONFIG"] = aCfg;
+         propObj.ACTOR_CONFIG = aCfg;
          return propObj;
+      },
+
+      /**
+       * Deserialize the object back into a sprite actor.
+       * @param obj {Object} The object to deserialize
+       * @param spriteLoaders {Array} An array of sprite loaders
+       * @param [clazz] {Class} The object class to populate
+       * @return {R.objects.SpriteActor} The object which was deserialized
+       */
+      deserialize: function(obj, spriteLoaders, clazz) {
+         // Extract the actor config from the object
+         var aCfg = obj.ACTOR_CONFIG;
+         delete obj.ACTOR_CONFIG;
+
+         // Create the class
+         clazz = clazz || R.objects.SpriteActor.create(obj.name);
+         R.engine.Object2D.deserialize(obj, clazz);
+
+         // Find the sprite loader which contains our sprite
+         var resourceName = obj.Sprite.split(":")[0], spriteName = obj.Sprite.split(":")[1];
+         for (var sl = 0; sl < spriteLoaders.length; sl++) {
+            if (spriteLoaders[sl].get(resourceName)) {
+               clazz.setSprite(spriteLoaders[sl].getSprite(resourceName, spriteName));
+               break;
+            }
+         }
+
+         if (!this.getSprite()) {
+            throw new ReferenceError("The resource '" + resourceName + "' for sprite '" + spriteName + "' could not be found.");
+         }
+
+         // Repopulate the actor config
+         clazz.setActorId(aCfg.actorId);
+         clazz.setCollisionMask(aCfg.bitMask);
+         delete aCfg.actorId;
+         delete aCfg.bitMask;
+
+         // Events and variables
+         for (var c in aCfg) {
+            var val = clazz.getConfig()[c] == "var" ? clazz.setVariable(c, aCfg[c]) :
+               clazz.setActorEvent(c, aCfg[c]);
+         }
+
+         return clazz;
       }
 	});
-	
 };
