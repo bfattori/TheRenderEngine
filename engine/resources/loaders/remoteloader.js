@@ -95,8 +95,8 @@ R.resources.loaders.RemoteLoader = function(){
        * @param url {String} The URL where the resource is located
        * @param data {Object} The loaded data to cache
        */
-      load: function(name, url, data) {
-         this.base(name, data);
+      load: function(name, url, data, isReady) {
+         this.base(name, data, isReady);
          this.setPathUrl(name, url);
       },
 

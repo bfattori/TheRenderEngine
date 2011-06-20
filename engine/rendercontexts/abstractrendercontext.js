@@ -557,6 +557,8 @@ R.rendercontexts.AbstractRenderContext = function() {
                // BAF: 06/17/2011 - https://github.com/bfattori/TheRenderEngine/issues/9
                // Adjust for position of context
                var x = evt.pageX, y = evt.pageY, cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
+               cX = cX == "auto" ? 0 : cX;
+               cY = cY == "auto" ? 0 : cY;
                mouseInfo.position.set(x - cX, y - cY);
                mouseInfo.moveVec.set(mouseInfo.position);
                mouseInfo.moveVec.sub(mouseInfo.lastPosition);

@@ -124,7 +124,7 @@ R.resources.loaders.AbstractResourceLoader = function() {
        * @param isReady {Boolean} <tt>true</tt> to set the resource to "ready for use"
        */
       setReady: function(name, isReady) {
-         this.cache[name].isReady = isReady;
+         this.cache[name].ready = isReady;
          if (isReady) {
             this.triggerEvent("resourceready", [name]);
             R.debug.Console.log(this.getResourceType() + " " + name + " ready...");
@@ -139,7 +139,7 @@ R.resources.loaders.AbstractResourceLoader = function() {
        */
       isReady: function(name) {
          if (name) {
-            return this.cache[name] ? this.cache[name].isReady : false;
+            return this.cache[name] ? this.cache[name].ready : false;
          } else {
             // Check the status of all loader elements
             var rList = this.getResources();

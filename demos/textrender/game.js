@@ -125,13 +125,13 @@ var FontTest = function() {
 			vector1.setTextWeight(1);
 			vector1.setColor("#ffffff");
 			this.renderContext.add(vector1);
-			
+
 			var vector2 = R.text.TextRenderer.create(R.text.VectorText.create(), textStr, 2);
 			vector2.setPosition(R.math.Point2D.create(20, 43));
 			vector2.setTextWeight(1);
 			vector2.setColor("#ffffff");
 			this.renderContext.add(vector2);
-			
+
 			var vector3 = R.text.TextRenderer.create(R.text.VectorText.create(), textStr, 2.5);
 			vector3.setPosition(R.math.Point2D.create(20, 80));
 			vector3.setTextWeight(1);
@@ -152,7 +152,7 @@ var FontTest = function() {
 			bitmap2.setTextWeight(1);
 			bitmap2.setColor("#ffff00");
 			this.renderContext.add(bitmap2);
-			
+
 			var bitmap3 = R.text.TextRenderer.create(R.text.BitmapText.create(FontTest.fontLoader.get("times")),
                textStr, 1.2);
 			bitmap3.setPosition(R.math.Point2D.create(10, 195));

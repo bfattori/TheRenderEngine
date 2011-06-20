@@ -1,4 +1,3 @@
-
 /**
  * The Render Engine
  * IsometricDemo
@@ -34,95 +33,102 @@
  */
 
 // Load all required engine components
-R.Engine.requires("/engine.math2d.js");
-R.Engine.requires("/engine.timers.js");
+R.Engine.define({
+   "class": "IsometricDemo",
+   "requires": [
+      "R.engine.Game",
+      "R.math.Math2D"
+   ],
 
-Game.load("/tilesets.js");
-Game.load("/isometricmap.js");
+   // Game class dependencies
+   "depends": [
+      "TileSets",
+      "IsometricMap"
+   ]
+});
 
-R.Engine.initObject("IsometricDemo", "Game", function() {
+R.engine.Game.load("/tilesets.js");
+R.engine.Game.load("/isometricmap.js");
 
 /**
  * @class The game.
  */
-var IsometricDemo = Game.extend({
+var IsometricDemo = function() {
+   return R.engine.Game.extend({
 
-   constructor: null,
+      constructor: null,
 
-   renderContext: null,
+      renderContext: null,
 
-   fieldBox: null,
-   centerPoint: null,
-   areaScale: 1.0,
+      fieldBox: null,
+      centerPoint: null,
+      areaScale: 1.0,
 
-   engineFPS: 30,
+      engineFPS: 30,
 
-   fieldWidth: 640,
-   fieldHeight: 448,
+      fieldWidth: 640,
+      fieldHeight: 448,
 
-   tileset: null,
+      tileset: null,
 
-   /**
-    * This method is being used to clean up the demo container.
-    * Each demo is loaded into this container, and when a demo
-    * is unloaded we can call this method to clean it up.
-    */
-   cleanup: function() {
-      this.renderContext.cleanUp();
-   },
+      /**
+       * This method is being used to clean up the demo container.
+       * Each demo is loaded into this container, and when a demo
+       * is unloaded we can call this method to clean it up.
+       */
+      cleanup: function() {
+         this.renderContext.cleanUp();
+      },
 
-   /**
-    * Called to set up the game, download any resources, and initialize
-    * the game to its running state.
-    */
-   setup: function() {
+      /**
+       * Called to set up the game, download any resources, and initialize
+       * the game to its running state.
+       */
+      setup: function() {
+         this.tileset = TileSets.create("tiles", this.getFilePath("resources/tiles.json"));
+         this.map = IsometricMap.create("countryside", this.getFilePath("resources/map.json"), R.math.Point2D.create(85, 85));
+         var self = this;
+         R.lang.Timeout.create("run", 250, function() {
+            if (self.tileset.isReady() &&
+                self.map.isReady()) {
 
-      // Set the FPS of the game
-      R.Engine.setFPS(this.engineFPS);
+               this.destroy();
+               self.run();
+            } else {
+               this.restart();
+            }
+         });
+      },
 
-      this.tileset = TileSets.create("tiles", this.getFilePath("resources/tiles.json"));
-		this.map = IsometricMap.create("countryside", this.getFilePath("resources/map.json"), Point2D.create(85, 85));
-		var self = this;
-		Timeout.create("run", 250, function() {
-			if (self.tileset.isReady() &&
-				 self.map.isReady()) {
-				this.destroy();
-				self.run();
-			} else {
-				this.restart();
-			}
-		});
-   },
+      /**
+       * Called when a game is being shut down to allow it to clean up
+       * any objects, remove event handlers, destroy the rendering context, etc.
+       */
+      teardown: function() {
+         this.renderContext.destroy();
+      },
 
-   /**
-    * Called when a game is being shut down to allow it to clean up
-    * any objects, remove event handlers, destroy the rendering context, etc.
-    */
-   teardown: function() {
-      this.renderContext.destroy();
-   },
+      run: function() {
+         // Create the 2D context
+         this.fieldBox = R.math.Rectangle2D.create(0, 0, R.engine.Support.sysInfo().viewWidth, R.engine.Support.sysInfo().viewHeight);
+         this.centerPoint = this.fieldBox.getCenter();
 
-   run: function() {
-      // Create the 2D context
-      this.fieldBox = Rectangle2D.create(0, 0, R.engine.Support.sysInfo().viewWidth, R.engine.Support.sysInfo().viewHeight);
-      this.centerPoint = this.fieldBox.getCenter();
+         this.renderContext = R.rendercontexts.HTMLDivContext.create("bkg", this.fieldBox.get().w, this.fieldBox.get().h);
+         R.Engine.getDefaultContext().add(this.renderContext);
 
-      this.renderContext = HTMLDivContext.create("bkg", this.fieldBox.get().w, this.fieldBox.get().h);
-      R.Engine.getDefaultContext().add(this.renderContext);
-		
-		this.map.setTileSets(this.tileset);
-		R.Engine.getDefaultContext().add(this.map);
-   },
+         R.Engine.getDefaultContext().captureMouse();
 
-   play: function() {
-   },
+         this.map.setTileSets(this.tileset);
+         R.Engine.getDefaultContext().add(this.map);
+      },
 
-   getRenderContext: function() {
-      return this.renderContext;
-   }
+      play: function() {
+      },
 
-});
+      getRenderContext: function() {
+         return this.renderContext;
+      }
 
-return IsometricDemo;
+   });
 
-});
+}

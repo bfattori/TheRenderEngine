@@ -161,7 +161,7 @@ R.components.render.Billboard2D = function() {
             return;
          }
 
-         // Get the host objects bounding box
+         // Get the host object's bounding box
          var hostBox = this.getGameObject().getBoundingBox();
          var o = R.math.Point2D.create(this.getGameObject().getOrigin());
 
