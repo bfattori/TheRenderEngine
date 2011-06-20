@@ -97,6 +97,15 @@ R.resources.loaders.RemoteLoader = function(){
        */
       load: function(name, url, data) {
          this.base(name, data);
+         this.setPathUrl(name, url);
+      },
+
+      /**
+       * Set the path where a resource is located.
+       * @param name {String} the name of the resource
+       * @param url {String} The URL where the resource is located
+       */
+      setPathUrl: function(name, url) {
          this.pathUrls[name] = url;
       },
 

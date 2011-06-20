@@ -304,17 +304,17 @@ R.resources.types.TileMap = function() {
                return self.dimensions.toString()
             }, function(i) {
                var coords = i.split(",");
-               self.setDimensions(coords[0],coords[1]);
+               self.setDimensions(parseInt(coords[0]),parseInt(coords[1]));
             },true],
             "TileScaleX": [function(){
                return self.tileScale.x;
             }, function(i){
-               self.tileScale.setX(i);
+               self.tileScale.setX(parseFloat(i));
             }, true],
             "TileScaleY": [function(){
                return self.tileScale.y;
             }, function(i){
-               self.tileScale.setY(i);
+               self.tileScale.setY(parseFloat(i));
             }, true],
             "TileSizeX": [function(){
                return self.baseTile ? self.baseTile.getBoundingBox().w : "";
@@ -325,13 +325,13 @@ R.resources.types.TileMap = function() {
             "Zindex": [function(){
 					return self.getZIndex();
 				}, function(i){
-					self.setZIndex(i);
+					self.setZIndex(parseInt(i));
 				}, true],
             "Parallax": [function() {
                return self.getParallax().toString();
             }, function(i){
                var coords = i.split(",");
-               self.setParallax(coords[0],coords[1]);
+               self.setParallax(parseFloat(coords[0]),parseFloat(coords[1]));
             }, true]
          });
       }

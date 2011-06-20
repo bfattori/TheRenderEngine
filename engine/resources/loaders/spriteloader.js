@@ -131,10 +131,15 @@ R.resources.loaders.SpriteLoader = function(){
 				
 				// Store the sprite info
 				this.sprites[name] = info;
+
+            // Since the path that is stored by ImageLoader is the path to the image
+            // and not the descriptor, we need to override the value
+            this.setPathUrl(name, url);
+            
 				this.queuedSprites--;
 			}
 		},
-		
+
 		/**
 		 * Called after the data has been loaded, passing along the info object and name
 		 * of the sprite resource.

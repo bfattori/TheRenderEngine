@@ -67,7 +67,15 @@ LevelEditor.extend({
       results = db.getKeys();
 
       for (var l in results) {
-         $("#ld_levelNames").append($("<option value='" + results[l] + "'>").text(results[l]));
+         $("#ld_levelNames").append($("<option value='sto:" + results[l] + "'>").text(results[l]));
+      }
+
+      // Get the names of levels from each level loader
+      for (var loader in LevelEditor.loaders.level) {
+         for (var lvl in LevelEditor.loaders.level[loader].getResources()) {
+            $("#ld_levelNames").append($("<option value='lod:" + LevelEditor.loaders.level[loader].getName() + ":" +
+               lvl + "'>").text(lvl));
+         }
       }
 
       // Select the first level by default
@@ -89,50 +97,38 @@ LevelEditor.extend({
       db = LevelEditor.getStorage(),
       newObj, treeParent;
 
-      LevelEditor.setupDataSchema();
+      var lvlJSON;
+      if (levelId.indexOf("sto") == 0) {
+         // From storage
+         lvlJSON = db.load(levelId.split(":")[1]);
+      } else {
+         // From a level loader
 
-      // Find the level
-      var sql = "SELECT * FROM Levels WHERE Levels.level_id == " + levelId;
-      var result = db.execSql(sql);
-      if (result.length != 0) {
-         // The level exists... let's load it up
-         LevelEditor.currentLevel = {
-            "id": levelId,
-            "name": result[0].name
-         };
+      }
 
-         sql = "SELECT * FROM Objects WHERE Objects.level_id == " + levelId;
-         result = db.execSql(sql);
+      // Check to see if the JSON is a level object
+      if (!(lvlJSON.name && lvlJSON.resourceURLs && lvlJSON.actors && lvlJSON.fixtures && lvlJSON.tilemaps)) {
+         alert("The data does not appear to be a level object.");
+         return;
+      }
 
-         for (var o in result) {
-            var oType = result[o].type_id, newObj;
-            if (oType == 1) {
-               newObj = R.objects.SpriteActor.create();
-               treeParent = "#sg_actors";
-            } else {
-               newObj = R.objects.CollisionBox.create();
-               newObj.setType(oType == 2 ? R.objects.CollisionBox.TYPE_COLLIDER : R.objects.CollisionBox.TYPE_TRIGGER);
-               treeParent = (oType == 2 ? "#sg_fixture" : "#sg_trigger");
-            }
-
-            // Get the properties for the object and set them
-            var pSql = "SELECT * FROM ObjectProps WHERE ObjectProps.object_id == " + result[o].object_id + " AND ObjectProps.level_id == " + levelId;
-            var pRes = db.execSql(pSql);
-
-            for (var p in pRes) {
-               LevelEditor.storePropertyValue(newObj, pRes[p].name, pRes[p].value);
-            }
-
-            // Add the object to the context
-            ctx.add(newObj);
-
-            // Add the object to the scene graph
-            $("#editPanel div.sceneGraph").jstree("create", treeParent, "last", {
-               "attr": { "id": newObj.getId() },
-               "data": newObj.getName() + " [" + newObj.getId() + "]"
-            }, false, true);
+      // Check the version in the file to see if it's lower than the version of the editor
+      if (lvlJSON.version < LevelEditor.LEVEL_VERSION_NUMBER) {
+         if (!confirm("The version in the file is older than the editor version.  There may be differences which cannot be imported.  Do you want to continue?")) {
+            return;
          }
       }
+
+      // See if the version in the file is higher than the version of the editor
+      if (lvlJSON.version > LevelEditor.LEVEL_VERSION_NUMBER) {
+         alert("The level object cannot be loaded by this version of the editor.");
+         return;
+      }
+
+      var level = R.resources.types.Level.deserialize(lvlJSON);
+      level.addEvent(LevelEditor, "loaded", function() {
+         level.setRenderContext(LevelEditor.gameRenderContext);
+      });
 
       if (dlg) {
          $(dlg).dialog("close");
@@ -156,23 +152,15 @@ LevelEditor.extend({
     * @private
     */
    resetLevel: function() {
-      // We're only going to remove actors and collision/trigger blocks,
-      // in case the game being edited has added something else to the context
-      var objs = LevelEditor.getGameObjects();
-      for (var i in objs) {
-         // Update the scene graph tree
-         $("#editPanel div.sceneGraph").jstree("remove", "#" + objs[i].getId());
-         objs[i].destroy();
-      }
+      // Remove the current level from the context
+      LevelEditor.currentLevel.destroy();
+      LevelEditor.gameRenderContext.remove(LevelEditor.currentLevel);
 
-      // Blow away the tile maps
-      for (var maps in LevelEditor.tileMaps) {
-         LevelEditor.tileMaps[maps].destroy();
-      }
-      LevelEditor.tileMaps = {};
-
-      LevelEditor.currentLevel.id = -1;
-      LevelEditor.currentLevel.name = "New Level";
+//      for (var i in objs) {
+//         // Update the scene graph tree
+//         $("#editPanel div.sceneGraph").jstree("remove", "#" + objs[i].getId());
+//         objs[i].destroy();
+//      }
    },
 
    /**

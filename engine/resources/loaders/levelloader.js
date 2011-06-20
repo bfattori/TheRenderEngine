@@ -76,6 +76,9 @@ R.resources.loaders.LevelLoader = function(){
          }
       },
 
+      /**
+       * @private
+       */
       afterLoad: function(name, obj) {
          // We need to mark this as "not ready" since we'll be loading tiles
          // and other things before this object is actually ready
@@ -141,7 +144,25 @@ R.resources.loaders.LevelLoader = function(){
 		getLevel: function(level){
 			return this.levels[level];
 		},
-		
+
+      /**
+       * Export all of the levels, as a JavaScript object, with the
+       * level name as the key and the corresponding {@link R.resources.types.Level} as the value.
+       * @param resource {String} The name of the level resource
+       * @param [levelNames] {Array} An optional array of levels to export, by name,
+       * 		or <code>null</tt> to export all levels
+       */
+      exportAll: function(levelNames){
+         var o = {};
+         var levels = this.getResources();
+         for (var i in levels) {
+            if (!levelNames || R.engine.Support.indexOf(levelNames, levels[i]) != -1) {
+               o[levels[i]] = this.getLevel(i);
+            }
+         }
+         return o;
+      },
+
 		/**
 		 * The name of the resource this loader will get.
 		 * @returns {String} The string "level"

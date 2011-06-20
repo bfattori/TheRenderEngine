@@ -34,7 +34,7 @@
 R.Engine.define({
 	"class": "R.resources.types.Level",
 	"requires": [
-		"R.engine.PooledObject",
+		"R.engine.BaseObject",
       "R.resources.loaders.SpriteLoader",
       "R.resources.loaders.TileLoader",
       "R.resources.types.Sound",
@@ -48,11 +48,12 @@ R.Engine.define({
  * @constructor
  * @param name {String} The name of the object
  * @param levelResource {Object} The level resource loaded by the LevelLoader
- * @extends R.engine.PooledObject
+ * @extends R.engine.BaseObject
  */
 R.resources.types.Level = function(){
-	return R.engine.PooledObject.extend(/** @scope R.resources.types.Level.prototype */{
+	return R.engine.BaseObject.extend(/** @scope R.resources.types.Level.prototype */{
 	
+      editing: false,
       actors: null,
       fixtures: null,
       tilemaps: null,
@@ -209,6 +210,7 @@ R.resources.types.Level = function(){
 		
       addActor: function(actor) {
          this.actors.add(actor);
+         actor.setTileMap(this.getTileMap("playfield"));
 
          if (this.renderContext) {
             this.renderContext.add(actor);
@@ -249,6 +251,14 @@ R.resources.types.Level = function(){
 
       setBackgroundMusic: function(sound) {
          this.backgroundMusic = sound;
+      },
+
+      /**
+       * Set the editing mode of the level, used by the LevelEditor
+       * @private
+       */
+      setEditing: function(state) {
+         this.editing = state;
       }
 
 	}, /** @scope R.resources.types.Level.prototype */ {
@@ -343,6 +353,65 @@ R.resources.types.Level = function(){
          // ...
 
          return lvl;
+      },
+
+      deserialize: function(obj) {
+         // Create the level
+         var level = R.resources.types.Level.create(obj.name, obj.width, obj.height);
+
+         // Pull together all of the resources
+         var loader;
+         for (var resType in obj.resourceURLs) {
+            if (resType === "sprites") {
+               loader = level.resourceLoaders.sprite[0];
+            } else if (resType === "tiles") {
+               loader = level.resourceLoaders.tile[0];
+            } else {
+               loader = level.resourceLoaders.sound[0];
+            }
+            for (var res in obj.resourceURLs[resType]) {
+               for (var rName in obj.resourceURLs[resType][res]) {
+                  loader.load(rName, obj.resourceURLs[resType][res][rName]);
+               }
+            }
+         }
+
+         // Now that we've started the resource loading, we need to wait until
+         // all resources are loaded before we can finish loading the level
+         R.lang.Timeout.create("lvlResourceWait", 250, function() {
+            if (level.resourceLoaders.sprite[0].isReady() &&
+                level.resourceLoaders.tile[0].isReady()) {
+               this.destroy();
+               R.resources.types.Level.finishDeserialize(level, obj);
+            } else {
+               this.restart();
+            }
+         });
+
+         return level;
+      },
+
+      /**
+       * @private
+       */
+      finishDeserialize: function(level, obj) {
+         // Deserialize the tile maps
+         for (var tilemap in obj.tilemaps) {
+            R.resources.types.TileMap.deserialize(obj.tilemaps[tilemap], level.resourceLoaders.tile,
+               level.getTileMap(tilemap));
+         }
+
+         // Deserialize the actors
+         for (var actor in obj.actors) {
+            var spriteActor = R.objects.SpriteActor.deserialize(obj.actors[actor], level.resourceLoaders.sprite);
+            level.addActor(spriteActor);
+         }
+
+         // Deserialize the fixtures
+
+
+         // Done
+         level.triggerEvent("loaded");
       }
 	});
 	

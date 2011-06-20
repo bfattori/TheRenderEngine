@@ -71,6 +71,17 @@ R.resources.loaders.ImageLoader = function(){
 		/** @private */
 		constructor: function(name){
 			this.base(name || "ImageLoader");
+
+			// Create the area if it doesn't exist which will
+			// be used to load the images from their URL
+			if (this.getElement() == null) {
+				var div = jQuery("<div/>").css({
+					background: "black",
+					display: "none"
+				});
+
+				this.setElement(div[0]);
+			}
 		},
 		
 		/**
@@ -83,18 +94,6 @@ R.resources.loaders.ImageLoader = function(){
 		 * @param height {Number} The height of this resource, in pixels
 		 */
 		load: function(name, url, width, height){
-		
-			// Create the area if it doesn't exist which will
-			// be used to load the images from their URL
-			if (this.getElement() == null) {
-				var div = jQuery("<div/>").css({
-					background: "black",
-					display: "none"
-				});
-				
-				this.setElement(div[0]);
-			}
-			
 			// Create an image element
 			var imageInfo = null;
 			if (url != null) {

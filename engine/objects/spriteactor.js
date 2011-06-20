@@ -65,8 +65,8 @@ R.objects.SpriteActor = function(){
 		scriptedVars: null,
 		
 		/** @private */
-		constructor: function(name){
-			this.base(name || "Actor", R.components.transform.PlatformMover2D.create("move"));
+		constructor: function(name, tileMap){
+			this.base(name || "Actor", R.components.transform.PlatformMover2D.create("move", tileMap));
 			
 			this.editing = false;
 			
@@ -106,7 +106,11 @@ R.objects.SpriteActor = function(){
 			this.scriptedActions = null;
 			this.scriptedVars = null;
 		},
-		
+
+      setTileMap: function(tileMap) {
+         this.getComponent("move").setTileMap(tileMap);
+      },
+
 		/**
 		 * Get a properties object for this sprite actor
 		 * @return {Object}
@@ -123,9 +127,27 @@ R.objects.SpriteActor = function(){
 				"Collidable": [ function() { return self.isCollidable(); },
 									 typeof LevelEditor !== "undefined" ? { "toggle": true,
 									 											"fn": function(s) { self.setCollidable(s); }} : null,
-									 typeof LevelEditor !== "undefined" ? true : false ]
+									 typeof LevelEditor !== "undefined" ? true : false ],
+            "Gravity": [ function() { return self.getGravityFlag(); },
+                         { "toggle": true,
+                           "fn": function(s) {
+                            self.setGravityFlag(s); }
+                         }, true]
 			});
 		},
+
+      getGravityFlag: function() {
+         return !this.getComponent("move").getGravity().isZero();
+      },
+
+      setGravityFlag: function(state) {
+         if (state) {
+            // TODO: Make this a "level property"
+            this.getComponent("move").setGravity(0.0, 0.2);
+         } else {
+            this.getComponent("move").setGravity(R.math.Vector2D.ZERO);
+         }
+      },
 
 		/**
 		 * Set the actor's Id which can be looked up with {@link R.objects.SpriteActor#findActor}
@@ -337,7 +359,7 @@ R.objects.SpriteActor = function(){
 		},
 		
 		/**
-		 * Set the editing mode of the object, used by the LevelEditor
+		 * Set the editing mode of the actor, used by the LevelEditor
 		 * @private
 		 */
 		setEditing: function(state){
@@ -427,16 +449,18 @@ R.objects.SpriteActor = function(){
          clazz = clazz || R.objects.SpriteActor.create(obj.name);
          R.engine.Object2D.deserialize(obj, clazz);
 
-         // Find the sprite loader which contains our sprite
-         var resourceName = obj.Sprite.split(":")[0], spriteName = obj.Sprite.split(":")[1];
-         for (var sl = 0; sl < spriteLoaders.length; sl++) {
-            if (spriteLoaders[sl].get(resourceName)) {
-               clazz.setSprite(spriteLoaders[sl].getSprite(resourceName, spriteName));
-               break;
+         // If the sprite wasn't already found, use the sprite loaders passed to us
+         if (!clazz.getSprite()) {
+            var resourceName = obj.Sprite.split(":")[0], spriteName = obj.Sprite.split(":")[1];
+            for (var sl = 0; sl < spriteLoaders.length; sl++) {
+               if (spriteLoaders[sl].get(resourceName)) {
+                  clazz.setSprite(spriteLoaders[sl].getSprite(resourceName, spriteName));
+                  break;
+               }
             }
          }
-
-         if (!this.getSprite()) {
+         
+         if (!clazz.getSprite()) {
             throw new ReferenceError("The resource '" + resourceName + "' for sprite '" + spriteName + "' could not be found.");
          }
 

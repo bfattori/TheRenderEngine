@@ -11,7 +11,7 @@ LevelEditor.extend({
    /**
     * Puts the editor into "tilemap editing mode" and sets the selected tilemap as
     * the current map to be edited.
-    * @param mapName {String} The name of the tilemap to edito
+    * @param mapName {String} The name of the tilemap to edit
     */
    editTileMap: function(mapName) {
       LevelEditor.currentTileMap = LevelEditor.currentLevel.getTileMap(mapName.split("_")[1]);

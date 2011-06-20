@@ -56,7 +56,7 @@ R.components.transform.PlatformMover2D = function() {
    return R.components.Transform2D.extend(/** @scope R.components.transform.PlatformMover2D.prototype */{
 
       tileMap: null,
-      moveVel: null,
+      moveVec: null,
       gravity: null,
       tileSize: null,
 
@@ -64,7 +64,7 @@ R.components.transform.PlatformMover2D = function() {
       constructor: function(name, tileMap, priority) {
          this.base(name, priority || 1.0);
          this.tileMap = tileMap;
-         this.moveVel = R.math.Vector2D.create(0,0);
+         this.moveVec = R.math.Vector2D.create(0,0);
          this.gravity = R.math.Vector2D.create(0,0.2);
          if (tileMap instanceof R.resources.types.TileMap) {
             this.tileSize = Math.max(tileMap.getBaseTile().getBoundingBox().w,
@@ -73,7 +73,7 @@ R.components.transform.PlatformMover2D = function() {
       },
 
       destroy: function() {
-         this.moveVel.destroy();
+         this.moveVec.destroy();
          this.gravity.destroy();
          this.base();
       },
@@ -85,14 +85,26 @@ R.components.transform.PlatformMover2D = function() {
       release: function() {
          this.base();
          this.tileMap = null;
-         this.moveVel = null;
+         this.moveVec = null;
          this.tileSize = null;
       },
 
       setTileMap: function(tileMap) {
+         if (!tileMap.getBaseTile()) {
+            return;
+         }
+         
          this.tileMap = tileMap;
          this.tileSize = Math.max(tileMap.getBaseTile().getBoundingBox().w,
                                   tileMap.getBaseTile().getBoundingBox().h);
+      },
+
+      getGravity: function() {
+         return this.gravity;
+      },
+
+      setGravity: function(xOrPt, y) {
+         this.gravity.set(xOrPt, y);
       },
 
       /**
@@ -108,21 +120,24 @@ R.components.transform.PlatformMover2D = function() {
          if (this.tileMap) {
             var bBox = this.getGameObject().getBoundingBox(), oldPos = R.clone(this.getPosition()),
                 newPos = R.clone(oldPos), testPt = R.clone(bBox.getCenter()),
-                mNormal = R.clone(this.moveVel).normalize(), rayInfo, dir;
+                mNormal = R.clone(this.moveVec).normalize(), rayInfo,
+                dir = R.math.Vector2D.create(0,0);
 
-            // If movement along the X coordinate isn't zero, we want to test for collisions along the axis
-            if (this.moveVel.x != 0) {
+            // If movement along the X coordinate isn't zero, we want to test for collisions along the axis.
+            // We'll cast a ray in the direction of movement, one tile width long, from the center of the
+            // bounding box
+            if (this.moveVec.x != 0) {
                // We want to cast a ray along the X axis of movement
-               testPt.setX(newPos.x + (bBox.getWidth() * mNormal.x));
-               dir = R.math.Vector2D.create(this.moveVel.x, 0).normalize().mul(this.tileSize);
+               testPt.setX((newPos.x + testPt.x) + (bBox.getHalfWidth() * mNormal.x));
+               dir.set(this.moveVec.x, 0).normalize().mul(this.tileSize);
                rayInfo = R.struct.RayInfo.create(testPt, dir);
 
                R.resources.types.TileMap.castRay(this.tileMap, rayInfo, renderContext);
 
-               // There's something in our direction of horizontal movement, can't go that way
+               // There's something in the direction of horizontal movement, can't go that way
                if (rayInfo.shape) {
-                  this.moveVel.setX(0);
-                  newPos.set(collision.impactPoint);
+                  this.moveVec.setX(0);
+                  newPos.x -= rayInfo.data.x;
                }
 
                rayInfo.destroy();
@@ -130,24 +145,36 @@ R.components.transform.PlatformMover2D = function() {
 
             // Add in gravity
             if (!this.gravity.equals(R.math.Vector2D.ZERO)) {
-               this.moveVel.add(this.gravity);
+               this.moveVec.add(this.gravity);
 
-               testPt.set(newPos.x + bBox.getHalfWidth(), newPos.y + bBox.h);
-               dir = R.clone(this.moveVel).normalize().mul(3);
+               // We'll cast two rays, one from the left side of the bounding box,
+               // the other from the right. If either collides, zero out gravity.
+               // -- First one
+               testPt.set(newPos.x + 1, newPos.y + bBox.h);
+               dir.set(this.moveVec).normalize().mul(3);
                rayInfo = R.struct.RayInfo.create(testPt, dir);
 
                R.resources.types.TileMap.castRay(this.tileMap, rayInfo, renderContext);
 
                // If a collision occurs, stop gravity and adjust position
                if (rayInfo.shape) {
-                  this.moveVel.setY(0);
+                  this.moveVec.setY(0);
                   newPos.y -= rayInfo.data.y;
+               } else {
+                  // -- Second one
+                  testPt.set(newPos.x + bBox.w - 1, newPos.y + bBox.h);
+                  rayInfo = R.struct.RayInfo.create(testPt, dir);
+                  R.resources.types.TileMap.castRay(this.tileMap, rayInfo, renderContext);
+                  if (rayInfo.shape) {
+                     this.moveVec.setY(0);
+                     newPos.y -= rayInfo.data.y;
+                  }
                }
 
                rayInfo.destroy();
             }
 
-            this.setPosition(newPos.add(this.moveVel));
+            this.setPosition(newPos.add(this.moveVec));
 
             dir.destroy();
             oldPos.destroy();

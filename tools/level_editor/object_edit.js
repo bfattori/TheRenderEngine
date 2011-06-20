@@ -23,6 +23,7 @@ LevelEditor.extend({
       pT.destroy();
       actor.setZIndex(1);
 
+      // Add the actor to the current level
       LevelEditor.currentLevel.addActor(actor);
       LevelEditor.setSelected(actor);
 

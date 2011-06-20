@@ -4,7 +4,11 @@
   "width": 100,
   "height": 100,
   "resourceURLs": {
-    "sprites": [],
+    "sprites": [
+      {
+        "sprites": "http://localhost:8010/demos/tilemap/resources/smbtiles.png"
+      }
+    ],
     "tiles": [
       {
         "tiles": "http://localhost:8010/demos/tilemap/resources/floor.png"
@@ -12,7 +16,138 @@
     ],
     "sounds": []
   },
-  "actors": [],
+  "actors": [
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "16.00,448.00",
+      "Sprite": "sprites:mario_stand",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "976.00,320.00",
+      "Sprite": "sprites:goomba",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "1040.00,319.00",
+      "Sprite": "sprites:goomba",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "1104.00,320.00",
+      "Sprite": "sprites:goomba",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "1744.00,320.00",
+      "Sprite": "sprites:red_koopa",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "1904.00,352.00",
+      "Sprite": "sprites:green_koopa",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "2272.00,127.00",
+      "Sprite": "sprites:coin",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "2304.00,128.00",
+      "Sprite": "sprites:coin",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "2528.00,352.00",
+      "Sprite": "sprites:coin",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "2560.00,352.00",
+      "Sprite": "sprites:coin",
+      "Collidable": false,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0"
+      }
+    }
+  ],
   "fixtures": [],
   "tilemaps": {
     "background": {
@@ -38,25 +173,73 @@
         "Parallax": "1.00,1.00"
       },
       "map": [
-        "e:402",
-        "tiles:glassblock:7",
-        "tiles:redMid:4",
-        "tiles:glassblock:7",
-        "e:82",
-        "tiles:steel:18",
-        "e:82",
+        "e:571",
         "tiles:steel:2",
-        "tiles:vent:2",
-        "tiles:steel:10",
-        "tiles:vent:2",
+        "e:98",
         "tiles:steel:2",
-        "e:82",
-        "tiles:steel:18",
-        "e:82",
-        "tiles:rivets:1",
-        "tiles:steel:16",
-        "tiles:rivets:1",
-        "e:9180"
+        "e:98",
+        "tiles:steel:2",
+        "e:21",
+        "tiles:steel:2",
+        "e:75",
+        "tiles:steel:2",
+        "e:20",
+        "tiles:steel:3",
+        "e:75",
+        "tiles:steel:2",
+        "e:19",
+        "tiles:steel:4",
+        "e:75",
+        "tiles:steel:2",
+        "e:18",
+        "tiles:steel:5",
+        "e:33",
+        "tiles:steel:11",
+        "e:4",
+        "tiles:steel:8",
+        "e:19",
+        "tiles:steel:2",
+        "e:17",
+        "tiles:steel:6",
+        "e:31",
+        "tiles:steel:13",
+        "e:4",
+        "tiles:steel:13",
+        "e:14",
+        "tiles:steel:2",
+        "e:6",
+        "tiles:steel:2",
+        "e:8",
+        "tiles:steel:7",
+        "e:30",
+        "tiles:steel:14",
+        "e:4",
+        "tiles:steel:17",
+        "e:10",
+        "tiles:steel:2",
+        "e:6",
+        "tiles:steel:2",
+        "e:7",
+        "tiles:steel:8",
+        "e:29",
+        "tiles:steel:15",
+        "e:4",
+        "tiles:steel:19",
+        "e:8",
+        "tiles:steel:2",
+        "e:6",
+        "tiles:steel:2",
+        "e:6",
+        "tiles:steel:9",
+        "e:4",
+        "tiles:steel:40",
+        "e:4",
+        "tiles:steel:52",
+        "e:4",
+        "tiles:steel:40",
+        "e:4",
+        "tiles:steel:52",
+        "e:8304"
       ]
     },
     "foreground": {

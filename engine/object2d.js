@@ -535,7 +535,7 @@ R.engine.Object2D = function(){
 				"ZIndex": [function(){
 					return self.getZIndex();
 				}, function(i){
-					self.setZIndex(i);
+					self.setZIndex(parseInt(i));
 				}, true],
 				"BoundingBox": [function(){
 					return self.getBoundingBox().toString();
@@ -547,13 +547,13 @@ R.engine.Object2D = function(){
 					return self.getPosition().toString();
 				}, function(i){
 					var p = i.split(",");
-					self.setPosition(R.math.Point2D.create(p[0], p[1]));
+					self.setPosition(R.math.Point2D.create(parseFloat(p[0]), parseFloat(p[1])));
 				}, true],
 				"Origin": [function(){
 					return self.getOrigin().toString();
 				}, function(i){
 					var p = i.split(",");
-					self.setOrigin(p[0], p[1]);
+					self.setOrigin(parseFloat(p[0]), parseFloat(p[1]));
 				}, true],
 				"RenderPos": [function(){
 					return self.getRenderPosition().toString()
@@ -561,17 +561,17 @@ R.engine.Object2D = function(){
 				"Rotation": [function(){
 					return self.getRotation();
 				}, function(i){
-					self.setRotation(i);
+					self.setRotation(parseFloat(i));
 				}, true],
 				"ScaleX": [function(){
 					return self.getScaleX();
 				}, function(i){
-					self.setScale(i, self.getScaleY());
+					self.setScale(parseFloat(i), self.getScaleY());
 				}, true],
 				"ScaleY": [function(){
 					return self.getScaleY();
 				}, function(i){
-					self.setScale(self.getScaleX(), i);
+					self.setScale(self.getScaleX(), parseFloat(i));
 				}, true]
 			});
 		}

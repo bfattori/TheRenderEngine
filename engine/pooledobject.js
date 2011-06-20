@@ -380,7 +380,7 @@ R.engine.PooledObject =  Base.extend(/** @scope R.engine.PooledObject.prototype 
     */
    deserialize: function(obj, clazz) {
       clazz = clazz || R.engine.PooledObject.create(obj.name);
-      var bean = obj.getProperties();
+      var bean = clazz.getProperties();
       for (var p in obj) {
          // Regardless if the editable flag is true, if there is a setter, we'll
          // call it to copy the value over.
@@ -390,7 +390,7 @@ R.engine.PooledObject =  Base.extend(/** @scope R.engine.PooledObject.prototype 
                bean[p][1].fn(obj[p]);
             } else {
                // Single value
-               bean[propName][1](obj[p]);
+               bean[p][1](obj[p]);
             }
          }
       }

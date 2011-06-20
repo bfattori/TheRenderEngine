@@ -257,7 +257,7 @@ R.engine.BaseObject = function(){
        */
       triggerEvent: function(eventName, data) {
          if (this.element) {
-            this.jQObject().trigger(eventName, data);
+            this.jQ().trigger(eventName, data);
          } else {
             var listeners = this.eventListeners[eventName.toUpperCase];
             if (listeners) {

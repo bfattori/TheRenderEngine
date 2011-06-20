@@ -142,10 +142,6 @@ var LevelEditor = function() {
          // Set the Game object which is being edited
          LevelEditor.setGame(game, renderContext);
 
-         // Create an empty level container
-         LevelEditor.currentLevel = R.resources.types.Level.create("New Level", 100, 100);
-         LevelEditor.currentLevel.setRenderContext(renderContext);
-
          // Wire up a keystroke to show the editor
          R.Engine.getDefaultContext().addEvent(null, "keydown", function(evt) {
             if (evt.which == R.engine.Events.KEYCODE_F4) {
@@ -201,6 +197,10 @@ var LevelEditor = function() {
                // Some objects don't like to be touched
             }
          }
+
+         // Create an empty level container
+         LevelEditor.currentLevel = R.resources.types.Level.create("New Level", 100, 100);
+         LevelEditor.currentLevel.setRenderContext(renderContext);
       },
 
       /**
@@ -268,6 +268,7 @@ var LevelEditor = function() {
                      isObject = $(data.args[0]).parents("li.objects").length == 1;
                   if (p.hasClass("objects")) {
                      LevelEditor.editingTiles = false;
+                     $("#TileSelector").css("display", "none");
                      return;
                   }
 
@@ -284,9 +285,11 @@ var LevelEditor = function() {
                         LevelEditor.dialogBase.append($("#TileSelector").remove());
                      }
                      LevelEditor.editingTiles = false;
+                     $("#TileSelector").css("display", "none");
                   } else if (pId != "") {
                      LevelEditor.editTileMap(pId);
                      LevelEditor.editingTiles = true;
+                     $("#TileSelector").css("display", "block");
                   }
                }
             });
@@ -533,14 +536,23 @@ var LevelEditor = function() {
                   var parallax = R.math.Point2D.create(1,1);
                   if (LevelEditor.editToggle.parallax) {
                      parallax.set(1.3,1.3);
-                     LevelEditor.tileMaps["tm_background"].setParallax(parallax);
+                     LevelEditor.currentLevel.getTileMap("background").setParallax(parallax);
                      parallax.set(0.4,0.4);
-                     LevelEditor.tileMaps["tm_foreground"].setParallax(parallax);
+                     LevelEditor.currentLevel.getTileMap("foreground").setParallax(parallax);
                   } else {
-                     LevelEditor.tileMaps["tm_background"].setParallax(parallax);
-                     LevelEditor.tileMaps["tm_foreground"].setParallax(parallax);
+                     LevelEditor.currentLevel.getTileMap("background").setParallax(parallax);
+                     LevelEditor.currentLevel.getTileMap("foreground").setParallax(parallax);
                   }
                   parallax.destroy();
+               }
+
+               if (R.engine.Events.isKey(evt, "x")) {
+                  LevelEditor.editingTiles = !LevelEditor.editingTiles;
+                  if (LevelEditor.editingTiles) {
+                     $("#TileSelector").css("display", "block");
+                  } else {
+                     $("#TileSelector").css("display", "none");
+                  }
                }
             });
 
@@ -958,9 +970,14 @@ var LevelEditor = function() {
        */
       getSpriteForName: function(spriteOpt) {
          // Determine the loader, sheet, and sprite
-         var spriteIdent = spriteOpt.split(":");
-         var loader = LevelEditor.loaders.sprite[spriteIdent[0]];
-         return loader.getSprite(spriteIdent[1], spriteIdent[2]);
+         var spriteIdent = spriteOpt.split(":"), sprite;
+         for (var ld = 0; ld < LevelEditor.loaders.sprite.length; ld++) {
+            sprite = LevelEditor.loaders.sprite[ld].getSprite(spriteIdent[0], spriteIdent[1]);
+            if (sprite != null) {
+               return sprite;
+            }
+         }
+         return null;
       },
 
       /**
@@ -970,9 +987,14 @@ var LevelEditor = function() {
        */
       getTileForName: function(tileOpt) {
          // Determine the loader, sheet, and sprite
-         var tileIdent = tileOpt.split(":");
-         var loader = LevelEditor.loaders.tile[tileIdent[0]];
-         return loader.getTile(tileIdent[1], tileIdent[2]);
+         var tileIdent = tileOpt.split(":"), tile;
+         for (var ld = 0; ld < LevelEditor.loaders.tile.length; ld++) {
+            tile = LevelEditor.loaders.tile[ld].getTile(tileIdent[0], tileIdent[1]);
+            if (tile != null) {
+               return tile;
+            }
+         }
+         return null;
       },
 
       /**
@@ -983,18 +1005,8 @@ var LevelEditor = function() {
        * @private
        */
       getSpriteCanonicalName: function(sprite) {
-         var loader = sprite.getSpriteLoader(), loaderIdx = 0;
-
-         // Locate the sprite loader index
-         for (var l in LevelEditor.loaders.sprite) {
-            if (loader === LevelEditor.loaders.sprite) {
-               loaderIdx = l;
-               break;
-            }
-         }
-
          // Return the canonical name which contains the loader index, resource name, and sprite name
-         return loaderIdx + ":" + sprite.getSpriteResource().resourceName + ":" + sprite.getName();
+         return sprite.getSpriteResource().resourceName + ":" + sprite.getName();
       },
 
       /**
@@ -1005,18 +1017,8 @@ var LevelEditor = function() {
        * @private
        */
       getTileCanonicalName: function(tile) {
-         var loader = tile.getTileLoader(), loaderIdx = 0;
-
-         // Locate the sprite loader index
-         for (var l in LevelEditor.loaders.tile) {
-            if (loader === LevelEditor.loaders.tile) {
-               loaderIdx = l;
-               break;
-            }
-         }
-
          // Return the canonical name which contains the loader index, resource name, and sprite name
-         return loaderIdx + ":" + tile.getSpriteResource().resourceName + ":" + tile.getName();
+         return tile.getSpriteResource().resourceName + ":" + tile.getName();
       },
 
 
