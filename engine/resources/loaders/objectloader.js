@@ -66,8 +66,7 @@ R.resources.loaders.ObjectLoader = function(){
 		 * @param url {String} The URL where the resource is located
 		 */
 		load: function(name, url /*, obj */){
-		
-			if (!arguments[2]) {
+			if (arguments[2] === undefined) {
 				var loc = window.location;
 				if (url.indexOf(loc.protocol) != -1 && url.indexOf(loc.host) == -1) {
 					Assert(false, "Objects must be located on this server");
@@ -78,12 +77,17 @@ R.resources.loaders.ObjectLoader = function(){
 				// Get the file from the server
 				R.engine.Script.loadJSON(url, function(data){
 					// 2nd pass - store the object
-					thisObj.load(name, url, data);
+               if (data) {
+					   thisObj.load(name, url, data);
+               } else {
+                  R.debug.Console.error("File at '" + url + "' returned no data.");
+               }
 				});
 			}
 			else {
 				// The object has been loaded and is ready for use
-            this.afterLoad(name, this.base(name, url, arguments[2], true));
+            this.base(name, url, arguments[2], true);
+            this.afterLoad(name, arguments[2]);
 			}
 		},
 

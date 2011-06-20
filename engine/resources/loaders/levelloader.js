@@ -71,7 +71,7 @@ R.resources.loaders.LevelLoader = function(){
        */
       load: function(name, url /*, obj */){
          this.base(name, url, arguments[2]);
-         if (!arguments[2]) {
+         if (arguments[2] === undefined) {
             this.queuedLevels++;
          }
       },
@@ -84,55 +84,13 @@ R.resources.loaders.LevelLoader = function(){
          // and other things before this object is actually ready
          this.setReady(name, false);
 
-         // Create the level
-         var level = this.levels[name] = R.resources.types.Level.create(name, obj.width, obj.height);
-
-         // Pull together all of the resources
-         var loader;
-         for (var resType in obj.resourceURLs) {
-            if (resType === "sprite") {
-               loader = level.resourceLoaders.sprite[0];
-            } else if (resType === "tile") {
-               loader = level.resourceLoaders.tile[0];
-            } else {
-               loader = level.resourceLoaders.sound[0];
-            }
-            for (var res in obj.resourceURLs[resType]) {
-               for (var rName in obj.resourceURLs[resType][res]) {
-                  loader.load(rName, obj.resourceURLs[resType][res][rName]);
-               }
-            }
-         }
-
-         // Now that we've started the resource loading, we need to wait until
-         // all resources are loaded before we can finish loading the level
+         // Levels actually deserialize themselves, so we just wire to the level's "loaded" event
          var self = this;
-         R.lang.Timeout.create("waitForLevel", 250, function() {
-            if (level.resourceLoaders.sprite[0].isReady() &&
-                level.resourceLoaders.tile[0].isReady()) {
-               this.destroy();
-               self.finishLoading(level, obj);
-            } else {
-               this.restart();
-            }
+         this.levels[name] = R.resources.types.Level.deserialize(obj);
+         this.levels[name].addEvent(this, "loaded", function() {
+            self.queuedLevels--;
+            self.setReady(name, true);
          });
-      },
-
-      finishLoading: function(level, obj) {
-         // Deserialize the tile maps
-         for (var tilemap in obj.tilemaps) {
-            R.resources.types.TileMap.deserialize(obj.tilemaps[tilemap], level.resourceLoaders.tile,
-               level.getTileMap(tilemap));
-         }
-
-         // Deserialize the actors
-         for (var actor in obj.actors) {
-            var spriteActor = R.objects.SpriteActor.deserialize(obj.actors[actor], level.resourceLoaders.sprite);
-            level.addActor(spriteActor);
-         }
-
-         this.setReady(level.getName(), true);
-         this.queuedLevels--;
       },
 
 		/**

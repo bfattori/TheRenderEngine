@@ -194,9 +194,9 @@ R.engine.BaseObject = function(){
 				} else {
                // We want to be able to add event handlers to objects which don't
                // have an element associated with them as well
-               var listeners = this.eventListeners[type.toUpperCase];
+               var listeners = this.eventListeners[type.toUpperCase()];
                if (!listeners) {
-                  listeners = this.eventListeners[type.toUpperCase] = [];
+                  listeners = this.eventListeners[type.toUpperCase()] = [];
                }
 
                // Add the new listener
@@ -236,7 +236,7 @@ R.engine.BaseObject = function(){
 					// Remove the reference
 					delete this.events[ref.getName() + "," + type];
 				} else {
-               var listeners = this.eventListeners[type.toUpperCase];
+               var listeners = this.eventListeners[type.toUpperCase()];
                if (listeners) {
                   listeners = R.engine.Support.filter(listeners, function(e) {
                      return e.id !== id;
@@ -259,7 +259,7 @@ R.engine.BaseObject = function(){
          if (this.element) {
             this.jQ().trigger(eventName, data);
          } else {
-            var listeners = this.eventListeners[eventName.toUpperCase];
+            var listeners = this.eventListeners[eventName.toUpperCase()];
             if (listeners) {
                data = data || [];
 

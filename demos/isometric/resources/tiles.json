@@ -1,6 +1,5 @@
 {
 	"ground": {
-		// center: 92, 45
 		"grass": ["grass.png", [0, 0]],
 		"road_ns": ["road_ns.png", [0, 0]],
 		"road_ew": ["road_ew.png", [0, 0]],

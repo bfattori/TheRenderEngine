@@ -1,18 +1,18 @@
 {
-	"restitution": 0,				// Applied, globally, to all parts
-	"friction": 1.2,					// Same...
+	"restitution": 0,
+	"friction": 1.2,
 	"root": "torso",
 	"scale": 0.8,
 	"parts": [
 		{
 			"name": "head",
 			"type": "circle",
-			"radius": 31,				// Radius of circle body
-			"position": [210,0],		// In world coordinates
+			"radius": 31,
+			"position": [210,0],
 			"joint": {
 				"type": "revolute",
-				"linkFrom": "torso",	// First object in joint linkage will be "torso"
-				"anchor": [0,-60],	// Relative to the position of the "torso"
+				"linkFrom": "torso",
+				"anchor": [0,-60],
 				"minLim": -10,
 				"maxLim": 10
 			}
@@ -20,7 +20,7 @@
 		{
 			"name": "torso",
 			"type": "box",
-			"extents": [69,94],		// Extents (size) of box body
+			"extents": [69,94],
 			"position": [200,70]		
 		},
 		{

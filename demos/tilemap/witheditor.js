@@ -1,6 +1,6 @@
 /**
  * The Render Engine
- * TilemapDemo
+ * TilemapDemo - With Editor
  *
  * Demonstration of using The Render Engine.
  *
@@ -42,17 +42,25 @@ R.Engine.define({
       "R.rendercontexts.VirtualCanvasContext",
 
       // Resource loaders and types
+      "R.resources.loaders.SoundLoader",
+      "R.resources.loaders.SpriteLoader",
+      "R.resources.loaders.TileLoader",
       "R.resources.loaders.LevelLoader",
       "R.resources.types.Level",
       "R.resources.types.Sprite",
       "R.resources.types.Tile",
       "R.resources.types.TileMap",
 
+      "R.storage.PersistentStorage",
       "R.math.Math2D",
 
       // Game objects
       "R.objects.SpriteActor",
       "R.objects.Fixture"
+   ],
+
+   "includes": [
+      "/../tools/level_editor/level_editor.js"
    ],
 
    // Game class dependencies
@@ -73,7 +81,12 @@ var TilemapDemo = function() {
       centerPoint: null,
       areaScale: 1.0,
 
-      levelLoader: null,
+      fieldWidth: 800,
+      fieldHeight: 600,
+
+      spriteLoader: null,
+      tileLoader: null,
+
       level: null,
 
       /**
@@ -90,13 +103,28 @@ var TilemapDemo = function() {
        * the game to its running state.
        */
       setup: function() {
-         this.levelLoader = R.resources.loaders.LevelLoader.create();
-         this.levelLoader.load("level1", this.getFilePath("levels/play2.level"));
+         this.spriteLoader = R.resources.loaders.SpriteLoader.create();
+         this.tileLoader = R.resources.loaders.TileLoader.create();
 
-         // Attach to the "isready" event on the loader which is
-         // fired when all resources have been loaded
-         this.levelLoader.addEvent(this, "isready", function() {
-            TilemapDemo.run();
+         // Load the sprite resources
+         this.spriteLoader.load("sprites", this.getFilePath("resources/smbtiles.sprite"));
+
+         // Load the tile resources
+         this.tileLoader.load("sprites", this.getFilePath("resources/smbtiles.sprite"));
+         this.tileLoader.load("tiles", this.getFilePath("resources/floor.tile"));
+         this.tileLoader.load("fore", this.getFilePath("resources/pipes.tile"));
+         this.tileLoader.load("back", this.getFilePath("resources/pipes2.tile"));
+
+         // Wait for all resources to load
+         R.lang.Timeout.create("wait", 250, function() {
+            if (TilemapDemo.spriteLoader.isReady() &&
+                TilemapDemo.tileLoader.isReady()) {
+
+               this.destroy();
+               TilemapDemo.run();
+            } else {
+               this.restart();
+            }
          });
       },
 
@@ -115,8 +143,8 @@ var TilemapDemo = function() {
          R.Engine.getDefaultContext().add(this.renderContext);
          this.renderContext.setBackgroundColor("#000000");
 
-         // Attach the level to the render context which puts it in motion
-         this.levelLoader.getLevel("level1").setRenderContext(this.renderContext);
+         // Attach the level editor to the game
+         LevelEditor.edit(this, this.renderContext);
       },
 
       getRenderContext: function() {

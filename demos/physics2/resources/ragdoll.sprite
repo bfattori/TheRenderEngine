@@ -1,5 +1,4 @@
 {
-   // Ragdoll sprites
    "bitmapImage": "ragdoll.png",
    "bitmapSize": [264, 114],
    "version": 2,

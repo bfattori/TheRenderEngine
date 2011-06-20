@@ -3462,14 +3462,12 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 			data = null;
 		}
 		R.engine.Script.ajaxLoad(path, data, function(xhr, result) {
-			callback(xhr.responseText, xhr.status);
+         callback(xhr.responseText, xhr.status);
 		});
 	},
 	
 	/**
-	 * Load text from the specified path and parse it as JSON.  We're doing
-	 * a little pre-parsing of the returned data so that the JSON can include
-	 * comments which is not spec.
+	 * Load text from the specified path and parse it as JSON.
 	 *
 	 * @param path {String} The url to load
 	 * @param data {Object} Optional arguments to pass to server
@@ -3483,23 +3481,15 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 			data = null;
 		}
 		R.engine.Script.ajaxLoad(path, data, function(xhr, result) {
-			function clean(txt) {
-				var outbound = txt.replace(/(".*".*|)(\/\/.*$)/gm, function(str,t,c) {
-					return t;
-				});
-				return outbound.replace(/[\n\r\t]*/g,"");
-				//return outbound; //.replace(/\/\*(.|\n|\r)*?\*\//g, "");
-			}
-
 			var json = null;
-			try {
-				// Remove comments
-				var inbound = xhr.responseText;
-				if (inbound) {
-					var c = clean(inbound);
-					json = R.engine.Support.parseJSON(c);
-				}
-			} catch (ex) {}
+         if (result != 404) {
+            try {
+               // Remove comments
+               json = R.engine.Support.parseJSON(xhr.responseText);
+            } catch (ex) {
+               R.debug.Console.error("Error parsing JSON at '" + path + "'");
+            }
+         }
 			callback(json, xhr.status);
 		});
 	},

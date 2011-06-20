@@ -6,12 +6,12 @@
   "resourceURLs": {
     "sprites": [
       {
-        "sprites": "http://localhost:8010/demos/tilemap/resources/smbtiles.png"
+        "sprites": "http://localhost:8010/demos/tilemap/resources/smbtiles.sprite"
       }
     ],
     "tiles": [
       {
-        "tiles": "http://localhost:8010/demos/tilemap/resources/floor.png"
+        "tiles": "http://localhost:8010/demos/tilemap/resources/floor.tile"
       }
     ],
     "sounds": []

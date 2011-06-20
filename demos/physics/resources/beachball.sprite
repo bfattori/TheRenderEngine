@@ -1,5 +1,4 @@
 {
-	// Beachball sprites
    "bitmapImage": "beachball.png",
    "bitmapSize": [120,60],
 	"version": 2,
