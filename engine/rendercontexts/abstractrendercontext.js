@@ -36,7 +36,8 @@ R.Engine.define({
    "requires": [
       "R.struct.Container",
       "R.math.Math2D",
-      "R.engine.GameObject"
+      "R.engine.GameObject",
+      "R.struct.MouseInfo"
    ]
 });
 
@@ -535,16 +536,7 @@ R.rendercontexts.AbstractRenderContext = function() {
          var ctxData = ctx.getObjectDataModel(), mouseInfo = ctx.getObjectDataModel("mouseInfo");
 
          if (!mouseInfo) {
-            mouseInfo = ctx.setObjectDataModel("mouseInfo", {
-               position: R.math.Point2D.create(0, 0),
-               lastPosition: R.math.Point2D.create(0, 0),
-               downPosition: R.math.Point2D.create(0, 0),
-               button: R.engine.Events.MOUSE_NO_BUTTON,
-               moveVec: R.math.Vector2D.create(0, 0),
-               dragVec: R.math.Vector2D.create(0, 0),
-               lastOver: null,
-               moveTimer: null
-            });
+            mouseInfo = ctx.setObjectDataModel("mouseInfo", R.struct.MouseInfo.create());
 
             ctx.addEvent(ctx, "mousemove", function(evt) {
                if (mouseInfo.moveTimer != null) {

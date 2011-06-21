@@ -153,7 +153,7 @@ R.debug.HTML = R.debug.ConsoleRef.extend(/** @scope R.debug.HTML.prototype **/{
             "#debug-console { position: absolute; width: 400px; right: 10px; bottom: 5px; height: 98%; border: 1px solid; overflow: auto; " +
             "font-family: 'Lucida Console',Courier; font-size: 8pt; color: black; } " +
             "#debug-console .console-debug, #debug-console .console-info { background: white; } " +
-            "#debug-console .console-warn { font-style: italics; background: #00ffff; } " +
+            "#debug-console .console-warn { font-style: italic; background: #00ffff; } " +
             "#debug-console .console-error { color: red; background: yellow; font-weight: bold; } " +
             "</style>"
       );

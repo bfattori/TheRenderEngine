@@ -320,7 +320,7 @@ R.text.TextRenderer = function() {
     * The size of a text element, in pixels
     * @type {Number}
     */
-   BASE_TEXT_PIXELSIZE: 12
+   BASE_TEXT_PIXELSIZE: 1
 });
 
 };

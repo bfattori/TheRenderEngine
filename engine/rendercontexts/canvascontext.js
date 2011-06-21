@@ -541,7 +541,7 @@ R.rendercontexts.CanvasContext = function() {
       this.get2DContext().textBaseline = this.getFontBaseline();
       var metrics = this.get2DContext().measureText(text);
       // Scale the height a little to account for hanging chars
-      rect.set(0, 0, metrics.width, this.getFontSize() * 1.25);
+      rect.set(0, 0, metrics.width, parseFloat(this.getFontSize()) * 1.25);
       return rect;
    },
    

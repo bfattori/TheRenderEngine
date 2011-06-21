@@ -161,18 +161,18 @@ var FontTest = function() {
 			this.renderContext.add(bitmap3);
 			
 			// Context Render
-	      var context1 = R.text.TextRenderer.create(R.text.ContextText.create(), textStr, 1);
+	      var context1 = R.text.TextRenderer.create(R.text.ContextText.create(), textStr, 12);
 	      context1.setPosition(R.math.Point2D.create(10, 260));
 	      context1.setColor("#8888ff");
 	      this.renderContext.add(context1);
 
-	      var context2 = R.text.TextRenderer.create(R.text.ContextText.create(), textStr, 2);
+	      var context2 = R.text.TextRenderer.create(R.text.ContextText.create(), textStr, 24);
 	      context2.setPosition(R.math.Point2D.create(10, 288));
 			context2.setTextFont("Times New Roman");
 	      context2.setColor("#8888ff");
 	      this.renderContext.add(context2);
 
-	      var context3 = R.text.TextRenderer.create(R.text.ContextText.create(), textStr, 3);
+	      var context3 = R.text.TextRenderer.create(R.text.ContextText.create(), textStr, 36);
 	      context3.setPosition(R.math.Point2D.create(10, 320));
 			context3.setTextFont("Courier New");
 			context3.setTextWeight(R.rendercontexts.RenderContext2D.FONT_WEIGHT_BOLD);

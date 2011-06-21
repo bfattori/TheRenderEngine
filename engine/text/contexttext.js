@@ -85,13 +85,29 @@ R.text.ContextText = function(){
 		isNative: function(){
 			return true;
 		},
-		
+
+      setText: function(text) {
+         this.base(text);
+         this.calculateBoundingBox();
+      },
+
 		/**
 		 * Calculate the bounding box for the text and set it on the host object.
 		 * @private
 		 */
 		calculateBoundingBox: function(){
-			this.getGameObject().setBoundingBox(renderContext.getTextMetrics(this.getText()));
+         if (this.getGameObject().getRenderContext()) {
+            var ctx = this.getGameObject().getRenderContext();
+            ctx.pushTransform();
+            ctx.setFontStyle(this.getTextStyle());
+            ctx.setFontAlign(this.getTextAlignment());
+            ctx.setFontWeight(this.getTextWeight());
+            ctx.setFont(this.getTextFont());
+            ctx.setFontSize(Math.floor(this.getSize() * R.text.TextRenderer.BASE_TEXT_PIXELSIZE) || R.text.TextRenderer.BASE_TEXT_PIXELSIZE);
+
+			   this.getGameObject().setBoundingBox(ctx.getTextMetrics(this.getText()));
+            ctx.popTransform();
+         }
 		},
 		
 		/**

@@ -250,6 +250,7 @@ R.namespace("resources.types");
 R.namespace("sound");
 R.namespace("storage");
 R.namespace("text");
+R.namespace("ui");
 R.namespace("util");
 
 /**

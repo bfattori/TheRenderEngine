@@ -181,3 +181,21 @@ canvas.engine-profile {
    left: 120px;
    top: 50px;
 }
+
+.ui.default {
+   color: #000000;
+   background-color: #ffffff;
+   border: 1px #888888;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size: 12px;
+}
+
+.ui.inputcontrol {
+}
+
+.ui.buttoncontrol {
+   background-color: silver;
+   text-align: center;
+   width: 100px;
+   height: 24px;
+}

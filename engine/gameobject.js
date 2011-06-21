@@ -145,7 +145,6 @@ R.engine.GameObject = function(){
 		 * @param type {String} The event type to respond to
 		 * @param [data] {Array} Optional data to pass to the handler when it is invoked.
 		 * @param fn {Function} The function to trigger when the event fires
-		 */
 		addEvent: function(ref, type, data, fn) {
 			var target = this.getElement() ? this.getElement() : this.getRenderContext();
 			if (!target) {
@@ -163,7 +162,8 @@ R.engine.GameObject = function(){
 				}
 			}
 		},
-		
+       */
+
 		/**
 		 * Set the rendering context this object will be drawn within.  This method is
 		 * called when a host object is added to a rendering context.

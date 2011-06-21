@@ -40,21 +40,15 @@ R.Engine.define({
 });
 
 /**
- * @class An object which contains information about a collision.  The values of the
- *    collision data are read directly.
+ * @class An object which contains information about a ray.  The values of the
+ *    ray structure are read directly.
  *
- * @param o {Number} Overlap
- * @param n {R.math.Vector2D} The collision normal
- * @param s1 {R.engine.BaseObject} Collision object
- * @param i {R.math.Vector2D} Impact point
  * @param start {R.math.Point2D} The start point of the ray
- * @param end {R.math.Point2D} The end point of the ray
- * @param wt {Number} World time
- * @param dt {Number} Time since last frame redraw (delta time)
+ * @param dir {R.math.Vector2D} The direction vector
  *
  * @extends R.engine.PooledObject
  * @constructor
- * @description Creates a collision data structure.
+ * @description Creates a ray info data structure for ray casting.
  */
 R.struct.RayInfo = function() {
 	return R.engine.PooledObject.extend(/** @scope R.struct.RayInfo.prototype */{
@@ -176,7 +170,7 @@ R.struct.RayInfo = function() {
          this.data = data;
       }
 
-	}, {
+	}, /** @scope R.struct.RayInfo.prototype */{
       getClassName: function() {
          return "R.struct.RayInfo";
       }
