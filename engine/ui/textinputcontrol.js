@@ -217,6 +217,25 @@ R.ui.TextInputControl = function() {
       },
 
       /**
+       * Draw the input caret.
+       * @param renderContext {R.rendercontexts.RenderContext2D} The render context where the control is
+       *    drawn.
+       * @param worldTime {Number} The current world time, in milliseconds
+       * @param dt {Number} The time since the last frame was drawn by the engine, in milliseconds
+       */
+      drawCaret: function(renderContext, worldTime, dt) {
+         if (this.hasFocus()) {
+            var cPos = R.math.Point2D.create(this.calcWidth(this.text) + 4, 2),
+                cEnd = R.clone(cPos);
+            cEnd.y += this.calcHeight() - 4;
+            renderContext.setLineStyle(this.getTextRenderer().getTextColor());
+            renderContext.drawLine(cPos, cEnd);
+            cPos.destroy();
+            cEnd.destroy();
+         }
+      },
+
+      /**
        * Draw the input component within the
        * @param renderContext {R.rendercontexts.RenderContext2D} The render context where the control is
        *    drawn.
@@ -234,15 +253,7 @@ R.ui.TextInputControl = function() {
          renderContext.popTransform();
 
          // Draw the caret
-         if (this.hasFocus()) {
-            var cPos = R.math.Point2D.create(this.calcWidth(this.text) + 4, 2),
-                cEnd = R.clone(cPos);
-            cEnd.y += this.calcHeight() - 4;
-            renderContext.setLineStyle(this.getTextRenderer().getTextColor());
-            renderContext.drawLine(cPos, cEnd);
-            cPos.destroy();
-            cEnd.destroy();
-         }
+         this.drawCaret(renderContext, worldTime, dt);
       }
 
    }, /** @scope R.ui.TextInputControl.prototype */{
