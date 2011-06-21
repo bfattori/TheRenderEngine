@@ -63,6 +63,7 @@ R.ui.AbstractUIControl = function() {
       inControl: false,
       overControl: false,
       buttonDown: false,
+      groupName: null,
 
       /** @private */
       constructor: function(controlName, textRenderer) {
@@ -76,6 +77,7 @@ R.ui.AbstractUIControl = function() {
          this.inControl = false;
          this.overControl = false;
          this.buttonDown = false;
+         this.groupName = null;
       },
 
       /**
@@ -132,6 +134,38 @@ R.ui.AbstractUIControl = function() {
        */
       getTextRenderer: function() {
          return this.textRenderer;
+      },
+
+      /**
+       * Set the control's group name.
+       * @param groupName {String} The name of the control's group
+       */
+      setGroup: function(groupName) {
+         if (this.groupName != null) {
+            // Remove it from its old group
+            R.engine.Support.arrayRemove(R.ui.AbstractUIControl.groups[this.groupName], this);
+         }
+
+         this.groupName = groupName;
+         if (!R.ui.AbstractUIControl.groups[this.groupName]) {
+            // Create the group if it doesn't exist
+            R.ui.AbstractUIControl.groups[this.groupName] = [];
+         }
+
+         // Add this control to the group
+         R.ui.AbstractUIControl.groups[this.groupName].push(this);
+      },
+
+      /**
+       * Get the group of controls which are in this control's group.
+       * @return {Array}
+       */
+      getGroup: function() {
+         if (this.groupName) {
+            return R.ui.AbstractUIControl.groups[this.groupName];
+         } else {
+            return null;
+         }
       },
 
       /**
@@ -376,6 +410,12 @@ R.ui.AbstractUIControl = function() {
       }
 
    }, /** @scope R.ui.AbstractUIControl.prototype */{
+
+      /**
+       * A list of grouped controls
+       * @private
+       */
+      groups: {},
 
       /**
        * Get the class name of this object

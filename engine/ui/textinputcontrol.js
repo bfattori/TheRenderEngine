@@ -158,12 +158,24 @@ R.ui.TextInputControl = function() {
       },
 
       /**
+       * @private
+       */
+      mask: function(str) {
+         var m = "";
+         for (var s = 0; s < str.length; s++) {
+            m += this.passwordChar;
+         }
+         return m;
+      },
+
+      /**
        * Set the value of the input control.
        * @param text {String} Text
        */
       setText: function(text) {
-         this.text = this.password ? text.replace(/.*/, this.passwordChar) : text;
+         this.text = this.password ? this.mask(text) : text;
          this.passwordText = this.password ? text : "";
+         this.getTextRenderer().setText(this.text);
       },
 
       /**

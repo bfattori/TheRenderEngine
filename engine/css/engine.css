@@ -199,3 +199,10 @@ canvas.engine-profile {
    width: 100px;
    height: 24px;
 }
+
+.ui.checkboxcontrol,
+.ui.radiocontrol {
+   color: #555;
+   width: 16px;
+   height: 16px;
+}

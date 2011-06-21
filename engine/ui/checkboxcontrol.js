@@ -1,8 +1,8 @@
 /**
  * The Render Engine
- * ButtonControl
+ * CheckboxControl
  *
- * @fileoverview A button control.
+ * @fileoverview A check box control.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  *
@@ -33,38 +33,29 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.ui.ButtonControl",
+   "class": "R.ui.CheckboxControl",
    "requires": [
       "R.ui.AbstractUIControl"
    ]
 });
 
 /**
- * @class UI button control.
+ * @class UI checkbox control.
  *
  * @constructor
- * @param text {String} The text to display on the button.
+ * @param [checked] {Boolean} Whether the checkbox is checked, or not.
  * @extends R.ui.AbstractUIControl
  */
-R.ui.ButtonControl = function() {
-   return R.ui.AbstractUIControl.extend(/** @scope R.ui.ButtonControl.prototype */{
+R.ui.CheckboxControl = function() {
+   return R.ui.AbstractUIControl.extend(/** @scope R.ui.CheckboxControl.prototype */{
 
-      text: null,
-      isDown: false,
+      checked: false,
 
       /** @private */
-      constructor: function(text, textRenderer) {
-         this.base("Button", textRenderer);
-         this.addClass("buttoncontrol");
-         this.text = text || this.getId();
-         this.isDown = false;
-      },
-
-      /**
-       * Destroy the text input control, releasing its event handlers.
-       */
-      destroy: function() {
-         this.base();
+      constructor: function(checked) {
+         this.base("Checkbox");
+         this.addClass("checkboxcontrol");
+         this.checked = checked || false;
       },
 
       /**
@@ -73,41 +64,34 @@ R.ui.ButtonControl = function() {
        */
       release: function() {
          this.base();
-         this.text = "";
+         this.checked = false;
       },
 
       /**
-       * Set the value of the input control.
-       * @param text {String} Text
+       * Respond to a "click" action on the checkbox.
+       * @param mouseInfo {R.struct.MouseInfo} A mouse info structure
        */
-      setText: function(text) {
-         this.text = text;
+      click: function(mouseInfo) {
+         this.setChecked(!this.isChecked());
+         this.base(mouseInfo);
       },
 
       /**
-       * Get the value of the input control.
+       * Set the "checked" state of the control.  Triggers the "change"
+       * event on the control.
+       * @param state {Boolean} <code>true</code> to mark the control as "checked"
+       */
+      setChecked: function(state) {
+         this.checked = state;
+         this.triggerEvent("change");
+      },
+
+      /**
+       * Get the "checked" state of the control.
        * @return {String}
        */
-      getText: function() {
-         return this.text;
-      },
-
-      /**
-       * Calculate and return the width of the control in pixels.
-       * @return {Number}
-       */
-      calcWidth: function(str) {
-         this.getTextRenderer().setText(this.text);
-         return this.getBoundingBox().w;
-      },
-
-      /**
-       * Calculate and return the height of the control in pixels.
-       * @return {Number}
-       */
-      calcHeight: function() {
-         this.getTextRenderer().setText(this.text);
-         return this.getBoundingBox().h;
+      isChecked: function() {
+         return this.checked;
       },
 
       /**
@@ -118,29 +102,36 @@ R.ui.ButtonControl = function() {
        * @param dt {Number} The time since the last frame was drawn by the engine, in milliseconds
        */
       drawControl: function(renderContext, worldTime, dt) {
-         // Draw the current input text.  The text baseline is the bottom of the font,
-         // so we need to move that down by the height of the control (with some padding to look right)
-         renderContext.pushTransform();
-         var rect = R.math.Rectangle2D.create(0,0,this.calcWidth(),this.calcHeight()),
-             center = rect.getCenter(), tCent = this.getTextRenderer().getBoundingBox().getCenter();
-         center.x -= tCent.x;
-         center.y += tCent.y / 2;
-         renderContext.setPosition(center);
-         this.getTextRenderer().update(renderContext, worldTime, dt);
-         rect.destroy();
-         center.destroy();
-         tCent.destroy();
-         renderContext.popTransform();
+         // Draw a check mark if the control is "checked"
+         if (this.checked) {
+            renderContext.pushTransform();
+            renderContext.setLineWidth(2);
+            var bBox = this.getBoundingBox(), topLeft = R.clone(bBox.getTopLeft()),
+               topRight = R.clone(bBox.getTopLeft()), bottomRight = R.clone(bBox.getBottomRight()),
+               bottomLeft = R.clone(bBox.getTopLeft());
+            renderContext.setLineStyle(this.getTextRenderer().getTextColor());
+            topLeft.x += 2; topLeft.y += 2;
+            bottomRight.x -= 2; bottomRight.y -= 2;
+            renderContext.drawLine(topLeft, bottomRight);
+            topRight.x += bBox.w - 2; topRight.y += 2;
+            bottomLeft.y += bBox.h - 2; bottomLeft.x += 2;
+            renderContext.drawLine(topRight, bottomLeft);
+            topRight.destroy();
+            bottomLeft.destroy();
+            topLeft.destroy();
+            bottomRight.destroy();
+            renderContext.popTransform();
+         }
       }
 
-   }, /** @scope R.ui.ButtonControl.prototype */{
+   }, /** @scope R.ui.CheckboxControl.prototype */{
 
       /**
        * Get the class name of this object
-       * @return {String} The string "R.ui.ButtonControl"
+       * @return {String} The string "R.ui.CheckboxControl"
        */
       getClassName: function() {
-         return "R.ui.ButtonControl";
+         return "R.ui.CheckboxControl";
       }
    });
 

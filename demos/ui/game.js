@@ -37,8 +37,12 @@ R.Engine.define({
 	"requires": [
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext",
+      "R.text.TextRenderer",
+      "R.text.ContextText",
       "R.ui.TextInputControl",
       "R.ui.ButtonControl",
+      "R.ui.CheckboxControl",
+      "R.ui.RadioControl",
       "R.math.Math2D"
 	]
 });
@@ -64,28 +68,107 @@ var UITest = function() {
 	      this.renderContext.setBackgroundColor("#333333");
          R.Engine.getDefaultContext().add(this.renderContext);
 
-         // Add the text input control
+/*
+         this.renderContext.jQ().css({
+            position: "absolute",
+            left: (R.Engine.getDefaultContext().jQ().width() - this.renderContext.jQ().width()) / 2,
+            border: "1px solid gray",
+            zIndex: 20
+         });
+*/
+
+         // Draw the form controls
+         this.drawForm();
+      },
+
+      drawForm: function() {
+         // Add some text input controls
+         var label = R.text.TextRenderer.create(R.text.ContextText.create(), "Type something:", 12);
+         label.setPosition(10, 21);
+         label.setTextColor("white");
+         this.renderContext.add(label);
+
          var input = R.ui.TextInputControl.create(20, 30);
-         input.setPosition(10, 10);
+         input.setPosition(105, 10);
          this.renderContext.add(input);
+         input.setText("Some text");
+
+         label = R.text.TextRenderer.create(R.text.ContextText.create(), "Type more:", 12);
+         label.setPosition(40, 55);
+         label.setTextColor("white");
+         this.renderContext.add(label);
 
          var input2 = R.ui.TextInputControl.create(20, 30);
          input2.addClass("bigger");
-         input2.setPosition(10, 40);
+         input2.setPosition(105, 40);
          this.renderContext.add(input2);
+         input2.setText("More text");
 
-         var input3 = R.ui.TextInputControl.create(20, 30);
+         label = R.text.TextRenderer.create(R.text.ContextText.create(), "Password:", 12);
+         label.setPosition(40, 105);
+         label.setTextColor("white");
+         this.renderContext.add(label);
+
+         var input3 = R.ui.TextInputControl.create(15, 15);
          input3.addClass("biggerAgain");
-         input3.setPosition(10, 90);
+         input3.setPosition(105, 90);
          input3.setPassword(true);
          this.renderContext.add(input3);
+         input3.setText("p4ssw0rD!");
 
+         // Add a check box control
+         label = R.text.TextRenderer.create(R.text.ContextText.create(), "Is this cool?", 12);
+         label.setPosition(30, 142);
+         label.setTextColor("white");
+         this.renderContext.add(label);
+
+         var checkbox = R.ui.CheckboxControl.create(true);
+         checkbox.setPosition(105, 130);
+         this.renderContext.add(checkbox);
+
+         // Add a radio group
+         var radio1 = R.ui.RadioControl.create("group1", "me", true);
+         radio1.setPosition(10,160);
+         this.renderContext.add(radio1);
+
+         label = R.text.TextRenderer.create(R.text.ContextText.create(), "Me", 12);
+         label.setPosition(30, 172);
+         label.setTextColor("white");
+         this.renderContext.add(label);
+
+         var radio2 = R.ui.RadioControl.create("group1", "you");
+         radio2.setPosition(70,160);
+         this.renderContext.add(radio2);
+
+         label = R.text.TextRenderer.create(R.text.ContextText.create(), "You", 12);
+         label.setPosition(90, 172);
+         label.setTextColor("white");
+         this.renderContext.add(label);
+
+         var radio3 = R.ui.RadioControl.create("group1", "them");
+         radio3.setPosition(140,160);
+         this.renderContext.add(radio3);
+
+         label = R.text.TextRenderer.create(R.text.ContextText.create(), "Them", 12);
+         label.setPosition(160, 172);
+         label.setTextColor("white");
+         this.renderContext.add(label);
+
+         // Add a button so we can alert the values
          var button = R.ui.ButtonControl.create("Click Me");
-         button.setPosition(10, 140);
+         button.setPosition(10, 200);
+         button.addEvent(this, "mouseover", function() {
+            this.addClass("mouseover");
+         });
+         button.addEvent(this, "mouseout", function() {
+            this.removeClass("mouseover");
+         });
          this.renderContext.add(button);
 
+         // When the button is clicked, show the values
          button.addEvent(this, "click", function() {
-            alert("input: " + input.getText() + "\ninput2: " + input2.getText() + "\ninput3: " + input3.getText());
+            alert("input 1: " + input.getText() + "\ninput 2: " + input2.getText() + "\npassword: " + input3.getText() +
+               "\ncool: " + checkbox.isChecked() + "\nwho: " + radio1.getGroupValue());
          });
       },
 
