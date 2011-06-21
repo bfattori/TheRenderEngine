@@ -91,7 +91,7 @@ var TilemapDemo = function() {
        */
       setup: function() {
          this.levelLoader = R.resources.loaders.LevelLoader.create();
-         this.levelLoader.load("level1", this.getFilePath("levels/play2.level"));
+         this.levelLoader.load("level1", this.getFilePath("levels/play.level"));
 
          // Attach to the "isready" event on the loader which is
          // fired when all resources have been loaded
@@ -113,7 +113,7 @@ var TilemapDemo = function() {
          this.renderContext = R.rendercontexts.VirtualCanvasContext.create("playfield", 800, 600, 3200, 3200);
          this.renderContext.setWorldScale(this.areaScale);
          R.Engine.getDefaultContext().add(this.renderContext);
-         this.renderContext.setBackgroundColor("#000000");
+         this.renderContext.setBackgroundColor("#4444ff");
 
          // Attach the level to the render context which puts it in motion
          this.levelLoader.getLevel("level1").setRenderContext(this.renderContext);

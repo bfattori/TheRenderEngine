@@ -206,7 +206,7 @@ R.getClassForName = function(className) {
       }
       return c;
    } catch (ex) {
-      throw new ReferenceError("Invalid or unknown class name '" + classname + "'");
+      return undefined;
    }
 };
 
@@ -2519,6 +2519,8 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
    /** @private */
    shutdownCallbacks: [],		// Methods to call when the engine is shutting down
 
+   $GAME: null,               // Reference to the game object
+
    // Issue #18 - Intrinsic loading dialog
    loadingCSS: "<style type='text/css'>div.loadbox {width:325px;height:30px;padding:10px;font:10px Arial;border:1px outset gray;-moz-border-radius:10px;-webkit-border-radius:10px} #engine-load-progress { position:relative;border:1px inset gray;width:300px;height:5px} #engine-load-progress .bar {background:silver;}</style>",
 
@@ -2724,6 +2726,14 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
    setDefaultContext: function(defaultContext) {
    	Assert(defaultContext instanceof R.rendercontexts.AbstractRenderContext, "Setting default engine context to object which is not a render context!");
    	R.Engine.defaultContext = defaultContext;
+   },
+
+   /**
+    * Get the game object that has been loaded by the engine.  The game object isn't valid until the game is loaded.
+    * @return {R.engine.Game}
+    */
+   getGame: function() {
+      return R.Engine.$GAME;
    },
 
    /**
@@ -3762,8 +3772,6 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
       });
 
       // We'll wait for the Engine to be ready before we load the game
-      var engine = R.engine.Engine;
-	
 		// Load engine options for browsers
 		R.engine.Script.loadEngineOptions();
 
@@ -3793,17 +3801,20 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             // Start the game when it's ready
             if (gameObjectName) {
                R.engine.Script.gameRunTimer = setInterval(function() {
-                  if (typeof window[gameObjectName] != "undefined" &&
-                        window[gameObjectName].setup) {
+                  var gameObj = R.getClassForName(gameObjectName);
+                  if (gameObj !== undefined && gameObj.setup) {
                      clearInterval(R.engine.Script.gameRunTimer);
 
                      R.debug.Console.warn("Starting: " + gameObjectName);
                      
                      // Remove the "loading" message (if we provided it)
                      $("#loading.intrinsic").remove();
-                     
+
+                     // Store the game object when it's ready
+                     R.Engine.$GAME = gameObj;
+
                      // Start the game
-                     window[gameObjectName].setup(R.engine.Script.gameOptionsObject);
+                     gameObj.setup(R.engine.Script.gameOptionsObject);
                   }
                }, 100);
             }

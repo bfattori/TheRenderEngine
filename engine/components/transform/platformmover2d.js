@@ -99,6 +99,22 @@ R.components.transform.PlatformMover2D = function() {
                                   tileMap.getBaseTile().getBoundingBox().h);
       },
 
+      getTileMap: function() {
+         return this.tileMap;
+      },
+
+      getTileSize: function() {
+         return this.tileSize;
+      },
+
+      getMoveVector: function() {
+         return this.moveVec;
+      },
+
+      setMoveVector: function(ptOrX, y) {
+         this.moveVec.set(ptOrX, y);
+      },
+
       getGravity: function() {
          return this.gravity;
       },

@@ -102,7 +102,7 @@ R.resources.loaders.SpriteLoader = function(){
 		load: function(name, url /*, info, path */){
 			if (!arguments[2]) {
 				var loc = window.location;
-				if (url.indexOf(loc.protocol) != -1 && url.indexOf(loc.host) == -1) {
+				if (url.indexOf(loc.protocol) != -1 && url.indexOf(loc.hostname) == -1) {
 					Assert(false, "Sprites must be located on this server");
 				}
 				

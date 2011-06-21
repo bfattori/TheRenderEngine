@@ -111,6 +111,10 @@ R.objects.SpriteActor = function(){
          this.getComponent("move").setTileMap(tileMap);
       },
 
+      getTileMap: function() {
+         return this.getComponent("move").getTileMap();
+      },
+
 		/**
 		 * Get a properties object for this sprite actor
 		 * @return {Object}
@@ -136,10 +140,18 @@ R.objects.SpriteActor = function(){
 			});
 		},
 
+      /**
+       * Check to see if this actor is affected by gravity.
+       * @return {Boolean}
+       */
       getGravityFlag: function() {
          return !this.getComponent("move").getGravity().isZero();
       },
 
+      /**
+       * Set a flag indicating that this actor is affected by gravity.
+       * @param state {Boolean} <code>true</code> to enable gravity on this actor
+       */
       setGravityFlag: function(state) {
          if (state) {
             // TODO: Make this a "level property"
@@ -274,6 +286,7 @@ R.objects.SpriteActor = function(){
 				"onInit": "script",
 				"onDestroy": "script",
 				"onCollide": "script",
+            "onCollideWorld": "script",
 				"onVisibility": "script",
 				"onBeforeUpdate": "script",
 				"onAfterUpdate": "script"
@@ -298,7 +311,31 @@ R.objects.SpriteActor = function(){
 			this.callScriptedEvent("onBeforeUpdate", ["worldTime", "delta"], [time, dt]);
 			this.base(renderContext, time, dt);
 			this.callScriptedEvent("onAfterUpdate", ["worldTime", "delta"], [time, dt]);
-			
+
+         var bBox = this.getBoundingBox(), pos = R.clone(this.getPosition()), moveVec = this.getComponent("move").getMoveVector(),
+             testPt = R.clone(bBox.getCenter()).add(pos), mNormal = R.clone(moveVec).normalize(), rayInfo,
+             dir = R.math.Vector2D.create(0,0);
+
+         // If movement along the X coordinate isn't zero, we want to test for collisions along the axis.
+         // We'll cast a ray in the direction of movement, one tile width long, from the center of the
+         // bounding box (yes, this looks familiar for a reason...)
+         if (moveVec.x != 0) {
+            // We want to cast a ray along the X axis of movement
+            testPt.setX(testPt.x + (bBox.getHalfWidth() * mNormal.x));
+            dir.set(moveVec.x, 0).normalize().mul(this.getComponent("move").getTileSize());
+            rayInfo = R.struct.RayInfo.create(testPt, dir);
+
+            R.resources.types.TileMap.castRay(this.getTileMap(), rayInfo, renderContext);
+
+            // There's something in the direction of horizontal movement, call the scripted action for "onCollideWorld"
+            if (rayInfo.shape) {
+               var dist = R.math.Vector2D.create(rayInfo.impactPoint).sub(testPt).len(),
+                   cResult = this.callScriptedEvent("onCollideWorld", ["tile", "impactPoint", "distance", "worldTime", "delta"], [rayInfo.shape, rayInfo.impactPoint, dist, time, dt]);
+            }
+
+            rayInfo.destroy();
+         }
+
 			if (this.editing) {
 				renderContext.setLineStyle("white");
 				renderContext.setLineWidth(2);
@@ -391,8 +428,61 @@ R.objects.SpriteActor = function(){
 			// We may want to do something here...
 			
 			return cResult;
-		}
-		
+		},
+
+      // ---------------------------------------------------------------------
+      // Methods intended to be called from scripted actions
+      
+      moveLeft: function(speed) {
+         this.setMoveVector(-speed, 0);
+      },
+
+      moveRight: function(speed) {
+         this.setMoveVector(speed, 0);
+      },
+
+      getSpeedX: function() {
+         return this.getMoveVector().x;
+      },
+
+      getSpeedY: function() {
+         return this.getMoveVector().y;
+      },
+
+      changeDirection: function() {
+         this.getMoveVector().neg();
+      },
+
+      flipRenderX: function() {
+         this.setScale(this.getScaleX() * -1, this.getScaleY() * 1);
+      },
+
+      flipRenderY: function() {
+         this.setScale(this.getScaleX() * 1, this.getScaleY() * -1);
+      },
+
+      lastMVec: null,
+
+      stop: function() {
+         this.lastMVec = R.clone(this.getMoveVector());
+         this.setMoveVector(0,0);
+      },
+
+      go: function() {
+         if (this.lastMVec) {
+            this.setMoveVector(this.lastMVec);
+            this.lastMVec.destroy();
+         }
+      },
+
+      getMoveVector: function() {
+         return this.getComponent("move").getMoveVector();
+      },
+
+      setMoveVector: function(ptOrX, y) {
+         this.getComponent("move").setMoveVector(ptOrX, y);
+      }
+
 	}, /** @scope R.objects.SpriteActor.prototype */{ 
 		/**
 		 * Get the class name of this object

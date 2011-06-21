@@ -468,8 +468,6 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
       });
 
       // We'll wait for the Engine to be ready before we load the game
-      var engine = R.engine.Engine;
-	
 		// Load engine options for browsers
 		R.engine.Script.loadEngineOptions();
 
@@ -499,17 +497,20 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             // Start the game when it's ready
             if (gameObjectName) {
                R.engine.Script.gameRunTimer = setInterval(function() {
-                  if (typeof window[gameObjectName] != "undefined" &&
-                        window[gameObjectName].setup) {
+                  var gameObj = R.getClassForName(gameObjectName);
+                  if (gameObj !== undefined && gameObj.setup) {
                      clearInterval(R.engine.Script.gameRunTimer);
 
                      R.debug.Console.warn("Starting: " + gameObjectName);
                      
                      // Remove the "loading" message (if we provided it)
                      $("#loading.intrinsic").remove();
-                     
+
+                     // Store the game object when it's ready
+                     R.Engine.$GAME = gameObj;
+
                      // Start the game
-                     window[gameObjectName].setup(R.engine.Script.gameOptionsObject);
+                     gameObj.setup(R.engine.Script.gameOptionsObject);
                   }
                }, 100);
             }

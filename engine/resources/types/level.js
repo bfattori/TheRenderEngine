@@ -371,7 +371,7 @@ R.resources.types.Level = function(){
             }
             for (var res in obj.resourceURLs[resType]) {
                for (var rName in obj.resourceURLs[resType][res]) {
-                  loader.load(rName, obj.resourceURLs[resType][res][rName]);
+                  loader.load(rName, R.Engine.getGame().getFilePath(obj.resourceURLs[resType][res][rName]));
                }
             }
          }
@@ -415,4 +415,4 @@ R.resources.types.Level = function(){
       }
 	});
 	
-}
+};

@@ -68,7 +68,7 @@ R.resources.loaders.ObjectLoader = function(){
 		load: function(name, url /*, obj */){
 			if (arguments[2] === undefined) {
 				var loc = window.location;
-				if (url.indexOf(loc.protocol) != -1 && url.indexOf(loc.host) == -1) {
+				if (url.indexOf(loc.protocol) != -1 && url.indexOf(loc.hostname) == -1) {
 					Assert(false, "Objects must be located on this server");
 				}
 				

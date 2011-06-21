@@ -106,6 +106,8 @@ R.resources.loaders.RemoteLoader = function(){
        * @param url {String} The URL where the resource is located
        */
       setPathUrl: function(name, url) {
+         // If the URL contains the game host or path, remove that
+         url = url.replace(R.Engine.getGame().getGamePath(), "");
          this.pathUrls[name] = url;
       },
 

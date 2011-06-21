@@ -755,7 +755,7 @@ var LevelEditor = function() {
                   var sprites = loader.getSpriteNames(resources[r]);
                   for (var s in sprites) {
                      LevelEditor.allSprites.push({
-                        lookup: l + ":" + resources[r] + ":" + sprites[s],
+                        lookup: resources[r] + ":" + sprites[s],
                         sprite: resources[r] + ": " + sprites[s]
                      });
                   }
@@ -786,7 +786,7 @@ var LevelEditor = function() {
                   var tiles = loader.getSpriteNames(resources[r]);
                   for (var t in tiles) {
                      LevelEditor.allTiles.push({
-                        lookup: l + ":" + resources[r] + ":" + tiles[t],
+                        lookup: resources[r] + ":" + tiles[t],
                         tile: resources[r] + ": " + tiles[t]
                      });
                   }

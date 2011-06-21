@@ -119,6 +119,8 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
    /** @private */
    shutdownCallbacks: [],		// Methods to call when the engine is shutting down
 
+   $GAME: null,               // Reference to the game object
+
    // Issue #18 - Intrinsic loading dialog
    loadingCSS: "<style type='text/css'>div.loadbox {width:325px;height:30px;padding:10px;font:10px Arial;border:1px outset gray;-moz-border-radius:10px;-webkit-border-radius:10px} #engine-load-progress { position:relative;border:1px inset gray;width:300px;height:5px} #engine-load-progress .bar {background:silver;}</style>",
 
@@ -324,6 +326,14 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
    setDefaultContext: function(defaultContext) {
    	Assert(defaultContext instanceof R.rendercontexts.AbstractRenderContext, "Setting default engine context to object which is not a render context!");
    	R.Engine.defaultContext = defaultContext;
+   },
+
+   /**
+    * Get the game object that has been loaded by the engine.  The game object isn't valid until the game is loaded.
+    * @return {R.engine.Game}
+    */
+   getGame: function() {
+      return R.Engine.$GAME;
    },
 
    /**

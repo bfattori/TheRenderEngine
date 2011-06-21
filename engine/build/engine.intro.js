@@ -206,7 +206,7 @@ R.getClassForName = function(className) {
       }
       return c;
    } catch (ex) {
-      throw new ReferenceError("Invalid or unknown class name '" + classname + "'");
+      return undefined;
    }
 };
 
