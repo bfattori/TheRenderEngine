@@ -78,7 +78,7 @@ R.physics.Simulation = function() {
          this.worldAABB = new Box2D.Collision.b2AABB();
 
          // Get the maximum dimension for the viewport and determine the number of pixels per meter
-         this.scale = Math.max(viewport.w, viewport.h) / R.physics.Simulation.WORLD_METERS;
+         this.scale = 10; //Math.max(viewport.w, viewport.h) / R.physics.Simulation.WORLD_METERS;
 
          this.doSleep = true;
          this.integrations = R.physics.Simulation.DEFAULT_INTEGRATIONS;
@@ -310,7 +310,6 @@ R.physics.Simulation = function() {
        */
       addSimpleCircleBody: function(pos, radius, properties) {
          properties = $.extend({ isStatic: true }, properties);
-         ;
 
          var bodyDef = R.physics.Simulation.BODY_DEF,
                fixDef = R.physics.Simulation.FIXTURE_DEF;
@@ -375,7 +374,7 @@ R.physics.Simulation = function() {
        * The number of meters across the world in either dimension.
        * @type {Number}
        */
-      WORLD_METERS: 100
+      WORLD_METERS: 50
 
    });
 };

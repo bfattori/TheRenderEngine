@@ -1,8 +1,7 @@
-Text Rendering Demo
+User Interface Demo
 -------------------
 
-The text rendering demo is intended to show how to use the various text rendering objects of The Render Engine.  It demonstrates:
+The UI demo is intended to demonstrate the creation of UI controls in a graphical context and field grouping.  The demo includes:
 
-* The vector text component
-* The bitmap text component & loading bit mapped fonts
-* The context-native text component
+* UI controls
+* Field groups

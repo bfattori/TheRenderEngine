@@ -285,7 +285,7 @@ R.objects.PhysicsActor = function() {
 				// Make sure to execute the render component immediately following
 				// the body component.
 				var pt = R.math.Point2D.create(nextComponent.getLocalOrigin());
-				pt.mul(1/nextComponent.getScale());
+				//pt.mul(1/nextComponent.getScale());
 				pt.neg();
 				renderContext.setPosition(pt);
 				
