@@ -182,6 +182,31 @@ R.ui.RadioControl = function() {
             bBox.destroy();
             renderContext.popTransform();
          }
+      },
+
+      /**
+       * Returns a bean which represents the read or read/write properties
+       * of the object.
+       *
+       * @return {Object} The properties object
+       */
+      getProperties: function(){
+         var self = this;
+         var prop = this.base(self);
+         return $.extend(prop, {
+            "Value": [function() {
+               return self.getValue();
+            }, function(i) {
+               self.setValue(i);
+            }, true],
+            "Checked": [function() {
+               return self.isChecked();
+            }, {
+               "toggle": true,
+               "fn": function(s) {
+                  self.setChecked(s); }
+               }, true]
+         });
       }
 
    }, /** @scope R.ui.RadioControl.prototype */{
@@ -192,6 +217,34 @@ R.ui.RadioControl = function() {
        */
       getClassName: function() {
          return "R.ui.RadioControl";
+      },
+
+      /**
+       * Get a properties object with values for the given object.
+       * @param obj {R.ui.RadioControl} The radio control to query
+       * @param [defaults] {Object} Default values that don't need to be serialized unless
+       *    they are different.
+       * @return {Object}
+       */
+      serialize: function(obj, defaults) {
+         // Defaults for object properties which can be skipped if no different
+         defaults = defaults || [];
+         $.extend(defaults, {
+            "Checked":false
+         });
+         return R.ui.AbstractUIControl.serialize(obj, defaults);
+      },
+
+      /**
+       * Deserialize the object back into a radio control.
+       * @param obj {Object} The object to deserialize
+       * @param [clazz] {Class} The object class to populate
+       * @return {R.ui.RadioControl} The object which was deserialized
+       */
+      deserialize: function(obj, clazz) {
+         clazz = clazz || R.ui.RadioControl.create();
+         R.ui.AbstractUIControl.deserialize(obj, clazz);
+         return clazz;
       }
    });
 

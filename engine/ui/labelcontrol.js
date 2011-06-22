@@ -1,8 +1,8 @@
 /**
  * The Render Engine
- * ButtonControl
+ * LabelControl
  *
- * @fileoverview A button control.
+ * @fileoverview A label control.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  *
@@ -33,31 +33,32 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.ui.ButtonControl",
+   "class": "R.ui.LabelControl",
    "requires": [
       "R.ui.AbstractUIControl"
    ]
 });
 
 /**
- * @class UI button control.
+ * @class UI label control.
  *
  * @constructor
- * @param text {String} The text to display on the button.
+ * @param text {String} The text to display for the button.
+ * @param [forControl] {R.ui.AbstractUIControl} The control the label will set focus to if clicked
  * @extends R.ui.AbstractUIControl
  */
-R.ui.ButtonControl = function() {
-   return R.ui.AbstractUIControl.extend(/** @scope R.ui.ButtonControl.prototype */{
+R.ui.LabelControl = function() {
+   return R.ui.AbstractUIControl.extend(/** @scope R.ui.LabelControl.prototype */{
 
       text: null,
-      isDown: false,
+      forControl: false,
 
       /** @private */
-      constructor: function(text, textRenderer) {
-         this.base("Button", textRenderer);
-         this.addClass("buttoncontrol");
-         this.text = text || this.getId();
-         this.isDown = false;
+      constructor: function(text, forControl, textRenderer) {
+         this.base("Label", textRenderer);
+         this.addClass("labelcontrol");
+         this.text = text || "";
+         this.forControl = forControl;
       },
 
       /**
@@ -74,10 +75,11 @@ R.ui.ButtonControl = function() {
       release: function() {
          this.base();
          this.text = "";
+         this.forControl = null;
       },
 
       /**
-       * Set the value of the input control.
+       * Set the text of this label control.
        * @param text {String} Text
        */
       setText: function(text) {
@@ -85,7 +87,7 @@ R.ui.ButtonControl = function() {
       },
 
       /**
-       * Get the value of the input control.
+       * Get the text of this label control.
        * @return {String}
        */
       getText: function() {
@@ -93,21 +95,34 @@ R.ui.ButtonControl = function() {
       },
 
       /**
-       * Calculate and return the width of the control in pixels.
-       * @return {Number}
+       * Link the label to a UI control.  When the label is clicked, the UI control will
+       * receive focus.
+       * @param uiControl {R.ui.AbstractUIControl} The control to link to
        */
-      calcWidth: function(str) {
-         this.getTextRenderer().setText(this.text);
-         return this.getBoundingBox().w;
+      linkTo: function(uiControl) {
+         Assert(uiControl == null || uiControl instanceof R.ui.AbstractUIControl, "Labels can only be linked to UI controls");
+         this.forControl = uiControl;
       },
 
       /**
-       * Calculate and return the height of the control in pixels.
-       * @return {Number}
+       * Get the UI control this label is linked to.
+       * @return {R.ui.AbstractUIControl} The UI control, or <code>null</code>
        */
-      calcHeight: function() {
-         this.getTextRenderer().setText(this.text);
-         return this.getBoundingBox().h;
+      getLinkTo: function() {
+         return this.forControl;
+      },
+
+      /**
+       * Called when a mouse button is pressed, then released on the control.  Triggers the
+       * "click" event, passing the <code>R.struct.MouseInfo</code> structure.
+       *
+       * @param mouseInfo {R.struct.MouseInfo} The mouse info structure
+       */
+      click: function(mouseInfo) {
+         this.base(mouseInfo);
+         if (this.forControl != null) {
+            this.forControl.click(mouseInfo);
+         }
       },
 
       /**
@@ -118,18 +133,15 @@ R.ui.ButtonControl = function() {
        * @param dt {Number} The time since the last frame was drawn by the engine, in milliseconds
        */
       drawControl: function(renderContext, worldTime, dt) {
-         // Draw the current input text.  The text baseline is the bottom of the font,
+         this.getTextRenderer().setText(this.text);
+         
+         // Draw the current label text.  The text baseline is the bottom of the font,
          // so we need to move that down by the height of the control (with some padding to look right)
          renderContext.pushTransform();
-         var rect = R.math.Rectangle2D.create(0,0,this.calcWidth(),this.calcHeight()),
-             center = rect.getCenter(), tCent = this.getTextRenderer().getBoundingBox().getCenter();
-         center.x -= tCent.x;
-         center.y += tCent.y / 2;
-         renderContext.setPosition(center);
+         var pt = R.math.Point2D.create(0,this.calcHeight() - 2);
+         renderContext.setPosition(pt);
          this.getTextRenderer().update(renderContext, worldTime, dt);
-         rect.destroy();
-         center.destroy();
-         tCent.destroy();
+         pt.destroy();
          renderContext.popTransform();
       },
 
@@ -147,39 +159,50 @@ R.ui.ButtonControl = function() {
                return self.getText();
             }, function(i) {
                self.setText(i);
+            }, true],
+            "ForControl": [function() {
+               return self.getLinkTo() != null ? self.getLinkTo().getControlName() : "";
+            }, function(i) {
+               // TODO: need to figure out how to do this...
+               //self.linkTo(i);
             }, true]
          });
       }
 
-   }, /** @scope R.ui.ButtonControl.prototype */{
+   }, /** @scope R.ui.LabelControl.prototype */{
 
       /**
        * Get the class name of this object
-       * @return {String} The string "R.ui.ButtonControl"
+       * @return {String} The string "R.ui.LabelControl"
        */
       getClassName: function() {
-         return "R.ui.ButtonControl";
+         return "R.ui.LabelControl";
       },
 
       /**
        * Get a properties object with values for the given object.
-       * @param obj {R.ui.ButtonControl} The button control to query
+       * @param obj {R.ui.LabelControl} The label control to query
        * @param [defaults] {Object} Default values that don't need to be serialized unless
        *    they are different.
        * @return {Object}
        */
       serialize: function(obj, defaults) {
+         // Defaults for object properties which can be skipped if no different
+         defaults = defaults || [];
+         $.extend(defaults, {
+            "ForControl":""
+         });
          return R.ui.AbstractUIControl.serialize(obj, defaults);
       },
 
       /**
-       * Deserialize the object back into a button control.
+       * Deserialize the object back into a label control.
        * @param obj {Object} The object to deserialize
        * @param [clazz] {Class} The object class to populate
-       * @return {R.ui.ButtonControl} The object which was deserialized
+       * @return {R.ui.LabelControl} The object which was deserialized
        */
       deserialize: function(obj, clazz) {
-         clazz = clazz || R.ui.ButtonControl.create();
+         clazz = clazz || R.ui.LabelControl.create();
          R.ui.AbstractUIControl.deserialize(obj, clazz);
          return clazz;
       }

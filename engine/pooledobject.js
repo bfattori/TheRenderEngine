@@ -369,6 +369,7 @@ R.engine.PooledObject =  Base.extend(/** @scope R.engine.PooledObject.prototype 
             }
          }
       }
+      propObj.CLASSNAME = obj.constructor.getClassName();
       return propObj;
    },
 
@@ -379,6 +380,9 @@ R.engine.PooledObject =  Base.extend(/** @scope R.engine.PooledObject.prototype 
     * @return {R.engine.PooledObject} The object which was deserialized
     */
    deserialize: function(obj, clazz) {
+      // We'll remove the CLASSNAME field because we're not currently using it
+      delete obj.CLASSNAME;
+
       clazz = clazz || R.engine.PooledObject.create(obj.name);
       var bean = clazz.getProperties();
       for (var p in obj) {

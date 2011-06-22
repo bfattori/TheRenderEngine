@@ -55,7 +55,7 @@ R.ui.CheckboxControl = function() {
       constructor: function(checked) {
          this.base("Checkbox");
          this.addClass("checkboxcontrol");
-         this.checked = checked || false;
+         this.setChecked(checked || false);
       },
 
       /**
@@ -122,6 +122,26 @@ R.ui.CheckboxControl = function() {
             bottomRight.destroy();
             renderContext.popTransform();
          }
+      },
+
+      /**
+       * Returns a bean which represents the read or read/write properties
+       * of the object.
+       *
+       * @return {Object} The properties object
+       */
+      getProperties: function(){
+         var self = this;
+         var prop = this.base(self);
+         return $.extend(prop, {
+            "Checked": [function() {
+               return self.isChecked();
+            }, {
+               "toggle": true,
+               "fn": function(s) {
+                  self.setChecked(s); }
+               }, true]
+         });
       }
 
    }, /** @scope R.ui.CheckboxControl.prototype */{
@@ -132,6 +152,34 @@ R.ui.CheckboxControl = function() {
        */
       getClassName: function() {
          return "R.ui.CheckboxControl";
+      },
+
+      /**
+       * Get a properties object with values for the given object.
+       * @param obj {R.ui.CheckboxControl} The checkbox control to query
+       * @param [defaults] {Object} Default values that don't need to be serialized unless
+       *    they are different.
+       * @return {Object}
+       */
+      serialize: function(obj, defaults) {
+         // Defaults for object properties which can be skipped if no different
+         defaults = defaults || [];
+         $.extend(defaults, {
+            "Checked":false
+         });
+         return R.ui.AbstractUIControl.serialize(obj, defaults);
+      },
+
+      /**
+       * Deserialize the object back into a checkbox control.
+       * @param obj {Object} The object to deserialize
+       * @param [clazz] {Class} The object class to populate
+       * @return {R.ui.CheckboxControl} The object which was deserialized
+       */
+      deserialize: function(obj, clazz) {
+         clazz = clazz || R.ui.CheckboxControl.create();
+         R.ui.AbstractUIControl.deserialize(obj, clazz);
+         return clazz;
       }
    });
 

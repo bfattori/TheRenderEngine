@@ -67,8 +67,7 @@ R.engine.GameObject = function(){
 		renderContext: null,
 		dirtyFlag: false,
 		oldDirty: false,
-		deferredEvents: null,
-		
+
 		prePostComponents: null,
 		
 		/** @private */
@@ -76,8 +75,8 @@ R.engine.GameObject = function(){
 			this.base(name);
 			this.dirtyFlag = true;
 			this.oldDirty = false;
-			this.deferredEvents = [];
 			this.prePostComponents = [];
+         this.renderContext = null;
 		},
 		
 		/**
@@ -88,7 +87,6 @@ R.engine.GameObject = function(){
 			this.renderContext = null;
 			this.dirtyFlag = false;
 			this.oldDirty = false;
-			this.deferredEvents = null;
 			this.prePostComponents = null;
 		},
 		
@@ -137,34 +135,6 @@ R.engine.GameObject = function(){
 		},
 		
 		/**
-		 * Adds an event to the host object.  If the host object has a representative DOM element,
-		 * the event will be added to the element.  Otherwise, the event will be assigned to the
-		 * host's render context.
-		 * 
-		 * @param ref {Object} The object reference which is assigning the event
-		 * @param type {String} The event type to respond to
-		 * @param [data] {Array} Optional data to pass to the handler when it is invoked.
-		 * @param fn {Function} The function to trigger when the event fires
-		addEvent: function(ref, type, data, fn) {
-			var target = this.getElement() ? this.getElement() : this.getRenderContext();
-			if (!target) {
-				this.deferredEvents.push({
-					dRef: ref,
-					dType: type,
-					dData: data,
-					dFn: fn
-				});
-			} else {
-				if (target == this.getElement()) {
-					this.base(ref, type, data, fn);
-				} else {
-					this.getRenderContext().addEvent(ref, type, data, fn);
-				}
-			}
-		},
-       */
-
-		/**
 		 * Set the rendering context this object will be drawn within.  This method is
 		 * called when a host object is added to a rendering context.
 		 *
@@ -172,14 +142,13 @@ R.engine.GameObject = function(){
 		 */
 		setRenderContext: function(renderContext){
 			this.renderContext = renderContext;
-			
-			while(this.deferredEvents.length > 0) {
-				// Assign any deferred events
-				var e = this.deferredEvents.shift();
-				this.addEvent(e.dRef, e.dType, e.dData, e.dFn);
-			}
-			
 			this.markDirty();
+
+         if (this.afterAdd) {
+            // If the object being added to the render context has
+            // an "afterAdd" method, call it
+            this.afterAdd(renderContext);
+         }
 		},
 		
 		/**

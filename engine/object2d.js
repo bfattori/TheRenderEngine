@@ -523,11 +523,12 @@ R.engine.Object2D = function(){
 			return this.zIndex;
 		},
 		
-		/**
-		 * When editing objects, this method returns an object which
-		 * contains the properties with their getter and setter methods.
-		 * @return {Object} The properties object
-		 */
+      /**
+       * Returns a bean which represents the read or read/write properties
+       * of the object.
+       *
+       * @return {Object} The properties object
+       */
 		getProperties: function(){
 			var self = this;
 			var prop = this.base(self);
@@ -605,7 +606,7 @@ R.engine.Object2D = function(){
             "Action":""
          });
          var propObj = R.engine.PooledObject.serialize(obj, defaults);
-         if (obj.getDefaultTransformComponent().getName() !== "dTxfm__") {
+         if (obj.getDefaultTransformComponent().getName() !== "DTXFM__") {
             // They assigned a different transform component, make sure to export it
             propObj.DTXFM_COMP = obj.getDefaultTransformComponent().constructor.getClassName();
             propObj.DTXFM_NAME = obj.getDefaultTransformComponent().getName();

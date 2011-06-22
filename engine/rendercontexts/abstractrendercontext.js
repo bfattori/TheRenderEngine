@@ -325,19 +325,14 @@ R.rendercontexts.AbstractRenderContext = function() {
        */
       add: function(obj) {
          this.base(obj);
+
+         // Create a structure to hold information that is related to
+         // the render context that keeps it separate from the rest of the object.
+         obj.setObjectDataModel(R.rendercontexts.AbstractRenderContext.DATA_MODEL, {});
+
          if (obj instanceof R.engine.GameObject) {
             obj.setRenderContext(this);
             this.sort();
-         }
-
-            // Create a structure to hold information that is related to
-            // the render context that keeps it separate from the rest of the object.
-            obj.setObjectDataModel(R.rendercontexts.AbstractRenderContext.DATA_MODEL, {});
-
-         if (obj.afterAdd) {
-            // If the object being added to the render context has
-            // an "afterAdd" method, call it (canvas uses this for IE emulation)
-            obj.afterAdd(this);
          }
       },
 

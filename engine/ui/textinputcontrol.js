@@ -58,6 +58,8 @@ R.ui.TextInputControl = function() {
       password: false,
       passwordChar: null,
       passwordText: null,
+      blinkTime: 0,
+      blink: false,
 
       /** @private */
       constructor: function(size, maxLength, textRenderer) {
@@ -68,6 +70,8 @@ R.ui.TextInputControl = function() {
          this.password = false;
          this.passwordChar = "*";
          this.passwordText = "";
+         this.blinkTime = 0;
+         this.blink = false;
 
          // We want to add events to capture key presses
          // when the control has focus
@@ -192,7 +196,7 @@ R.ui.TextInputControl = function() {
        */
       calcWidth: function(str) {
          var old = this.getTextRenderer().getText();
-         if (!str) {
+         if (str === undefined) {
             str = "";
             for (var s = 0; s < this.size; s++) {
                str += "W";
@@ -225,13 +229,19 @@ R.ui.TextInputControl = function() {
        */
       drawCaret: function(renderContext, worldTime, dt) {
          if (this.hasFocus()) {
-            var cPos = R.math.Point2D.create(this.calcWidth(this.text) + 4, 2),
-                cEnd = R.clone(cPos);
-            cEnd.y += this.calcHeight() - 4;
-            renderContext.setLineStyle(this.getTextRenderer().getTextColor());
-            renderContext.drawLine(cPos, cEnd);
-            cPos.destroy();
-            cEnd.destroy();
+            if (worldTime > this.blinkTime) {
+               this.blink = !this.blink;
+               this.blinkTime = worldTime + 500;
+            }
+            if (this.blink) {
+               var cPos = R.math.Point2D.create(this.calcWidth(this.text) + 4, 2),
+                   cEnd = R.clone(cPos);
+               cEnd.y += this.calcHeight() - 4;
+               renderContext.setLineStyle(this.getTextRenderer().getTextColor());
+               renderContext.drawLine(cPos, cEnd);
+               cPos.destroy();
+               cEnd.destroy();
+            }
          }
       },
 
@@ -254,6 +264,41 @@ R.ui.TextInputControl = function() {
 
          // Draw the caret
          this.drawCaret(renderContext, worldTime, dt);
+      },
+
+      /**
+       * Returns a bean which represents the read or read/write properties
+       * of the object.
+       *
+       * @return {Object} The properties object
+       */
+      getProperties: function(){
+         var self = this;
+         var prop = this.base(self);
+         return $.extend(prop, {
+            "Size": [function(){
+               return self.size;
+            }, function(i){
+               self.setSize(parseInt(i));
+            }, true],
+            "MaxLength": [function() {
+               return self.maxLength;
+            }, function(i) {
+               self.setMaxLength(parseInt(i));
+            }, true],
+            "IsPassword": [function() {
+               return self.password;
+            }, {
+               "toggle": true,
+               "fn": function(s) {
+                  self.setPassword(s); }
+               }, true],
+            "Text": [function() {
+               return self.getText();
+            }, function(i) {
+               self.setText(i);
+            }, true]
+         });
       }
 
    }, /** @scope R.ui.TextInputControl.prototype */{
@@ -264,6 +309,37 @@ R.ui.TextInputControl = function() {
        */
       getClassName: function() {
          return "R.ui.TextInputControl";
+      },
+
+      /**
+       * Get a properties object with values for the given object.
+       * @param obj {R.ui.TextInputControl} The text input control to query
+       * @param [defaults] {Object} Default values that don't need to be serialized unless
+       *    they are different.
+       * @return {Object}
+       */
+      serialize: function(obj, defaults) {
+         // Defaults for object properties which can be skipped if no different
+         defaults = defaults || [];
+         $.extend(defaults, {
+            "Text":"",
+            "MaxLength":0,
+            "IsPassword":false,
+            "Size":10
+         });
+         return R.ui.AbstractUIControl.serialize(obj, defaults);
+      },
+
+      /**
+       * Deserialize the object back into a text input control.
+       * @param obj {Object} The object to deserialize
+       * @param [clazz] {Class} The object class to populate
+       * @return {R.ui.TextInputControl} The object which was deserialized
+       */
+      deserialize: function(obj, clazz) {
+         clazz = clazz || R.ui.TextInputControl.create();
+         R.ui.AbstractUIControl.deserialize(obj, clazz);
+         return clazz;
       }
    });
 

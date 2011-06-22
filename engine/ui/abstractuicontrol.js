@@ -64,6 +64,7 @@ R.ui.AbstractUIControl = function() {
       overControl: false,
       buttonDown: false,
       groupName: null,
+      uiName: null,
 
       /** @private */
       constructor: function(controlName, textRenderer) {
@@ -77,7 +78,8 @@ R.ui.AbstractUIControl = function() {
          this.inControl = false;
          this.overControl = false;
          this.buttonDown = false;
-         this.groupName = null;
+         this.groupName = "";
+         this.uiName = this.getId();
       },
 
       /**
@@ -127,7 +129,7 @@ R.ui.AbstractUIControl = function() {
       removeClass: function(cssClass) {
          this.elem.removeClass(cssClass);
       },
-      
+
       /**
        * Get a reference to the text renderer for the control.
        * @return {R.text.TextRenderer}
@@ -137,8 +139,26 @@ R.ui.AbstractUIControl = function() {
       },
 
       /**
+       * Set the name of the UI control which uniquely identifies it among other
+       * UI controls.
+       * @param uiName {String} The name of the control
+       */
+      setControlName: function(uiName) {
+         this.uiName = uiName;
+      },
+
+      /**
+       * Get the unique name of this UI control.
+       * @return {String}
+       */
+      getControlName: function() {
+         return this.uiName;
+      },
+
+      /**
        * Set the control's group name.
-       * @param groupName {String} The name of the control's group
+       * @param groupName {String} The name of the control's group, or an empty string to clear the
+       *    group.
        */
       setGroup: function(groupName) {
          if (this.groupName != null) {
@@ -146,6 +166,11 @@ R.ui.AbstractUIControl = function() {
             R.engine.Support.arrayRemove(R.ui.AbstractUIControl.groups[this.groupName], this);
          }
 
+         // If group name is null or the empty string, just exit here
+         if (groupName == "") {
+            return;
+         }
+         
          this.groupName = groupName;
          if (!R.ui.AbstractUIControl.groups[this.groupName]) {
             // Create the group if it doesn't exist
@@ -154,6 +179,15 @@ R.ui.AbstractUIControl = function() {
 
          // Add this control to the group
          R.ui.AbstractUIControl.groups[this.groupName].push(this);
+      },
+
+      /**
+       * Returns the name of the group this UI control belongs to.  Returns an
+       * empty string if this control isn't part of a group.
+       * @return {String}
+       */
+      getGroupName: function() {
+         return this.groupName;
       },
 
       /**
@@ -194,7 +228,7 @@ R.ui.AbstractUIControl = function() {
        * @return {Number}
        */
       calcWidth: function() {
-         return 1;
+         return this.getTextRenderer().getBoundingBox().w;
       },
 
       /**
@@ -202,7 +236,7 @@ R.ui.AbstractUIControl = function() {
        * @return {Number}
        */
       calcHeight: function() {
-         return 1;
+         return this.getTextRenderer().getBoundingBox().h;
       },
 
       /**
@@ -324,10 +358,6 @@ R.ui.AbstractUIControl = function() {
        * @param mouseInfo {R.struct.MouseInfo} The mouse info structure
        */
       mouseDown: function(mouseInfo) {
-         if (!this.hasFocus()) {
-            this.setFocus(true);
-         }
-         
          this.triggerEvent("mousedown", [mouseInfo]);
       },
 
@@ -348,6 +378,9 @@ R.ui.AbstractUIControl = function() {
        * @param mouseInfo {R.struct.MouseInfo} The mouse info structure
        */
       click: function(mouseInfo) {
+         if (!this.hasFocus()) {
+            this.setFocus(true);
+         }
          this.triggerEvent("click", [mouseInfo]);
       },
 
@@ -407,6 +440,29 @@ R.ui.AbstractUIControl = function() {
                this.setFocus(false);
             }
          }
+      },
+
+      /**
+       * Returns a bean which represents the read or read/write properties
+       * of the object.
+       *
+       * @return {Object} The properties object
+       */
+      getProperties: function(){
+         var self = this;
+         var prop = this.base(self);
+         return $.extend(prop, {
+            "ControlName": [function() {
+               return self.getControlName();
+            }, function(i) {
+               self.setControlName(i);
+            }, true],
+            "GroupName": [function(){
+               return self.getGroupName();
+            }, function(i){
+               self.setGroup(i);
+            }, true]
+         });
       }
 
    }, /** @scope R.ui.AbstractUIControl.prototype */{
@@ -423,7 +479,36 @@ R.ui.AbstractUIControl = function() {
        */
       getClassName: function() {
          return "R.ui.AbstractUIControl";
+      },
+
+      /**
+       * Get a properties object with values for the given object.
+       * @param obj {R.ui.AbstractUIControl} The UI control to query
+       * @param [defaults] {Object} Default values that don't need to be serialized unless
+       *    they are different.
+       * @return {Object}
+       */
+      serialize: function(obj, defaults) {
+         // Defaults for object properties which can be skipped if no different
+         defaults = defaults || [];
+         $.extend(defaults, {
+            "GroupName":""
+         });
+         return R.engine.Object2D.serialize(obj, defaults);
+      },
+
+      /**
+       * Deserialize the object back into a UI control.
+       * @param obj {Object} The object to deserialize
+       * @param [clazz] {Class} The object class to populate
+       * @return {R.ui.AbstractUIControl} The object which was deserialized
+       */
+      deserialize: function(obj, clazz) {
+         clazz = clazz || R.ui.AbstractUIControl.create("UIControl");
+         R.engine.Object2D.deserialize(obj, clazz);
+         return clazz;
       }
+
    });
 
 };

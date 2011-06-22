@@ -206,3 +206,15 @@ canvas.engine-profile {
    width: 16px;
    height: 16px;
 }
+
+.ui.labelcontrol {
+   color: #fff;
+   background-color: transparent;
+   border: 1px transparent;
+   font-weight: bold;
+}
+
+.ui.fieldgroup {
+   background-color: transparent;
+   color: white;
+}
