@@ -154,10 +154,6 @@ R.resources.types.TileMap = function() {
          Assert(this.baseTile == null || (tbb.w % this.baseTile.getBoundingBox().w == 0 && tbb.w % this.baseTile.getBoundingBox().w == 0),
                "Tiles in a TileMap must be the same size!");
 
-         //if (this.tilemap[x + y * this.width] != null) {
-         //   this.tilemap[x + y * this.width].destroy();
-         //}
-
          this.tilemap[x + y * this.width] = tile;
          if (!this.baseTile) {
             this.baseTile = tile;
@@ -255,20 +251,21 @@ R.resources.types.TileMap = function() {
             return;
          }
 
-         if (!this.isHTMLContext || (!this.initialRender && this.isHTMLContext)) {
 
-            var tile, t, rect = R.math.Rectangle2D.create(0,0,1,1), wp = renderContext.getWorldPosition(),
-                tileWidth = this.baseTile.getBoundingBox().w, tileHeight = this.baseTile.getBoundingBox().h;
+         var tile, t, rect = R.math.Rectangle2D.create(0,0,1,1), wp = renderContext.getWorldPosition(),
+             tileWidth = this.baseTile.getBoundingBox().w, tileHeight = this.baseTile.getBoundingBox().h;
 
-            var topLeft = R.clone(wp);
-            topLeft.convolve(this.parallax);
-            topLeft.sub(wp);
+         var topLeft = R.clone(wp);
+         topLeft.convolve(this.parallax);
+         topLeft.sub(wp);
 
-            // Render out all of the tiles
-            for (t = 0; t < this.tilemap.length; t++) {
-               tile = this.tilemap[t];
-               if (!tile)
-                  continue;
+         // Render out all of the tiles
+         for (t = 0; t < this.tilemap.length; t++) {
+            tile = this.tilemap[t];
+            if (!tile)
+               continue;
+
+            if (!this.isHTMLContext || ((tile.isAnimation() || !this.initialRender) && this.isHTMLContext)) {
 
                var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
                rect.set(x - wp.x, y - wp.y, tileWidth, tileHeight);
@@ -279,14 +276,26 @@ R.resources.types.TileMap = function() {
                if (!rect.isIntersecting(renderContext.getViewport()))
                   continue;
 
-               var f = tile.getFrame(time);
-               renderContext.drawImage(rect, tile.getSourceImage(), f);
-               f.destroy();
+               var f = tile.getFrame(time),
+                   obj = renderContext.drawImage(rect, tile.getSourceImage(), f,
+                     (tile.isAnimation() ? tile : null));
 
-               rect.destroy();
+               if (this.isHTMLContext && !tile.getElement()) {
+                  // In an HTML context, set the element for the tile so animated tiles
+                  // can be updated
+                  // TODO: Maybe we should have a loop that is JUST animated tiles when in an HTML context?
+                  tile.setElement(obj);
+               }
+
+               f.destroy();
             }
-            this.initialRender = true;
+
          }
+
+         rect.destroy();
+         topLeft.destroy();
+
+         this.initialRender = true;
       },
 
       /**
@@ -555,12 +564,21 @@ R.resources.types.TileMap = function() {
                ptr += parseInt(map[tile].split(":")[1]);
             } else {
                // Populate tiles
+               var tileDesc = map[tile].split(":"), resource = tileDesc[0],
+                   tileName = tileDesc[1], qty = parseInt(tileDesc[2]);
+
                var t = findTile(resource, tileName);
                if (t != null && clazz.baseTile == null) {
                   clazz.baseTile = t;
                }
-               var tileDesc = map[tile].split(":"), resource = tileDesc[0], tileName = tileDesc[1], qty = parseInt(tileDesc[2]);
+
                for (var c = 0; c < qty; c++) {
+                  // We want to clone animated tiles.  Static tiles can all
+                  // refer to the same tile to save memory
+                  if (t && t.isAnimation()) {
+                     t = R.clone(t);
+                  }
+
                   clazz.tilemap[ptr++] = t;
                }
             }

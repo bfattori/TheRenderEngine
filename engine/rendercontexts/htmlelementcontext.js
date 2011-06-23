@@ -474,12 +474,14 @@ R.rendercontexts.HTMLElementContext = function(){
 			var sD = srcRect ? srcRect : rect;
 			ref = (!srcRect.__RECTANGLE2D ? srcRect : ref);
 			
-			// The reference object is a game object which
-			// will give us a reference to the HTML element which we can then
-			// just modify the displayed image for.  If no ref was provided,
-         // create a new image.
+			// The reference object is an object that should
+			// have a reference to an HTML element which we can
+			// just modify the displayed image for.
+			// If no ref is provided, create a new element.
          var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<div>");
 
+         // TODO: Maybe we shouldn't merge transform??
+         this.setPosition(R.math.Point2D.ZERO);
          var css = this._mergeTransform(ref, {
             backgroundImage: "url(" + image.src + ")",
             backgroundPosition: -sD.x + "px " + -sD.y + "px",

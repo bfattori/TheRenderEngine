@@ -145,7 +145,7 @@ R.engine.BaseObject = function(){
 		 * @return {jQuery} A jQuery object
 		 */
 		jQ: function(){
-			if (this.jQObject === undefined) {
+			if (!this.jQObject) {
             this.jQObject = this.element ? $(this.element) : null;
 			}
          return this.jQObject;

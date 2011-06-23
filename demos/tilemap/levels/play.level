@@ -12,6 +12,9 @@
     "tiles": [
       {
         "tiles": "resources/floor.tile"
+      },
+      {
+        "sprites": "resources/smbtiles.sprite"
       }
     ],
     "sounds": []
@@ -76,9 +79,9 @@
       },
       "map": [
         "e:901",
-        "tiles:steel:2",
+        "sprites:q_block:2",
         "e:18",
-        "tiles:steel:2",
+        "sprites:q_block:2",
         "e:78",
         "tiles:steel:2",
         "e:18",
@@ -104,9 +107,11 @@
         "e:18",
         "tiles:steel:2",
         "e:77",
-        "tiles:steel:3",
+        "tiles:rivets:1",
+        "tiles:steel:2",
         "e:18",
-        "tiles:steel:3",
+        "tiles:steel:2",
+        "tiles:rivets:1",
         "e:76",
         "tiles:steel:24",
         "e:76",
