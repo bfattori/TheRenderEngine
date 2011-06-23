@@ -123,6 +123,7 @@ var PhysicsDemo = function() {
          //R.Engine.setDebugMode(true);
 
          // Create the game context
+         //this.renderContext = R.rendercontexts.HTMLDivContext.create("Playfield", 800, 460);
          this.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 800, 460);
          this.renderContext.setBackgroundColor("#FFFFFF");
          this.renderContext.captureMouse();

@@ -33,6 +33,7 @@ R.Engine.define({
    "class": "Toy",
    "requires": [
       "R.components.render.Sprite",
+      "R.components.render.DOM",
       "R.components.Collider",
       "R.objects.PhysicsActor",
       "R.math.Math2D"
@@ -64,6 +65,14 @@ var Toy = function() {
          this.base("PhysicsToy");
          this.sprite = null;
          this.renderScale = (R.lang.Math2.random() * 1) + 0.8;
+
+         // We need an element to render to when using the DOM context
+         this.setElement($("<div>"));
+
+         // We also need the DOM render component.  This is what
+         // causes the transformations to be updated each frame
+         // for a DOM object.
+         this.add(R.components.render.DOM.create("draw"));
 
          // The simulation is used to update the position and rotation
          // of the physical body.  Whereas the render context is used to

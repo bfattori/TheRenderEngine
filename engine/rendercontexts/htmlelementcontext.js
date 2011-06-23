@@ -79,7 +79,7 @@ R.rendercontexts.HTMLElementContext = function(){
 			this.setViewport(R.math.Rectangle2D.create(0, 0, this.jQ().width(), this.jQ().height()));
 			this.checkTransformSupport();
 			
-			// Temporary points to use in calculations so we don't have to create and destroy them
+			// Temporary points to use in calculations
 			this.tmpP1 = R.math.Point2D.create(0,0);
 			this.tmpP2 = R.math.Point2D.create(0,0);
 			this.tmpP3 = R.math.Point2D.create(0,0);
@@ -211,7 +211,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		 */
 		serializeTransform: function(){
 			return {
-				pos: this.cursorPos,
+				pos: R.clone(this.cursorPos),
 				txfm: this.txfm,
 				stroke: this.getLineStyle(),
 				sWidth: this.getLineWidth(),
@@ -226,7 +226,8 @@ R.rendercontexts.HTMLElementContext = function(){
 		 */
 		deserializeTransform: function(transform){
 			this.txfm = transform.txfm;
-			this.setPosition(transform.pos);
+			this.cursorPos = transform.pos;
+         transform.pos.destroy();
 			this.setLineStyle(transform.stroke);
 			this.setLineWidth(transform.sWidth);
 			this.setFillStyle(transform.fill);
@@ -267,11 +268,11 @@ R.rendercontexts.HTMLElementContext = function(){
 		 * @param point {R.math.Point2D} The translation
 		 */
 		setPosition: function(point){
-			this.cursorPos.set(point);
+			this.cursorPos.add(point);
 			if (this.hasTxfm) {
-				this.txfm[0] = "translate(" + point.x + "px," + point.y + "px)";
+				this.txfm[0] = "translate(" + this.cursorPos.x + "px," + this.cursorPos.y + "px)";
 			}
-			this.base(point);
+			this.base(this.cursorPos);
 		},
 		
 		/**
@@ -330,14 +331,14 @@ R.rendercontexts.HTMLElementContext = function(){
 		 * @private
 		 */
 		_mergeTransform: function(ref, css){
-			if (this.hasTxfm) {
+			if (this.hasTxfm && this.txfm[0]) {
 				css[this.txfmBrowser] = this.txfm[0] + " " +
 				(ref && ref.getRotation() != 0 ? this.txfm[1] + " " : "") +
 				(ref && ref.getScale().len() != 1 ? this.txfm[2] : "");
 			}
 			else {
-				css.top = this.cursorPos.y;
-				css.left = this.cursorPos.x;
+				css.top = css.top || this.cursorPos.y;
+				css.left = css.left || this.cursorPos.x;
 			}
 			
 			return css;
@@ -350,7 +351,12 @@ R.rendercontexts.HTMLElementContext = function(){
        * @private
        */
       _createElement: function(element) {
-         var e = $(element);
+         var e = $(element).css({
+            position: "absolute",
+            display: "block",
+            left: 0,
+            top: 0
+         });
          this.jQ().append(e);
          return e;
       },
@@ -361,6 +367,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		 *
 		 * @param rect {R.math.Rectangle2D} The rectangle to draw
 		 * @param ref {R.engine.GameObject} A reference game object
+       * @return {HTMLElement} The element added to the DOM
 		 */
 		drawRectangle: function(rect, ref){
 			var rD = rect.getDims(),
@@ -375,6 +382,8 @@ R.rendercontexts.HTMLElementContext = function(){
 				height: rD.h,
 				position: "absolute"
 			}));
+
+         return obj;
 		},
 		
 		/**
@@ -383,6 +392,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		 *
 		 * @param rect {R.math.Rectangle2D} The rectangle to draw
        * @param ref {R.engine.GameObject} A reference game object
+       * @return {HTMLElement} The element added to the DOM
 		 */
 		drawFilledRectangle: function(rect, ref){
 			var rD = rect.getDims(),
@@ -398,6 +408,8 @@ R.rendercontexts.HTMLElementContext = function(){
 				height: rD.h,
 				position: "absolute"
 			}));
+
+         return obj;
 		},
 		
 		/**
@@ -406,9 +418,10 @@ R.rendercontexts.HTMLElementContext = function(){
 		 *
 		 * @param point {R.math.Point2D} The position to draw the point
        * @param ref {R.engine.GameObject} A reference game object
+       * @return {HTMLElement} The element added to the DOM
 		 */
 		drawPoint: function(point, ref){
-			this.drawFilledRectangle(R.math.Rectangle2D.create(point.x, point.y, 1, 1), ref);
+			return this.drawFilledRectangle(R.math.Rectangle2D.create(point.x, point.y, 1, 1), ref);
 		},
 		
 		/**
@@ -420,6 +433,7 @@ R.rendercontexts.HTMLElementContext = function(){
        * @param dt {Number} The delta between the world time and the last time the world was updated
        *          in milliseconds.
 		 * @param ref {R.math.HostObject} A reference game object
+       * @return {HTMLElement} The element added to the DOM
 		 */
 		drawSprite: function(sprite, time, dt, ref){
 			var f = sprite.getFrame(time, dt);
@@ -428,7 +442,7 @@ R.rendercontexts.HTMLElementContext = function(){
 			// will give us a reference to the HTML element which we can then
 			// just modify the displayed image for.  If no ref was provided,
          // create a new image.
-         var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<img>");
+         var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<div>");
 
          var css = this._mergeTransform(ref, {
             width: f.w,
@@ -439,6 +453,8 @@ R.rendercontexts.HTMLElementContext = function(){
          obj.css(css);
          this.base(sprite, time, dt);
          f.destroy();
+
+         return obj;
 		},
 		
 		/**
@@ -447,38 +463,35 @@ R.rendercontexts.HTMLElementContext = function(){
 		 *
 		 * @param rect {R.math.Rectangle2D} The rectangle that specifies the position and
 		 *             dimensions of the image rectangle.
-		 * @param image {Object} The image to draw onto the context
+		 * @param image {HTMLImage} The image to draw onto the context
 		 * @param [srcRect] {R.math.Rectangle2D} <i>[optional]</i> The source rectangle within the image, if
 		 *                <tt>null</tt> the entire image is used
 		 * @param [ref] {R.engine.GameObject} A reference game object
+       * @return {HTMLElement} The element added to the DOM
 		 */
 		drawImage: function(rect, image, srcRect, ref){
-			var rD = rect.getDims();
-			srcRect = (srcRect instanceof R.math.Rectangle2D ? srcRect : null);
-			var sD = srcRect ? srcRect.getDims() : rect.getDims();
-			ref = (srcRect instanceof R.engine.GameObject ? srcRect : ref);
+			srcRect = (srcRect.__RECTANGLE2D ? srcRect : null);
+			var sD = srcRect ? srcRect : rect;
+			ref = (!srcRect.__RECTANGLE2D ? srcRect : ref);
 			
-			// The reference object is a host object it
+			// The reference object is a game object which
 			// will give us a reference to the HTML element which we can then
 			// just modify the displayed image for.  If no ref was provided,
          // create a new image.
-         var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<img>");
+         var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<div>");
 
-         obj.css(this._mergeTransform(ref, {
-            width: rD.w,
-            height: rD.h
-         }));
+         var css = this._mergeTransform(ref, {
+            backgroundImage: "url(" + image.src + ")",
+            backgroundPosition: -sD.x + "px " + -sD.y + "px",
+            left: rect.x,
+            top: rect.y,
+            width: sD.w,
+            height: sD.h
+         });
+         obj.css(css);
+         this.base(rect, image, srcRect, ref);
 
-         // Only modify the source, width, and height if they change it
-         if (obj.attr("src") != image.src) {
-            obj.attr("src", image.src);
-         }
-         if (obj.attr("width") != rD.w) {
-            obj.attr("width", rD.w)
-         }
-         if (obj.attr("height") != rD.h) {
-            obj.attr("height", rD.h)
-         }
+         return obj;
 		},
 		
 		/**
@@ -488,6 +501,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		 * @param point {R.math.Point2D} The top-left position to draw the image.
 		 * @param text {String} The text to draw
        * @param ref {R.engine.GameObject} A reference game object
+       * @return {HTMLElement} The element added to the DOM
 		 */
 		drawText: function(point, text, ref){
 			this.base(point, text);
@@ -506,10 +520,12 @@ R.rendercontexts.HTMLElementContext = function(){
             position: "absolute"
          });
          obj.css(css).text(text);
+
+         return obj;
 		},
 		
 		/**
-		 * Draw an element on the context
+		 * Draw an element on the context.
        * @param ref {R.engine.GameObject} A reference game object
 		 */
 		drawElement: function(ref){

@@ -78,4 +78,4 @@ R.rendercontexts.DocumentContext = function(){
 		started: true
 
 	});
-}
+};

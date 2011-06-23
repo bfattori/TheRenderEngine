@@ -68,12 +68,12 @@ R.rendercontexts.RenderContext2D = function() {
       wScale: null,
       bBox: null,
       backgroundColor: null,
-      font: "sans-serif",
-      fontWeight: "normal",
-      fontSize: "12px",
-      fontAlign: "left",
-      fontBaseline: "alphabetic",
-      fontStyle: "normal",
+      font: null,
+      fontWeight: null,
+      fontSize: null,
+      fontAlign: null,
+      fontBaseline: null,
+      fontStyle: null,
       zBins: null,
       postRenderList: null,
 
@@ -91,6 +91,15 @@ R.rendercontexts.RenderContext2D = function() {
          };
          this.zBins.activeBins = [0];
          this.postRenderList = [];
+
+         // Default font settings
+         this.font = "sans-serif";
+         this.fontWeight = "normal";
+         this.fontSize = "12px";
+         this.fontAlign = "left";
+         this.fontBaseline = "alphabetic";
+         this.fontStyle = "normal";
+
       },
 
       /**
@@ -113,12 +122,12 @@ R.rendercontexts.RenderContext2D = function() {
          this.wPosition = null;
          this.wRotation = 0;
          this.wScale = null;
-         this.font = "sans-serif";
-         this.fontWeight = "normal";
-         this.fontSize = "12px";
-         this.fontAlign = "left";
-         this.fontBaseline = "alphabetic";
-         this.fontStyle = "normal";
+         this.font = null;
+         this.fontWeight = null;
+         this.fontSize = null;
+         this.fontAlign = null;
+         this.fontBaseline = null;
+         this.fontStyle = null;
          this.zBins = null;
       },
 
@@ -997,7 +1006,15 @@ R.rendercontexts.RenderContext2D = function() {
        * @param radius {Number} The radius of the arc
        */
       arcTo: function(point1, point2, radius) {
+      },
+
+      /**
+       * Draw an element on the context
+       * @param ref {R.engine.GameObject} A reference game object
+       */
+      drawElement: function(ref){
       }
+
    }, /** @scope R.rendercontexts.RenderContext2D.prototype */{
       /**
        * Get the class name of this object

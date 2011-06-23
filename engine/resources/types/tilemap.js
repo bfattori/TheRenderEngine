@@ -34,6 +34,7 @@
 R.Engine.define({
 	"class": "R.resources.types.TileMap",
 	"requires": [
+      "R.engine.GameObject",
 		"R.resources.types.Tile",
       "R.rendercontexts.CanvasContext",
 		"R.math.Rectangle2D",
@@ -48,10 +49,10 @@ R.Engine.define({
  * @constructor
  * @param name {String} The name of the tilemap
  * @description A tile map is a collection of tiles, all the same dimensions.
- * @extends R.engine.BaseObject
+ * @extends R.engine.GameObject
  */
 R.resources.types.TileMap = function() {
-	return R.engine.BaseObject.extend(/** @scope R.resources.types.TileMap.prototype */{
+	return R.engine.GameObject.extend(/** @scope R.resources.types.TileMap.prototype */{
 
       baseTile: null,
       tilemap: null,
@@ -63,6 +64,8 @@ R.resources.types.TileMap = function() {
       zIndex: 0,
       parallax: null,
       dimensions: null,
+      isHTMLContext: false,
+      initialRender: false,
 
       /** @private */
       constructor: function(name, width, height) {
@@ -70,6 +73,8 @@ R.resources.types.TileMap = function() {
          this.baseTile = null;
          this.zIndex = 0;
          this.parallax = R.math.Point2D.create(1,1);
+         this.isHTMLContext = false;
+         this.initialRender = false;
 
          // The tile map is a dense array
          this.tilemap = [];
@@ -100,6 +105,11 @@ R.resources.types.TileMap = function() {
       release: function() {
          this.base();
          this.tilemap = null;
+      },
+
+      afterAdd: function(renderContext) {
+         this.isHTMLContext = renderContext instanceof R.rendercontexts.HTMLElementContext;
+         this.initialRender = false;
       },
 
       /**
@@ -245,34 +255,38 @@ R.resources.types.TileMap = function() {
             return;
          }
 
-         var tile, t, rect = R.math.Rectangle2D.create(0,0,1,1), wp = renderContext.getWorldPosition(),
-             tileWidth = this.baseTile.getBoundingBox().w, tileHeight = this.baseTile.getBoundingBox().h;
+         if (!this.isHTMLContext || (!this.initialRender && this.isHTMLContext)) {
 
-         var topLeft = R.clone(wp);
-         topLeft.convolve(this.parallax);
-         topLeft.sub(wp);
+            var tile, t, rect = R.math.Rectangle2D.create(0,0,1,1), wp = renderContext.getWorldPosition(),
+                tileWidth = this.baseTile.getBoundingBox().w, tileHeight = this.baseTile.getBoundingBox().h;
 
-         // Render out all of the tiles
-         for (t = 0; t < this.tilemap.length; t++) {
-            tile = this.tilemap[t];
-            if (!tile)
-               continue;
+            var topLeft = R.clone(wp);
+            topLeft.convolve(this.parallax);
+            topLeft.sub(wp);
 
-            var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
-            rect.set(x - wp.x, y - wp.y, tileWidth, tileHeight);
+            // Render out all of the tiles
+            for (t = 0; t < this.tilemap.length; t++) {
+               tile = this.tilemap[t];
+               if (!tile)
+                  continue;
 
-            rect.add(topLeft);
+               var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
+               rect.set(x - wp.x, y - wp.y, tileWidth, tileHeight);
 
-            // If the rect isn't visible, skip it
-            if (!rect.isIntersecting(renderContext.getViewport()))
-               continue;
+               rect.add(topLeft);
 
-            var f = tile.getFrame(time);
-            renderContext.drawImage(rect, tile.getSourceImage(), f);
-            f.destroy();
+               // If the rect isn't visible, skip it
+               if (!rect.isIntersecting(renderContext.getViewport()))
+                  continue;
+
+               var f = tile.getFrame(time);
+               renderContext.drawImage(rect, tile.getSourceImage(), f);
+               f.destroy();
+
+               rect.destroy();
+            }
+            this.initialRender = true;
          }
-
-         rect.destroy();
       },
 
       /**

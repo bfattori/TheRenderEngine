@@ -37,6 +37,7 @@ R.Engine.define({
 	"requires": [
 		"R.engine.Object2D",
 		"R.components.render.Sprite",
+      "R.components.render.DOM",
 		"R.components.input.Keyboard",
 		"R.components.collision.Convex",
       "R.components.transform.PlatformMover2D",
@@ -79,6 +80,18 @@ R.objects.SpriteActor = function(){
 			
 			// Add sprite component to draw the player
 			this.add(R.components.render.Sprite.create("draw"));
+
+         // We need an element to render to when using a DOM context
+         this.setElement($("<div>").css({
+            position: "absolute",
+            left: 0,
+            top: 0
+         }));
+
+         // We also need the DOM render component.  This is what
+         // causes the transformations to be updated each frame
+         // for a DOM object.
+         this.add(R.components.render.DOM.create("domdraw"));
 		},
 		
 		/**

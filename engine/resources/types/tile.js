@@ -61,6 +61,7 @@ R.resources.types.Tile = function() {
       status: null,
       sparsity: null,
       tileObj: null,
+      renderContext: null,
 
       /** @private */
       constructor: function(name, tileObj, tileResource, tileLoader) {
@@ -93,6 +94,21 @@ R.resources.types.Tile = function() {
          this.solidityMap = null;
          this.tileObj = null;
          this.base();
+      },
+
+      /**
+       * Set the render context the tile is being rendered onto.  This allows tiles to
+       * be rendered properly on HTML contexts.
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context
+       */
+      setRenderContext: function(renderContext) {
+         if (this.renderContext == null) {
+            this.renderContext = renderContext;
+            if (renderContext instanceof R.rendercontexts.HTMLElementContext) {
+               // Add the tile to the context
+               renderContext.add(this);
+            }
+         }
       },
 
       /**
@@ -145,6 +161,14 @@ R.resources.types.Tile = function() {
          } else {
             return !!sMap.map[point.x + (point.y * this.getBoundingBox().w)];
          }
+      },
+
+      getRotation: function() {
+         return 0;
+      },
+
+      getScale: function() {
+         return R.resources.types.Tile.SCALE1;
       }
 
    }, /** @scope R.resources.types.Tile.prototype */{
@@ -155,6 +179,8 @@ R.resources.types.Tile = function() {
       getClassName: function() {
          return "R.resources.types.Tile";
       },
+
+      SCALE1: R.math.Vector2D.create(1,1),
 
       /**
        * Specialized method to allow tiles to be cloned from one another.  This method is also
