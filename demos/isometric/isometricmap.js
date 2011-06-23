@@ -215,10 +215,10 @@ var IsometricMap = function() {
                return a.pos.y - b.pos.y;
             });
 
-            var yOffs = ts.y * worldOffsY;
+            var yOffs = (ts.y * worldOffsY);
             for (var o = 0; o < this.objects.length; o++) {
                var obj = this.objects[o];
-               var xOffs = (ts.x * worldOffsX) - (ts.x * obj.pos.y);
+               var xOffs = (ts.x * worldOffsX) - (ts.x * obj.pos.y) + 25;
                var pt = R.math.Point3D.create(xOffs + (ts.x * obj.pos.x), yOffs + (ts.y * obj.pos.y), 0);
                var info = this.tileset.getTileInfo(obj.tileset, obj.tile);
                pt.sub(info.origin);
