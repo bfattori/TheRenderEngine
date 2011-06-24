@@ -34,6 +34,8 @@
 R.Engine.define({
 	"class": "R.objects.PhysicsActor",
 	"requires": [
+      "R.physics.Simulation",
+
 		"R.components.physics.CircleBody",
 		"R.components.physics.BoxBody",
 		"R.components.physics.DistanceJoint",

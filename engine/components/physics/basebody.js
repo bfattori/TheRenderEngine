@@ -39,7 +39,8 @@ R.Engine.define({
       "R.components.Transform2D",
       "R.math.Point2D",
       "R.math.Vector2D",
-      "R.math.Rectangle2D"
+      "R.math.Rectangle2D",
+      "R.physics.Simulation"
    ]
 });
 
@@ -67,6 +68,8 @@ R.components.physics.BaseBody = function() {
       renderComponent: null,
       origin: null,
 
+      scaledPoint: null,
+
       /**
        * @private
        */
@@ -84,6 +87,7 @@ R.components.physics.BaseBody = function() {
          this.rotVec = R.math.Vector2D.create(0, 0);
          this.bodyPos = R.math.Point2D.create(0, 0);
          this.origin = R.math.Point2D.create(0, 0);
+         this.scaledPoint = R.math.Point2D.create(0, 0);
       },
 
       /**
@@ -101,6 +105,7 @@ R.components.physics.BaseBody = function() {
          this.rotVec.destroy();
          this.bodyPos.destroy();
          this.origin.destroy();
+         this.scaledPoint.destroy();
 
          this.base();
       },
@@ -303,17 +308,16 @@ R.components.physics.BaseBody = function() {
        * @param point {R.math.Point2D} The initial position of the body
        */
       setPosition: function(point) {
-         var scaled = R.math.Point2D.create(0, 0);
          if (!this.simulation) {
-            scaled.set(point).div(this.getGameObject().getSimulation().getScale());
-            this.getBodyDef().position.x = scaled.x;
-            this.getBodyDef().position.y = scaled.y;
+            this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_METERS);
+
+            this.getBodyDef().position.x = this.scaledPoint.x;
+            this.getBodyDef().position.y = this.scaledPoint.y;
          } else {
-            scaled.set(point).div(this.getGameObject().getSimulation().getScale());
-            var bv = new Box2D.Common.Math.b2Vec2(scaled.x, scaled.y);
+            this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_METERS);
+            var bv = new Box2D.Common.Math.b2Vec2(this.scaledPoint.x, this.scaledPoint.y);
             this.getBody().SetPosition(bv);
          }
-         scaled.destroy();
       },
 
       /**
@@ -322,16 +326,14 @@ R.components.physics.BaseBody = function() {
        * @return {R.math.Point2D}
        */
       getPosition: function() {
-         var scaled = R.math.Point2D.create(0, 0);
          if (this.simulation) {
             var bp = this.getBody().GetPosition();
-            scaled.set(bp.x, bp.y).mul(this.getGameObject().getSimulation().getScale());
-            this.bodyPos.set(scaled.x, scaled.y);
+            this.scaledPoint.set(bp.x, bp.y).mul(R.physics.Simulation.WORLD_METERS);
+            this.bodyPos.set(this.scaledPoint);
          } else {
-            scaled.set(this.getBodyDef().position.x, this.getBodyDef().position.y).mul(this.getGameObject().getSimulation().getScale());
-            this.bodyPos.set(scaled);
+            this.scaledPoint.set(this.getBodyDef().position.x, this.getBodyDef().position.y).mul(R.physics.Simulation.WORLD_METERS);
+            this.bodyPos.set(this.scaledPoint);
          }
-         scaled.destroy();
          return this.bodyPos;
       },
 
@@ -353,7 +355,7 @@ R.components.physics.BaseBody = function() {
        */
       setRotation: function(angle) {
          if (this.simulation) {
-            this.getBody().setAngle(R.math.Math2D.degToRad(angle));
+            this.getBody().SetAngle(R.math.Math2D.degToRad(angle));
          } else {
             this.getBodyDef().angle = R.math.Math2D.degToRad(angle);
          }
@@ -371,9 +373,8 @@ R.components.physics.BaseBody = function() {
        * @param position {R.math.Point2D} The position where the force is acting upon the body
        */
       applyForce: function(forceVector, position) {
-         var f = forceVector, d = position;
-         var fv = new Box2D.Common.Math.b2Vec2(f.x, f.y);
-         var dv = new Box2D.Common.Math.b2Vec2(d.x, d.y);
+         var fv = new Box2D.Common.Math.b2Vec2(forceVector.x, forceVector.y);
+         var dv = new Box2D.Common.Math.b2Vec2(position.x, position.y);
          this.getBody().ApplyForce(fv, dv);
       },
 
@@ -389,9 +390,8 @@ R.components.physics.BaseBody = function() {
        * @param position {R.math.Point2D} the position where the impulse is originating from in the body
        */
       applyImpulse: function(impulseVector, position) {
-         var i = impulseVector, d = position;
-         var iv = new Box2D.Common.Math.b2Vec2(i.x, i.y);
-         var dv = new Box2D.Common.Math.b2Vec2(d.x, d.y);
+         var iv = new Box2D.Common.Math.b2Vec2(impulseVector.x, impulseVector.y);
+         var dv = new Box2D.Common.Math.b2Vec2(position.x, position.y);
          this.getBody().ApplyImpulse(iv, dv);
       },
 

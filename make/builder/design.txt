@@ -1,0 +1,68 @@
+Building a single-file game "executable"
+---------------------------------------------
+Create an index.html file which contains the <script> tags to load the base libraries:
+
+   1) base.js
+   2) jquery.js
+   3) jquery.ext.engine.js
+   4) sylvester.js
+
+Add the engine runtime:
+   5) engine.js
+
+Point to the "game.js" (or whatever it is called) file which will parse the "define" statements to
+build a dependency tree and capture includes.  Includes will be added to the index.html file to be
+loaded via <script> tags.
+
+The following regular expressions will assist in parsing the define statements which can be
+removed from each file, along with "R.engine.Game.load" statements, before being compiled into one
+file:
+
+   // Parse "define" statements
+   R\.Engine\.define\(\{([^\}]*)\}\);
+
+   // Find defined class name
+   ['"]class['"]\s*:\s*['"]([^'"]*)['"]
+
+   // Find "requires", "includes", "depends" sections
+   ['"]requires['"]\s*:\s*\[([^\]]*)\]
+
+   // Parse required classes, included files, and dependencies
+   ['"]([^'"]*)['"]
+
+   // Parse game load statements (resolves dependencies)
+   R\.engine\.Game\.load\(['"]([^'"]*)['"]\);
+
+Engine runtime will load the following files which have their own dependencies:
+
+   R.engine.Game
+   R.engine.PooledObject
+   R.lang.Iterator
+   R.rendercontexts.AbstractRenderContext
+   R.rendercontexts.RenderContext2D
+   R.rendercontexts.HTMLElementContext
+   R.rendercontexts.DocumentContext
+   R.lang.AbstractTimer
+   R.lang.IntervalTimer
+   R.lang.MultiTimeout
+   R.lang.OneShotTimeout
+   R.lang.OneShotTrigger
+   R.lang.Timeout
+
+Dependencies of above files:
+
+   R.struct.Container
+   R.engine.BaseObject
+   R.engine.Events
+   R.math.Math2D
+   R.engine.GameObject
+   R.struct.MouseInfo
+   R.struct.HashContainer
+   R.components.Base
+   R.math.Rectangle2D
+   R.math.Point2D
+   R.math.Vector2D
+   R.math.PooledMathObject
+
+Before a game can even start to load, 25 classes must be loaded in addition to the engine runtime. See
+the "empty game" demo for an example of just starting the engine.

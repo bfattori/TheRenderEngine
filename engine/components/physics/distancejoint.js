@@ -65,7 +65,7 @@ R.components.physics.DistanceJoint = function() {
     * @private
     */
 	constructor: function(name, body1, body2) {
-		var jointDef = new R.physics.dynamics.joints.b2DistanceJointDef();
+		var jointDef = new Box2D.Dynamics.Joints.b2DistanceJointDef();
 		this.base(name || "DistanceJoint", body1, body2, jointDef);	
 	},
 	
@@ -80,8 +80,8 @@ R.components.physics.DistanceJoint = function() {
 			a1.add(this.getBody1().getLocalOrigin());
 			a2.add(this.getBody2().getLocalOrigin());
 	
-			this.getJointDef().anchorPoint1.Set(a1.get().x, a1.get().y);
-			this.getJointDef().anchorPoint2.Set(a2.get().x, a2.get().y);
+			this.getJointDef().anchorPoint1.Set(a1.x, a1.y);
+			this.getJointDef().anchorPoint2.Set(a2.x, a2.y);
 			a1.destroy();
 			a2.destroy();
 		}

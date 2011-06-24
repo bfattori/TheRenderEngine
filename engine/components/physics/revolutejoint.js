@@ -65,9 +65,9 @@ R.components.physics.RevoluteJoint = function() {
     * @private
     */
 	constructor: function(name, body1, body2, anchor) {
-		var jointDef = new b2RevoluteJointDef();
+		var jointDef = new Box2D.Dynamics.Joints.b2RevoluteJointDef();
 		
-		this.anchor = Point2D.create(anchor);
+		this.anchor = R.math.Point2D.create(anchor);
 		this.base(name || "RevoluteJoint", body1, body2, jointDef);	
 	},
 
@@ -77,14 +77,19 @@ R.components.physics.RevoluteJoint = function() {
 	 */
 	startSimulation: function() {
 		if (!this.getSimulation()) {
-			
-			var jA = R.math.Point2D.create(this.anchor);
+
+         var anchor = new Box2D.Common.Math.b2Vec2();
+         anchor.Set(this.anchor.x, this.anchor.y);
+
+         this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor);
+
+         /*
+			var jA = R.clone(this.anchor);
 			jA.add(this.getBody1().getPosition());
 			jA.add(this.getBody1().getLocalOrigin());
-			var a = jA.get();
-	
-			this.getJointDef().anchorPoint.Set(a.x, a.y);
+			this.getJointDef().localAnchorA.Set(jA.x, jA.y);
 			jA.destroy();
+			*/
 		}		
 		
 		this.base();

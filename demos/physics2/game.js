@@ -230,6 +230,14 @@ var PhysicsDemo2 = function() {
        */
       getCModel: function() {
          return this.cModel;
+      },
+
+      /**
+       * Returns a reference to the game's rendering context
+       * @return {SpatialContainer}
+       */
+      getRenderContext: function() {
+         return this.renderContext;
       }
 
    });

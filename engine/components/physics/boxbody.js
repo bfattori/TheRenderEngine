@@ -95,7 +95,7 @@ R.components.physics.BoxBody = function() {
       setGameObject: function(gameObject) {
          this.base(gameObject);
 
-         var scaled = R.math.Point2D.create(this.extents).div(gameObject.getSimulation().getScale());
+         var scaled = R.math.Point2D.create(this.extents).div(R.physics.Simulation.WORLD_METERS);
          this.getFixtureDef().shape.SetAsBox(scaled.x / 2, scaled.y / 2);	// Half width and height
          scaled.destroy();
       },
@@ -119,7 +119,7 @@ R.components.physics.BoxBody = function() {
        */
       setExtents: function(extents) {
          this.extents = extents;
-         var scaled = R.math.Point2D.create(extents).div(this.getGameObject().getSimulation().getScale());
+         var scaled = R.math.Point2D.create(extents).div(R.physics.Simulation.WORLD_METERS);
          this.getFixtureDef().SetAsBox(scaled.x / 2, scaled.y / 2);
          if (this.simulation) {
             this.updateFixture();

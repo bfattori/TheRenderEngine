@@ -69,16 +69,12 @@ R.physics.Simulation = function() {
       doSleep: true,
       worldBoundary: null,
       integrations: 0,
-      scale: 0,
 
       /** @private */
       constructor: function(name, viewport, gravity) {
          this.base(name);
          this.gravity = gravity || R.math.Vector2D.create(0, 10);
          this.worldAABB = new Box2D.Collision.b2AABB();
-
-         // Get the maximum dimension for the viewport and determine the number of pixels per meter
-         this.scale = 10; //Math.max(viewport.w, viewport.h) / R.physics.Simulation.WORLD_METERS;
 
          this.doSleep = true;
          this.integrations = R.physics.Simulation.DEFAULT_INTEGRATIONS;
@@ -123,7 +119,7 @@ R.physics.Simulation = function() {
        * @return {Number}
        */
       getScale: function() {
-         return this.scale;
+         return R.physics.Simulation.WORLD_METERS;
       },
 
       /**
@@ -371,10 +367,10 @@ R.physics.Simulation = function() {
       DEFAULT_INTEGRATIONS: 10,
 
       /**
-       * The number of meters across the world in either dimension.
+       * The number of meters across the world in each dimension.
        * @type {Number}
        */
-      WORLD_METERS: 50
+      WORLD_METERS: 40
 
    });
 };

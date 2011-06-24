@@ -88,7 +88,7 @@ R.components.physics.CircleBody = function() {
       setGameObject: function(gameObject) {
          this.base(gameObject);
 
-         var scaled = this.getRadius() / gameObject.getSimulation().getScale();
+         var scaled = this.getRadius() / R.physics.Simulation.WORLD_METERS;
          this.getFixtureDef().shape.SetRadius(scaled);
       },
 
@@ -101,7 +101,7 @@ R.components.physics.CircleBody = function() {
       setRadius: function(radius) {
          this.radius = radius;
 
-         var scaled = radius / this.getGameObject().getSimulation().getScale();
+         var scaled = radius / R.physics.Simulation.WORLD_METERS;
          this.getFixtureDef().shape.SetRadius(scaled);
          if (this.simulation) {
             this.updateFixture();

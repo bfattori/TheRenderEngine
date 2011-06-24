@@ -109,7 +109,7 @@ R.components.physics.PolyBody = function() {
          var scaled = [], pt = R.math.Point2D.create(0,0);
          for (var p = 0; p < this.points.length; p++) {
             pt.set(this.points[p]);
-            pt.div(gameObject.getSimulation().getScale());
+            pt.div(R.physics.Simulation.WORLD_METERS);
             scaled.push(new Box2D.Common.Math.b2Vec2(pt.x, pt.y));
          }
          this.getFixtureDef().shape.SetAsArray(scaled);
