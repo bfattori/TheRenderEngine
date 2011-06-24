@@ -114,7 +114,7 @@ var TilemapDemo = function() {
          this.renderContext = R.rendercontexts.VirtualHTMLDivContext.create("playfield", 800, 600, 3200, 3200);
          this.renderContext.setWorldScale(this.areaScale);
          R.Engine.getDefaultContext().add(this.renderContext);
-         this.renderContext.setBackgroundColor("#4444ff");
+         this.renderContext.setBackgroundColor("#0a0a0a");
 
          // Attach the level to the render context which puts it in motion
          this.levelLoader.getLevel("level1").setRenderContext(this.renderContext);

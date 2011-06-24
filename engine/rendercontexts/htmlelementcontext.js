@@ -480,8 +480,6 @@ R.rendercontexts.HTMLElementContext = function(){
 			// If no ref is provided, create a new element.
          var obj = ref && ref.jQ() ? ref.jQ() : this._createElement("<div>");
 
-         // TODO: Maybe we shouldn't merge transform??
-         this.setPosition(R.math.Point2D.ZERO);
          var css = this._mergeTransform(ref, {
             backgroundImage: "url(" + image.src + ")",
             backgroundPosition: -sD.x + "px " + -sD.y + "px",

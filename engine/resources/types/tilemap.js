@@ -251,6 +251,9 @@ R.resources.types.TileMap = function() {
             return;
          }
 
+         renderContext.pushTransform();
+         renderContext.setPosition(R.math.Point2D.ZERO);
+         renderContext.setScale(1);
 
          var tile, t, rect = R.math.Rectangle2D.create(0,0,1,1), wp = renderContext.getWorldPosition(),
              tileWidth = this.baseTile.getBoundingBox().w, tileHeight = this.baseTile.getBoundingBox().h;
@@ -265,6 +268,12 @@ R.resources.types.TileMap = function() {
             if (!tile)
                continue;
 
+            /* TODO: Move "initialRender" to tile.  Having it on the tilemap means when the viewport
+               changes, only animated tiles will render. */
+
+            // In an HTML context we only want to render static (non-animated) tiles one time.
+            // However, animated tiles will need to animate each frame.  For a graphical context,
+            // we'll render all tiles each frame.
             if (!this.isHTMLContext || ((tile.isAnimation() || !this.initialRender) && this.isHTMLContext)) {
 
                var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
@@ -276,14 +285,13 @@ R.resources.types.TileMap = function() {
                if (!rect.isIntersecting(renderContext.getViewport()))
                   continue;
 
+               // Get the frame and draw the tile
                var f = tile.getFrame(time),
                    obj = renderContext.drawImage(rect, tile.getSourceImage(), f,
                      (tile.isAnimation() ? tile : null));
 
                if (this.isHTMLContext && !tile.getElement()) {
-                  // In an HTML context, set the element for the tile so animated tiles
-                  // can be updated
-                  // TODO: Maybe we should have a loop that is JUST animated tiles when in an HTML context?
+                  // In an HTML context, set the element for the tile so animated tiles can be updated
                   tile.setElement(obj);
                }
 
@@ -296,6 +304,8 @@ R.resources.types.TileMap = function() {
          topLeft.destroy();
 
          this.initialRender = true;
+
+         renderContext.popTransform();
       },
 
       /**
