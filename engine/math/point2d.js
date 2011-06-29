@@ -143,6 +143,7 @@ R.math.Point2D = function(){
 		 * @return {R.math.Point2D} This point
 		 */
 		add: function(point){
+         Assert(point, "Adding undefined point");
 			this.x += point.x;
 			this.y += point.y;
 			return this;
@@ -154,6 +155,7 @@ R.math.Point2D = function(){
 		 * @return {R.math.Point2D} This point
 		 */
 		addScalar: function(scalar){
+         Assert(scalar, "Adding undefined scalar");
 			this.x += scalar;
 			this.y += scalar;
 			return this;
@@ -165,6 +167,7 @@ R.math.Point2D = function(){
 		 * @return {R.math.Point2D} This point
 		 */
 		sub: function(point){
+         Assert(point, "Subtracting undefined point");
 			this.x -= point.x;
 			this.y -= point.y;
 			return this;
@@ -176,6 +179,7 @@ R.math.Point2D = function(){
 		 * @return {R.math.Point2D} This point
 		 */
 		convolve: function(point){
+         Assert(point, "Convolving undefined point");
 			this.x *= point.x;
 			this.y *= point.y;
 			return this;
@@ -188,6 +192,7 @@ R.math.Point2D = function(){
 		 * @return {R.math.Point2D} This point
 		 */
 		convolveInverse: function(point){
+         Assert(point, "Inverse convolving undefined point");
 			Assert((point.x != 0 && point.y != 0), "Division by zero in Point2D.convolveInverse");
 			this.x /= point.x;
 			this.y /= point.y;
@@ -200,6 +205,7 @@ R.math.Point2D = function(){
 		 * @return {R.math.Point2D} This point
 		 */
 		mul: function(scalar){
+         Assert(scalar, "Multiplying undefined scalar");
 			this.x *= scalar;
 			this.y *= scalar;
 			return this;
@@ -211,6 +217,7 @@ R.math.Point2D = function(){
 		 * @return {R.math.Point2D} This point
 		 */
 		div: function(scalar){
+         Assert(scalar, "Dividing undefined scalar");
 			Assert((scalar != 0), "Division by zero in Point2D.divScalar");
 			this.x /= scalar;
 			this.y /= scalar;
@@ -241,6 +248,7 @@ R.math.Point2D = function(){
 		 * @return {Number} The distance between the two points
 		 */
 		dist: function(point){
+         Assert(point, "Cannot solve distance to undefined point");
          return Math.sqrt((point.x - this.x) * (point.x - this.x) +
                           (point.y - this.y) * (point.y - this.y));
 		},

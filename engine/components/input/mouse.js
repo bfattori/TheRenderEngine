@@ -46,25 +46,17 @@ R.Engine.define({
 
 /**
  * @class A component which responds to mouse events and notifies
- * the host object when one of the events occurs.  The host should implement
- * any of the five methods listed below to be notified of the corresponding event:
+ * the host object when one of the events occurs.  The <tt>R.engine.GameObject</tt> should
+ * add event handlers for any of the following:
  * <ul>
- * <li><tt>onMouseOver()</tt> - The mouse moved over the host object, or the object
- *     moved under the mouse</li>
- * <li><tt>onMouseOut()</tt> - The mouse moved out of the host object (after being over it)</li>
- * <li><tt>onMouseDown()</tt> - A mouse button was depressed</li>
- * <li><tt>onMouseUp()</tt> - A mouse button was released</li>
- * <li><tt>onMouseMove()</tt> - The mouse was moved</li>
+ * <li><tt>mouseover</tt> - The mouse moved over the host object, or the object moved under the mouse</li>
+ * <li><tt>mouseout</tt> - The mouse moved out of the host object (after being over it)</li>
+ * <li><tt>mousedown</tt> - A mouse button was depressed, while over the object</li>
+ * <li><tt>mouseup</tt> - A mouse button was released</li>
+ * <li><tt>mousemove</tt> - The mouse was moved</li>
  * </ul>
- * Each event receives the "mouseInfo" object as its only argument which contains the following:
- * <ul>
- * <li><tt>position [R.math.Point2D]</tt> - The position of the mouse in screen coordinates</li>
- * <li><tt>lastPosition [R.math.Point2D]</tt> - The last updated position of the mouse</li>
- * <li><tt>button [Number]</tt> - One of the mouse button constants from {@link R.engine.Events}</li>
- * <li><tt>lastOver [R.engine.PooledObject]</tt> - The last object the mouse was over</li>
- * <li><tt>moveVec [R.math.Vector2D]</tt> - The direction and magnitude of mouse movement</li>
- * </ul>
- * Objects which wish to be notified via the <tt>onMouseOver()</tt> event handler will need
+ * Each event is passed a {@link R.struct.MouseInfo MouseInfo} object which contains information about
+ * the mouse event. Objects which wish to be notified via the <tt>mouseover</tt> event handler will need
  * to define their bounding box.
  * <p/>
  * <i>Note: The rendering context that the object is contained within needs to enable mouse event
@@ -91,7 +83,7 @@ R.components.input.Mouse = function() {
        */
       destroy: function() {
          if (this.getGameObject()) {
-            delete this.getGameObject().getObjectDataModel()["MouseInputComponent"];
+            delete this.getGameObject().getObjectDataModel()[R.components.input.Mouse.MOUSE_DATA_MODEL];
          }
          this.base();
       },
@@ -116,18 +108,10 @@ R.components.input.Mouse = function() {
          this.base(gameObject);
 
          // Set some flags we can check
-         var dataModel = gameObject.setObjectDataModel("MouseInputComponent", {
+         var dataModel = gameObject.setObjectDataModel(R.components.input.Mouse.MOUSE_DATA_MODEL, {
             mouseOver: false,
             mouseDown: false
          });
-
-         // Remember if the host has any of the required handlers
-         if (this.getGameObject().onMouseOver ||
-               this.getGameObject().onMouseOut ||
-               this.getGameObject().onMouseDown ||
-               this.getGameObject().onMouseUp) {
-            dataModel.hasHandlers = true;
-         }
       },
 
       /**
@@ -145,45 +129,43 @@ R.components.input.Mouse = function() {
                mouseInfo = renderContext.getMouseInfo(),
                bBox = gameObject.getWorldBox(),
                mouseOver = false,
-               dataModel = gameObject.getObjectDataModel("MouseInputComponent");
+               dataModel = gameObject.getObjectDataModel(R.components.input.Mouse.MOUSE_DATA_MODEL);
 
-         if (dataModel.hasHandlers && mouseInfo && bBox) {
+         if (mouseInfo && bBox) {
             mouseOver = R.math.Math2D.boxPointCollision(bBox, mouseInfo.position);
          }
 
          // Mouse position changed
-         if (gameObject.onMouseMove && !mouseInfo.position.equals(mouseInfo.lastPosition)) {
-            gameObject.onMouseMove(mouseInfo);
+         if (!mouseInfo.position.equals(mouseInfo.lastPosition)) {
+            gameObject.triggerEvent("mousemove", [mouseInfo]);
          }
 
          // Mouse is over object
-         if (gameObject.onMouseOver && mouseOver &&
-               !dataModel.mouseOver) {
+         if (mouseOver && !dataModel.mouseOver) {
             dataModel.mouseOver = true;
-            gameObject.onMouseOver(mouseInfo);
+            gameObject.triggerEvent("mouseover", [mouseInfo]);
          }
 
          // Mouse was over object
-         if (gameObject.onMouseOut && !mouseOver &&
-               dataModel.mouseOver === true) {
+         if (!mouseOver && dataModel.mouseOver === true) {
             dataModel.mouseOver = false;
-            gameObject.onMouseOut(mouseInfo);
+            gameObject.triggerEvent("mouseout", [mouseInfo]);
          }
 
          // BAF: 06/17/2011 - https://github.com/bfattori/TheRenderEngine/issues/8
          // Mouse button clicked on object
-         if (gameObject.onMouseDown && mouseOver && (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
+         if (mouseOver && (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
             dataModel.mouseDown = true;
-            gameObject.onMouseDown(mouseInfo);
+            gameObject.triggerEvent("mousedown", [mouseInfo]);
          }
 
          // Mouse button released (and mouse was down)
-         if (gameObject.onMouseUp && dataModel.mouseDown &&
-               (mouseInfo.button == R.engine.Events.MOUSE_NO_BUTTON)) {
+         if (dataModel.mouseDown && mouseInfo.button == R.engine.Events.MOUSE_NO_BUTTON) {
             dataModel.mouseDown = false;
-            gameObject.onMouseUp(mouseInfo);
+            gameObject.triggerEvent("mouseup", [mouseInfo]);
          }
       }
+      
    }, /** @scope R.components.input.Mouse.prototype */{
       /**
        * Get the class name of this object
@@ -192,6 +174,11 @@ R.components.input.Mouse = function() {
        */
       getClassName: function() {
          return "R.components.input.Mouse";
-      }
+      },
+
+      /**
+       * @private
+       */
+      MOUSE_DATA_MODEL: "MouseInputComponent"
    });
 };

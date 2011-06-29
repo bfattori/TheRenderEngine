@@ -64,7 +64,8 @@ R.components.physics.BoxBody = function() {
          fixDef.shape = new Box2D.Collision.Shapes.b2PolygonShape();
 
          this.base(name, fixDef);
-         this.extents = extents;
+         this.extents = R.clone(extents);
+         this.extents.div(R.physics.Simulation.WORLD_SIZE);
          this.setLocalOrigin(extents.x / 2, extents.y / 2);
       },
 
@@ -95,9 +96,7 @@ R.components.physics.BoxBody = function() {
       setGameObject: function(gameObject) {
          this.base(gameObject);
 
-         var scaled = R.math.Point2D.create(this.extents).div(R.physics.Simulation.WORLD_METERS);
-         this.getFixtureDef().shape.SetAsBox(scaled.x / 2, scaled.y / 2);	// Half width and height
-         scaled.destroy();
+         this.getFixtureDef().shape.SetAsBox(this.extents.x / 2, this.extents.y / 2);	// Half width and height
       },
 
       /**
@@ -106,8 +105,9 @@ R.components.physics.BoxBody = function() {
        */
       getBoundingBox: function() {
          var box = this.base();
-         var e = this.getExtents();
+         var e = R.clone(this.getExtents()).mul(R.physics.Simulation.WORLD_SIZE);
          box.set(0, 0, e.x, e.y);
+         e.destroy();
          return box;
       },
 
@@ -118,9 +118,8 @@ R.components.physics.BoxBody = function() {
        * @param extents {R.math.Point2D} The extents of the body along X and Y
        */
       setExtents: function(extents) {
-         this.extents = extents;
-         var scaled = R.math.Point2D.create(extents).div(R.physics.Simulation.WORLD_METERS);
-         this.getFixtureDef().SetAsBox(scaled.x / 2, scaled.y / 2);
+         this.extents = R.clone(extents).div(R.physics.Simulation.WORLD_SIZE);
+         this.getFixtureDef().SetAsBox(this.extents.x / 2, this.extents.y / 2);
          if (this.simulation) {
             this.updateFixture();
          }
@@ -144,12 +143,11 @@ R.components.physics.BoxBody = function() {
          if (R.Engine.getDebugMode()) {
             renderContext.pushTransform();
             renderContext.setLineStyle("blue");
-            var ext = R.math.Point2D.create(this.extents);
-            //ext.mul(this.getScale());
+            var ext = this.extents;
             var hx = ext.x / 2;
             var hy = ext.y / 2;
             var rect = R.math.Rectangle2D.create(-hx, -hy, hx * 2, hy * 2);
-            renderContext.setScale(1 / this.getScale());
+            renderContext.setScale(R.physics.Simulation.WORLD_SIZE * this.getScale());
             renderContext.drawRectangle(rect);
             rect.destroy();
             renderContext.popTransform();

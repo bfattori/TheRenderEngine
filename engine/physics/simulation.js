@@ -39,7 +39,7 @@ R.Engine.define({
       "R.components.physics.BaseBody"
    ],
    "includes": [
-      "/libs/Box2dWeb-2.1a.2.min.js"
+      "/libs/Box2dWeb-2.1a.2.js"
    ]
 });
 
@@ -100,7 +100,7 @@ R.physics.Simulation = function() {
 
       update: function(renderContext, time, dt) {
          // TODO: This should probably be based on world and delta times... ?
-         this.world.Step(1 / R.Engine.getFPS(), this.integrations, this.integrations);
+         this.world.Step(1 / dt, this.integrations, this.integrations);
          this.world.ClearForces();
       },
 
@@ -135,7 +135,7 @@ R.physics.Simulation = function() {
        * @param scale {Number} The number of pixels per meter
        */
       setScale: function(scale) {
-         this.scale = scale;
+         //this.scale = scale;
       },
 
       /**
@@ -274,7 +274,7 @@ R.physics.Simulation = function() {
          bodyDef.type = properties.isStatic ? Box2D.Dynamics.b2Body.b2_staticBody : Box2D.Dynamics.b2Body.b2_dynamicBody;
 
          fixDef.shape = new Box2D.Collision.Shapes.b2PolygonShape();
-         extents.div(this.scale);
+         extents.div(R.physics.Simulation.WORLD_SIZE);
          fixDef.shape.SetAsBox(extents.x / 2, extents.y / 2);	// Half-width and height
 
          // Set the properties
@@ -282,7 +282,7 @@ R.physics.Simulation = function() {
          fixDef.friction = properties.friction || R.components.physics.BaseBody.DEFAULT_FRICTION;
          fixDef.density = properties.density || 1.0;
 
-         var scaled = R.math.Point2D.create(pos.x, pos.y).div(this.scale);
+         var scaled = R.math.Point2D.create(pos.x, pos.y).div(R.physics.Simulation.WORLD_SIZE);
 
          bodyDef.position.x = scaled.x;
          bodyDef.position.y = scaled.y;
@@ -312,7 +312,7 @@ R.physics.Simulation = function() {
 
          bodyDef.type = properties.isStatic ? Box2D.Dynamics.b2Body.b2_staticBody : Box2D.Dynamics.b2Body.b2_dynamicBody;
 
-         radius /= this.scale;
+         radius /= R.physics.Simulation.WORLD_SIZE;
 
          fixDef.shape = new Box2D.Collision.Shapes.b2CircleShape(radius);
 
@@ -321,7 +321,7 @@ R.physics.Simulation = function() {
          fixDef.friction = properties.friction || R.components.physics.BaseBody.DEFAULT_FRICTION;
          fixDef.density = properties.density || 1.0;
 
-         var scaled = R.math.Point2D.create(pos.x, pos.y).div(this.scale);
+         var scaled = R.math.Point2D.create(pos.x, pos.y).div(R.physics.Simulation.WORLD_SIZE);
 
          bodyDef.position.x = scaled.x;
          bodyDef.position.y = scaled.y;
@@ -358,6 +358,7 @@ R.physics.Simulation = function() {
          // These are reusable, according to Box2d docs
          R.physics.Simulation.FIXTURE_DEF = new Box2D.Dynamics.b2FixtureDef();
          R.physics.Simulation.BODY_DEF = new Box2D.Dynamics.b2BodyDef();
+         R.physics.Simulation.WORLD_SIZE = 10;   // Pixels per meter
       },
 
       /**
@@ -367,10 +368,9 @@ R.physics.Simulation = function() {
       DEFAULT_INTEGRATIONS: 10,
 
       /**
-       * The number of meters across the world in each dimension.
-       * @type {Number}
+       * The size of the world in meters
        */
-      WORLD_METERS: 40
+      WORLD_SIZE: null
 
    });
 };

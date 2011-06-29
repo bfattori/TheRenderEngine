@@ -67,6 +67,7 @@ R.rendercontexts.AbstractRenderContext = function() {
       worldScale: null,
       staticCtx: null,
       safeRemoveList: null,
+      _handlers: null,
 
       /** @private */
       constructor: function(contextName, surface) {
@@ -78,6 +79,7 @@ R.rendercontexts.AbstractRenderContext = function() {
          this.expViewport = R.math.Rectangle2D.create(-25, -25, 125, 125);
          this.staticCtx = false;
          this.safeRemoveList = [];
+         this._handlers = [];
 
          this.base(contextName || "RenderContext");
          this.surface = surface;
@@ -168,11 +170,14 @@ R.rendercontexts.AbstractRenderContext = function() {
        * event data will be accessible by calling {@link #getMouseInfo}.
        */
       captureMouse: function() {
-         R.rendercontexts.AbstractRenderContext.assignMouseHandler(this);
-         var self = this;
-         R.Engine.onShutdown(function() {
-            self.uncaptureMouse();
-         });
+         if (!this._handlers[0]) {
+            R.rendercontexts.AbstractRenderContext.assignMouseHandler(this);
+            var self = this;
+            R.Engine.onShutdown(function() {
+               self.uncaptureMouse();
+            });
+            this._handlers[0] = true;
+         }
       },
 
       /**
@@ -180,28 +185,52 @@ R.rendercontexts.AbstractRenderContext = function() {
        */
       uncaptureMouse: function() {
          R.rendercontexts.AbstractRenderContext.removeMouseHandler(this);
+         this._handlers[0] = false;
       },
 
       /**
        * Get the state of the mouse in the rendering context.  You must first enable mouse
-       * event capturing with {@link #captureMouse}.
-       * The object will contain:
-       * <ul>
-       * <li><code>position</code> - {@link R.math.Point2D}</li>
-       * <li><code>lastPosition</code> - {@link R.math.Point2D}</li>
-       * <li><code>downPosition</code> - {@link R.math.Point2D}</li>
-       * <li><code>button</code> - {@link R.engine.Events#MOUSE_NO_BUTTON}, {@link R.engine.Events#MOUSE_LEFT_BUTTON},
-       * {@link R.engine.Events#MOUSE_RIGHT_BUTTON}, or {@link R.engine.Events#MOUSE_MIDDLE_BUTTON}</li>
-       * <li><code>lastOver</code> - {@link R.engine.BaseObject} or <code>null</code></li>
-       * <li><code>moveVec</code> - {@link R.math.Vector2D} which represents the direction and distance
-       * of the mouse movement</li>
-       * <li><code>dragVec</code> - {@link R.math.Vector2D} which represents the direction and distance
-       * of the mouse movement when a mouse button is down</li>
-       * </ul>
-       * @return {Object} The current state of the mouse
+       * event capturing with {@link #captureMouse}.  See {@link R.struct.MouseInfo} for more
+       * information about what is in the object.
+       *
+       * @return {R.struct.MouseInfo} The current state of the mouse
        */
       getMouseInfo: function() {
-         return this.getObjectDataModel().mouseInfo;
+         return this.getObjectDataModel(R.rendercontexts.AbstractRenderContext.MOUSE_DATA_MODEL);
+      },
+
+      /**
+       * Enable touch event capturing within the render context.  The touch
+       * event data will be accessible by calling {@link #getTouchInfo}.
+       */
+      captureTouch: function() {
+         if (!this._handlers[1]) {
+            R.rendercontexts.AbstractRenderContext.assignTouchHandler(this);
+            var self = this;
+            R.Engine.onShutdown(function() {
+               self.uncaptureTouch();
+            });
+            this._handlers[1] = true;
+         }
+      },
+
+      /**
+       * Disable touch event capturing within the render context.
+       */
+      uncaptureTouch: function() {
+         R.rendercontexts.AbstractRenderContext.removeTouchHandler(this);
+         this._handlers[1] = false;
+      },
+
+      /**
+       * Get the state of touches in the rendering context.  You must first enable touch
+       * event capturing with {@link #captureTouch}.  See {@link R.struct.TouchInfo} for more
+       * information about what is in the object.
+       *
+       * @return {R.struct.TouchInfo} The current state of touches
+       */
+      getTouchInfo: function() {
+         return this.getObjectDataModel(R.rendercontexts.AbstractRenderContext.TOUCH_DATA_MODEL);
       },
 
       /**
@@ -520,6 +549,16 @@ R.rendercontexts.AbstractRenderContext = function() {
       DATA_MODEL: "RenderContext",
 
       /**
+       * @private
+       */
+      MOUSE_DATA_MODEL: "mouseInfo",
+
+      /**
+       * @private
+       */
+      TOUCH_DATA_MODEL: "touchInfo",
+
+      /**
        * Assigns the mouse handlers.
        * @private
        * @param ctx {R.rendercontexts.AbstractRenderContext} The context to assign the handlers to
@@ -528,10 +567,12 @@ R.rendercontexts.AbstractRenderContext = function() {
          // Assign handlers to the context, making sure to only add
          // the handler once.  This way we don't have hundreds of mouse move
          // handlers taking up precious milliseconds.
-         var ctxData = ctx.getObjectDataModel(), mouseInfo = ctx.getObjectDataModel("mouseInfo");
+         var ctxData = ctx.getObjectDataModel(),
+             mouseInfo = ctx.getObjectDataModel(R.rendercontexts.AbstractRenderContext.MOUSE_DATA_MODEL);
 
          if (!mouseInfo) {
-            mouseInfo = ctx.setObjectDataModel("mouseInfo", R.struct.MouseInfo.create());
+            mouseInfo = ctx.setObjectDataModel(R.rendercontexts.AbstractRenderContext.MOUSE_DATA_MODEL,
+                           R.struct.MouseInfo.create());
 
             ctx.addEvent(ctx, "mousemove", function(evt) {
                if (mouseInfo.moveTimer != null) {
@@ -543,16 +584,23 @@ R.rendercontexts.AbstractRenderContext = function() {
                // BAF: 05/31/2011 - https://github.com/bfattori/TheRenderEngine/issues/7
                // BAF: 06/17/2011 - https://github.com/bfattori/TheRenderEngine/issues/9
                // Adjust for position of context
-               var x = evt.pageX, y = evt.pageY, cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
-               cX = cX == "auto" ? 0 : cX;
-               cY = cY == "auto" ? 0 : cY;
+               var x = evt.pageX, y = evt.pageY,
+                   cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
+
+               cX = (cX == "auto" || cX == "") ? 0 : cX;
+               cY = (cY == "auto" || cY == "") ? 0 : cY;
                mouseInfo.position.set(x - cX, y - cY);
+
+               // Move vector is calculated relative to the last position and is normalized
                mouseInfo.moveVec.set(mouseInfo.position);
-               mouseInfo.moveVec.sub(mouseInfo.lastPosition);
+               mouseInfo.moveVec.sub(mouseInfo.lastPosition).normalize();
+
                if (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON) {
+               // Drag vector originates from the "down" touch and is normalized
                   mouseInfo.dragVec.set(mouseInfo.downPosition);
-                  mouseInfo.dragVec.sub(mouseInfo.position);
+                  mouseInfo.dragVec.sub(mouseInfo.position).normalize();
                }
+
                mouseInfo.moveTimer = R.lang.Timeout.create("mouseMove", 33, function() {
                   mouseInfo.moveVec.set(0, 0);
                });
@@ -560,7 +608,12 @@ R.rendercontexts.AbstractRenderContext = function() {
 
             ctx.addEvent(ctx, "mousedown", function(evt) {
                mouseInfo.button = evt.which;
-               mouseInfo.downPosition.set(evt.pageX, evt.pageY);
+               var x = evt.pageX, y = evt.pageY,
+                   cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
+
+               cX = (cX == "auto" || cX == "") ? 0 : cX;
+               cY = (cY == "auto" || cY == "") ? 0 : cY;
+               mouseInfo.downPosition.set(x - cX, y - cY);
                evt.preventDefault();
             });
 
@@ -578,11 +631,93 @@ R.rendercontexts.AbstractRenderContext = function() {
        * @private
        */
       removeMouseHandler: function(ctx) {
-         ctx.setObjectDataModel("mouseInfo", undefined);
+         ctx.setObjectDataModel(R.rendercontexts.AbstractRenderContext.MOUSE_DATA_MODEL, undefined);
          ctx.removeEvent(ctx, "mousemove");
          ctx.removeEvent(ctx, "mousedown");
          ctx.removeEvent(ctx, "mouseup");
+      },
+
+      /**
+       * Assigns the touch handlers.
+       * @private
+       * @param ctx {R.rendercontexts.AbstractRenderContext} The context to assign the handlers to
+       */
+      assignTouchHandler: function(ctx) {
+         // Assign handlers to the context, making sure to only add
+         // the handler once.  This way we don't have hundreds of mouse move
+         // handlers taking up precious milliseconds.
+         var ctxData = ctx.getObjectDataModel(),
+             touchInfo = ctx.getObjectDataModel(R.rendercontexts.AbstractRenderContext.TOUCH_DATA_MODEL);
+
+         if (!touchInfo) {
+            touchInfo = ctx.setObjectDataModel(R.rendercontexts.AbstractRenderContext.TOUCH_DATA_MODEL,
+                           R.struct.TouchInfo.create());
+
+            ctx.addEvent(ctx, "touchmove", function(evt) {
+               touchInfo.touches = R.struct.TouchInfo.processTouches(evt.originalEvent);
+
+               if (touchInfo.moveTimer != null) {
+                  touchInfo.moveTimer.destroy();
+                  touchInfo.moveTimer = null;
+               }
+               touchInfo.lastPosition.set(touchInfo.position);
+
+               // Use the first touch as the position
+               var x = touchInfo.touches[0].getX(), y = touchInfo.touches[0].getY(),
+                   cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
+
+               cX = (cX == "auto" || cX == "") ? 0 : cX;
+               cY = (cY == "auto" || cY == "") ? 0 : cY;
+               touchInfo.position.set(x - cX, y - cY);
+
+               // Move vector is calculated relative to the last position and is normalized
+               touchInfo.moveVec.set(touchInfo.position);
+               touchInfo.moveVec.sub(touchInfo.lastPosition).normalize();
+
+               // Drag vector originates from the "down" touch and is normalized
+               touchInfo.dragVec.set(touchInfo.downPosition);
+               touchInfo.dragVec.sub(touchInfo.position).normalize();
+
+               touchInfo.moveTimer = R.lang.Timeout.create("touchMove", 33, function() {
+                  touchInfo.moveVec.set(0, 0);
+               });
+            });
+
+            ctx.addEvent(ctx, "touchstart", function(evt) {
+               touchInfo.touches = R.struct.TouchInfo.processTouches(evt.originalEvent);
+               touchInfo.button = R.engine.Events.MOUSE_LEFT_BUTTON;
+
+               // Use the first touch as the down position
+               var x = touchInfo.touches[0].getX(), y = touchInfo.touches[0].getY(),
+                   cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
+
+               cX = (cX == "auto" || cX == "") ? 0 : cX;
+               cY = (cY == "auto" || cY == "") ? 0 : cY;
+               touchInfo.downPosition.set(x - cX, y - cY);
+               evt.preventDefault();
+            });
+
+            ctx.addEvent(ctx, "touchend", function(evt) {
+               touchInfo.touches = R.struct.TouchInfo.processTouches(evt.originalEvent);
+               touchInfo.button = R.engine.Events.MOUSE_NO_BUTTON;
+               touchInfo.dragVec.set(0, 0);
+            });
+
+         }
+      },
+
+      /**
+       * Remove the touch handlers
+       * @param ctx
+       * @private
+       */
+      removeTouchHandler: function(ctx) {
+         ctx.setObjectDataModel(R.rendercontexts.AbstractRenderContext.TOUCH_DATA_MODEL, undefined);
+         ctx.removeEvent(ctx, "touchmove");
+         ctx.removeEvent(ctx, "touchstart");
+         ctx.removeEvent(ctx, "touchend");
       }
+
    });
 
 };

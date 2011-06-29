@@ -167,16 +167,45 @@ R.engine.BaseObject = function(){
 		},
 		
 		/**
-		 * Add an event handler to this object, as long as it has an associated HTML element.
+		 * Add an event handler to this object, as long as it has an associated HTML element. Within the
+       * event handler, <tt>this</tt> refers to the object upon which the event is being triggered. It is
+       * possible to bind an event simply by calling <tt>addEvent</tt> with the type and callback, like
+       * so:
+       * <pre>
+       *    this.addEvent("click", function(evt) {
+       *       this.doSomething(evt);
+       *    });
+       * </pre>
+       * However, if you need to reference another object during the binding process, such as when
+       * a render context is binding an event to a game object, you could pass a reference object
+       * as the first argument:
+       * <pre>
+       *    // "this" refers to the render context
+       *    someObj.addEvent(this, "click", function(evt) {
+       *       // Inside the handler, "this" is the target of the event
+       *       this.doSomething(evt);
+       *    });
+       * </pre>
+       * The purpose behind this is that if the render context assigned the event, it should
+       * probably remove the handler, rather than the game object needing to remove the handler.
+       * But, if the game object <i>also</i> has a "click" handler, you don't want to remove
+       * <i>that handler</i> since the game object may still need it.
 		 *
-		 * @param ref {Object} The object reference which is assigning the event
+		 * @param [ref] {Object} The object reference which is assigning the event
 		 * @param type {String} The event type to respond to
 		 * @param [data] {Array} Optional data to pass to the handler when it is invoked.
 		 * @param fn {Function} The function to trigger when the event fires
 		 */
 		addEvent: function(ref, type, data, fn){
-         fn = $.isFunction(data) ? data : fn;
-         data = $.isFunction(data) ? null : data;
+         ref = R.isString(ref) ? this : ref;
+
+         // CAUTION: Brain Teaser
+         fn = R.isString(ref) ? (R.isFunction(type) ? type : (R.isFunction(data) ? data : fn)) :
+                R.isFunction(data) ? data : fn;
+         data = R.isString(ref) ? (R.isFunction(type) ? null : (R.isFunction(data) ? null : data)) :
+                  R.isFunction(data) ? null : data;
+         // CAUTION -------------
+
 			if (ref == null) {
 				// This is a global assignment to the document body.  Many listeners
 				// may collect data from the event handler.
@@ -210,14 +239,31 @@ R.engine.BaseObject = function(){
 		},
 		
 		/**
-		 * Remove the event handler assigned to the object's associated HTML element
-		 * for the given type.
+		 * Remove the event handler assigned to the object for the given type.  The optional
+       * <tt>ref</tt> argument is used when another object assigned the event handler, such as:
+       * <pre>
+       *    // Handler #1
+       *    someObject.addEvent("click", function(evt) {
+       *       this.doSomething(evt);
+       *    });
+       *
+       *    // Handler #2
+       *    someObject.addEvent(anotherObject, "click", function(evt) {
+       *       this.doSomething(evt);
+       *    });
+       * </pre>
+       * You would remove the "click" handler that <tt>anotherObject</tt> assigned (handler #2),
+       * and not one that was bound by <tt>someObject</tt> (handler #1):
+       * <pre>
+       *    someObject.removeEvent(anotherObject, "click");
+       * </pre>
 		 *
-		 * @param ref {Object} The object reference which assigned the event
+		 * @param [ref] {Object} The object reference which assigned the event
 		 * @param type {String} The event type to remove
 		 */
 		removeEvent: function(ref, type){
          var fn;
+         ref = R.isString(ref) ? this : ref;
 			if (ref == null) {
 				// This was a global assignment to the document body.  Clean it up
 				R.debug.Console.info("Global event '" + type + "' removed");

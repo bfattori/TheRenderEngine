@@ -108,7 +108,7 @@ R.struct.MouseInfo = function() {
          this.dragVec = R.math.Vector2D.create(0, 0);
          this.lastOver = null;
          this.moveTimer = null;
-			this.base("MouseInfo");
+			this.base(arguments[0] || "MouseInfo");
 		},
 
       /**
@@ -140,7 +140,7 @@ R.struct.MouseInfo = function() {
 
    }, {
       getClassName: function() {
-         return "R.struct.RayInfo";
+         return "R.struct.MouseInfo";
       }
    });
 };

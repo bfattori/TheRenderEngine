@@ -43,21 +43,21 @@ R.Engine.define({
 
 /**
  * @class A component which responds to touch events and notifies
- * its {@link R.engine.GameObject} by calling one of four methods.  The <tt>R.engine.GameObject</tt>
- * should implement any of the following methods to receive the corresponding event:
+ * its {@link R.engine.GameObject} by triggering one of three events.  The <tt>R.engine.GameObject</tt>
+ * should add event handlers for any one of:
  * <ul>
- * <li><tt>onTouchStart()</tt> - A touch event started</li>
- * <li><tt>onTouchEnd()</tt> - A touch event ended</li>
- * <li><tt>onTouchMove()</tt> - A movement occurred after a touch event started</li>
- * <li><tt>onTouchCancel()</tt> - A touch event was cancelled</li>
+ * <li><tt>touchstart</tt> - A touch event started</li>
+ * <li><tt>touchend</tt> - A touch event ended</li>
+ * <li><tt>touchmove</tt> - A movement occurred after a touch event started</li>
  * </ul>
- * Each function should take up to two arguments.  The first argument is an array of
- * {@link R.struct.Touch} objects which represent each touch that occurred in the event.  Some
- * platforms support multi-touch, so each touch will be represented in the array.  The
- * second argument is the actual event object itself.
+ * Each event handler will be passed a {@link R.struct.TouchInfo TouchInfo} object which
+ * contains information about the event.  The <tt>touchmove</tt> event is also passed a boolean
+ * flag indicating if the touch is within the world bounding box of the game object.
+ * <p/>
+ * <i>Note: The rendering context that the object is contained within needs to enable touch event
+ * capturing with the {@link R.rendercontexts.AbstractRenderContext#captureTouch} method.</i>
  *
  * @param name {String} The unique name of the component.
- * @param [passThru] {Boolean} set to <tt>true</tt> to pass the event to the device
  * @param [priority] {Number} The priority of the component among other input components.
  * @extends R.components.Input
  * @constructor
@@ -72,62 +72,17 @@ R.components.input.Touch = function() {
        * @private
        */
       constructor: function(name, passThru, priority) {
-         passThru = (typeof passThru == "number" ? false : passThru);
-         priority = (typeof passThru == "number" ? passThru : null);
          this.base(name, priority);
-
-         var ctx = R.Engine.getDefaultContext();
-         var self = this;
-
-         // Add the event handlers
-         ctx.addEvent(this, "touchstart", function(evt) {
-            if (!passThru) {
-               evt.preventDefault();
-            }
-            return self._touchStartListener(evt);
-         });
-         ctx.addEvent(this, "touchend", function(evt) {
-            if (!passThru) {
-               evt.preventDefault();
-            }
-            return self._touchEndListener(evt);
-         });
-         ctx.addEvent(this, "touchmove", function(evt) {
-            if (!passThru) {
-               evt.preventDefault();
-            }
-            return self._touchMoveListener(evt);
-         });
-         ctx.addEvent(this, "touchcancel", function(evt) {
-            if (!passThru) {
-               evt.preventDefault();
-            }
-            return self._touchCancelListener(evt);
-         });
-
-         this.hasTouchMethods = [false, false, false, false];
       },
 
       /**
        * Destroy this instance and remove all references.
        */
       destroy: function() {
-         var ctx = R.Engine.getDefaultContext();
-
-         // Clean up event handlers
-         ctx.removeEvent(this, "touchstart");
-         ctx.removeEvent(this, "touchend");
-         ctx.removeEvent(this, "touchmove");
-         ctx.removeEvent(this, "touchcancel");
+         if (this.getGameObject()) {
+            delete this.getGameObject().getObjectDataModel()[R.components.input.Touch.TOUCH_DATA_MODEL];
+         }
          this.base();
-      },
-
-      /**
-       * Releases the component back into the object pool
-       */
-      release: function() {
-         this.base();
-         this.hasTouchMethods = null;
       },
 
       /**
@@ -148,52 +103,49 @@ R.components.input.Touch = function() {
        */
       setGameObject: function(gameObject) {
          this.base(gameObject);
-         this.hasTouchMethods = [gameObject.onTouchStart != undefined,
-            gameObject.onTouchEnd != undefined,
-            gameObject.onTouchMove != undefined,
-            gameObject.onTouchCancel != undefined];
+
+         // Set some flags we can check
+         var dataModel = gameObject.setObjectDataModel(R.components.input.Mouse.TOUCH_DATA_MODEL, {
+            touchDown: false
+         });
       },
 
       /**
-       * Process the touches and pass an array of touch objects to be handled by the
-       * host object.
-       * @private
+       * Perform the checks on the touch info object, and also perform
+       * intersection tests to be able to call touch events.
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context
+       * @param time {Number} The current world time
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
        */
-      processTouches: function(eventObj) {
-         var touches = [];
-         if (eventObj.touches) {
-            for (var i = 0; i < eventObj.touches.length; i++) {
-               touches.push(new R.struct.Touch(eventObj.touches[i]));
-            }
-         }
-         return touches;
-      },
+      execute: function(renderContext, time, dt) {
+         // Objects may be in motion.  If so, we need to call the touch
+         // methods for just such a case.
+         var gameObject = this.getGameObject(),
+               touchInfo = renderContext.getTouchInfo(),
+               bBox = gameObject.getWorldBox(),
+               touchOn = false,
+               dataModel = gameObject.getObjectDataModel(R.components.input.Touch.TOUCH_DATA_MODEL);
 
-      /** @private */
-      _touchStartListener: function(eventObj) {
-         if (this.hasTouchMethods[0]) {
-            return this.getGameObject().onTouchStart(this.processTouches(eventObj.originalEvent), eventObj);
+         if (touchInfo && bBox) {
+            touchOn = R.math.Math2D.boxPointCollision(bBox, touchInfo.position);
          }
-      },
 
-      /** @private */
-      _touchEndListener: function(eventObj) {
-         if (this.hasTouchMethods[1]) {
-            return this.getGameObject().onTouchEnd(this.processTouches(eventObj.originalEvent), eventObj);
+         // Touched on object
+         if (touchOn && (touchInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
+            dataModel.touchDown = true;
+            gameObject.triggerEvent("touchstart", [touchInfo]);
          }
-      },
 
-      /** @private */
-      _touchMoveListener: function(eventObj) {
-         if (this.hasTouchMethods[2]) {
-            return this.getGameObject().onTouchMove(this.processTouches(eventObj.originalEvent), eventObj);
+         // Touch position changed
+         if (dataModel.touchDown && !touchInfo.position.equals(touchInfo.lastPosition)) {
+            gameObject.triggerEvent("touchmove", [touchInfo, touchOn]);
          }
-      },
 
-      /** @private */
-      _touchCancelListener: function(eventObj) {
-         if (this.hasTouchMethods[3]) {
-            return this.getGameObject().onTouchCancel(this.processTouches(eventObj.originalEvent), eventObj);
+         // Touch ended (and object was touched)
+         if (dataModel.touchDown && touchInfo.button == R.engine.Events.MOUSE_NO_BUTTON) {
+            dataModel.touchDown = false;
+            gameObject.triggerEvent("touchend", [touchInfo]);
          }
       }
 
@@ -207,7 +159,9 @@ R.components.input.Touch = function() {
          return "R.components.input.Touch";
       },
 
-      /** @private */
-      RECORD_PART: ["shiftKey","ctrlKey","altKey","keyCode"]
+      /**
+       * @private
+       */
+      TOUCH_DATA_MODEL: "TouchInputComponent"
    });
 };

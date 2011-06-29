@@ -62,12 +62,14 @@ R.resources.types.Tile = function() {
       sparsity: null,
       tileObj: null,
       renderContext: null,
+      renderedFlag: false,
 
       /** @private */
       constructor: function(name, tileObj, tileResource, tileLoader) {
          this.base(name, tileObj, tileResource, 2, tileLoader);
          this.tileObj = tileObj;
          this.solidityMap = null;
+         this.renderedFlag = false;
 
          if (tileResource.info.assumeOpaque) {
             // Short-circuit
@@ -93,6 +95,7 @@ R.resources.types.Tile = function() {
       release: function() {
          this.solidityMap = null;
          this.tileObj = null;
+         this.renderedFlag = false;
          this.base();
       },
 
@@ -169,6 +172,22 @@ R.resources.types.Tile = function() {
 
       getScale: function() {
          return R.resources.types.Tile.SCALE1;
+      },
+
+      /**
+       * Mark the tile as having been rendered to the context.  This is used for
+       * HTML contexts where the tile should only render once unless it's an animated tile.
+       */
+      markRendered: function() {
+         this.renderedFlag = true;
+      },
+
+      /**
+       * Returns a flag indicating if the tile has been rendered to the context.
+       * @return {Boolean}
+       */
+      hasRendered: function() {
+         return this.renderedFlag;
       }
 
    }, /** @scope R.resources.types.Tile.prototype */{

@@ -194,7 +194,7 @@ R.components.physics.BaseBody = function() {
        * @return {R.math.Point2D}
        */
       getCenter: function() {
-         return R.math.Point2D.create(this.getPosition()).add(this.getLocalOrigin());
+         return R.clone(this.getPosition()).mul(R.physics.Simulation.WORLD_SIZE).add(this.getLocalOrigin());
       },
 
       /**
@@ -309,12 +309,10 @@ R.components.physics.BaseBody = function() {
        */
       setPosition: function(point) {
          if (!this.simulation) {
-            this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_METERS);
-
-            this.getBodyDef().position.x = this.scaledPoint.x;
-            this.getBodyDef().position.y = this.scaledPoint.y;
+            this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_SIZE);
+            this.getBodyDef().position.Set(this.scaledPoint.x, this.scaledPoint.y);
          } else {
-            this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_METERS);
+            this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_SIZE);
             var bv = new Box2D.Common.Math.b2Vec2(this.scaledPoint.x, this.scaledPoint.y);
             this.getBody().SetPosition(bv);
          }
@@ -328,10 +326,10 @@ R.components.physics.BaseBody = function() {
       getPosition: function() {
          if (this.simulation) {
             var bp = this.getBody().GetPosition();
-            this.scaledPoint.set(bp.x, bp.y).mul(R.physics.Simulation.WORLD_METERS);
+            this.scaledPoint.set(bp.x, bp.y).mul(R.physics.Simulation.WORLD_SIZE);
             this.bodyPos.set(this.scaledPoint);
          } else {
-            this.scaledPoint.set(this.getBodyDef().position.x, this.getBodyDef().position.y).mul(R.physics.Simulation.WORLD_METERS);
+            this.scaledPoint.set(this.getBodyDef().position.x, this.getBodyDef().position.y).mul(R.physics.Simulation.WORLD_SIZE);
             this.bodyPos.set(this.scaledPoint);
          }
          return this.bodyPos;

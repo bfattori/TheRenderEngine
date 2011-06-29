@@ -394,7 +394,8 @@ R.engine.Object2D = function(){
          Assert(transformComponent && transformComponent instanceof R.components.Transform2D, "Default transform component not R.components.Transform2D or subclass");
 
          // If this is the component created by the system, we can just destroy it
-         if (this.defaultTxfmComponent && this.defaultTxfmComponent.getName() === "dTxfm__") {
+         if (this.defaultTxfmComponent && this.defaultTxfmComponent.getName() === "DTXFM__") {
+            this.remove(this.defaultTxfmComponent);
             this.defaultTxfmComponent.destroy();
          }
 

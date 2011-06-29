@@ -97,7 +97,7 @@ var Toy = function() {
          this.getComponent("collide").linkPhysicalBody(this.getComponent("physics"));
 
          // Set the starting position of the toy
-         this.setPosition(R.math.Point2D.create(25, 15));
+         this.setPosition(R.math.Point2D.create(50, 25));
       },
 
       /**

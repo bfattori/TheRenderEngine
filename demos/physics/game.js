@@ -226,21 +226,21 @@ var PhysicsDemo = function() {
       createToy: function(toyObject) {
          // Before we create a toy, check the engine load.  If it's close to 100%
          // just return.  We want this demo to stay interactive.
-         if (R.Engine.getEngineLoad() > 0.8) {
-            return;
-         }
+         //if (R.Engine.getEngineLoad() > 0.8) {
+         //   return;
+         //}
 
          // Set a random location
          var x = Math.floor(R.lang.Math2.random() * 300);
          var p = R.math.Point2D.create(x, 80);
          toyObject.setPosition(p);
 
+         this.renderContext.add(toyObject);
+
          // Start the simulation of the object so we can apply a force
          toyObject.simulate();
          var v = R.math.Vector2D.create(1 + (R.lang.Math2.random() * 80), 2);
          toyObject.applyForce(v, p);
-
-         this.renderContext.add(toyObject);
 
          // Clean up temporary objects
          v.destroy();

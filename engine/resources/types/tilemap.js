@@ -65,7 +65,6 @@ R.resources.types.TileMap = function() {
       parallax: null,
       dimensions: null,
       isHTMLContext: false,
-      initialRender: false,
 
       /** @private */
       constructor: function(name, width, height) {
@@ -74,7 +73,6 @@ R.resources.types.TileMap = function() {
          this.zIndex = 0;
          this.parallax = R.math.Point2D.create(1,1);
          this.isHTMLContext = false;
-         this.initialRender = false;
 
          // The tile map is a dense array
          this.tilemap = [];
@@ -109,7 +107,6 @@ R.resources.types.TileMap = function() {
 
       afterAdd: function(renderContext) {
          this.isHTMLContext = renderContext instanceof R.rendercontexts.HTMLElementContext;
-         this.initialRender = false;
       },
 
       /**
@@ -268,13 +265,10 @@ R.resources.types.TileMap = function() {
             if (!tile)
                continue;
 
-            /* TODO: Move "initialRender" to tile.  Having it on the tilemap means when the viewport
-               changes, only animated tiles will render. */
-
             // In an HTML context we only want to render static (non-animated) tiles one time.
             // However, animated tiles will need to animate each frame.  For a graphical context,
             // we'll render all tiles each frame.
-            if (!this.isHTMLContext || ((tile.isAnimation() || !this.initialRender) && this.isHTMLContext)) {
+            if (!this.isHTMLContext || ((tile.isAnimation() || !tile.hasRendered()) && this.isHTMLContext)) {
 
                var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
                rect.set(x - wp.x, y - wp.y, tileWidth, tileHeight);
@@ -295,6 +289,9 @@ R.resources.types.TileMap = function() {
                   tile.setElement(obj);
                }
 
+               // Mark the tile as "rendered to the context"
+               tile.markRendered();
+
                f.destroy();
             }
 
@@ -302,8 +299,6 @@ R.resources.types.TileMap = function() {
 
          rect.destroy();
          topLeft.destroy();
-
-         this.initialRender = true;
 
          renderContext.popTransform();
       },
