@@ -75,8 +75,8 @@ var BeachBall = function() {
 
          // Set the friction and bounciness of the beachball
          this.getComponent(componentName).setFriction(0.2);
-         this.getComponent(componentName).setRestitution(0.8);
-         this.getComponent(componentName).setDensity(0.4);
+         this.getComponent(componentName).setRestitution(0.6);
+         this.getComponent(componentName).setDensity(0.3);
       },
 
       createColliderComponent: function(componentName, collisionModel) {

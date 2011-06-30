@@ -123,8 +123,7 @@ var PhysicsDemo = function() {
          //R.Engine.setDebugMode(true);
 
          // Create the game context
-         //this.renderContext = R.rendercontexts.HTMLDivContext.create("Playfield", 800, 460);
-         this.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 800, 460);
+         this.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 800, 600);
          this.renderContext.setBackgroundColor("#FFFFFF");
          this.renderContext.captureMouse();
 
@@ -151,39 +150,38 @@ var PhysicsDemo = function() {
          R.Engine.getDefaultContext().add(this.renderContext);
 
          // Create the collision model with 8x8 divisions
-         this.cModel = R.collision.broadphase.SpatialGrid.create(800, 460, 8);
+         this.cModel = R.collision.broadphase.SpatialGrid.create(800, 600, 8);
          this.renderContext.add(this.cModel);
 
-         // Add some toys to play around with
-         R.lang.MultiTimeout.create("ballmaker", 6, 150, function() {
-            PhysicsDemo.createToy(BeachBall.create());
-         });
-
-         R.lang.MultiTimeout.create("boxmaker", 8, 150, function() {
-            PhysicsDemo.createToy(Crate.create());
-         });
+         this.addToys();
 
          // Add the player object
          var player = Player.create();
          this.renderContext.add(player);
       },
 
-      reload: function() {
+      addToys: function() {
+         // Add some toys to play around with
+         if ($("input.balls")[0].checked) {
+            R.lang.MultiTimeout.create("ballmaker", 6, 150, function() {
+               PhysicsDemo.createToy(BeachBall.create());
+            });
+         }
+
+         if ($("input.crates")[0].checked) {
+            R.lang.MultiTimeout.create("boxmaker", 6, 150, function() {
+               PhysicsDemo.createToy(Crate.create());
+            });
+         }
+      },
+
+      clearToys: function() {
          var toys = this.renderContext.getObjects(function(e) {
             return e instanceof Toy;
          });
          while (toys.length > 0) {
             toys.shift().destroy();
          }
-
-         // Add some toys to play around with
-         R.lang.MultiTimeout.create("ballmaker", 6, 150, function() {
-            PhysicsDemo.createToy(BeachBall.create());
-         });
-
-         R.lang.MultiTimeout.create("boxmaker", 8, 150, function() {
-            PhysicsDemo.createToy(Crate.create());
-         });
       },
 
       /**
@@ -199,7 +197,7 @@ var PhysicsDemo = function() {
          pos.set(0, this.renderContext.getViewport().h);
          ext.set(3000, 30);
          this.simulation.addSimpleBoxBody(pos, ext, {
-            restitution: 0.2,
+            restitution: 0.1,
             friction: 3.0
          });
 
@@ -231,8 +229,8 @@ var PhysicsDemo = function() {
          //}
 
          // Set a random location
-         var x = Math.floor(R.lang.Math2.random() * 300);
-         var p = R.math.Point2D.create(x, 80);
+         var x = Math.floor(R.lang.Math2.random() * 700);
+         var p = R.math.Point2D.create(x, 0);
          toyObject.setPosition(p);
 
          this.renderContext.add(toyObject);

@@ -99,8 +99,7 @@ R.physics.Simulation = function() {
       },
 
       update: function(renderContext, time, dt) {
-         // TODO: This should probably be based on world and delta times... ?
-         this.world.Step(1 / dt, this.integrations, this.integrations);
+         this.world.Step(R.physics.Simulation.FIXED_TIMESTEP, this.integrations, this.integrations);
          this.world.ClearForces();
       },
 
@@ -266,7 +265,6 @@ R.physics.Simulation = function() {
        */
       addSimpleBoxBody: function(pos, extents, properties) {
          properties = $.extend({ isStatic: true }, properties);
-         ;
 
          var bodyDef = R.physics.Simulation.BODY_DEF,
                fixDef = R.physics.Simulation.FIXTURE_DEF;
@@ -358,7 +356,6 @@ R.physics.Simulation = function() {
          // These are reusable, according to Box2d docs
          R.physics.Simulation.FIXTURE_DEF = new Box2D.Dynamics.b2FixtureDef();
          R.physics.Simulation.BODY_DEF = new Box2D.Dynamics.b2BodyDef();
-         R.physics.Simulation.WORLD_SIZE = 10;   // Pixels per meter
       },
 
       /**
@@ -370,7 +367,15 @@ R.physics.Simulation = function() {
       /**
        * The size of the world in meters
        */
-      WORLD_SIZE: null
+      WORLD_SIZE: 20,
+
+      /**
+       * The world is updated at 60Hz, or 1/60th of a second.  This time step is
+       * ideal so that objects do not jitter.  Changing this value can result in
+       * some truly odd behavior in the simulation.
+       * @type {Number}
+       */
+      FIXED_TIMESTEP: 1/60
 
    });
 };

@@ -76,6 +76,12 @@ var Player = function() {
          this.overToy = null;
          this.clickToy = null;
          this.mouseDown = false;
+
+         // Add mouse event handlers
+         var self = this;
+         this.addEvent("mousemove", function(evt, info) {
+            self.onMouseMove(info);
+         });
       },
 
       /**

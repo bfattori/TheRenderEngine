@@ -190,6 +190,9 @@ R.rendercontexts.HTMLElementContext = function(){
 			   this.jQ().append(obj.getElement());
          }
 
+         var pos = $(obj.getElement()).position();
+         obj.setObjectDataModel("DOMPosition", R.math.Point2D.create(pos.left, pos.top));
+
 			this.base(obj);
 		},
 		

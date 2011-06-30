@@ -75,8 +75,8 @@ var Crate = function() {
          this.add(R.components.physics.BoxBody.create(componentName, this.boxSize));
 
          // Set the friction and bounciness of the crate
-         this.getComponent(componentName).setFriction(1);
-         this.getComponent(componentName).setRestitution(0);
+         this.getComponent(componentName).setFriction(0.2);
+         this.getComponent(componentName).setRestitution(0.04);
          this.getComponent(componentName).setDensity(1);
       },
 

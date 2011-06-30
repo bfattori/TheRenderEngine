@@ -107,6 +107,7 @@ R.rendercontexts.AbstractRenderContext = function() {
          this.viewport = null;
          this.expViewport = null;
          this.worldBoundary = null;
+         this._handlers = null;
       },
 
       /**
@@ -122,6 +123,12 @@ R.rendercontexts.AbstractRenderContext = function() {
          this.worldPosition.destroy();
          if (this.worldBoundary != null) {
             this.worldBoundary.destroy();
+         }
+         if (this._handlers[0]) {
+            this.uncaptureMouse();
+         }
+         if (this._handlers[1]) {
+            this.uncaptureTouch();
          }
          this.base();
       },
@@ -584,12 +591,8 @@ R.rendercontexts.AbstractRenderContext = function() {
                // BAF: 05/31/2011 - https://github.com/bfattori/TheRenderEngine/issues/7
                // BAF: 06/17/2011 - https://github.com/bfattori/TheRenderEngine/issues/9
                // Adjust for position of context
-               var x = evt.pageX, y = evt.pageY,
-                   cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
-
-               cX = (cX == "auto" || cX == "") ? 0 : cX;
-               cY = (cY == "auto" || cY == "") ? 0 : cY;
-               mouseInfo.position.set(x - cX, y - cY);
+               var x = evt.pageX, y = evt.pageY;
+               mouseInfo.position.set(x, y).sub(ctx.getObjectDataModel("DOMPosition"));
 
                // Move vector is calculated relative to the last position and is normalized
                mouseInfo.moveVec.set(mouseInfo.position);
@@ -608,12 +611,9 @@ R.rendercontexts.AbstractRenderContext = function() {
 
             ctx.addEvent(ctx, "mousedown", function(evt) {
                mouseInfo.button = evt.which;
-               var x = evt.pageX, y = evt.pageY,
-                   cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
+               var x = evt.pageX, y = evt.pageY;
 
-               cX = (cX == "auto" || cX == "") ? 0 : cX;
-               cY = (cY == "auto" || cY == "") ? 0 : cY;
-               mouseInfo.downPosition.set(x - cX, y - cY);
+               mouseInfo.downPosition.set(x, y).sub(ctx.getObjectDataModel("DOMPosition"));
                evt.preventDefault();
             });
 
@@ -663,12 +663,9 @@ R.rendercontexts.AbstractRenderContext = function() {
                touchInfo.lastPosition.set(touchInfo.position);
 
                // Use the first touch as the position
-               var x = touchInfo.touches[0].getX(), y = touchInfo.touches[0].getY(),
-                   cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
+               var x = touchInfo.touches[0].getX(), y = touchInfo.touches[0].getY();
 
-               cX = (cX == "auto" || cX == "") ? 0 : cX;
-               cY = (cY == "auto" || cY == "") ? 0 : cY;
-               touchInfo.position.set(x - cX, y - cY);
+               touchInfo.position.set(x, y).sub(ctx.getObjectDataModel("DOMPosition"));
 
                // Move vector is calculated relative to the last position and is normalized
                touchInfo.moveVec.set(touchInfo.position);
@@ -688,12 +685,9 @@ R.rendercontexts.AbstractRenderContext = function() {
                touchInfo.button = R.engine.Events.MOUSE_LEFT_BUTTON;
 
                // Use the first touch as the down position
-               var x = touchInfo.touches[0].getX(), y = touchInfo.touches[0].getY(),
-                   cX = ctx.jQ().css("left"), cY = ctx.jQ().css("top");
+               var x = touchInfo.touches[0].getX(), y = touchInfo.touches[0].getY();
 
-               cX = (cX == "auto" || cX == "") ? 0 : cX;
-               cY = (cY == "auto" || cY == "") ? 0 : cY;
-               touchInfo.downPosition.set(x - cX, y - cY);
+               touchInfo.downPosition.set(x, y).sub(this._offset);
                evt.preventDefault();
             });
 

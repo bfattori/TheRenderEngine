@@ -197,13 +197,14 @@ R.engine.BaseObject = function(){
 		 * @param fn {Function} The function to trigger when the event fires
 		 */
 		addEvent: function(ref, type, data, fn){
-         ref = R.isString(ref) ? this : ref;
 
          // CAUTION: Brain Teaser
          fn = R.isString(ref) ? (R.isFunction(type) ? type : (R.isFunction(data) ? data : fn)) :
                 R.isFunction(data) ? data : fn;
          data = R.isString(ref) ? (R.isFunction(type) ? null : (R.isFunction(data) ? null : data)) :
                   R.isFunction(data) ? null : data;
+         type = R.isString(ref) ? ref : type;
+         ref = R.isString(ref) ? this : ref;
          // CAUTION -------------
 
 			if (ref == null) {
