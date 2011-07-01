@@ -73,11 +73,6 @@ R.Engine.define({
  *              Additionally, a game object can implement <tt>onCollideEnd()</tt> to be notified
  *              when collisions have stopped.  The time the collisions stopped and the time since
  *              the last frame was generated will be the only arguments.
- *              <p/>
- *              In addition to the two methods, objects can bind to the <tt>collide</tt> and
- *              <tt>collideend</tt> events.  These events are provided so that objects can
- *              listen for collisions between objects.  <i>NOTE: The <tt>onCollide()</tt> method
- *              must be implemented to be able to respond to collisions.</i>
  *
  * @param name {String} Name of the component
  * @param collisionModel {SpatialCollection} The collision model
@@ -393,7 +388,6 @@ R.components.Collider = function() {
 
          // onCollideEnd
          if (!this.isDestroyed() && this.didCollide && collisionsReported == 0) {
-            host.triggerEvent("collideend", [time, dt]);
             if (this.hasCollideMethods[1]) {
                host.onCollideEnd(time, dt);
             }
@@ -424,10 +418,6 @@ R.components.Collider = function() {
          }
 
          var test = this.getGameObject().onCollide(collisionObj, time, dt, targetMask);
-
-         // Call the event listeners (these have no bearing on the result)
-         this.getGameObject().triggerEvent("collide", [collisionObj, time, dt, targetMask, test]);
-
          this.didCollide |= (test == R.components.Collider.STOP || R.components.Collider.COLLIDE_AND_CONTINUE);
          return test;
       }
