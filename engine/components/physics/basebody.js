@@ -69,6 +69,7 @@ R.components.physics.BaseBody = function() {
       origin: null,
 
       scaledPoint: null,
+      _states: null,
 
       /**
        * @private
@@ -88,6 +89,9 @@ R.components.physics.BaseBody = function() {
          this.bodyPos = R.math.Point2D.create(0, 0);
          this.origin = R.math.Point2D.create(0, 0);
          this.scaledPoint = R.math.Point2D.create(0, 0);
+
+         // 0: Active, 1: Sleeping
+         this._states = [false, false];
       },
 
       /**
@@ -119,6 +123,7 @@ R.components.physics.BaseBody = function() {
          this.rotVec = null;
          this.bodyPos = null;
          this.origin = null;
+         this._states = null;
       },
 
       /**
@@ -411,9 +416,69 @@ R.components.physics.BaseBody = function() {
        */
       getMass: function() {
          if (this.simulation) {
-            return this.getBody().getMass();
+            return this.getBody().GetMass();
          } else {
-            return Infinity;
+            return this.getBodyDef().massData.mass;
+         }
+      },
+
+      /**
+       * Set the total mass of the body in kilograms.
+       * @param mass {Number} The mass of the body in kg
+       */
+      setMass: function(mass) {
+         if (this.simulation) {
+            var mData = new Box2D.Dynamics.b2MassData();
+            this.getBody().GetMassData(mData);
+            mData.mass = mass;
+            this.getBody().SetMassData(mData);
+            mData = null;
+         } else {
+            this.getBodyDef().massData.mass = mass;
+         }
+      },
+
+      /**
+       * Get the linear damping of the body.
+       * @return {Number}
+       */
+      getLinearDamping: function() {
+         if (this.simulation) {
+            return this.getBody().GetLinearDamping();
+         } else {
+            return this.getBodyDef().linearDamping;
+         }
+      },
+
+      /**
+       * Get the angular damping of the body.
+       * @return {Number}
+       */
+      getAngularDamping: function() {
+         if (this.simulation) {
+            return this.getBody().GetAngularDamping();
+         } else {
+            return this.getBodyDef().angularDamping;
+         }
+      },
+
+      /**
+       * Sets the linear and angular damping of a body. Damping is used to reduce the
+       * world velocity of bodies.  Damping differs from friction in that friction
+       * only occurs when two surfaces are in contact.  Damping is not a replacement
+       * for friction.  A value between 0 and <code>Infinity</code> can be used, but
+       * normally the value is between 0 and 1.0.
+       *
+       * @param linear {Number} The amount of linear damping
+       * @param angular {Number} The amount of angular damping
+       */
+      setDamping: function(linear, angular) {
+         if (this.simulation) {
+            this.getBody().SetLinearDamping(linear);
+            this.getBody().SetAngularDamping(linear);
+         } else {
+            this.getBodyDef().linearDamping = linear;
+            this.getBodyDef().angularDamping = angular;
          }
       },
 
@@ -480,6 +545,46 @@ R.components.physics.BaseBody = function() {
          } else {
             this.getBodyDef().active = active;
          }
+      },
+
+      /**
+       * Checks a couple of flags on the body and triggers events when they change.  Fires
+       * the <code>active</code> event on the game object when this body changes its "active" state.
+       * Fires the <code>sleeping</code> event on the game object when this body changes its
+       * "sleeping" state.  Both events are passed the body which changed state, and a flag
+       * indicating the current state.
+       *
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
+       * @param time {Number} The engine time in milliseconds
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
+       */
+      execute: function(renderContext, time, dt) {
+         this.base(renderContext, time, dt);
+
+         // Check the sleeping and active states so we can trigger events
+         var activeChange = false, sleepChange = false;
+         if (!this._states[0] && this.isActive()) {
+            this._states[0] = true;
+            activeChange = true;
+         } else if (this._states[0] && !this.isActive()) {
+            this._states[0] = false;
+            activeChange = true;
+         }
+
+         if (!this._states[1] && this.isSleeping()) {
+            this._states[1] = true;
+            sleepChange = true;
+         } else if (this._states[1] && !this.isSleeping()) {
+            this._states[1] = false;
+            sleepChange = true;
+         }
+
+         if (activeChange)
+            this.getGameObject().triggerEvent("active", [this, this._states[0]]);
+
+         if (sleepChange)
+            this.getGameObject().triggerEvent("sleeping", [this, this._states[1]]);
       }
 
    }, { /** @scope R.components.physics.BaseBody.prototype */
