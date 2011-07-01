@@ -97,7 +97,8 @@ R.ui.TextInputControl = function() {
 
          R.Engine.getDefaultContext().addEvent(this, "keypress", function(evt) {
             if (self.hasFocus()) {
-               if (evt.which != R.engine.Events.KEYCODE_ENTER) {
+               if (evt.which != R.engine.Events.KEYCODE_ENTER &&
+                   evt.which != R.engine.Events.KEYCODE_BACKSPACE) {
                   if (self.maxLength == 0 || self.text.length < self.maxLength) {
                      if (self.password) {
                         self.text += self.passwordChar;

@@ -76,6 +76,7 @@ R.rendercontexts.RenderContext2D = function() {
       fontStyle: null,
       zBins: null,
       postRenderList: null,
+      _xformStack: null,
 
       /** @private */
       constructor: function(name, surface) {
@@ -99,7 +100,11 @@ R.rendercontexts.RenderContext2D = function() {
          this.fontAlign = "left";
          this.fontBaseline = "alphabetic";
          this.fontStyle = "normal";
-
+         this._xformStack = [];
+         this.position = R.math.Point2D.create(0, 0);
+         this.rotation = 0;
+         this.scaleX = 1;
+         this.scaleY = 1;
       },
 
       /**
@@ -129,6 +134,7 @@ R.rendercontexts.RenderContext2D = function() {
          this.fontBaseline = null;
          this.fontStyle = null;
          this.zBins = null;
+         this._xformStack = null;
       },
 
       /**
@@ -405,7 +411,7 @@ R.rendercontexts.RenderContext2D = function() {
        * @param point {R.math.Point2D} The translation
        */
       setPosition: function(point) {
-         this.position = point;
+         this.position.add(point);
       },
 
       /**
@@ -459,6 +465,48 @@ R.rendercontexts.RenderContext2D = function() {
        */
       getScaleY: function() {
          return this.scaleY;
+      },
+
+      /**
+       * Push the current transformation matrix.
+       */
+      pushTransform: function() {
+			// Translation
+			var p = this.getPosition();
+			var tMtx = $M([[1, 0, p.x], [0, 1, p.y], [0, 0, 1]]);
+
+			// Rotation
+			var a = this.getRotation();
+			var rMtx;
+			if (a != 0) {
+				// Rotate
+				rMtx = Matrix.Rotation(R.math.Math2D.degToRad(a), R.rendercontexts.RenderContext2D.ROTATION_AXIS);
+			}
+			else {
+				// Set to identity
+				rMtx = R.math.Math2D.identityMatrix();
+			}
+
+			// Scale
+			var sX = this.getScaleX(), sY = this.getScaleY(), sMtx = $M([[sX, 0, 0], [0, sY, 0], [0, 0, 1]]),
+             txfmMtx = tMtx.multiply(rMtx).multiply(sMtx);
+
+         rMtx = null;
+         sMtx = null;
+			this._xformStack.push(txfmMtx);
+
+         this.base();
+      },
+
+      /**
+       * Pop the current transformation matrix.
+       */
+      popTransform: function() {
+         // Restore the last position, (TODO: angle, and scale)
+         var xform = this._xformStack.pop().col(3);
+         this.position.set(xform.e(1), xform.e(2));
+
+         this.base();
       },
 
       /**
@@ -576,11 +624,20 @@ R.rendercontexts.RenderContext2D = function() {
       },
 
       /**
-       * Set the transformation using a matrix.
-       *
+       * Set the current transformation using a matrix.  Replaces the
+       * current transformation at the top of the stack.
        * @param matrix {Matrix} The transformation matrix
        */
       setTransform: function(matrix) {
+         this._xformStack[this._xformStack.length - 1] = matrix;
+      },
+
+      /**
+       * Get the current transformation matrix.
+       * @return {Matrix}
+       */
+      getTransform: function() {
+         return this._xformStack[this._xformStack.length - 1];
       },
 
       /**
@@ -1142,7 +1199,12 @@ R.rendercontexts.RenderContext2D = function() {
       /**
        * @private
        */
-      NO_ZBIN: 0xDEADBEEF
+      NO_ZBIN: 0xDEADBEEF,
+
+      /**
+       * @private
+       */
+      ROTATION_AXIS: $V([0, 0, 1])
    });
 
 };
