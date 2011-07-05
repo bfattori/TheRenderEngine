@@ -700,35 +700,70 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
     * @memberOf R.Engine
     */
    initObject: function(objectName, primaryDependency, fn) {
-      throw new SyntaxError("Unsupported - See R.Engine.define() instead");
+      throw new Error("Unsupported - See R.Engine.define() instead");
    },
 
    /**
-    * Define a class to add to the namespace plus its requirements.  The format of the
-    * object definition is:
+    * Defines a new class.  The format of the object definition is:
     * <pre>
-    * {
-    *    "class": "R.[package name].[class name]",
+    * R.Engine.define({
+    *    "class": "[class name]",
     *    "requires": [
     *       "R.[package name].[dependency]"
     *    ],
+    *    "depends": [
+    *       "[dependency]"
+    *    ],
     *    "includes": [
     *       "/path/to/file.js"
-    *    ],
-    *      "depends": [
-    *         "[dependency]"
-    *      ]
-    * }
+    *    ]
+    * });
     * </pre>
-    * If a class has no requirements, you can either omit the "requires" key, set it
-    * to <tt>null</tt>, or set it to an empty array.  The "requires" key also performs
-    * class loading for objects in the "R" namespace.  The "includes" key is optional.
-    * Use this to specify additional files which must be loaded for the class to run.
+    * Each class must define its class name via the "class" key.  This is the name that
+    * other classes will use to locate the class object.  The <tt>"requires"</tt> key defines the
+    * classes within the engine that the class is dependent upon.  Anything that falls into
+    * the <tt>"R."</tt> namespace should be declared as a requirement here. The "requires" key
+    * performs class loading for these objects automatically.  In other words, you do not need
+    * to load classes which start with <tt>"R."</tt>.
     * <p/>
-    * The "depends" key is also optional, but is essential for your game classes.  It
-    * establishes class dependencies which are <i>not in the "R" namespace</i>.  It
-    * doesn't perform class loading either, like "requires" does.  You will need to
-    * load the classes with <tt>Game.load("/path/to/file.js")</tt>.
+    * If your class has dependencies on classes <i>not defined in the <tt>"R"</tt> namespace</i>,
+    * they should be declared via the <tt>"depends"</tt> array.  These are classes which your game
+    * classes need to load via {@link R.engine.Game#load} calls.  For files which just need to be
+    * loaded, use the <tt>"include"</tt> key to tell the engine where the file is.
+    * <p/>
+    * Until all requirements, dependencies, and included files have been loaded and/or initialized,
+    * a class will, itself, not be initialized. Be aware of class dependencies so you do not create
+    * circular dependencies.  First-level circular dependencies are okay, such as <tt>A</tt> requires
+    * <tt>B</tt>, while <tt>B</tt> requires <tt>A</tt>.  But second, third, and so on circular
+    * dependencies will cause your classes to remain unresolved. The engine will not start the game,
+    * and an erro message will be sent to the console listing classes which were resolved and those
+    * which are unresolved.
+    * <p/>
+    * The <tt>"requires"</tt>, <tt>"includes"</tt> and <tt>"depends"</tt> keys are optional.  You
+    * can either omit them entirely, set them to <code>null</code>, or assign an empty array to them.
+    * <p/>
+    * The <tt>"depends"</tt> key is the only way your game classes can establish class dependencies
+    * which are <i>not in the <tt>"R."</tt> namespace</i>.  Classes specified via the
+    * <tt>"depends"</tt> key are not loaded via the engine class loader like <tt>"requires"</tt>
+    * does.  Instead, your game will need to load the classes.  For example:
+    * <pre>
+    * R.Engine.define({
+    *    "class": "Foo",
+    *    "requires": [
+    *       "R.rendercontexts.CanvasContext"
+    *    ],
+    *    "depends": [
+    *       "Bar"
+    *    ]
+    * });
+    *
+    * // Load the Bar class
+    * R.engine.Game.load("bar.js");
+    * </pre>
+    * After receiving the definition, the engine will load <tt>R.rendercontexts.CanvasContext</tt>
+    * for <tt>Foo</tt>. The call to <code>R.engine.Game.load("bar.js")</code> would load the
+    * <tt>Bar</tt> class.  When the context and <tt>Bar</tt> have loaded and initialized, <tt>Foo</tt>
+    * can be initialized which will enable any classes dependent on <tt>Foo</tt> to be initialized.
     *
     * @param classDef {Object} The object's definition
     * @memberOf R.Engine
