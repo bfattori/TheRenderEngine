@@ -143,7 +143,7 @@ R.components.Transform2D = function() {
     */
    getRenderPosition: function() {
 		this.worldPos.set(this.getPosition());
-		this.worldPos.sub(this.getGameObject().getRenderContext().getWorldPosition());
+		this.worldPos.sub(this.getGameObject().getRenderContext().getPosition());
       return this.worldPos;
    },
 
@@ -279,9 +279,9 @@ R.components.Transform2D = function() {
     *          in milliseconds.
     */
    execute: function(renderContext, time, dt) {
-      renderContext.setPosition(this.getRenderPosition());
-      renderContext.setRotation(this.getRenderRotation());
-      renderContext.setScale(this.getRenderScaleX(), this.getRenderScaleY());
+      renderContext.setPosition(this.getPosition());
+      renderContext.setRotation(this.getRotation());
+      renderContext.setScale(this.getScaleX(), this.getScaleY());
 
       /* pragma:DEBUG_START */
       // Debug the origin

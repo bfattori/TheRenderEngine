@@ -56,6 +56,9 @@ R.rendercontexts.DocumentContext = function(){
 		/** @private */
 		constructor: function(){
 			this.base("DocumentContext", document.body);
+
+         // Special case
+         this.setObjectDataModel("DOMPosition", R.math.Point2D.ZERO);
 		},
 		
 		/**
