@@ -66,10 +66,10 @@ R.components.physics.MouseJoint = function() {
       /**
        * @private
        */
-      constructor: function(name, body) {
+      constructor: function(name, body, simulation) {
          var jointDef = new Box2D.Dynamics.Joints.b2MouseJointDef();
-         this.base(name || "MouseJoint", body.getSimulation().getGroundBody(), body, jointDef);
-         this.mousePos = new Box2D.Common.Math.b2Vec2(0,0)
+         this.base(name || "MouseJoint", simulation.getGroundBody(), body, jointDef);
+         this.mousePos = new Box2D.Common.Math.b2Vec2(0,0);
       },
 
       /**
@@ -168,16 +168,19 @@ R.components.physics.MouseJoint = function() {
        */
       execute: function(renderContext, time, dt) {
          // Get the mouse info from the context
-         var mouseInfo = renderContext.MouseInputComponent_mouseInfo;
+         var mouseInfo = renderContext.getMouseInfo();
          if (!mouseInfo) {
             AssertWarn("No mouse info on render context for MouseJoint");
             return;
          }
 
          if (this.getSimulation()) {
+            mouseInfo.position.div(this.getSimulation().getScale());
             this.mousePos.Set(mouseInfo.position.x, mouseInfo.position.y);
             this.getJoint().SetTarget(this.mousePos);
          }
+
+         this.base(renderContext, time, dt);
       }
 
    }, { /** @scope R.components.physics.MouseJoint.prototype */

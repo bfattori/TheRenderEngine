@@ -36,6 +36,8 @@ R.Engine.define({
       "R.components.render.DOM",
       "R.components.Collider",
       "R.objects.PhysicsActor",
+      "R.components.input.Mouse",
+      "R.components.physics.MouseJoint",
       "R.math.Math2D"
    ]
 });
@@ -57,6 +59,8 @@ var Toy = function() {
 
       sprites: null,
       renderScale: 1,
+      mouseButtonDown: false,
+      mouseJoint: null,
 
       /**
        * @private
@@ -64,6 +68,7 @@ var Toy = function() {
       constructor: function(spriteResource, spriteName, spriteOverName) {
          this.base("PhysicsToy");
          this.sprite = null;
+         this.mouseButtonDown = false;
          this.renderScale = (R.lang.Math2.random() * 1) + 0.8;
 
          // We need an element to render to when using the DOM context
@@ -73,6 +78,9 @@ var Toy = function() {
          // causes the transformations to be updated each frame
          // for a DOM object.
          this.add(R.components.render.DOM.create("draw"));
+
+         // Add a mouse component so we know when the mouse is over the object
+         this.add(R.components.input.Mouse.create("mouse"));
 
          // The simulation is used to update the position and rotation
          // of the physical body.  Whereas the render context is used to
@@ -91,13 +99,34 @@ var Toy = function() {
          this.sprites.push(PhysicsDemo.spriteLoader.getSprite(spriteResource, spriteOverName));
          this.setSprite(0);
 
-         // Add components to draw and collide with the player
-         this.createColliderComponent("collide", PhysicsDemo.cModel);
-         this.getComponent("collide").setCollisionMask(Toy.COLLISION_MASK);
-         this.getComponent("collide").linkPhysicalBody(this.getComponent("physics"));
-
          // Set the starting position of the toy
          this.setPosition(R.math.Point2D.create(50, 0));
+
+         // Create the mouse joint
+         this.mouseJoint = R.components.physics.MouseJoint.create("mousejoint", this.getComponent("physics"), PhysicsDemo.getSimulation());
+         this.add(this.mouseJoint);
+
+         // Events
+         var self = this;
+         this.addEvent("mouseover", function(evt) {
+            self.mouseOver(true);
+         });
+
+         this.addEvent("mouseout", function(evt) {
+            self.mouseOver(false);
+         });
+
+         this.addEvent("mousedown", function(evt) {
+            self.mouseDown(true);
+         });
+
+         this.addEvent("mouseup", function(evt) {
+            self.mouseDown(false);
+         });
+
+         this.addEvent("mousemove", function(evt, mouseInfo) {
+            self.mouseMove(mouseInfo);
+         });
       },
 
       /**
@@ -151,20 +180,27 @@ var Toy = function() {
       released: function() {
       },
 
-      /**
-       * Determine if the toy was touched by the player and, if so,
-       * change the sprite which represents it.
-       */
-      onCollide: function(obj, time, dt, targetMask) {
-         if (targetMask == Player.COLLISION_MASK) {
-            this.setSprite(1);
-            return R.components.Collider.STOP;
+      mouseOver: function(state) {
+         this.setSprite(state ? 1 : 0);
+         if (this.mouseButtonDown && !state) {
+            this.mouseDown(false);
          }
-         return R.components.Collider.CONTINUE;
       },
 
-      onCollideEnd: function() {
-         this.setSprite(0);
+      mouseDown: function(state) {
+         if (state && !this.mouseButtonDown) {
+            this.mouseJoint.startSimulation();
+         } else if (this.mouseButtonDown && !state) {
+            this.mouseJoint.stopSimulation();
+         }
+
+         this.mouseButtonDown = state;
+      },
+
+      mouseMove: function(mInfo) {
+         if (this.mouseButtonDown) {
+            //this.mouseJoint.
+         }
       }
 
    }, /** @scope Toy.prototype */{ // Static

@@ -35,8 +35,8 @@ var HTMLContextTest = function() {
          this.renderContext.setBackgroundColor("#000000");
          R.Engine.getDefaultContext().add(this.renderContext);
 
-         for (var x = 0; x < 20; x++) {
-            this.renderContext.add(Shape.create());
+         for (var x = 0; x < 10; x++) {
+            this.renderContext.add(Shape.create(x + 3));
          }
       }
 

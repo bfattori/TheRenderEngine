@@ -261,7 +261,7 @@ var IsometricMap = function() {
             if (this.mouseDown === true) {
                // Check to see if the mouse has been moved
                var sVec = R.math.Vector2D.create(this.downScrollPos);
-               sVec.add(mInfo.dragVec);
+               sVec.add(mInfo.moveVec);
                renderContext.jQ().scrollLeft(sVec.x).scrollTop(sVec.y);
                this.downScrollPos.set(sVec);
                sVec.destroy();

@@ -69,6 +69,7 @@ R.physics.Simulation = function() {
       doSleep: true,
       worldBoundary: null,
       integrations: 0,
+      _groundBody: null,
 
       /** @private */
       constructor: function(name, viewport, gravity) {
@@ -80,8 +81,10 @@ R.physics.Simulation = function() {
          this.integrations = R.physics.Simulation.DEFAULT_INTEGRATIONS;
          var grav = new Box2D.Common.Math.b2Vec2(this.gravity.x, this.gravity.y);
 
-         // Create the world
+         // Create the world and get the ground body
          this.world = new Box2D.Dynamics.b2World(grav, this.doSleep);
+         this._groundBody = R.components.physics.BaseBody.create("WORLD_GROUND", new Box2D.Dynamics.b2FixtureDef());
+         this._groundBody.body = this.world.GetGroundBody();
       },
 
       destroy: function() {
@@ -105,11 +108,11 @@ R.physics.Simulation = function() {
 
       /**
        * Support method to get the ground body for the world.
-       * @return {b2Body} The world's ground body
+       * @return {R.components.physics.BaseBody} The world's ground body
        * @private
        */
       getGroundBody: function() {
-         return this.world.GetGroundBody();
+         return this._groundBody;
       },
 
       /**
@@ -118,7 +121,7 @@ R.physics.Simulation = function() {
        * @return {Number}
        */
       getScale: function() {
-         return R.physics.Simulation.WORLD_METERS;
+         return R.physics.Simulation.WORLD_SIZE;
       },
 
       /**

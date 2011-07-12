@@ -279,11 +279,11 @@ R.resources.types.TileMap = function() {
                rect.add(topLeft);
 
                // If the rect isn't visible, skip it
-               if (!(this.isHTMLContext && rect.isIntersecting(renderContext.getViewport())))
+               if (!this.isHTMLContext && !rect.isIntersecting(renderContext.getViewport()))
                   continue;
 
                // Get the frame and draw the tile
-               var f = tile.getFrame(time),
+               var f = tile.getFrame(time),z
                    obj = renderContext.drawImage(rect, tile.getSourceImage(), f,
                      (tile.isAnimation() ? tile : null));
 

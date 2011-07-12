@@ -78,13 +78,14 @@ R.struct.MouseInfo = function() {
       button: -1,
 
       /**
-       * A vector indicating the direction of mouse movement
+       * A vector indicating the direction and amount of mouse movement.
        * @type {R.math.Vector2D}
        */
       moveVec: null,
 
       /**
-       * A vector indicating the direction of mouse movement when a button is pressed
+       * A normalized vector indicating the direction of mouse movement after a
+       * button was pressed and held.
        * @type {R.math.Vector2D}
        */
       dragVec: null,

@@ -259,6 +259,10 @@ var PhysicsDemo = function() {
        */
       getCModel: function() {
          return this.cModel;
+      },
+
+      getSimulation: function() {
+         return this.simulation;
       }
 
    });

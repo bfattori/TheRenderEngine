@@ -594,12 +594,12 @@ R.rendercontexts.AbstractRenderContext = function() {
                var x = evt.pageX, y = evt.pageY;
                mouseInfo.position.set(x, y).sub(ctx.getObjectDataModel("DOMPosition"));
 
-               // Move vector is calculated relative to the last position and is normalized
-               mouseInfo.moveVec.set(mouseInfo.position);
-               mouseInfo.moveVec.sub(mouseInfo.lastPosition).normalize();
+               // Move vector is calculated relative to the last position
+               mouseInfo.moveVec.set(mouseInfo.lastPosition);
+               mouseInfo.moveVec.sub(mouseInfo.position);
 
                if (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON) {
-               // Drag vector originates from the "down" touch and is normalized
+                  // Drag vector originates from the "down" position and is normalized
                   mouseInfo.dragVec.set(mouseInfo.downPosition);
                   mouseInfo.dragVec.sub(mouseInfo.position).normalize();
                }
@@ -667,9 +667,9 @@ R.rendercontexts.AbstractRenderContext = function() {
 
                touchInfo.position.set(x, y).sub(ctx.getObjectDataModel("DOMPosition"));
 
-               // Move vector is calculated relative to the last position and is normalized
-               touchInfo.moveVec.set(touchInfo.position);
-               touchInfo.moveVec.sub(touchInfo.lastPosition).normalize();
+               // Move vector is calculated relative to the last position
+               touchInfo.moveVec.set(touchInfo.lastPosition);
+               touchInfo.moveVec.sub(touchInfo.position);
 
                // Drag vector originates from the "down" touch and is normalized
                touchInfo.dragVec.set(touchInfo.downPosition);

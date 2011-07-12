@@ -15,7 +15,7 @@ var Shape = function() {
 
       spinRate: null,
 
-      constructor: function() {
+      constructor: function(sides) {
          this.base("shape");
 
          // Get a temp canvas context to render a shape into
@@ -27,7 +27,8 @@ var Shape = function() {
                            (Math.floor(80 + Math.random() * 175)).toString(16);
 
          tContext.setFillStyle(color);
-         tContext.drawFilledRegularPolygon(Math.floor(3 + R.lang.Math2.random() * 8), R.math.Point2D.create(40, 40), 40);
+         // Math.floor(3 + R.lang.Math2.random() * 12)
+         tContext.drawFilledRegularPolygon(sides, R.math.Point2D.create(40, 40), 40);
          var src = tContext.getDataURL("image/png");
 
          this.setPosition(R.math.Math2D.randomPoint(R.math.Rectangle2D.create(20,20,340,340)));

@@ -90,6 +90,7 @@ R.math.Vector2D = function(){
 		 * @return {Number} The dot product
 		 */
 		dot: function(vector){
+         Assert(vector != null, "Dot product to undefined vector");
          return (this.x * vector.x) + (this.y * vector.y);
 		},
 		
@@ -99,6 +100,7 @@ R.math.Vector2D = function(){
 		 * @return {R.math.Vector2D} This vector
 		 */
 		cross: function(vector){
+         Assert(vector != null, "Cross multiply with undefined vector");
          this.x = this.y - vector.y;
          this.y = vector.x - this.x;
          // this.z = (this.x * vector.y) - (this.y * vector.x);
@@ -114,6 +116,7 @@ R.math.Vector2D = function(){
 		 * @return {Number} The angle between two vectors, in degrees
 		 */
 		angleBetween: function(vector){
+         Assert(vector != null, "Angle between undefined vector");
          var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
 			return R.math.Math2D.radToDeg(v1.angleFrom(v2));
 		},
@@ -124,6 +127,7 @@ R.math.Vector2D = function(){
 		 * @return {Boolean}
 		 */
 		isParallelTo: function(vector){
+         Assert(vector != null, "Parallel to undefined vector");
          var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
 			return v1.isParallelTo(v2);
 		},
@@ -134,6 +138,7 @@ R.math.Vector2D = function(){
 		 * @return {Boolean}
 		 */
 		isAntiparallelTo: function(vector){
+         Assert(vector != null, "Anti-parallel to undefined vector");
          var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
 			return v1.isAntiparallelTo(v2);
 		},
@@ -144,6 +149,7 @@ R.math.Vector2D = function(){
 		 * @return {Boolean}
 		 */
 		isPerpendicularTo: function(vector){
+         Assert(vector != null, "Perpendicular to undefined vector");
          var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
 			return v1.isPependicularTo(v2);
 		},
@@ -170,6 +176,7 @@ R.math.Vector2D = function(){
 		 * @return {R.math.Vector2D}
 		 */
 		projectOnto: function(vector){
+         Assert(vector != null, "Project onto undefined vector");
 			var proj = R.math.Vector2D.create(0, 0), v = vector, dp = this.dot(vector);
 			proj.set((dp / (v.x * v.x + v.y * v.y)) * v.x, (dp / (v.x * v.x + v.y * v.y)) * v.y);
 			return proj;
@@ -192,6 +199,7 @@ R.math.Vector2D = function(){
 		 * @return {Number}
 		 */
 		perProduct: function(vector){
+         Assert(vector != null, "Per-product with undefined vector");
 			return this.dot(vector.rightNormal());
 		}
 		

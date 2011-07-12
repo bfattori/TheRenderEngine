@@ -89,8 +89,8 @@ R.components.physics.BaseJoint = function() {
       startSimulation: function() {
          if (!this.simulation) {
             this.simulation = this.getGameObject().getSimulation();
-            this.getJointDef().body1 = this.body1.getBody();
-            this.getJointDef().body2 = this.body2.getBody();
+            this.getJointDef().bodyA = this.body1.getBody();
+            this.getJointDef().bodyB = this.body2.getBody();
             this.getJointDef().collideConnected = this.getCollideBodies();
 
             this.joint = this.simulation.addJoint(this.getJointDef());

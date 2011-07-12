@@ -229,7 +229,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		 */
 		deserializeTransform: function(transform){
 			this.txfm = transform.txfm;
-			this.cursorPos = transform.pos;
+			this.cursorPos.set(transform.pos);
          transform.pos.destroy();
 			this.setLineStyle(transform.stroke);
 			this.setLineWidth(transform.sWidth);
@@ -541,11 +541,6 @@ R.rendercontexts.HTMLElementContext = function(){
 						css[this.txfmOrigin] = "top left";
 					}
 					else {
-						this.tmpP1.set(ref.getOrigin());
-						this.tmpP1.neg();
-						this.tmpP2.set(this.getPosition());
-						//this.tmpP2.add(offs);
-						this.setPosition(this.tmpP2);
 						var o = ref.getOrigin();
 						css[this.txfmOrigin] = o.x + "px " + o.y + "px";
 					}

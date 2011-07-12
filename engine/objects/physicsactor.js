@@ -218,7 +218,9 @@ R.objects.PhysicsActor = function() {
 		// Follow up with simulation of joints
 		var joints = this.getJoints();
 		for (var j in joints) {
-	 		joints[j].startSimulation();
+         if (!(joints[j] instanceof R.components.physics.MouseJoint)) {
+	 		   joints[j].startSimulation();
+         }
 	 	}
 	},
 	

@@ -406,7 +406,7 @@ R.rendercontexts.RenderContext2D = function() {
       },
 
       /**
-       * Set the current transform position (translation).
+       * Set the current transform position (translation) relative to the viewport.
        *
        * @param point {R.math.Point2D} The translation
        */
@@ -415,7 +415,8 @@ R.rendercontexts.RenderContext2D = function() {
       },
 
       /**
-       * Get the current transform position (translation)
+       * Get the current transform position (translation) relative to the viewport.
+       *
        * @return {R.math.Point2D}
        */
       getPosition: function() {
@@ -423,7 +424,7 @@ R.rendercontexts.RenderContext2D = function() {
       },
 
       /**
-       * Set the rotation angle of the current transform
+       * Set the rotation angle of the current transform.
        *
        * @param angle {Number} An angle in degrees
        */
@@ -472,11 +473,11 @@ R.rendercontexts.RenderContext2D = function() {
        */
       pushTransform: function() {
 			// Translation
-			var p = this.getPosition();
+			var p = R.clone(this.getWorldPosition()).add(this.getPosition());
 			var tMtx = $M([[1, 0, p.x], [0, 1, p.y], [0, 0, 1]]);
 
 			// Rotation
-			var a = this.getRotation();
+			var a = this.getWorldRotation() + this.getRotation();
 			var rMtx;
 			if (a != 0) {
 				// Rotate
@@ -488,8 +489,8 @@ R.rendercontexts.RenderContext2D = function() {
 			}
 
 			// Scale
-			var sX = this.getScaleX(), sY = this.getScaleY(), sMtx = $M([[sX, 0, 0], [0, sY, 0], [0, 0, 1]]),
-             txfmMtx = tMtx.multiply(rMtx).multiply(sMtx);
+			var sX = this.getWorldScale() * this.getScaleX(), sY = this.getWorldScale() * this.getScaleY(),
+             sMtx = $M([[sX, 0, 0], [0, sY, 0], [0, 0, 1]]), txfmMtx = tMtx.multiply(rMtx).multiply(sMtx);
 
          rMtx = null;
          sMtx = null;
