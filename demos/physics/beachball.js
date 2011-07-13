@@ -77,13 +77,8 @@ var BeachBall = function() {
          this.getComponent(componentName).setFriction(0.2);
          this.getComponent(componentName).setRestitution(0.6);
          this.getComponent(componentName).setDensity(0.1);
-      },
-
-      createColliderComponent: function(componentName, collisionModel) {
-         this.add(R.components.collision.Box.create(componentName, collisionModel));
       }
-
-
+      
    }, /** @scope BeachBall.prototype */{ // Static
 
       /**

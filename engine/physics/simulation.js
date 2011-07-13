@@ -116,31 +116,6 @@ R.physics.Simulation = function() {
       },
 
       /**
-       * Get the scale, which represents the number of pixels per meter given that
-       * the physical world is a 10 by 10 meter rectangle.
-       * @return {Number}
-       */
-      getScale: function() {
-         return R.physics.Simulation.WORLD_SIZE;
-      },
-
-      /**
-       * Set the scaling parameter for your world.  Since a game's environment is
-       * represented in pixels, and the physical world is represented in meters, it
-       * becomes appropriate to use a scaling amount to adjust your game's world
-       * to match the physical world.
-       * <p/>
-       * Typically, the physical world would be represented by a 100 by 100 meter rectangle.
-       * Thus, your game's environment should be scaled to match.  Thus, if you have a
-       * 600 pixel wide viewport, every 6 pixels would be about 1 meter.
-       *
-       * @param scale {Number} The number of pixels per meter
-       */
-      setScale: function(scale) {
-         //this.scale = scale;
-      },
-
-      /**
        * Query the world within the given rectangle returning all of the
        * bodies found.
        * @param rect {R.math.Rectangle2D} The area to query
@@ -168,11 +143,14 @@ R.physics.Simulation = function() {
        * @return {Box2D.Dynamics.b2Body} The body found, or <tt>null</tt>
        */
       getBodyAtPoint: function(point) {
-         var b2P = new Box2D.Common.Math.b2Vec2(point.x, point.y),
-             aabb = new Box2D.Collision.b2AABB(), body = null;
+         var aabb = new Box2D.Collision.b2AABB(), body = null,
+             qP = R.clone(point).div(R.physics.Simulation.WORLD_SIZE),
+             b2P = new Box2D.Common.Math.b2Vec2(qP.x, qP.y);
 
-         aabb.lowerBound.Set(point.x - 0.001, point.y - 0.001);
-         aabb.upperBound.Set(point.x + 0.001, point.y + 0.001);
+         aabb.lowerBound.Set(qP.x - 0.001, qP.y - 0.001);
+         aabb.upperBound.Set(qP.x + 0.001, qP.y + 0.001);
+
+         qP.destroy();
 
          // Query the world
          this.world.QueryAABB(function(fixture) {

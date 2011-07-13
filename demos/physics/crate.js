@@ -78,10 +78,6 @@ var Crate = function() {
          this.getComponent(componentName).setFriction(0.2);
          this.getComponent(componentName).setRestitution(0.04);
          this.getComponent(componentName).setDensity(1);
-      },
-
-      createColliderComponent: function(componentName, collisionModel) {
-         this.add(R.components.collision.Box.create(componentName, collisionModel));
       }
 
    }, /** @scope Crate.prototype */{ // Static

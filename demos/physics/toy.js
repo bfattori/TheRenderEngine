@@ -108,24 +108,20 @@ var Toy = function() {
 
          // Events
          var self = this;
-         this.addEvent("mouseover", function(evt) {
+         this.addEvent("mouseover", function() {
             self.mouseOver(true);
          });
 
-         this.addEvent("mouseout", function(evt) {
+         this.addEvent("mouseout", function() {
             self.mouseOver(false);
          });
 
-         this.addEvent("mousedown", function(evt) {
+         this.addEvent("mousedown", function() {
             self.mouseDown(true);
          });
 
-         this.addEvent("mouseup", function(evt) {
+         this.addEvent("mouseup", function() {
             self.mouseDown(false);
-         });
-
-         this.addEvent("mousemove", function(evt, mouseInfo) {
-            self.mouseMove(mouseInfo);
          });
       },
 
@@ -137,9 +133,6 @@ var Toy = function() {
        * @param scale {Number} A scalar scaling value for the toy
        */
       createPhysicalBody: function(componentName, scale) {
-      },
-
-      createColliderComponent: function(componentName, collisionModel) {
       },
 
       /**
@@ -163,18 +156,6 @@ var Toy = function() {
       },
 
       /**
-       * If the toy was clicked on, determine a force vector and apply it
-       * to the toy so it can be dragged around the playfield.
-       *
-       * @param p {Point2D} The position where the mouse currently resides
-       */
-      clicked: function(p) {
-         var force = R.math.Vector2D.create(p).sub(this.getPosition()).mul(200);
-         this.applyForce(force, p);
-         force.destroy();
-      },
-
-      /**
        * Currently unused
        */
       released: function() {
@@ -182,9 +163,6 @@ var Toy = function() {
 
       mouseOver: function(state) {
          this.setSprite(state ? 1 : 0);
-         if (this.mouseButtonDown && !state) {
-            this.mouseDown(false);
-         }
       },
 
       mouseDown: function(state) {
@@ -195,12 +173,6 @@ var Toy = function() {
          }
 
          this.mouseButtonDown = state;
-      },
-
-      mouseMove: function(mInfo) {
-         if (this.mouseButtonDown) {
-            //this.mouseJoint.
-         }
       }
 
    }, /** @scope Toy.prototype */{ // Static

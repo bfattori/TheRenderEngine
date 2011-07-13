@@ -36,6 +36,7 @@ R.Engine.define({
 	"class": "R.components.physics.DistanceJoint",
 	"requires": [
 		"R.components.physics.BaseJoint",
+      "R.physics.Simulation",
 		"R.math.Point2D",
 		"R.math.Vector2D",
 		"R.math.Rectangle2D",
@@ -75,13 +76,13 @@ R.components.physics.DistanceJoint = function() {
 	 */
 	startSimulation: function() {
 		if (!this.getSimulation()) {
-			var a1 = R.math.Point2D.create(this.getBody1().getPosition());
+         var a1 = R.math.Point2D.create(this.getBody1().getPosition());
 			var a2 = R.math.Point2D.create(this.getBody2().getPosition());
-			a1.add(this.getBody1().getLocalOrigin());
-			a2.add(this.getBody2().getLocalOrigin());
-	
-			this.getJointDef().anchorPoint1.Set(a1.x, a1.y);
-			this.getJointDef().anchorPoint2.Set(a2.x, a2.y);
+			a1.add(this.getBody1().getLocalOrigin()).div(R.physics.Simulation.WORLD_SIZE);
+			a2.add(this.getBody2().getLocalOrigin()).div(R.physics.Simulation.WORLD_SIZE);
+
+			this.getJointDef().localAnchorA.Set(a1.x, a1.y);
+			this.getJointDef().localAnchorB.Set(a2.x, a2.y);
 			a1.destroy();
 			a2.destroy();
 		}

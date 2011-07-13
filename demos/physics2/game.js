@@ -146,15 +146,13 @@ var PhysicsDemo2 = function() {
          // Create the collision model with 8x8 divisions
          this.cModel = R.collision.broadphase.SpatialGrid.create(800, 460, 8);
 
-         // Add a few ragdoll objects
-         for (var dolls = 0; dolls < 3; dolls++) {
-            var ragdoll = this.createRagdoll(R.objects.PhysicsActor.get("ragdoll"));
-            var xPos = (R.lang.Math2.random() * 800);
-            ragdoll.setPosition(R.math.Point2D.create(xPos, 150));
-            ragdoll.setSimulation(this.simulation);
-            this.renderContext.add(ragdoll);
-            ragdoll.simulate();
-         }
+         // Add a rag doll object
+         var ragdoll = this.createRagdoll(R.objects.PhysicsActor.get("ragdoll"));
+         var xPos = (R.lang.Math2.random() * 800);
+         ragdoll.setPosition(R.math.Point2D.create(xPos, 150));
+         ragdoll.setSimulation(this.simulation);
+         this.renderContext.add(ragdoll);
+         ragdoll.simulate();
 
          // Add the player object
          var player = Player.create();

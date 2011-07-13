@@ -40,7 +40,8 @@ R.Engine.define({
 		"R.components.physics.BoxBody",
 		"R.components.physics.DistanceJoint",
 		"R.components.physics.RevoluteJoint",
-		
+      "R.components.physics.MouseJoint",
+
 		"R.math.Math2D",
 		"R.engine.Object2D",
 		"R.resources.loaders.ObjectLoader"
@@ -423,7 +424,7 @@ R.objects.PhysicsActor = function() {
 				// Perform the offset
 				return rPos.add(offs);
 			}
-		}
+		};
 		
 		var def = R.objects.PhysicsActor.actorLoader.get(name), 
 			 actor = R.objects.PhysicsActor.create(objName), jointParts = [], relParts = [];

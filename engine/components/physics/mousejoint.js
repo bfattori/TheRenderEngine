@@ -36,6 +36,7 @@ R.Engine.define({
    "class": "R.components.physics.MouseJoint",
    "requires": [
       "R.components.physics.BaseJoint",
+      "R.physics.Simulation",
       "R.math.Math2D"
    ]
 });
@@ -86,7 +87,10 @@ R.components.physics.MouseJoint = function() {
        */
       startSimulation: function() {
          if (!this.getSimulation()) {
-            this.getJointDef().maxForce = this.getBody2().getMass() * R.components.physics.MouseJoint.FORCE_FACTOR;
+            // The initial target is important, otherwise it's assumed to be 0,0
+            this.getJointDef().target = this.getBody().getBody().GetPosition();
+            this.getJointDef().maxForce = this.getBody().getMass() * R.components.physics.MouseJoint.FORCE_FACTOR;
+            this.setCollideBodies(true);
          }
          this.base();
       },
@@ -175,9 +179,10 @@ R.components.physics.MouseJoint = function() {
          }
 
          if (this.getSimulation()) {
-            mouseInfo.position.div(this.getSimulation().getScale());
-            this.mousePos.Set(mouseInfo.position.x, mouseInfo.position.y);
+            var p = R.clone(mouseInfo.position).div(R.physics.Simulation.WORLD_SIZE);
+            this.mousePos.Set(p.x, p.y);
             this.getJoint().SetTarget(this.mousePos);
+            p.destroy();
          }
 
          this.base(renderContext, time, dt);

@@ -134,7 +134,7 @@ R.isNumber = function(obj) {
  * @memberOf R
  */
 R.isEmpty = function(obj) {
-	return typeof obj === "undefined" || obj === null || (typeof obj === "string" && $.trim(obj) === "");
+	return typeof obj === "undefined" || obj === null || (R.isString(obj) && $.trim(obj) === "");
 };
 
 /**
