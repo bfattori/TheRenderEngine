@@ -199,7 +199,7 @@ R.components.physics.BaseBody = function() {
        * @return {R.math.Point2D}
        */
       getCenter: function() {
-         return R.clone(this.getPosition()).mul(R.physics.Simulation.WORLD_SIZE).add(this.getLocalOrigin());
+         return R.clone(this.getPosition()).add(this.getLocalOrigin());
       },
 
       /**

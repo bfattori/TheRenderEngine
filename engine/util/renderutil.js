@@ -2,7 +2,7 @@
  * The Render Engine
  * RenderUtil
  *
- * @fileoverview A static class with helper methods for rendering
+ * @fileoverview A static class with helper methods for rendering screen shots, partial images, and some effects.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  * @author: $Author: bfattori@gmail.com $
@@ -133,13 +133,12 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 
    /**
     * Extract the image data URL from the provided image.  The image can either be an HTML &lt;img&gt; element,
-    * or it can be another render context.  This method typically only works with the canvas context.
+    * or it can be another render context.  This method currently only works with the canvas context.
     * @param image {Object} Image or context
     * @param [cropRect] {R.math.Rectangle2D} A rectangle to crop to, or <code>null</code> to use the entire image
     * @param [contextType] {R.rendercontexts.RenderContext2D} Optional render context class, or <code>null</code> to
     * 	assume a canvas context.
-    * @return {Object} Image data object with "width", "height", and an Array of each pixel, represented as
-    * 	RGBA data where each element is represented by an integer 0-255.
+    * @return {String} A data URL for the extracted image
     */
    extractDataURL: function(image, cropRect, contextType) {
       contextType = contextType || R.rendercontexts.CanvasContext;
@@ -161,7 +160,7 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 
 	/**
 	 * Extract the image data from the provided image.  The image can either be an HTML &lt;img&gt; element,
-	 * or it can be another render context.  This method typically only works with the canvas context.
+	 * or it can be another render context.  This method currently only works with the canvas context.
 	 * @param image {Object} Image or context
 	 * @param [cropRect] {R.math.Rectangle2D} A rectangle to crop to, or <code>null</code> to use the entire image 
 	 * @param [contextType] {R.rendercontexts.RenderContext2D} Optional render context class, or <code>null</code> to
@@ -187,7 +186,8 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
    /**
     * Blur the contents of the <tt>renderContext</tt> using the number of passes specified.
     * The blur operation is fairly quick and is an approximation of a blur, not an actual
-    * blur filter.  This method is slow and shouldn't be called per frame.
+    * blur filter.  However, this method is slow and shouldn't be called per frame due to
+    * passing the render context on the stack.
     *
     * @param renderContext {R.rendercontexts.RenderContext2D} The context to blur
     * @param [passes] {Number} Optional number of passes to apply (default: 1)
@@ -213,6 +213,45 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
          }
       }
       renderContext.get2DContext().globalAlpha = 1.0;
-   }
+   },
 
+   /**
+    * Get a mask for the provided image.  The mask is a simple pixel, no-pixel image which
+    * exactly mimics the provided image.
+    *
+    * @param image {Object} Image or context
+    * @param [cropRect] {R.math.Rectangle2D} A rectangle to crop to, or <code>null</code> to use the entire image
+    * @param [contextType] {R.rendercontexts.RenderContext2D} Optional render context class, or <code>null</code> to
+    * 	assume a canvas context.
+    * @return {String} A data URL for the image mask
+    */
+   getMaskImage: function(image, cropRect, contextType) {
+      var imgData = R.util.RenderUtil.extractImageData(image, cropRect, contextType);
+
+      // Modify the image data so each pixel is either fully on or off
+      for (var pix = 0; pix < imgData.data.length; pix += 4) {
+         if (imgData.data[pix + 3] != 0) {
+            imgData.data[pix] = 255;
+            imgData.data[pix + 1] = 255;
+            imgData.data[pix + 2] = 255;
+            imgData.data[pix + 3] = 255;
+         } else {
+            imgData.data[pix] = 0;
+            imgData.data[pix + 1] = 0;
+            imgData.data[pix + 2] = 0;
+            imgData.data[pix + 3] = 0;
+         }
+      }
+
+      // Recreate the temp context and draw the new image so we can extract the data URL
+      var img = $(image), w = img.attr("width"), h = img.attr("height");
+      var imgRect = R.math.Rectangle2D.create(0,0,w,h);
+
+      // Get the temporary context
+      var ctx = R.util.RenderUtil.getTempContext(contextType, w, h);
+      ctx.putImage(imgData, R.math.Point2D.ZERO);
+
+      // Extract the data URL
+      return ctx.getDataURL("image/png");
+   }
 };

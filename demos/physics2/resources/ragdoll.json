@@ -2,7 +2,7 @@
 	"restitution": 0,
 	"friction": 1.2,
 	"root": "torso",
-	"scale": 0.8,
+	"scale": 1,
 	"parts": [
 		{
 			"name": "head",
@@ -11,8 +11,8 @@
 			"position": [210,0],
 			"joint": {
 				"type": "revolute",
-				"linkFrom": "torso",
-				"anchor": [0,-60],
+				"linkTo": "torso",
+				"anchor": [0,60],
 				"minLim": -10,
 				"maxLim": 10
 			}
@@ -32,8 +32,8 @@
 				"type": "revolute",
 				"linkFrom": "torso",
 				"anchor": [-10,30],
-				"minLim": -10,
-				"maxLim": 10
+				"minLim": -1,
+				"maxLim": 1
 			}
 		},
 		{
@@ -44,9 +44,9 @@
 			"joint": {
 				"type": "revolute",
 				"linkTo": "torso",
-				"anchor": [-15,-10],
-				"minLim": -80,
-				"maxLim": 80,
+				"anchor": [0,-10],
+				"minLim": -1,
+				"maxLim": 1,
 				"motorTorque": 1000,
 				"motorSpeed": 0
 			}
@@ -58,10 +58,10 @@
 			"position": [113,43],
 			"joint": {
 				"type": "revolute",
-				"linkFrom": "leftupperarm",
-				"anchor": [-40,-10],
+				"linkTo": "leftupperarm",
+				"anchor": [20,10],
 				"minLim": 0,
-				"maxLim": 30
+				"maxLim": 0
 			}
 		},
 		{
@@ -72,9 +72,9 @@
 			"joint": {
 				"type": "revolute",
 				"linkTo": "torso",
-				"anchor": [-49,-10],
-				"minLim": -80,
-				"maxLim": 80,
+				"anchor": [0,-10],
+				"minLim": -1,
+				"maxLim": 1,
 				"motorTorque": 1000,
 				"motorSpeed": 0
 			}
@@ -86,9 +86,9 @@
 			"position": [290,43],
 			"joint": {
 				"type": "revolute",
-				"linkFrom": "rightupperarm",
-				"anchor": [-10,-10],
-				"minLim": -30,
+				"linkTo": "rightupperarm",
+				"anchor": [-20,10],
+				"minLim": 0,
 				"maxLim": 0
 			}
 		},
@@ -101,8 +101,8 @@
 				"type": "revolute",
 				"linkTo": "pelvis",
 				"anchor": [20,-70],
-				"minLim": -50,
-				"maxLim": 50
+				"minLim": -1,
+				"maxLim": 1
 			}
 		},
 		{
@@ -114,8 +114,8 @@
 				"type": "revolute",
 				"linkTo": "leftupperleg",
 				"anchor": [0,-21],
-				"minLim": -2,
-				"maxLim": 2
+				"minLim": -1,
+				"maxLim": 1
 			}
 		},
 		{
@@ -125,10 +125,10 @@
 			"position": [220,180],
 			"joint": {
 				"type": "revolute",
-				"linkFrom": "pelvis",
-				"anchor": [-20,-60],
-				"minLim": -10,
-				"maxLim": 50
+				"linkTo": "pelvis",
+				"anchor": [20,-70],
+				"minLim": -1,
+				"maxLim": 1
 			}
 		},
 		{
@@ -140,9 +140,22 @@
 				"type": "revolute",
 				"linkTo": "rightupperleg",
 				"anchor": [0,-21],
-				"minLim": -2,
-				"maxLim": 2
+				"minLim": -1,
+				"maxLim": 1
 			}
-		}
+		},
+      {
+         "name": "tailbone",
+         "type": "box",
+         "extents": [2,2],
+         "position": [220,242],
+         "joint": {
+            "type": "revolute",
+            "linkTo": "torso",
+            "anchor": [0,0],
+            "minLim": -1,
+            "maxLim": 1
+         }
+      }
 	]
 }
