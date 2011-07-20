@@ -2,8 +2,8 @@ The Render Engine is a cross-browser, open source game engine written entirely i
 ground up to be extremely flexible, it boasts an extensive API and uses the newest features of today's modern browsers.
 
 The Render Engine supports:
-   * Firefox 3.0+
    * Chrome 9+
+   * Firefox 3.0+
    * Safari 3.0+
    * Opera 9.5+
    * Internet Explorer 9.0+

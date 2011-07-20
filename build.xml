@@ -9,7 +9,8 @@
 	<property name="version.name" value=""/>
    <property name="build.date" value=""/>
    <property name="dist.home" value="${basedir}/dist_${app.version}"/>
-   <property name="engine.src" value="${basedir}/engine/build"/>
+   <property name="engine.home" value="${basedir}/engine"/>
+   <property name="engine.src" value="${engine.home}/build"/>
    <property name="make.dir" value="${basedir}/make"/>
    <property name="compressor.jar" value="${make.dir}/yuicompressor-2.4.2.jar"/>
    <property name="compiler.jar" value="${make.dir}/compiler.jar"/>
@@ -201,8 +202,8 @@
   
  
    <!-- ============================= ENGINE ZIP ============================ -->
-   <target name="engine.dist" depends="engine.min,engine.full" description="Create and zip the engine distributions">
-      <zip basedir="${min.home}" destfile="${dist.home}/${app.name}_${app.version}-min.zip"/>
+   <target name="engine.dist" depends="engine.full" description="Create and zip the engine distributions">
+      <!--<zip basedir="${min.home}" destfile="${dist.home}/${app.name}_${app.version}-min.zip"/> -->
       <zip basedir="${full.home}" destfile="${dist.home}/${app.name}_${app.version}.zip"/>
    </target>
   
@@ -215,28 +216,35 @@
       <mkdir dir="${build.home}/temp"/>
  
       <mkdir dir="${build.home}/engine"/>
+      <mkdir dir="${build.home}/engine/collision"/>
+      <mkdir dir="${build.home}/engine/collision/broadphase"/>
+      <mkdir dir="${build.home}/engine/components"/>
+      <mkdir dir="${build.home}/engine/components/collision"/>
+      <mkdir dir="${build.home}/engine/components/input"/>
+      <mkdir dir="${build.home}/engine/components/logic"/>
+      <mkdir dir="${build.home}/engine/components/physics"/>
+      <mkdir dir="${build.home}/engine/components/render"/>
+      <mkdir dir="${build.home}/engine/components/transform"/>
       <mkdir dir="${build.home}/engine/configs"/>
+      <mkdir dir="${build.home}/engine/css"/>
+      <mkdir dir="${build.home}/engine/fonts"/>
+      <mkdir dir="${build.home}/engine/lang"/>
+      <mkdir dir="${build.home}/engine/libs"/>
+      <mkdir dir="${build.home}/engine/math"/>
+      <mkdir dir="${build.home}/engine/objects"/>
+      <mkdir dir="${build.home}/engine/particles"/>
+      <mkdir dir="${build.home}/engine/physics"/>
+      <mkdir dir="${build.home}/engine/rendercontexts"/>
+      <mkdir dir="${build.home}/engine/resources"/>
+      <mkdir dir="${build.home}/engine/resources/loaders"/>
+      <mkdir dir="${build.home}/engine/resources/types"/>
       <mkdir dir="${build.home}/engine/runtime"/>
-      <mkdir dir="${build.home}/components"/>
-      <mkdir dir="${build.home}/rendercontexts"/>
-      <mkdir dir="${build.home}/rendercontexts/support"/>
-      <mkdir dir="${build.home}/resourceloaders"/>
-      <mkdir dir="${build.home}/spatial"/>
-      <mkdir dir="${build.home}/textrender"/>
-      <mkdir dir="${build.home}/css"/>
-      <mkdir dir="${build.home}/fonts"/>
-      <mkdir dir="${build.home}/libs"/>
-      <mkdir dir="${build.home}/objects"/>
-
-		<!-- Box2d Physics Engine -->
-      <mkdir dir="${build.home}/physics"/>
-      <mkdir dir="${build.home}/physics/collision"/>
-      <mkdir dir="${build.home}/physics/collision/shapes"/>
-      <mkdir dir="${build.home}/physics/common"/>
-      <mkdir dir="${build.home}/physics/common/math"/>
-      <mkdir dir="${build.home}/physics/dynamics"/>
-      <mkdir dir="${build.home}/physics/dynamics/contacts"/>
-      <mkdir dir="${build.home}/physics/dynamics/joints"/>
+      <mkdir dir="${build.home}/engine/sound"/>
+      <mkdir dir="${build.home}/engine/storage"/>
+      <mkdir dir="${build.home}/engine/struct"/>
+      <mkdir dir="${build.home}/engine/text"/>
+      <mkdir dir="${build.home}/engine/ui"/>
+      <mkdir dir="${build.home}/engine/util"/>
    </target>
 
    <target name="makedirs2" description="Create the directories for tools, tests, tutorials">
@@ -251,8 +259,8 @@
    <target name="basecopy" description="Copy the uncompressed files">
  
       <!-- Copy the engine CSS -->     
-      <copy todir="${build.home}/css">
-         <fileset dir="${basedir}/css">
+      <copy todir="${build.home}/engine/css">
+         <fileset dir="${engine.home}/css">
             <include name="*.css"/>
             <include name="*.png"/>
             <include name="*.jpg"/>
@@ -262,31 +270,32 @@
       </copy>
   
       <!-- Copy the font description files and images -->     
-      <copy todir="${build.home}/fonts">
-         <fileset dir="${basedir}/fonts" includes="${font.set}">
+      <copy todir="${build.home}/engine/fonts">
+         <fileset dir="${engine.home}/fonts" includes="${font.set}">
          	<exclude name="**/.svn"/>
             <exclude name="**/Thumbs.db"/>
          </fileset>
       </copy>
 
       <!-- Copy the supporting libraries -->     
-      <copy todir="${build.home}/libs">
-         <fileset dir="${basedir}/libs">
+      <copy todir="${build.home}/engine/libs">
+         <fileset dir="${engine.home}/libs">
             <include name="AC_OETags.js"/>
             <include name="base.js"/>
-            <include name="json2.js"/>
+            <include name="Box2dWeb-2.1.a.3.js"/>
             <include name="jquery.js"/>
             <include name="jquery.ext.engine.js"/>
             <include name="soundmanager2.js"/>
             <include name="soundmanager2.swf"/>
             <include name="soundmanager2_flash9.swf"/>
             <include name="sylvester.js"/>
+            <include name="trimpath-query-1.1.14.js"/>
          </fileset>
       </copy>
 		
 		<!-- Copy the browser specific configurations -->
 		<copy todir="${build.home}/engine/configs">
-			<fileset dir="${basedir}/engine/configs">
+			<fileset dir="${engine.home}/configs">
 				<include name="*.config"/>
 			</fileset>
 		</copy>
@@ -355,7 +364,7 @@
 		
 		<replaceregexp match="@BUILD_VERSION" replace="${build.version}" flags="g" byline="true" file="${build.home}/README.txt" />
 		<replaceregexp match="@BUILD_DATE" replace="${build.date}" flags="g" byline="true" file="${build.home}/README.txt" />
-		<replaceregexp match="@HOME_URL" replace="${build.homeurl}" flags="g" byline="true" file="${engine.file}/README.txt" />
+		<replaceregexp match="@HOME_URL" replace="${build.homeurl}" flags="g" byline="true" file="${build.home}/README.txt" />
 		
 	</target>  
   
@@ -392,63 +401,167 @@
       <!-- ### FINISH ### Pre-compilation tasks -->
  
       <!-- Copy the engine files -->     
+      <copy todir="${full.home}/engine">
+         <fileset dir="${basedir}/engine">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
       <copy todir="${full.home}/engine/runtime">
          <fileset dir="${dist.home}/engine/runtime">
             <include name="engine.js"/>
          </fileset>
       </copy>
 
-      <copy todir="${full.home}/engine">
-         <fileset dir="${basedir}/engine">
+      <!-- Copy the collision models -->
+      <copy todir="${full.home}/engine/collision">
+         <fileset dir="${basedir}/engine/collision">
             <include name="*.js"/>
          </fileset>
       </copy>
- 
+
+      <copy todir="${full.home}/engine/collision/broadphase">
+         <fileset dir="${basedir}/engine/collision/broadphase">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
       <!-- Copy the object components -->     
-      <copy todir="${full.home}/components">
-         <fileset dir="${basedir}/components">
-            <include name="*.js"/>
-         </fileset>
-      </copy>
- 
-      <!-- Copy the render contexts -->     
-      <copy todir="${full.home}/rendercontexts">
-         <fileset dir="${basedir}/rendercontexts">
-            <include name="*.js"/>
-         </fileset>
-      </copy>
- 
-      <!-- Copy the resource loaders -->     
-      <copy todir="${full.home}/resourceloaders">
-         <fileset dir="${basedir}/resourceloaders">
-            <include name="*.js"/>
-         </fileset>
-      </copy>
- 
-      <!-- Copy the collision models -->     
-      <copy todir="${full.home}/spatial">
-         <fileset dir="${basedir}/spatial">
+      <copy todir="${full.home}/engine/components">
+         <fileset dir="${basedir}/engine/components">
             <include name="*.js"/>
          </fileset>
       </copy>
 
-      <!-- Copy the text rendering -->     
-      <copy todir="${full.home}/textrender">
-         <fileset dir="${basedir}/textrender">
+      <copy todir="${full.home}/engine/components/collision">
+         <fileset dir="${basedir}/engine/components/collision">
             <include name="*.js"/>
          </fileset>
       </copy>
 
-      <!-- Copy the Box2d physics engine -->     
-      <copy todir="${full.home}/physics">
-         <fileset dir="${basedir}/physics">
-            <include name="**/*.js"/>
+      <copy todir="${full.home}/engine/components/input">
+         <fileset dir="${basedir}/engine/components/input">
+            <include name="*.js"/>
          </fileset>
       </copy>
 
-      <!-- Copy the starter objects -->     
-      <copy todir="${full.home}/objects">
-         <fileset dir="${basedir}/objects">
+      <copy todir="${full.home}/engine/components/logic">
+         <fileset dir="${basedir}/engine/components/logic">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <copy todir="${full.home}/engine/components/physics">
+         <fileset dir="${basedir}/engine/components/physics">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <copy todir="${full.home}/engine/components/render">
+         <fileset dir="${basedir}/engine/components/render">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <copy todir="${full.home}/engine/components/transform">
+         <fileset dir="${basedir}/engine/components/transform">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the language additions -->
+      <copy todir="${full.home}/engine/lang">
+         <fileset dir="${basedir}/engine/lang">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the math objects -->
+      <copy todir="${full.home}/engine/math">
+         <fileset dir="${basedir}/engine/math">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the starter objects -->
+      <copy todir="${full.home}/engine/objects">
+         <fileset dir="${basedir}/engine/objects">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the particle systems -->
+      <copy todir="${full.home}/engine/particles">
+         <fileset dir="${basedir}/engine/particles">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the physics simulation -->
+      <copy todir="${full.home}/engine/physics">
+         <fileset dir="${basedir}/engine/physics">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the render contexts -->
+      <copy todir="${full.home}/engine/rendercontexts">
+         <fileset dir="${basedir}/engine/rendercontexts">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+ 
+      <!-- Copy the resource loaders and types -->
+      <copy todir="${full.home}/engine/resources/loaders">
+         <fileset dir="${basedir}/engine/resources/loaders">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <copy todir="${full.home}/engine/resources/types">
+         <fileset dir="${basedir}/engine/resources/types">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the sound systems -->
+      <copy todir="${full.home}/engine/sound">
+         <fileset dir="${basedir}/engine/sound">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the storage objects -->
+      <copy todir="${full.home}/engine/storage">
+         <fileset dir="${basedir}/engine/storage">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the data structures -->
+      <copy todir="${full.home}/engine/struct">
+         <fileset dir="${basedir}/engine/struct">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the text rendering -->
+      <copy todir="${full.home}/engine/text">
+         <fileset dir="${basedir}/engine/text">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the UI controls -->
+      <copy todir="${full.home}/engine/ui">
+         <fileset dir="${basedir}/engine/ui">
+            <include name="*.js"/>
+         </fileset>
+      </copy>
+
+      <!-- Copy the utility classes -->
+      <copy todir="${full.home}/engine/util">
+         <fileset dir="${basedir}/engine/util">
             <include name="*.js"/>
          </fileset>
       </copy>

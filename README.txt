@@ -5,20 +5,17 @@ The Render Engine @BUILD_VERSION [@BUILD_DATE]
 
 The Render Engine is an open source game engine written entirely in Javascript.  The intent of this engine is to provide you, the developer, with the tools necessary to create your own games without needing to first design and write an engine.  The engine has all of the capabilities to load and execute scripts which contain game objects, render contexts, and so forth.  The Render Engine is a starting point, written using a clean OO framework, from which you can extend and expand into whatever you desire.
 
-The engine includes several demonstrations which should give the developer a good starting point and provide references.  Additionally, many tools have been written and are distributed with The Render Engine to support the developer in creating their game.
+The engine includes several demonstrations and tutorials which should give the developer a good starting point and provide references.  Additionally, many tools have been written and are distributed with The Render Engine to support the developer in creating their game.
 
 Visit our site for the latest version of the engine, examples, and tutorials:
 @HOME_URL
 
 
-The engine source is accessible through Google Code @
-http://code.google.com/p/renderengine
-
-There are many useful pages on The Render Engine wiki @
-http://code.google.com/p/renderengine/w/list
+The engine source is accessible through GitHub @
+https://github.com/bfattori/TheRenderEngine
 
 Full API documentation is available online for the latest version @
-http://renderengine.googlecode.com/svn/api/index.html
+https://github.com/downloads/bfattori/TheRenderEngine/renderengine_apidocs_v2.0.0.8a.zip
 
 A Google Discussion Group is available @
 http://groups.google.com/group/the-render-engine
@@ -28,13 +25,7 @@ http://groups.google.com/group/the-render-engine
 Source Code Access
 ------------------------
 
-The source code is hosted on Google Code in a Subversion (SVN) repository.  Use the following command to anonymously access to the latest source code:
-
-> svn checkout http://renderengine.googlecode.com/svn/trunk/ renderengine-read-only
-
-An integrated tool, such as TortoiseSVN, will make access to the source much simpler.  You can get TortoiseSVN @
-http://tortoisesvn.tigris.org/
-
+The source code is hosted on GitHub.  You can either download the master branch, or fork it for your own use.
 
 
 Setting up a Tomcat server for testing & development
@@ -63,14 +54,14 @@ The web server is running properly if you see the Asteroids demo start up.
 Supported Browsers
 -------------------------
 
-While every effort is made to support as many browsers as possible, each browser renders and executes differently.  We have found that the Chrome browser by Google provides the best overall experience.  Firefox 4.0 is another excellent choice for performance and standards support.  Safari, Opera, and Internet Explorer 9 round out the top-level browsers which run games produced with The Render Engine.  We also make a conscious effort to test the engine and demos on iOS, Android, and the Nintendo Wii.  However, support for these platforms is secondary to desktop browsers due to the amount of processing that must occur and the available horsepower of each platform's CPU.
+While every effort is made to support as many browsers as possible, each browser renders and executes differently.  I have found that the Chrome browser by Google provides the best overall experience.  Firefox 4.0+ is another excellent choice for performance and standards support.  Safari, Opera, and Internet Explorer 9 round out the top-level browsers which run games produced with The Render Engine.  I also make a conscious effort to test the engine and demos on iOS, Android, and the Nintendo Wii.  However, support for these platforms is secondary to desktop browsers due to the amount of processing that must occur and the available horsepower of each platform's CPU.
 
 
 
 Internet Explorer 6, 7, & 8 Support
 -----------------------------------------
 
-For those who are using Internet Explorer 6, 7, or 8, and prefer to keep their browser intact, we recommend downloading the ChromeFrame plug-in for the browser.  The Render Engine has emulation support for the canvas element via FlashCanvas, but this has a relatively large impact on frame rate.  If you would like to try ChromeFrame, please visit:
+For those who are using Internet Explorer 6, 7, or 8, that prefer to keep their browser intact, I recommend downloading the ChromeFrame plug-in for the browser.  The Render Engine NO LONGER has emulation support for the canvas element!  If you would like to try ChromeFrame, please visit:
 
 http://code.google.com/chrome/chromeframe/
 

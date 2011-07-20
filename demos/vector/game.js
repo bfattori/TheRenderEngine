@@ -192,7 +192,7 @@ var Spaceroids = function() {
          title.setTextAlignment(R.text.AbstractTextRenderer.ALIGN_CENTER);
          this.renderContext.add(title);
 
-         var copy = R.text.TextRenderer.create(R.text.VectorText.create(), "&copy;2009 Brett Fattori", 0.6);
+         var copy = R.text.TextRenderer.create(R.text.VectorText.create(), "&copy;1979 Atari / &copy;2008-2011 Brett Fattori", 0.6);
          copy.setColor("#ffffff");
          copy.setPosition(copyPos);
          copy.setTextAlignment(R.text.AbstractTextRenderer.ALIGN_CENTER);
