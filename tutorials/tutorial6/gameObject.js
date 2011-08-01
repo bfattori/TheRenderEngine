@@ -34,9 +34,9 @@ var GameObject = function() {
          var start = Tutorial6.getFieldRect().getCenter();
 
          // Set our object's shape
-         var c_draw = this.getComponent("draw");
-         var shape = [[-4,-1], [-1,-1], [0,-5], [1,-1], [4,-1], [1,1],
-            [4,4], [0,2], [-4,4], [-1,1]];
+         var c_draw = this.getComponent("draw"),
+             shape = [[-4,-1], [-1,-1], [0,-5], [1,-1], [4,-1], [1,1],
+                      [4,4], [0,2], [-4,4], [-1,1]];
 
          // Scale up the shape
          var s = [];
@@ -61,6 +61,9 @@ var GameObject = function() {
 
          // Set the velocity to zero
          this.moveVec = R.math.Vector2D.create(0,0);
+
+         // Wire up events
+         this.addEvents(["onKeyDown", "onKeyUp"]);
       },
 
       /**
@@ -84,10 +87,10 @@ var GameObject = function() {
 
       /**
        * Handle a "keydown" event from <tt>R.components.input.Keyboard</tt>.
-       * @param charCode {Number} Unused
-       * @param keyCode {Number} The key which was pressed down.
+       * @param evt {Event} The event object
+       * @param charCode {Number} The character code
        */
-      onKeyDown: function(charCode, keyCode) {
+      onKeyDown: function(evt, charCode) {
          switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
                this.moveVec.setX(-4);
@@ -107,10 +110,10 @@ var GameObject = function() {
 
       /**
        * Handle a "keyup" event from <tt>R.components.input.Keyboard</tt>.
-       * @param charCode {Number} Unused
-       * @param keyCode {Number} The key which was released
+       * @param evt {Event} The event object
+       * @param charCode {Number} The character code
        */
-      onKeyUp: function(charCode, keyCode) {
+      onKeyUp: function(evt, charCode) {
          switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
             case R.engine.Events.KEYCODE_RIGHT_ARROW:

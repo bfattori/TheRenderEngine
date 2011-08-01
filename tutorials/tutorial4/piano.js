@@ -20,7 +20,8 @@ var PianoKeys = function() {
       constructor: function() {
          this.base("PianoKeys");
 
-         // Add the component which handles keyboard input
+         // Add the component which handles keyboard input.  This is necessary to
+         // receive the event triggers.
          this.add(R.components.input.Keyboard.create("input"));
          this.add(R.components.render.Image.create("draw", Tutorial4.imageLoader.getImage("keys")));
 
@@ -37,6 +38,25 @@ var PianoKeys = function() {
          // Initialize the "dot" indicators array
          this.dots = [];
          R.engine.Support.fillArray(this.dots, 8, false);
+
+         // Add key event handlers
+         this.addEvents({
+            "keydown": function(evt, which) {
+               // These will trigger a dot on the key being played
+               if (which >= 49 && which <= 56) {
+                  self.sounds[which - 49].play();
+                  self.dots[which - 49] = true;
+               }
+               return false;
+            },
+            "keyup": function(evt, which) {
+               // These will remove the dot on the key being played
+               if (which >= 49 && which <= 56) {
+                  self.dots[which - 49] = false;
+               }
+               return false;
+            }
+         });
       },
 
       /**
@@ -56,31 +76,6 @@ var PianoKeys = function() {
          this.draw(renderContext);
 
          renderContext.popTransform();
-      },
-
-      /**
-       * Handle a "keydown" event from <tt>R.components.input.Keyboard</tt>.
-       * @param keyCode {Number} The key which was pressed.
-       */
-      onKeyDown: function(charCode) {
-         // These will trigger a dot on the key being played
-         if (charCode >= 49 && charCode <= 56) {
-            this.sounds[charCode - 49].play();
-            this.dots[charCode - 49] = true;
-         }
-         return false;
-      },
-
-      /**
-       * Handle a "keyup" event from <tt>R.components.input.Keyboard</tt>.
-       * @param keyCode {Number} The key which was pressed.
-       */
-      onKeyUp: function(charCode) {
-         // These will remove the dot on the key being played
-         if (charCode >= 49 && charCode <= 56) {
-            this.dots[charCode - 49] = false;
-         }
-         return false;
       },
 
       /**

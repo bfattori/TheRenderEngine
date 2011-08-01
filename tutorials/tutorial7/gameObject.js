@@ -48,6 +48,9 @@ var GameObject = function() {
 
          // Set our bounding box so collision tests work
          this.setBoundingBox(this.shape);
+
+         // Wire up event handlers
+         this.addEvents(["onKeyDown", "onKeyUp"]);
       },
 
       /**
@@ -56,12 +59,13 @@ var GameObject = function() {
        *
        * @param renderContext {RenderContext} The rendering context
        * @param time {Number} The engine time in milliseconds
+       * @param dt {Number} The time (in milliseconds) since the last frame was drawn
        */
-      update: function(renderContext, time) {
+      update: function(renderContext, time, dt) {
          renderContext.pushTransform();
 
          // The the "update" method of the super class
-         this.base(renderContext, time);
+         this.base(renderContext, time, dt);
 
          // Move the object, according to the keyboard
          this.move();
@@ -77,9 +81,10 @@ var GameObject = function() {
        *
        * @param collisionObj {R.engine.BaseObject} The object we've collided with
        * @param time {Number} The time at which the collision occurred
+       * @param dt {Number} The time (in milliseconds) since the last frame was drawn
        * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
        */
-      onCollide: function(collisionObj, time, targetMask) {
+      onCollide: function(collisionObj, time, dt, targetMask) {
          if (targetMask == 3) {
             // Colliding with a "red" box
             this.color = "#0000ff";
@@ -104,10 +109,10 @@ var GameObject = function() {
 
       /**
        * Handle a "keydown" event from <tt>R.components.input.Keyboard</tt>.
-       * @param charCode {Number} Unused
-       * @param keyCode {Number} The key which was pressed down.
+       * @param evt {Event} The event object
+       * @param charCode {Number} The character code
        */
-      onKeyDown: function(charCode, keyCode) {
+      onKeyDown: function(evt, charCode) {
          switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
                this.moveVec.setX(-4);
@@ -127,10 +132,10 @@ var GameObject = function() {
 
       /**
        * Handle a "keyup" event from the <tt>R.components.input.Keyboard</tt>.
-       * @param charCode {Number} Unused
-       * @param keyCode {Number} The key which was released
+       * @param evt {Event} The event object
+       * @param charCode {Number} The character code
        */
-      onKeyUp: function(charCode, keyCode) {
+      onKeyUp: function(evt, charCode) {
          switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
             case R.engine.Events.KEYCODE_RIGHT_ARROW:

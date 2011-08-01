@@ -53,14 +53,16 @@ R.Engine.define({
  * <li><tt>mouseout</tt> - The mouse moved out of the host object (after being over it)</li>
  * <li><tt>mousedown</tt> - A mouse button was depressed, while over the object</li>
  * <li><tt>mouseup</tt> - A mouse button was released</li>
+ * <li><tt>click</tt> - A mouse button was depressed, and released, while over the object</li>
  * <li><tt>mousemove</tt> - The mouse was moved</li>
  * </ul>
- * Each event is passed a {@link R.struct.MouseInfo MouseInfo} object which contains information about
- * the mouse event. Objects which wish to be notified via the <tt>mouseover</tt> event handler will need
- * to define their bounding box.
+ * Each event is passed the event object and a {@link R.struct.MouseInfo MouseInfo} structure which
+ * contains information about the mouse event in the context of a game.
  * <p/>
  * <i>Note: The rendering context that the object is contained within needs to enable mouse event
  * capturing with the {@link R.rendercontexts.AbstractRenderContext#captureMouse} method.</i>
+ * Objects which wish to be notified via the <tt>mouseover</tt> event handler will need to define
+ * a bounding box.
  *
  * @param name {String} The unique name of the component.
  * @param priority {Number} The priority of the component among other input components.
@@ -168,6 +170,12 @@ R.components.input.Mouse = function() {
          if (dataModel.mouseDown && (mouseInfo.button == R.engine.Events.MOUSE_NO_BUTTON)) {
             dataModel.mouseDown = false;
             gameObject.triggerEvent("mouseup", [mouseInfo]);
+
+            // Trigger the "click" event if the mouse was pressed and released
+            // over an object
+            if (mouseOver) {
+               gameObject.triggerEvent("click", [mouseInfo]);
+            }
          }
       }
       

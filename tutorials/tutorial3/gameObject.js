@@ -38,6 +38,16 @@ var GameObject = function() {
 
          // Set the velocity to zero
          this.moveVec = R.math.Vector2D.create(0,0);
+
+         // Set event handlers
+         this.addEvents({
+            "keydown": function(evt, which) {
+               this.onKeyDown(which);
+            },
+            "keyup": function(evt, which) {
+               this.onKeyUp(which);
+            }
+         });
       },
 
       /**
@@ -64,10 +74,9 @@ var GameObject = function() {
 
       /**
        * Handle a "keydown" event from <tt>R.components.input.Keyboard</tt>.
-       * @param charCode {Number} Unused
-       * @param keyCode {Number} The key which was pressed down.
+       * @param charCode {Number} The character code
        */
-      onKeyDown: function(charCode, keyCode) {
+      onKeyDown: function(charCode) {
          switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
                this.moveVec.setX(-4);
@@ -87,10 +96,9 @@ var GameObject = function() {
 
       /**
        * Handle a "keyup" event from <tt>R.components.input.Keyboard</tt>.
-       * @param charCode {Number} Unused
-       * @param keyCode {Number} The key which was released
+       * @param charCode {Number} The character code
        */
-      onKeyUp: function(charCode, keyCode) {
+      onKeyUp: function(charCode) {
          switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
             case R.engine.Events.KEYCODE_RIGHT_ARROW:

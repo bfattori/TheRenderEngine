@@ -42,22 +42,19 @@ R.Engine.define({
 
 /**
  * @class A component which responds to keyboard events and notifies
- * its {@link R.engine.GameObject} by calling one of three methods.  The <tt>R.engine.GameObject</tt>
- * should implement any of the following methods to receive the corresponding event:
+ * its {@link R.engine.GameObject} when one of the events occurs.  The <tt>R.engine.GameObject</tt>
+ * should add event handlers for any of the following:
  * <ul>
- * <li><tt>onKeyDown()</tt> - A key was pressed down</li>
- * <li><tt>onKeyUp()</tt> - A key was released</li>
- * <li><tt>onKeyPress()</tt> - A key was pressed and released</li>
+ * <li><tt>keydown</tt> - A key was pressed down</li>
+ * <li><tt>keyup</tt> - A key was released</li>
+ * <li><tt>keypress</tt> - A key was pressed and released</li>
  * </ul>
- * Each function takes up to six arguments.  The first argument is the character
- * code, a number which represents the key that was pressed. The second argument is the
- * <tt>keyCode</tt>, a number which represents special keys that were pressed, such as
- * the arrow keys and function keys.  See
- * {@link R.engine.Events} for key codes of the non-alphabetic keys. The third argument
- * is a boolean indicating if the Control key was pressed.  The fourth argument is a
- * boolean indicating if the Alt key was pressed.  The fifth argument is a boolean
- * indicating if the Shift key was pressed.  The sixth and final argument is the
- * actual event object itself.
+ * Each event handler will be passed six arguments.  The first argument is the event object.
+ * The second argument is the character code, a number which represents the key that was pressed.
+ * The third argument is the <tt>keyCode</tt>, a number which represents special keys that were
+ * pressed, such as the arrow keys and function keys.  See {@link R.engine.Events} for key codes of
+ * the non-alphabetic keys. The fourth, fifth, and sixth arguments are boolean flags indicating if
+ * the Control, Alt, or Shift keys, respectively, were pressed.
  *
  * @param name {String} The unique name of the component.
  * @param priority {Number} The priority of the component among other input components.
@@ -161,19 +158,19 @@ R.components.input.Keyboard = function() {
       /** @private */
       _keyDownListener: function(eventObj) {
          this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
-         return this.getGameObject().onKeyDown(eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey, eventObj);
+         return this.getGameObject().triggerEvent("keydown", [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey, eventObj]);
       },
 
       /** @private */
       _keyUpListener: function(eventObj) {
          this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
-         return this.getGameObject().onKeyUp(eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey, eventObj);
+         return this.getGameObject().triggerEvent("keyup", [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey, eventObj]);
       },
 
       /** @private */
       _keyPressListener: function(eventObj) {
          this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
-         return this.getGameObject().onKeyPress(eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey, eventObj);
+         return this.getGameObject().triggerEvent("keypress", [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey, eventObj]);
       }
 
    }, /** @scope R.components.input.Keyboard.prototype */{

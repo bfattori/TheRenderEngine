@@ -1,6 +1,6 @@
 <!-- ChromeFrame Support -->
 <meta http-equiv="X-UA-Compatible" content="IE=9;chrome=1">
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!doctype html>
 
 <!--
    /**
@@ -40,7 +40,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
    <head>
-      <title>The Render Engine - UI Controls</title>
+      <title>The Render Engine - Font Rendering</title>
 
       <!-- Supporting Libraries -->
       <script type="text/javascript" src="../../engine/libs/base.js"></script>
@@ -50,30 +50,11 @@
 
       <!-- Load the main engine script -->
       <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
-      <style type="text/css">
-         .ui.inputcontrol.bigger {
-            font: 18px Verdana;
-         }
-
-         .ui.inputcontrol.biggerAgain {
-            font: 20px Verdana;
-         }
-
-         .ui.buttoncontrol.mouseover {
-            background-color: navy;
-            color: white;
-         }
-
-         .ui.fieldgroup.form {
-            width: 480px;
-            height: 240px;
-         }
-      </style>
    </head>
    <body>
       <script type="text/javascript">
          // Load the game script
-         R.Engine.loadGame('game.js','UITest', 'UI Control Demo');
+         R.Engine.loadGame('game.js','FontTest');
       </script>
    </body>
 </html>

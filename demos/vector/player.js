@@ -115,6 +115,9 @@ var SpaceroidsPlayer = function() {
          this.nuking = false;
          this.freeGuy = false;
          this.setZIndex(1);
+
+         // Add event handlers
+         this.addEvents(["onKeyDown", "onKeyUp"]);
       },
 
       destroy: function() {
@@ -428,9 +431,9 @@ var SpaceroidsPlayer = function() {
       /**
        * Called by the keyboard input component to handle a key down event.
        *
-       * @param event {Event} The event object
+       * @param charCode {Number} The character code
        */
-      onKeyDown: function(charCode, keyCode, ctrlKey, altKey, shiftKey, event) {
+      onKeyDown: function(evt, charCode) {
          if (!this.alive) {
             return;
          }
@@ -471,9 +474,9 @@ var SpaceroidsPlayer = function() {
       /**
        * Called by the keyboard input component to handle a key up event.
        *
-       * @param event {Event} The event object
+       * @param charCode {Number} The character code
        */
-      onKeyUp: function(charCode, keyCode, ctrlKey, altKey, shiftKey, event) {
+      onKeyUp: function(evt, charCode) {
          if (!this.alive) {
             return;
          }

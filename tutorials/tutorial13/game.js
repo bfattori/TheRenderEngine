@@ -1,39 +1,5 @@
-/**
- * The Render Engine
- * Test: Font Rendering
- *
- * Tests of the available font renderers.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- *
- * @author: $Author: bfattori $
- * @version: $Revision: 1555 $
- *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-// Load all required engine components
 R.Engine.define({
-	"class": "UITest",
+	"class": "Tutorial13",
 	"requires": [
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext",
@@ -41,6 +7,7 @@ R.Engine.define({
       "R.text.ContextText",
       "R.math.Math2D",
 
+      // UI controls
       "R.ui.LabelControl",
       "R.ui.TextInputControl",
       "R.ui.ButtonControl",
@@ -51,13 +18,11 @@ R.Engine.define({
 });
 
 /**
- * @class User Interface testing demo.
+ * @class User Interface Controls tutorial.
  */
-var UITest = function() {
+var Tutorial13 = function() {
    return R.engine.Game.extend({
    
-      constructor: null,
-      
       // The rendering context
       renderContext: null,
       
@@ -67,9 +32,11 @@ var UITest = function() {
        */
       setup: function(){
          // Create the render context
-         this.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 500, 300);
-	      this.renderContext.setBackgroundColor("#333333");
-         R.Engine.getDefaultContext().add(this.renderContext);
+         Tutorial13.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 500, 300);
+	      Tutorial13.renderContext.setBackgroundColor("#333333");
+
+         // Add the render context to the default engine context
+         R.Engine.getDefaultContext().add(Tutorial13.renderContext);
 
 /*
          this.renderContext.jQ().css({
@@ -81,16 +48,21 @@ var UITest = function() {
 */
 
          // Draw the form controls
-         this.drawForm();
+         Tutorial13.drawForm();
       },
 
+      /**
+       * Add the form controls to the render context.
+       */
       drawForm: function() {
+         // A field group to logically and physically cluster fields together
          var fg = R.ui.FieldGroup.create();
          fg.setPosition(5, 5);
          fg.addClass("form");
-         this.renderContext.add(fg);
+         Tutorial13.renderContext.add(fg);
 
-         // Add some text input controls
+         // Add some text input controls with labels.  We add these to
+         // the field group, rather than adding them to the render context.
          var input = R.ui.TextInputControl.create(20, 30);
          input.setPosition(105, 10);
          fg.addControl(input);
@@ -101,6 +73,8 @@ var UITest = function() {
          label.linkTo(input);
          fg.addControl(label);
 
+         // Adding a CSS defined class will apply the styles to the
+         // text input control, as it would in an HTML context
          var input2 = R.ui.TextInputControl.create(20, 30);
          input2.addClass("bigger");
          input2.setPosition(105, 40);
@@ -112,6 +86,7 @@ var UITest = function() {
          label.linkTo(input2);
          fg.addControl(label);
 
+         // A password field is masked so that input is not visible
          var input3 = R.ui.TextInputControl.create(15, 15);
          input3.addClass("biggerAgain");
          input3.setPosition(105, 90);
@@ -124,7 +99,7 @@ var UITest = function() {
          label.linkTo(input3);
          fg.addControl(label);
 
-         // Add a check box control
+         // Checkbox controls are simply true/false inputs
          var checkbox = R.ui.CheckboxControl.create(true);
          checkbox.setPosition(105, 130);
          fg.addControl(checkbox);
@@ -134,7 +109,7 @@ var UITest = function() {
          label.linkTo(checkbox);
          fg.addControl(label);
 
-         // Add a radio group
+         // Radio controls allow for a single selection from multiple choices
          var radio1 = R.ui.RadioControl.create("group1", "me", true);
          radio1.setPosition(10,160);
          fg.addControl(radio1);
@@ -159,23 +134,28 @@ var UITest = function() {
          label.setPosition(160, 160);
          fg.addControl(label);
 
-         // Add a button so we can alert the values
+         // The button responds to mouse events for over and
+         // out to toggle between two styles
          var button = R.ui.ButtonControl.create("Click Me");
          button.setPosition(10, 200);
-         button.addEvent(this, "mouseover", function() {
+         button.addEvent("mouseover", function() {
             this.addClass("mouseover");
          });
-         button.addEvent(this, "mouseout", function() {
+         button.addEvent("mouseout", function() {
             this.removeClass("mouseover");
          });
          fg.addControl(button);
 
          // When the button is clicked, show the values
-         button.addEvent(this, "click", function() {
+         button.addEvent("click", function() {
             alert("input 1: " + input.getText() + "\ninput 2: " + input2.getText() + "\npassword: " + input3.getText() +
                "\ncool: " + checkbox.isChecked() + "\nwho: " + radio1.getGroupValue());
 
-            R.debug.Console.debug(R.ui.FieldGroup.serialize(fg));
+            // If you want to see the field group, serialized to JSON,
+            // uncomment the line below.  This can be used to deserialize
+            // a form from a text file.
+
+            //R.debug.Console.debug(R.ui.FieldGroup.serialize(fg));
          });
       },
 
@@ -184,22 +164,14 @@ var UITest = function() {
        * any objects, remove event handlers, destroy the rendering context, etc.
        */
       teardown: function(){
-         this.renderContext.destroy();
+         Tutorial13.renderContext.destroy();
       },
 
       /**
        * Return a reference to the render context
        */
       getRenderContext: function(){
-         return this.renderContext;
-      },
-      
-      /**
-       * Return a reference to the playfield box
-       */
-      getFieldBox: function() {
-         return this.fieldBox;
+         return Tutorial13.renderContext;
       }
-      
    });
 };

@@ -190,6 +190,9 @@ R.engine.BaseObject = function(){
        * probably remove the handler, rather than the game object needing to remove the handler.
        * But, if the game object <i>also</i> has a "click" handler, you don't want to remove
        * <i>that handler</i> since the game object may still need it.
+       * <p/>
+       * If the event handler explicitly returns <code>false</code> (not <code>null</code>, or
+       * <code>undefined</code>), further event handlers will not be processed.
 		 *
 		 * @param [ref] {Object} The object reference which is assigning the event
 		 * @param type {String} The event type to respond to
@@ -238,7 +241,48 @@ R.engine.BaseObject = function(){
             }
          }
 		},
-		
+
+      /**
+       * Helper method to simplify wiring event handlers to event types.  You can assign
+       * multiple handlers, by name, using object or array notation, for example:
+       * <pre>
+       *    // Shorthand
+       *    this.addEvents({
+       *       "keydown": function(which) {
+       *          this.onKeyDown(which);
+       *       },
+       *       "keyup": function(which) {
+       *          this.onKeyUp(which);
+       *       }
+       *    });
+       *
+       *    // Super shorthand
+       *    this.addEvents(["onKeyDown", "onKeyUp"]);
+       * </pre>
+       * Object notation allows you to still be explicit in which handler method to
+       * apply or call, and the arguments which are handled.  Array notation will
+       * simply create a method call which takes the names of the event handlers,
+       * removes "on" and then lower cases the remainder to create the event assignment.
+       * <p/>
+       * In the example above, <tt>onKeyDown</tt> is the name of your method to be
+       * called, and <tt>keydown</tt> will be the name of the actual event.
+       *
+       * @param handlers {Object|Array} The event assignments
+       */
+      addEvents: function(handlers) {
+         var self = this;
+         if ($.isArray(handlers)) {
+            for (var h = 0; h < handlers.length; h++) {
+               var method = this[handlers[h]];
+               this.addEvent(handlers[h].substr(2).toLowerCase(), method);
+            }
+         } else {
+            $.each(handlers, function(key, value) {
+               self.addEvent(key, value);
+            });
+         }
+      },
+
 		/**
 		 * Remove the event handler assigned to the object for the given type.  The optional
        * <tt>ref</tt> argument is used when another object assigned the event handler, such as:
@@ -322,7 +366,10 @@ R.engine.BaseObject = function(){
                   }
 
                   // Call the listener
-                  listener.callback.apply(this, data);
+                  var ret = listener.callback.apply(this, data);
+                  if (ret === false) {
+                     break;
+                  }
                }
             }
          }

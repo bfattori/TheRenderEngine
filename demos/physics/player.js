@@ -53,8 +53,6 @@ var Player = function() {
 
       // The toy the cursor is currently over or null
       overToy: null,
-      mouseDown: false,
-      clickToy: null,
 
       /**
        * @private
@@ -74,14 +72,10 @@ var Player = function() {
 
          // Initialize the currently selected toy to null
          this.overToy = null;
-         this.clickToy = null;
-         this.mouseDown = false;
 
          // Add mouse event handlers
          var self = this;
-         this.addEvent("mousemove", function(evt, info) {
-            self.onMouseMove(info);
-         });
+         this.addEvent(["onMouseMove"]);
       },
 
       /**
@@ -113,26 +107,9 @@ var Player = function() {
          R.debug.Metrics.add("cursorPos", point);
       },
 
-      onMouseMove: function(info) {
+      onMouseMove: function(evt, info) {
          // If controller zero, update the position
          this.setPosition(info.position);
-         if (this.mouseDown && this.clickToy) {
-            this.clickToy.clicked(info.position);
-         }
-      },
-
-      onMouseDown: function(info) {
-         if (info.button == R.engine.Events.MOUSE_LEFT_BUTTON) {
-            this.mouseDown = true;
-            if (this.overToy) {
-               this.clickToy = this.overToy;
-            }
-         }
-      },
-
-      onMouseUp: function() {
-         this.mouseDown = false;
-         this.clickToy = null;
       },
 
       /**

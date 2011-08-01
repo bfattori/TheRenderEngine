@@ -85,7 +85,7 @@ var Bomb = function() {
          var pos = R.math.Point2D.create(this.getPosition());
          var offset = R.math.Point2D.create(30, 10);
          pos.sub(offset);
-         this.getComponent("move").setPosition(pos);
+         this.setPosition(pos);
          pos.destroy();
          offset.destroy();
 
@@ -98,7 +98,7 @@ var Bomb = function() {
          for (var x = 0; x < 40; x++) {
             var decel = R.lang.Math2.random() * 0.08;
             var r = Math.floor(R.lang.Math2.random() * 500);
-            p.add(SimpleParticle.create(pt, 2000 + r, decel));
+            p.add(SimpleParticle.create(pt, 1000 + r, decel));
          }
          Tutorial11.pEngine.addParticles(p);
          pt.destroy();

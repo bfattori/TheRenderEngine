@@ -19,14 +19,20 @@ var Tutorial1 = function(){
 		 * Called to set up the game and initialize it to a running state.
 		 */
 		setup: function(){
-			// Create the render context
+			// Create the render context.  We give it a width and height of 200 pixels and
+         // set the background color to black so we can see it against the white browser
+         // background.
 			var renderContext = R.rendercontexts.HTMLDivContext.create("Playfield", 200, 200);
 			renderContext.setBackgroundColor("black");
 
-			// Add the new rendering context to the default engine context
+			// Add the new rendering context to the default engine context. Doing this
+         // will cause "renderContext" to be updated whenever the engine's default
+         // context is updated.
 			R.Engine.getDefaultContext().add(renderContext);
 
-         // Draw some text on the context
+         // Draw some text on the context by calling its drawText() method directly.
+         // In a later tutorial, you'll use text renderers which is the proper way to
+         // render text.
          renderContext.setFillStyle("#ffffff");
          renderContext.drawText(R.math.Point2D.create(50, 75), "Hello World!");
 		}

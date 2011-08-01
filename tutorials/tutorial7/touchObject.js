@@ -42,7 +42,8 @@ var TouchObject = function() {
          this.setPosition(start);
 
          // Set the collision mask
-         this.getComponent("collide").setCollisionMask(touchable ? R.lang.Math2.parseBin("11") : "10");
+         this.getComponent("collide").setCollisionMask(touchable ? R.lang.Math2.parseBin("11") :
+            R.lang.Math2.parseBin("10"));
          this.color = touchable ? "#8c1717" : "#fcb514";
 
          // Set our bounding box so collision tests work

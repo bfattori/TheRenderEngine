@@ -43,6 +43,9 @@ var Player = function() {
 
          // Move the player's origin to the center of the bounding box
          this.setOrigin(this.getBoundingBox().getCenter());
+
+         // Wire event handlers
+         this.addEvents(["onKeyDown", "onKeyUp"]);
       },
 
       /**
@@ -80,10 +83,10 @@ var Player = function() {
        * this to determine which yaw angle to apply to the player.  Also, switch the
        * player's sprite to "walk".
        *
-       * @param charCode {Number} Unused
-       * @param keyCode {Number} The key which was pressed down.
+       * @param evt {Event} The event object
+       * @param charCode {Number} The character code
        */
-      onKeyDown: function(charCode, keyCode) {
+      onKeyDown: function(evt, charCode) {
          switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
                this.setSprite("walk");
@@ -113,10 +116,10 @@ var Player = function() {
        * Handle a "keyup" event from <tt>R.components.input.Keyboard</tt>.  This will
        * also switch back to the "stand" sprite for the player.
        *
-       * @param charCode {Number} Unused
-       * @param keyCode {Number} The key which was released
+       * @param evt {Event} The event object
+       * @param charCode {Number} The character code
        */
-      onKeyUp: function(charCode, keyCode) {
+      onKeyUp: function(evt, charCode) {
          switch (charCode) {
             case R.engine.Events.KEYCODE_LEFT_ARROW:
             case R.engine.Events.KEYCODE_RIGHT_ARROW:

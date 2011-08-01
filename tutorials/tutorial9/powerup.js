@@ -38,7 +38,7 @@ var Powerup = function() {
          this.setPosition(start);
 
          // Set the collision mask
-         this.getComponent("collide").setCollisionMask(R.lang.Math2.parseBin("10"));
+         this.getComponent("collide").setCollisionMask(Powerup.COLLISION_MASK);
 
          // Set our bounding box so collision tests work
          this.setBoundingBox(shieldSprite.getBoundingBox());
@@ -52,11 +52,11 @@ var Powerup = function() {
        * @param renderContext {RenderContext} The rendering context
        * @param time {Number} The engine time in milliseconds
        */
-      update: function(renderContext, time) {
+      update: function(renderContext, time, dt) {
          renderContext.pushTransform();
 
          // The the "update" method of the super class
-         this.base(renderContext, time);
+         this.base(renderContext, time, dt);
 
          renderContext.popTransform();
       }
@@ -69,6 +69,8 @@ var Powerup = function() {
        */
       getClassName: function() {
          return "Powerup";
-      }
+      },
+
+      COLLISION_MASK: R.lang.Math2.parseBin("10")
    });
 };

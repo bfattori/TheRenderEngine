@@ -38,7 +38,7 @@ var Bomb = function() {
          this.setPosition(start);
 
          // Set the collision mask
-         this.getComponent("collide").setCollisionMask(R.lang.Math2.parseBin("01"));
+         this.getComponent("collide").setCollisionMask(Bomb.COLLISION_MASK);
 
          // Set our bounding box so collision tests work
          this.setBoundingBox(bombSprite.getBoundingBox());
@@ -56,11 +56,11 @@ var Bomb = function() {
        * @param renderContext {RenderContext} The rendering context
        * @param time {Number} The engine time in milliseconds
        */
-      update: function(renderContext, time) {
+      update: function(renderContext, time, dt) {
          renderContext.pushTransform();
 
          // The the "update" method of the super class
-         this.base(renderContext, time);
+         this.base(renderContext, time, dt);
 
          renderContext.popTransform();
       },
@@ -99,6 +99,8 @@ var Bomb = function() {
        */
       getClassName: function() {
          return "Bomb";
-      }
+      },
+
+      COLLISION_MASK: R.lang.Math2.parseBin("01")
    });
 };

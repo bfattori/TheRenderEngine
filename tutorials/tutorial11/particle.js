@@ -22,8 +22,7 @@ var SimpleParticle = function() {
 
       constructor: function(pos, ttl, decel) {
          this.base(ttl || 2000);
-         var p = pos.get();
-         this.setPosition(p.x, p.y);
+         this.setPosition(pos.x, pos.y);
 
          var a = Math.floor(R.lang.Math2.random() * 360);
          this.vec = R.math.Math2D.getDirectionVector(R.math.Vector2D.ZERO, R.math.Vector2D.UP, a);

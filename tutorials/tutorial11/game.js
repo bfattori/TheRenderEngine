@@ -32,8 +32,6 @@ R.engine.Game.load("/particle.js");
 var Tutorial11 = function() {
    return R.engine.Game.extend({
 
-      constructor: null,
-
       // The rendering context
       renderContext: null,
 
@@ -55,7 +53,7 @@ var Tutorial11 = function() {
          R.Engine.getDefaultContext().add(this.renderContext);
 
          // Create the collision model with 9x9 divisions
-         this.collisionModel = R.collision.broadphase.SpatialGrid.create(this.fieldWidth, this.fieldHeight, 9);
+         this.collisionModel = R.collision.broadphase.SpatialGrid.create(480, 480, 9);
 
          // Create a particle engine
          this.pEngine = R.particles.ParticleEngine.create();
