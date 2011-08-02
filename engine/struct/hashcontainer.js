@@ -135,12 +135,13 @@ R.struct.HashContainer = function(){
 		remove: function(obj){
 			for (var o in this.objHash) {
 				if (this.objHash[o] === obj) {
+               // removeHash() takes care of removing the actual object, so we don't
+               // call the base class - otherwise we delete the wrong object
 					this.removeHash(o);
 					break;
 				}
 			}
-			
-			return this.base(obj);
+			return obj;
 		},
 		
 		/**
@@ -152,7 +153,7 @@ R.struct.HashContainer = function(){
 		removeHash: function(key){
 			key = (key.charAt(0) === "_" ? key : "_" + String(key));
 			var obj = this.objHash[key];
-			R.engine.Support.arrayRemove(this.objects, this.objHash[key]);
+			R.engine.Support.arrayRemove(this.objects, obj);
 			delete this.objHash[key];
 			return obj;
 		},

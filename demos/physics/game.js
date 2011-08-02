@@ -37,7 +37,6 @@ R.Engine.define({
       "R.engine.Game",
       "R.rendercontexts.CanvasContext",
       "R.rendercontexts.HTMLDivContext",
-      "R.collision.broadphase.SpatialGrid",
       "R.physics.Simulation",
       "R.resources.loaders.SpriteLoader",
       "R.resources.types.Sprite",
@@ -47,7 +46,6 @@ R.Engine.define({
 
    // Game class dependencies
    "depends": [
-      "Player",
       "Toy",
       "Crate",
       "BeachBall"
@@ -55,7 +53,6 @@ R.Engine.define({
 });
 
 // Load game objects
-R.engine.Game.load("/player.js");
 R.engine.Game.load("/toy.js");
 R.engine.Game.load("/beachball.js");
 R.engine.Game.load("/crate.js");
@@ -75,9 +72,6 @@ var PhysicsDemo = function() {
 
       // Sprite resource loader
       spriteLoader: null,
-
-      // The collision model
-      cModel: null,
 
       // The physical world simulation
       simulation: null,
@@ -149,17 +143,13 @@ var PhysicsDemo = function() {
          // Add the game context to the scene graph
          R.Engine.getDefaultContext().add(this.renderContext);
 
-         // Create the collision model with 8x8 divisions
-         this.cModel = R.collision.broadphase.SpatialGrid.create(800, 600, 8);
-         this.renderContext.add(this.cModel);
-
          this.addToys();
-
-         // Add the player object
-         var player = Player.create();
-         this.renderContext.add(player);
       },
 
+      /**
+       * Add toys to the render context to play around with.  The types of
+       * toys added depends on the check boxes in the interface.
+       */
       addToys: function() {
          // Add some toys to play around with
          if ($("input.balls")[0].checked) {
@@ -175,6 +165,9 @@ var PhysicsDemo = function() {
          }
       },
 
+      /**
+       * Clear all toys from the render context and destroy their instances.
+       */
       clearToys: function() {
          var toys = this.renderContext.getObjects(function(e) {
             return e instanceof Toy;
@@ -217,7 +210,7 @@ var PhysicsDemo = function() {
       },
 
       /**
-       * Create a toy and apply a force to give it some random motion.
+       * Create a single toy and apply a force to give it some random motion.
        * @param toyObject {Toy} A toy object to add to the playfield and simulation
        * @private
        */
@@ -248,13 +241,8 @@ var PhysicsDemo = function() {
       },
 
       /**
-       * Returns a reference to the collision model
-       * @return {SpatialContainer}
+       * Returns a reference to the physics simulation (the physics world)
        */
-      getCModel: function() {
-         return this.cModel;
-      },
-
       getSimulation: function() {
          return this.simulation;
       }

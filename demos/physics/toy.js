@@ -34,7 +34,6 @@ R.Engine.define({
    "requires": [
       "R.components.render.Sprite",
       "R.components.render.DOM",
-      "R.components.Collider",
       "R.objects.PhysicsActor",
       "R.components.input.Mouse",
       "R.components.physics.MouseJoint",
@@ -71,23 +70,32 @@ var Toy = function() {
          this.mouseButtonDown = false;
          this.renderScale = (R.lang.Math2.random() * 1) + 0.8;
 
+         // DOM Context ------------------------------------------------------
+
+         // The code below can be uncommented when the object is
+         // being rendered in a DOM context.  Without these two things (an
+         // element and the DOM render component) the object won't render
+         // properly.
+
          // We need an element to render to when using the DOM context
-         this.setElement($("<div>"));
+         //this.setElement($("<div>"));
 
          // We also need the DOM render component.  This is what
          // causes the transformations to be updated each frame
          // for a DOM object.
-         this.add(R.components.render.DOM.create("draw"));
+         //this.add(R.components.render.DOM.create("draw"));
+
+         // ------------------------------------------------------------------
 
          // Add a mouse component so we know when the mouse is over the object
          this.add(R.components.input.Mouse.create("mouse"));
 
          // The simulation is used to update the position and rotation
-         // of the physical body.  Whereas the render context is used to
+         // of the rigid body.  Whereas the render context is used to
          // represent (draw) the shape.
          this.setSimulation(PhysicsDemo.simulation);
 
-         // Create the physical body object which will move the toy object
+         // Create the rigid body object which will simulate the toy
          this.createPhysicalBody("physics", this.renderScale);
          this.getComponent("physics").setScale(this.renderScale);
          this.getComponent("physics").setRenderComponent(R.components.render.Sprite.create("draw"));
@@ -102,26 +110,28 @@ var Toy = function() {
          // Set the starting position of the toy
          this.setPosition(R.math.Point2D.create(50, 0));
 
-         // Create the mouse joint
-         this.mouseJoint = R.components.physics.MouseJoint.create("mousejoint", this.getComponent("physics"), PhysicsDemo.getSimulation());
+         // Create the mouse joint.  The mouse joint will not start simulating when
+         // it is added to the simulation.  It is up to the developer to start
+         // simulation on the mouse joint since it will assume control of the object
+         // as soon as it is simulating.
+         this.mouseJoint = R.components.physics.MouseJoint.create("mousejoint",
+            this.getComponent("physics"), PhysicsDemo.getSimulation());
          this.add(this.mouseJoint);
 
          // Events
-         var self = this;
-         this.addEvent("mouseover", function() {
-            self.mouseOver(true);
-         });
-
-         this.addEvent("mouseout", function() {
-            self.mouseOver(false);
-         });
-
-         this.addEvent("mousedown", function() {
-            self.mouseDown(true);
-         });
-
-         this.addEvent("mouseup", function() {
-            self.mouseDown(false);
+         this.addEvents({
+            "mouseover": function() {
+               this.mouseOver(true);
+            },
+            "mouseout": function() {
+               this.mouseOver(false);
+            },
+            "mousedown": function() {
+               this.mouseButton(true);
+            },
+            "mouseup": function() {
+               this.mouseButton(false);
+            }
          });
       },
 
@@ -161,11 +171,25 @@ var Toy = function() {
       released: function() {
       },
 
+      /**
+       * Called when the mouse moves over, or out of, the toy's bounding box.  This will
+       * change the sprite which is displayed for the toy.
+       *
+       * @param state {Boolean} <code>true</code> when the mouse is over the bounding box
+       */
       mouseOver: function(state) {
          this.setSprite(state ? 1 : 0);
       },
 
-      mouseDown: function(state) {
+      /**
+       * Called when a mouse button is depressed, or released.  When the mouse button
+       * is pressed, the mouse joint is added to the simulation so it can be used to
+       * move the toy around the screen.  When the button is released, the mouse joint
+       * is removed from the simulation, releasing control of the toy.
+       *
+       * @param state {Boolean} <code>true</code> when the mouse button is down
+       */
+      mouseButton: function(state) {
          if (state && !this.mouseButtonDown) {
             this.mouseJoint.startSimulation();
          } else if (this.mouseButtonDown && !state) {

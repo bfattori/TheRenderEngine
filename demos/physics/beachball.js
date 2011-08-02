@@ -32,8 +32,7 @@
 R.Engine.define({
    "class": "BeachBall",
    "requires": [
-      "R.components.physics.CircleBody",
-      "R.components.collision.Box"
+      "R.components.physics.CircleBody"
    ],
 
    "depends": [

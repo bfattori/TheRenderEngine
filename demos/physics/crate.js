@@ -33,7 +33,6 @@ R.Engine.define({
    "class": "Crate",
    "requires": [
       "R.components.physics.BoxBody",
-      "R.components.collision.Box",
       "R.math.Math2D"
    ],
 
