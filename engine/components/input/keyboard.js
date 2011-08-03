@@ -65,14 +65,11 @@ R.Engine.define({
 R.components.input.Keyboard = function() {
    return R.components.Input.extend(/** @scope R.components.input.Keyboard.prototype */{
 
-      hasInputMethods: null,
-
       /**
        * @private
        */
       constructor: function(name, priority) {
          this.base(name, priority);
-         this.hasInputMethods = [false, false, false];
       },
 
       /**
@@ -83,17 +80,9 @@ R.components.input.Keyboard = function() {
          var ctx = R.Engine.getDefaultContext();
 
          // Clean up event handlers
-         if (this.hasInputMethods[0]) {
-            ctx.removeEvent(this, "keydown");
-         }
-
-         if (this.hasInputMethods[1]) {
-            ctx.removeEvent(this, "keyup");
-         }
-
-         if (this.hasInputMethods[2]) {
-            ctx.removeEvent(this, "keypress");
-         }
+         ctx.removeEvent(this, "keydown");
+         ctx.removeEvent(this, "keyup");
+         ctx.removeEvent(this, "keypress");
 
          this.base();
       },
@@ -121,31 +110,22 @@ R.components.input.Keyboard = function() {
        */
       setGameObject: function(gameObject) {
          this.base(gameObject);
-         this.hasInputMethods = [gameObject.onKeyDown != undefined,
-            gameObject.onKeyUp != undefined,
-            gameObject.onKeyPressed != undefined];
 
          var ctx = R.Engine.getDefaultContext();
          var self = this;
 
          // Add the event handlers
-         if (this.hasInputMethods[0]) {
-            ctx.addEvent(this, "keydown", function(evt) {
-               return self._keyDownListener(evt);
-            });
-         }
+         ctx.addEvent(this, "keydown", function(evt) {
+            return self._keyDownListener(evt);
+         });
 
-         if (this.hasInputMethods[1]) {
-            ctx.addEvent(this, "keyup", function(evt) {
-               return self._keyUpListener(evt);
-            });
-         }
+         ctx.addEvent(this, "keyup", function(evt) {
+            return self._keyUpListener(evt);
+         });
 
-         if (this.hasInputMethods[2]) {
-            ctx.addEvent(this, "keypress", function(evt) {
-               return self._keyPressListener(evt);
-            });
-         }
+         ctx.addEvent(this, "keypress", function(evt) {
+            return self._keyPressListener(evt);
+         });
       },
 
       /** @private */

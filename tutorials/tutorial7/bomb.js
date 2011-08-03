@@ -18,10 +18,10 @@ var Bomb = function() {
          this.base("Bomb");
 
          // Add the component for collisions
-         this.add(R.components.collision.Box.create("collide", Tutorial9.collisionModel));
+         this.add(R.components.collision.Box.create("collide", Tutorial7.collisionModel));
 
          // Add the component for rendering
-         var bombSprite = Tutorial9.spriteLoader.getSprite("sprites", "bomb");
+         var bombSprite = Tutorial7.spriteLoader.getSprite("sprites", "bomb");
          this.add(R.components.render.Sprite.create("draw", bombSprite));
 
          // Pick a random location on the playfield
@@ -31,7 +31,7 @@ var Bomb = function() {
          var rY = R.lang.Math2.random() * 100 < 50 ? -1 : 1;
          dX *= rX;
          dY *= rY;
-         var start = R.math.Point2D.create(Tutorial9.getPlayfield().getCenter());
+         var start = R.math.Point2D.create(Tutorial7.getPlayfield().getCenter());
          start.add(R.math.Point2D.create(dX, dY));
 
          // Position the object
@@ -70,10 +70,10 @@ var Bomb = function() {
        */
       explode: function() {
          // Remove the bomb from the collision model so we don't trigger another collision
-         Tutorial9.collisionModel.removeObject(this);
+         Tutorial7.collisionModel.removeObject(this);
 
          // Draw an explosion of sorts
-         this.getComponent("draw").setSprite(Tutorial9.spriteLoader.getSprite("sprites", "boom"));
+         this.getComponent("draw").setSprite(Tutorial7.spriteLoader.getSprite("sprites", "boom"));
 
          // Adjust the position a bit to account for the different sprite sizes
          var pos = R.math.Point2D.create(this.getPosition());

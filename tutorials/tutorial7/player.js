@@ -1,26 +1,24 @@
 // Load all required engine components
 R.Engine.define({
-   "class": "Player",
-   "requires": [
-      "R.engine.Object2D",
+	"class": "Player",
+	"requires": [
+		"R.engine.Object2D",
       "R.engine.Events",
       "R.math.Math2D",
 
       "R.components.input.Keyboard",
-      "R.components.collision.Convex",
-      "R.components.render.Sprite",
-
-      "R.collision.ConvexHull"
-   ]
+      "R.components.collision.Box",
+      "R.components.render.Sprite"
+	]
 });
 
 var Player = function() {
    return R.engine.Object2D.extend({
 
-      moveVec: null,         // The movement vector
-      dead: false,         // Dead flag
-      hasShields: false,   // The shields flag
-      sprites: null,         // The sprites
+      moveVec: null,			// The movement vector
+      dead: false,			// Dead flag
+      hasShields: false,	// The shields flag
+      sprites: null,			// The sprites
 
       constructor: function() {
          this.base("Player");
@@ -28,8 +26,14 @@ var Player = function() {
          // Add the component which handles keyboard input
          this.add(R.components.input.Keyboard.create("input"));
 
+         // Add the component for collisions
+         this.add(R.components.collision.Box.create("collide", Tutorial7.collisionModel));
+
+         // Set the collision flags
+         this.getComponent("collide").setCollisionMask(R.lang.Math2.parseBin("11"));
+
          // Add the component for rendering
-         this.sprites = Tutorial8.spriteLoader.exportAll("sprites", ["stand","walk","dead","shield"]);
+         this.sprites = Tutorial7.spriteLoader.exportAll("sprites", ["stand","walk","dead","shield"]);
          this.add(R.components.render.Sprite.create("draw", this.sprites.stand));
 
          // Add the shield sprite
@@ -39,37 +43,21 @@ var Player = function() {
          // Don't draw the shield, just yet
          this.getComponent("shield").setDrawMode(R.components.Render.NO_DRAW);
 
+         // Start at the center of the playfield
+         var start = Tutorial7.getPlayfield().getCenter();
+         start.sub(R.math.Point2D.create(25, 25));
+
+         // Position the object
+         this.setPosition(start);
+
+         // Set the velocity to zero and a heading angle
+         this.moveVec = R.math.Vector2D.create(0,0);
+
          // Set our bounding box so collision tests work
          this.setBoundingBox(this.sprites.stand.getBoundingBox());
 
-         // -------------------------------------------------------------------
-
-         // Add the component for collisions
-         this.add(R.components.collision.Convex.create("collide", Tutorial8.collisionModel));
-
-         // Create a collision hull, this is required by the ConvexColliderComponent
-         var points = R.math.Math2D.regularPolygon(6, 28);
-         for (var i = 0; i < points.length; i++) {
-            points[i].add(this.getBoundingBox().getCenter());
-         }
-         this.setCollisionHull(R.collision.ConvexHull.create(points, 6));
-
-         // Set the collision flags
-         this.getComponent("collide").setCollisionMask(Player.COLLISION_MASK);
-
-         // -------------------------------------------------------------------
-
-
          // Move the player's origin to the center of the bounding box
          this.setOrigin(this.getBoundingBox().getCenter());
-
-         // Position the object at the center of the playfield
-         var start = Tutorial8.getPlayfield().getCenter();
-         start.sub(R.math.Point2D.create(25, 25));
-         this.setPosition(start);
-
-         // Set the movement vector to zero
-         this.moveVec = R.math.Vector2D.create(0, 0);
 
          // The player isn't dead
          this.dead = false;
@@ -77,7 +65,7 @@ var Player = function() {
          // Set our Z-index over everything else in the scene
          this.setZIndex(100);
 
-         // Wire up events
+         // Wire event handlers
          this.addEvents(["onKeyDown", "onKeyUp"]);
       },
 
@@ -96,7 +84,7 @@ var Player = function() {
        * Update the object within the rendering context.  This calls the transform
        * components to position the object on the playfield.
        *
-       * @param renderContext {RenderContext} The rendering context
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
        * @param time {Number} The engine time in milliseconds
        * @param dt {Number} The time (in milliseconds) since the last frame was drawn
        */
@@ -115,13 +103,13 @@ var Player = function() {
       /**
        * Callback method which is used to respond to collisions.
        *
-       * @param collisionObj {BaseObject} The object we've collided with
+       * @param collisionObj {R.engine.BaseObject} The object we've collided with
        * @param time {Number} The time at which the collision occurred
        * @param dt {Number} The time (in milliseconds) since the last frame was drawn
        * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
        */
       onCollide: function(collisionObj, time, dt, targetMask) {
-         if (targetMask == Powerup.COLLISION_MASK) {
+         if (targetMask == R.lang.Math2.parseBin("10")) {
             // Colliding with a shield powerup.  Do they already have shields?
             if (!this.hasShields) {
                // Remove the powerup and
@@ -129,24 +117,18 @@ var Player = function() {
                collisionObj.destroy();
                this.getComponent("shield").setDrawMode(R.components.Render.DRAW);
                this.hasShields = true;
-            } else {
-               // Already have shields, stop movement
-               var pP = this.getPosition();
-               var iV = this.getComponent("collide").getCollisionData().impulseVector;
-               pP.add(iV.neg());
-               this.setPosition(pP);
             }
 
             // This was a safe collision, so check for others...
             return R.components.Collider.COLLIDE_AND_CONTINUE;
          }
 
-         if (targetMask == Bomb.COLLISION_MASK) {
+         if (targetMask == R.lang.Math2.parseBin("01")) {
 
             // Does the player have shields?
             if (this.hasShields) {
                // Colliding with a bomb - remove it
-               collisionObj.explode();
+               collisionObj.destroy();
 
                // Turn off the shields
                this.getComponent("shield").setDrawMode(R.components.Render.NO_DRAW);
@@ -179,7 +161,7 @@ var Player = function() {
        * Callback method which is lets our object know that existing
        * collisions have stopped.
        *
-       * @param collisionObj {BaseObject} The object we've collided with
+       * @param collisionObj {R.engine.BaseObject} The object we've collided with
        * @param time {Number} The time at which the collision occurred
        * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
        */
@@ -188,7 +170,7 @@ var Player = function() {
       },
 
       /**
-       * Handle a "keydown" event from the <tt>KeyboardInputComponent</tt>.  We'll use
+       * Handle a "keydown" event from <tt>R.components.input.Keyboard</tt>.  We'll use
        * this to determine which yaw angle to apply to the player.  Also, switch the
        * player's sprite to "walk".
        *
@@ -227,7 +209,7 @@ var Player = function() {
       },
 
       /**
-       * Handle a "keyup" event from the <tt>KeyboardInputComponent</tt>.  This will
+       * Handle a "keyup" event from <tt>R.components.input.Keyboard</tt>.  This will
        * also switch back to the "stand" sprite for the player.
        *
        * @param evt {Event} The event object
@@ -268,14 +250,11 @@ var Player = function() {
        * "bounce".
        */
       move: function() {
-         if (this.moveVec.isZero()) {
-            return;
-         }
-
          var pos = this.getPosition();
 
          // Determine if we hit a "wall" of our playfield
-         var playfield = Tutorial8.getPlayfield();
+         var playfield = Tutorial7.getPlayfield();
+
          if ((pos.x + this.width > playfield.r) || (pos.x < 0)) {
             // Stop X movement and back off
             this.moveVec.setX(0);
@@ -309,9 +288,6 @@ var Player = function() {
        */
       getClassName: function() {
          return "Player";
-      },
-
-      COLLISION_MASK: R.lang.Math2.parseBin("11")
+      }
    });
-
 };

@@ -19,10 +19,10 @@ var Powerup = function() {
          this.base("Powerup");
 
          // Add the component for collisions
-         this.add(R.components.collision.Convex.create("collide", Tutorial11.collisionModel));
+         this.add(R.components.collision.Convex.create("collide", Tutorial13.collisionModel));
 
          // Add the component for rendering
-         var shieldSprite = Tutorial11.spriteLoader.getSprite("sprites", "powerup");
+         var shieldSprite = Tutorial13.spriteLoader.getSprite("sprites", "powerup");
          this.add(R.components.render.Sprite.create("draw", shieldSprite));
 
          // Set the collision mask
@@ -35,7 +35,7 @@ var Powerup = function() {
          this.setCollisionHull(R.collision.CircleHull.create(this.getBoundingBox()));
 
          // Pick a random location on the playfield
-         var start = R.math.Point2D.create(Tutorial11.getPlayfield().getCenter());
+         var start = R.math.Point2D.create(Tutorial13.getPlayfield().getCenter());
          var dX = 50 + Math.floor(R.lang.Math2.random() * 100);
          var dY = 50 + Math.floor(R.lang.Math2.random() * 100);
          var rX = R.lang.Math2.random() * 100 < 50 ? -1 : 1;

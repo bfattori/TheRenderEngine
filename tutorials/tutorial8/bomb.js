@@ -21,10 +21,10 @@ var Bomb = function() {
          this.base("Bomb");
 
          // Add the component for collisions
-         this.add(R.components.collision.Convex.create("collide", Tutorial11.collisionModel));
+         this.add(R.components.collision.Convex.create("collide", Tutorial8.collisionModel));
 
          // Add the component for rendering
-         var bombSprite = Tutorial11.spriteLoader.getSprite("sprites", "bomb");
+         var bombSprite = Tutorial8.spriteLoader.getSprite("sprites", "bomb");
          this.add(R.components.render.Sprite.create("draw", bombSprite));
 
          // Pick a random location on the playfield
@@ -34,7 +34,7 @@ var Bomb = function() {
          var rY = R.lang.Math2.random() * 100 < 50 ? -1 : 1;
          dX *= rX;
          dY *= rY;
-         var start = R.math.Point2D.create(Tutorial11.getPlayfield().getCenter());
+         var start = R.math.Point2D.create(Tutorial8.getPlayfield().getCenter());
          start.add(R.math.Point2D.create(dX, dY));
 
          // Set the collision mask
@@ -79,7 +79,7 @@ var Bomb = function() {
          this.getComponent("collide").setCollisionMask(0);
 
          // Draw an explosion of sorts
-         this.getComponent("draw").setSprite(Tutorial11.spriteLoader.getSprite("sprites", "boom"));
+         this.getComponent("draw").setSprite(Tutorial8.spriteLoader.getSprite("sprites", "boom"));
 
          // Adjust the position a bit to account for the different sprite sizes
          var pos = R.math.Point2D.create(this.getPosition());
@@ -89,25 +89,11 @@ var Bomb = function() {
          pos.destroy();
          offset.destroy();
 
-         // Generate some particles
-         // We don't need to destroy this container.  The particle engine
-         // will do that for us
-         var p = R.struct.Container.create();
-         var pt = R.math.Point2D.create(this.getPosition());
-         pt.add(this.getOrigin());
-         for (var x = 0; x < 40; x++) {
-            var decel = R.lang.Math2.random() * 0.08;
-            var r = Math.floor(R.lang.Math2.random() * 500);
-            p.add(SimpleParticle.create(pt, 1000 + r, decel));
-         }
-         Tutorial11.pEngine.addParticles(p);
-         pt.destroy();
-
          // Now animate the sprite explosion
          var self = this;
          R.lang.OneShotTrigger.create("explosion", 500, function() {
             // Remove the bomb from the collision model
-            Tutorial11.collisionModel.removeObject(self);
+            Tutorial8.collisionModel.removeObject(self);
             self.destroy();
          }, 10, function() {
             var mc = self.getDefaultTransformComponent();

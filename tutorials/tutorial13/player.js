@@ -29,7 +29,7 @@ var Player = function() {
          this.add(R.components.input.Keyboard.create("input"));
 
          // Add the component for rendering
-         this.sprites = Tutorial11.spriteLoader.exportAll("sprites", ["stand","walk","dead","shield"]);
+         this.sprites = Tutorial13.spriteLoader.exportAll("sprites", ["stand","walk","dead","shield"]);
          this.add(R.components.render.Sprite.create("draw", this.sprites.stand));
 
          // Add the shield sprite
@@ -45,7 +45,7 @@ var Player = function() {
          // -------------------------------------------------------------------
 
          // Add the component for collisions
-         this.add(R.components.collision.Convex.create("collide", Tutorial11.collisionModel));
+         this.add(R.components.collision.Convex.create("collide", Tutorial13.collisionModel));
 
          // Create a collision hull, this is required by the ConvexColliderComponent
          var points = R.math.Math2D.regularPolygon(6, 28);
@@ -64,7 +64,7 @@ var Player = function() {
          this.setOrigin(this.getBoundingBox().getCenter());
 
          // Position the object at the center of the playfield
-         var start = Tutorial11.getPlayfield().getCenter();
+         var start = Tutorial13.getPlayfield().getCenter();
          start.sub(R.math.Point2D.create(25, 25));
          this.setPosition(start);
 
@@ -275,7 +275,7 @@ var Player = function() {
          var pos = this.getPosition();
 
          // Determine if we hit a "wall" of our playfield
-         var playfield = Tutorial11.getPlayfield();
+         var playfield = Tutorial13.getPlayfield();
          if ((pos.x + this.width > playfield.r) || (pos.x < 0)) {
             // Stop X movement and back off
             this.moveVec.setX(0);

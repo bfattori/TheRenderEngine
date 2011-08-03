@@ -4,43 +4,60 @@ R.Engine.define({
 	"requires": [
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext",
-      "R.resources.loaders.BitmapFontLoader",
-      "R.math.Math2D",
+      "R.collision.broadphase.SpatialGrid",
+      "R.math.Math2D"
+	],
 
-      "R.text.TextRenderer",
-      "R.text.VectorText",
-      "R.text.BitmapText",
-      "R.text.ContextText"
+	// Game class dependencies
+	"depends": [
+		"GameObject",
+      "TouchObject"
 	]
 });
 
+// Load the game object
+R.engine.Game.load("/gameObject.js");
+R.engine.Game.load("/touchObject.js");
+
 /**
- * @class This tutorial shows how to use the text renderers.
+ * @class Tutorial Five.  Broad Phase Collisions.
  */
 var Tutorial5 = function() {
    return R.engine.Game.extend({
 
-      // The bitmap font loader
-      fontLoader: null,
+      // The rendering context
+      renderContext: null,
+
+      // The broad phase collision model
+      collisionModel: null,
 
       /**
        * Called to set up the game, download any resources, and initialize
        * the game to its running state.
        */
       setup: function(){
-         this.fontLoader = R.resources.loaders.BitmapFontLoader.create();
-         this.fontLoader.load("century", "century_gothic_36.font");
+         // Create the render context
+         Tutorial5.renderContext = R.rendercontexts.CanvasContext.create("Playfield",
+               480, 480);
+         Tutorial5.renderContext.setBackgroundColor("black");
 
-         // Don't start until all of the resources are loaded
-         var self = this;
-         this.loadTimeout = R.lang.Timeout.create("wait", 250, function() {
-            if (Tutorial5.fontLoader.isReady("century")) {
-               this.destroy();
-               Tutorial5.run();
-            } else {
-               this.restart();
-            }
-         });
+         // Add the new rendering context to the default engine context
+         R.Engine.getDefaultContext().add(Tutorial5.renderContext);
+
+         // Create the collision model with 5x5 divisions
+         Tutorial5.collisionModel = R.collision.broadphase.SpatialGrid.create(480, 480, 5);
+
+         // Create the game object and add it to the render context.
+         Tutorial5.renderContext.add(GameObject.create());
+
+         // Now create some touchable and non-touchable objects
+         for (var i = 0; i < 3; i++) {
+            Tutorial5.renderContext.add(TouchObject.create(true));
+         }
+
+         for (var i = 0; i < 3; i++) {
+            Tutorial5.renderContext.add(TouchObject.create(false));
+         }
       },
 
       /**
@@ -48,45 +65,15 @@ var Tutorial5 = function() {
        * any objects, remove event handlers, destroy the rendering context, etc.
        */
       teardown: function(){
-         this.fontLoader.destroy();
+         Tutorial5.collisionModel.destroy();
       },
 
       /**
-       * Run the game
+       * Return a reference to the playfield box
        */
-      run: function(){
-         // Create the render context
-         var renderContext = R.rendercontexts.CanvasContext.create("Playfield",
-               650, 320);
-         renderContext.setBackgroundColor("black");
-
-         // Add the render context
-         R.Engine.getDefaultContext().add(renderContext);
-
-         // Vector Text
-         var vText = R.text.TextRenderer.create(R.text.VectorText.create(),
-               "Vector Text Renderer", 2.5);
-         vText.setPosition(R.math.Point2D.create(20, 40));
-         vText.setTextWeight(1);
-         vText.setColor("#ffffff");
-         renderContext.add(vText);
-
-         // Bitmap Text
-         var bText = R.text.TextRenderer.create(
-               R.text.BitmapText.create(this.fontLoader.get("century")),
-               "Bitmap Text Renderer", 1.5);
-         bText.setPosition(R.math.Point2D.create(10, 120));
-         bText.setTextWeight(1);
-         bText.setColor("#ff0000");
-         renderContext.add(bText);
-
-         // Native Context Text
-         var cText = R.text.TextRenderer.create(R.text.ContextText.create(),
-               "Context Native Text Renderer", 2.5);
-         cText.setPosition(R.math.Point2D.create(10, 260));
-         cText.setTextFont("Verdana");
-         cText.setColor("#8888ff");
-         renderContext.add(cText);
+      getFieldRect: function() {
+         return Tutorial5.renderContext.getViewport();
       }
+
    });
 };

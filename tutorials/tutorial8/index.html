@@ -3,25 +3,29 @@
 <!doctype html>
 
 <html>
-   <head>
-      <title>Tutorial Eight: Drawing with Sprites</title>
+<head>
+   <title>Tutorial Eleven: Collision Hulls</title>
 
-      <!-- Load the supporting libraries -->
-      <script type="text/javascript" src="../../engine/libs/base.js"></script>
-      <script type="text/javascript" src="../../engine/libs/jquery.js"></script>
-      <script type="text/javascript" src="../../engine/libs/jquery.ext.engine.js"></script>
-      <script type="text/javascript" src="../../engine/libs/sylvester.js"></script>
+   <!-- Supporting Libraries -->
+   <script type="text/javascript" src="../../engine/libs/base.js"></script>
+   <script type="text/javascript" src="../../engine/libs/jquery.js"></script>
+   <script type="text/javascript" src="../../engine/libs/jquery.ext.engine.js"></script>
+   <script type="text/javascript" src="../../engine/libs/sylvester.src.js"></script>
 
-      <!-- Load the main engine script -->
-      <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
+   <!-- Load the main engine script -->
+   <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
 
-   </head>
-   <body>
-      <script type="text/javascript">
-       	$(document).ready(function() {
-	         // Load the game's script
-	         R.Engine.loadGame('game.js','Tutorial8','Tutorial 8: Drawing with Sprites');
-			});
-      </script>
-   </body>
+</head>
+<body>
+   <script type="text/javascript">
+      $(document).ready(function() {
+         // Load the game's script
+         R.Engine.loadGame('game.js', 'Tutorial8', 'Tutorial 8: Narrow Phase Collision with Convex Hulls');
+      });
+   </script>
+   <blockquote>
+      <br/><strong>Use the arrow keys to move the player around. The "s" is a shield power-up<br/>
+         so you can touch the bombs. Touching bombs without a shield will kill the player.</strong><br/>
+   </blockquote>
+</body>
 </html>

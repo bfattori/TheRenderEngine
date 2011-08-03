@@ -17,7 +17,8 @@ var GameObject = function() {
          this.base("GameObject");
 
          // Pick a random position to start at
-         var start = R.math.Math2D.randomPoint(Tutorial2.getFieldRect());
+         var start = R.math.Math2D.randomPoint(R.clone(Tutorial2.getFieldRect())
+            .shrink(25, 25).offset(25, 25));
 
          // Pick a random velocity for each axis
          this.velocity = R.math.Vector2D.create(1 + Math.floor(R.lang.Math2.random() * 3),

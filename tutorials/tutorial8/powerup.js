@@ -1,14 +1,15 @@
 // Load all required engine components
 R.Engine.define({
-	"class": "Powerup",
-	"requires": [
-		"R.engine.Object2D",
-      "R.engine.Events",
+   "class": "Powerup",
+   "requires": [
+      "R.engine.Object2D",
       "R.math.Math2D",
 
-      "R.components.collision.Box",
-      "R.components.render.Sprite"
-	]
+      "R.components.collision.Convex",
+      "R.components.render.Sprite",
+
+      "R.collision.CircleHull"
+   ]
 });
 
 var Powerup = function() {
@@ -18,30 +19,37 @@ var Powerup = function() {
          this.base("Powerup");
 
          // Add the component for collisions
-         this.add(R.components.collision.Box.create("collide", Tutorial9.collisionModel));
+         this.add(R.components.collision.Convex.create("collide", Tutorial8.collisionModel));
 
          // Add the component for rendering
-         var shieldSprite = Tutorial9.spriteLoader.getSprite("sprites", "powerup");
+         var shieldSprite = Tutorial8.spriteLoader.getSprite("sprites", "powerup");
          this.add(R.components.render.Sprite.create("draw", shieldSprite));
-
-         // Pick a random location on the playfield
-         var dX = 50 + Math.floor(R.lang.Math2.random() * 100);
-         var dY = 50 + Math.floor(R.lang.Math2.random() * 100);
-         var rX = R.lang.Math2.random() * 100 < 50 ? -1 : 1;
-         var rY = R.lang.Math2.random() * 100 < 50 ? -1 : 1;
-         dX *= rX;
-         dY *= rY;
-         var start = R.math.Point2D.create(Tutorial9.getPlayfield().getCenter());
-         start.add(R.math.Point2D.create(dX, dY));
-
-         // Position the object
-         this.setPosition(start);
 
          // Set the collision mask
          this.getComponent("collide").setCollisionMask(Powerup.COLLISION_MASK);
 
          // Set our bounding box so collision tests work
          this.setBoundingBox(shieldSprite.getBoundingBox());
+
+         // Create a collision hull
+         this.setCollisionHull(R.collision.CircleHull.create(this.getBoundingBox()));
+
+         // Pick a random location on the playfield
+         var start = R.math.Point2D.create(Tutorial8.getPlayfield().getCenter());
+         var dX = 50 + Math.floor(R.lang.Math2.random() * 100);
+         var dY = 50 + Math.floor(R.lang.Math2.random() * 100);
+         var rX = R.lang.Math2.random() * 100 < 50 ? -1 : 1;
+         var rY = R.lang.Math2.random() * 100 < 50 ? -1 : 1;
+         dX *= rX;
+         dY *= rY;
+         start.add(R.math.Point2D.create(dX, dY));
+
+         // Set the origin
+         this.setOrigin(this.getBoundingBox().getCenter());
+
+         // Position the object
+         this.setPosition(start);
+
          start.destroy();
       },
 
@@ -52,11 +60,11 @@ var Powerup = function() {
        * @param renderContext {RenderContext} The rendering context
        * @param time {Number} The engine time in milliseconds
        */
-      update: function(renderContext, time, dt) {
+      update: function(renderContext, time) {
          renderContext.pushTransform();
 
          // The the "update" method of the super class
-         this.base(renderContext, time, dt);
+         this.base(renderContext, time);
 
          renderContext.popTransform();
       }
@@ -71,6 +79,7 @@ var Powerup = function() {
          return "Powerup";
       },
 
-      COLLISION_MASK: R.lang.Math2.parseBin("10")
+      COLLISION_MASK: R.lang.Math2.parseBin("01")
+
    });
 };

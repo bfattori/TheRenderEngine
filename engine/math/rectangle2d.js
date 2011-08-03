@@ -190,6 +190,28 @@ R.math.Rectangle2D = function() {
       },
 
       /**
+       * Shrink the size of the rectangle by the amounts given.
+       * @param pixelsX {Number} The pixels to shrink the rectangle along the X axis, or both.
+       * @param [pixelsY] {Number} If defined, the pixels to shrink the rectangle along the Y axis.
+       */
+      shrink: function(pixelsX, pixelsY) {
+         pixelsY = pixelsY || pixelsX;
+         this.w -= pixelsX;
+         this.h -= pixelsY;
+         this._upd();
+         return this;
+      },
+
+      /**
+       * Grow the size of the rectangle by the amounts given.
+       * @param pixelsX {Number} The pixels to grow the rectangle along the X axis, or both.
+       * @param [pixelsY] {Number} If defined, the pixels to grow the rectangle along the Y axis.
+       */
+      grow: function(pixelsX, pixelsY) {
+         return this.shrink((-1 * pixelsX), (-1 * pixelsY));
+      },
+
+      /**
        * A mutator method that multiplies the top left of this rectangle with the
        * point specified.
        * @param point {R.math.Point2D}

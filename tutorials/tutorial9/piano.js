@@ -23,7 +23,7 @@ var PianoKeys = function() {
          // Add the component which handles keyboard input.  This is necessary to
          // receive the event triggers.
          this.add(R.components.input.Keyboard.create("input"));
-         this.add(R.components.render.Image.create("draw", Tutorial4.imageLoader.getImage("keys")));
+         this.add(R.components.render.Image.create("draw", Tutorial9.imageLoader.getImage("keys")));
 
          // Position the object
          this.setPosition(R.math.Point2D.create(20, 25));
@@ -32,7 +32,7 @@ var PianoKeys = function() {
          var self = this;
          this.sounds = [];
          $.each(["c1","d1","e1","f1","g1","a1","b1","c2"], function() {
-            self.sounds.push(Tutorial4.soundLoader.get(this));
+            self.sounds.push(Tutorial9.soundLoader.get(this));
          });
 
          // Initialize the "dot" indicators array

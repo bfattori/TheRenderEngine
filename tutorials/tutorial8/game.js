@@ -1,24 +1,29 @@
-// Load all required engine components
 R.Engine.define({
-	"class": "Tutorial8",
-	"requires": [
-		"R.engine.Game",
-		"R.rendercontexts.CanvasContext",
+   "class": "Tutorial8",
+   "requires": [
+      "R.engine.Game",
+      "R.rendercontexts.CanvasContext",
       "R.collision.broadphase.SpatialGrid",
       "R.resources.loaders.SpriteLoader"
-	],
+   ],
 
-	// Game class dependencies
-	"depends": [
-		"Player"
-	]
+   // Game class dependencies
+   "depends": [
+      "Player",
+      "Bomb",
+      "Powerup"
+   ]
 });
 
 // Load the game objects
 R.engine.Game.load("/player.js");
+R.engine.Game.load("/bomb.js");
+R.engine.Game.load("/powerup.js");
 
 /**
- * @class Tutorial Eight.  Drawing with Sprites.
+ * @class Tutorial Eight.  Upgrading collision to use convex hulls which
+ *        are more accurate, plus give you feedback on the collision itself
+ *        so an appropriate response can occur.
  */
 var Tutorial8 = function() {
    return R.engine.Game.extend({
@@ -29,27 +34,26 @@ var Tutorial8 = function() {
       collisionModel: null,
       spriteLoader: null,
 
+      pEngine: null,
+
       /**
        * Called to set up the game, download any resources, and initialize
        * the game to its running state.
        */
-      setup: function(){
+      setup: function() {
          // Create the render context
-         this.renderContext = R.rendercontexts.CanvasContext.create("Playfield",
-               480, 480);
-         this.renderContext.setBackgroundColor("black");
+         Tutorial8.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 480, 480);
+         Tutorial8.renderContext.setBackgroundColor("black");
 
          // Add the new rendering context to the default engine context
-         R.Engine.getDefaultContext().add(this.renderContext);
+         R.Engine.getDefaultContext().add(Tutorial8.renderContext);
 
-         // Create the collision model with 5x5 divisions
-         this.collisionModel = R.collision.broadphase.SpatialGrid.create(
-               480, 480, 5);
-
-         this.spriteLoader = R.resources.loaders.SpriteLoader.create();
+         // Create the collision model with 9x9 divisions
+         Tutorial8.collisionModel = R.collision.broadphase.SpatialGrid.create(480, 480, 9);
 
          // Load the sprites
-         this.spriteLoader.load("sprites", this.getFilePath("resources/tutorial8.sprite"));
+         Tutorial8.spriteLoader = R.resources.loaders.SpriteLoader.create();
+         Tutorial8.spriteLoader.load("sprites", Tutorial8.getFilePath("resources/tutorial11.sprite"));
 
          // Wait until the resources are ready before running the game
          R.lang.Timeout.create("resourceWait", 250, function() {
@@ -68,8 +72,9 @@ var Tutorial8 = function() {
        * Called when a game is being shut down to allow it to clean up
        * any objects, remove event handlers, destroy the rendering context, etc.
        */
-      teardown: function(){
-         this.spriteLoader.destroy();
+      teardown: function() {
+         Tutorial8.spriteLoader.destroy();
+         Tutorial8.collisionModel.destroy();
       },
 
       /**
@@ -77,16 +82,25 @@ var Tutorial8 = function() {
        */
       run: function() {
          // Create the player and add it to the render context.
-         this.renderContext.add(Player.create());
+         Tutorial8.renderContext.add(Player.create());
+
+         // Now create some shields and bombs
+         for (var i = 0; i < 3; i++) {
+            Tutorial8.renderContext.add(Powerup.create());
+         }
+
+         for (var i = 0; i < 3; i++) {
+            Tutorial8.renderContext.add(Bomb.create());
+         }
+
       },
 
       /**
-       * Return a reference to the playfield box
+       * Return a reference to the playfield rectangle
        */
-      getFieldRect: function() {
-         return this.renderContext.getViewport();
+      getPlayfield: function() {
+         return Tutorial8.renderContext.getViewport();
       }
 
    });
-}
-
+};

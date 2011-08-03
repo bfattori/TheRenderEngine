@@ -4,26 +4,23 @@ R.Engine.define({
 	"requires": [
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext",
-      "R.collision.broadphase.SpatialGrid",
-      "R.resources.loaders.SpriteLoader"
+      "R.resources.loaders.ImageLoader",
+      "R.resources.loaders.SoundLoader",
+      "R.sound.SM2"
 	],
 
 	// Game class dependencies
 	"depends": [
-		"Player",
-      "Bomb",
-      "Powerup"
+		"PianoKeys"
 	]
 });
 
-// Load the game objects
-R.engine.Game.load("/player.js");
-R.engine.Game.load("/bomb.js");
-R.engine.Game.load("/powerup.js");
+// Load the game object
+R.engine.Game.load("/piano.js");
 
 /**
- * @class Tutorial Nine.  Bringing sprites together with collision and
- * 		 a second render component.
+ * @class Tutorial Nine.  Load sounds and bitmaps from the server
+ *        with the resource loader.
  */
 var Tutorial9 = function() {
    return R.engine.Game.extend({
@@ -31,8 +28,9 @@ var Tutorial9 = function() {
       // The rendering context
       renderContext: null,
 
-      collisionModel: null,
-      spriteLoader: null,
+      // References to the resource loaders
+      imageLoader: null,
+      soundLoader: null,
 
       /**
        * Called to set up the game, download any resources, and initialize
@@ -40,32 +38,45 @@ var Tutorial9 = function() {
        */
       setup: function(){
          // Create the render context
-         this.renderContext = R.rendercontexts.CanvasContext.create("Playfield",
-               480, 480);
-         this.renderContext.setBackgroundColor("black");
+         Tutorial9.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 320, 271);
+         Tutorial9.renderContext.setBackgroundColor("black");
 
          // Add the new rendering context to the default engine context
-         R.Engine.getDefaultContext().add(this.renderContext);
+         R.Engine.getDefaultContext().add(Tutorial9.renderContext);
 
-         // Create the collision model with 9x9 divisions
-         this.collisionModel = R.collision.broadphase.SpatialGrid.create(480, 480, 9);
+         // The resource loaders
+         Tutorial9.imageLoader = R.resources.loaders.ImageLoader.create();
 
-         this.spriteLoader = R.resources.loaders.SpriteLoader.create();
+         // Load the sounds, use a SoundManager2 sound system
+         Tutorial9.soundLoader = R.resources.loaders.SoundLoader.create(new R.sound.SM2());
 
-         // Load the sprites
-         this.spriteLoader.load("sprites", this.getFilePath("resources/tutorial9.sprite"));
+         // Begin the loading process
+         Tutorial9.imageLoader.load("keys", Tutorial9.getFilePath("resources/fingerboard.png"), 220, 171);
 
-         // Wait until the resources are ready before running the game
-         R.lang.Timeout.create("resourceWait", 250, function() {
-            if (Tutorial9.spriteLoader.isReady()) {
-               // Destroy the timer and start the game
+         // Load each of the sound files
+         $.each([["c1","low_c"],["d1","dee"],["e1","eee"],["f1","eff"],
+                 ["g1","gee"],["a1","ay"],["b1","bee"],["c2", "hi_c"]], function() {
+            Tutorial9.soundLoader.load(this[0], Tutorial9.getFilePath("resources/" + this[1] + ".mp3"));
+         });
+
+         // Wait until the image and sounds are loaded before proceeding
+         this.loadTimeout = R.lang.Timeout.create("wait", 250, function() {
+            if (Tutorial9.imageLoader.isReady() && Tutorial9.soundLoader.isReady()) {
                this.destroy();
                Tutorial9.run();
-            } else {
-               // Resources aren't ready, restart the timer
+            }
+            else {
+               // Continue waiting
                this.restart();
             }
          });
+      },
+
+      /**
+       * Run the game
+       */
+      run: function(){
+         Tutorial9.renderContext.add(PianoKeys.create());
       },
 
       /**
@@ -73,33 +84,8 @@ var Tutorial9 = function() {
        * any objects, remove event handlers, destroy the rendering context, etc.
        */
       teardown: function(){
-         this.spriteLoader.destroy();
-         this.collisionModel.destroy();
-      },
-
-      /**
-       * Run the game as soon as all resources are ready.
-       */
-      run: function() {
-         // Create the player and add it to the render context.
-         this.renderContext.add(Player.create());
-
-         // Now create some shields and bombs
-         for (var i = 0; i < 3; i++) {
-            this.renderContext.add(Powerup.create());
-         }
-
-         for (var i = 0; i < 3; i++) {
-            this.renderContext.add(Bomb.create());
-         }
-      },
-
-      /**
-       * Return a reference to the playfield box
-       */
-      getPlayfield: function() {
-         return this.renderContext.getViewport();
+         Tutorial9.imageLoader.destroy();
+         Tutorial9.soundLoader.destroy();
       }
-
    });
-}
+};

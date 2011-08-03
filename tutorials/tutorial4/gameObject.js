@@ -7,7 +7,7 @@ R.Engine.define({
       "R.engine.Events",
 
       "R.components.input.Keyboard",
-      "R.components.collision.Box"
+      "R.components.render.Vector2D"
 	]
 });
 
@@ -15,11 +15,11 @@ var GameObject = function() {
    return R.engine.Object2D.extend({
 
       // The width of the object
-      width: 50,				// The width of the object
-      height: 50,				// The height of the object
-      color: "#ffff00",		// The color of the object
-      moveVec: null,			// The movement vector
-      shape: null,			// Our object's shape
+      width: 50,           // The width of the object
+      height: 50,          // The height of the object
+      color: "#ffff00",    // The color of the object
+      moveVec: null,       // The movement vector
+      shape: null,         // Our object's shape
 
       constructor: function() {
          this.base("GameObject");
@@ -27,29 +27,42 @@ var GameObject = function() {
          // Add the component which handles keyboard input
          this.add(R.components.input.Keyboard.create("input"));
 
-         // Add the component for collisions
-         this.add(R.components.collision.Box.create("collide", Tutorial7.collisionModel));
-
-         // Set the collision flags
-         this.getComponent("collide").setCollisionMask(R.lang.Math2.parseBin("01"));
+         // Add the component which draws the object
+         this.add(R.components.render.Vector2D.create("draw"));
 
          // Start at the center of the playfield
-         var start = Tutorial7.getFieldRect().getCenter();
-         start.sub(R.math.Point2D.create(25, 25));
+         var start = Tutorial4.getFieldRect().getCenter();
 
          // Set our object's shape
-         this.shape = R.math.Rectangle2D.create(0, 0, this.width, this.height);
+         var c_draw = this.getComponent("draw"),
+             shape = [[-4,-1], [-1,-1], [0,-5], [1,-1], [4,-1], [1,1],
+                      [3,5], [0,2.5], [-3,5], [-1,1]];
+
+         // Scale up the shape
+         var s = [];
+         for (var p = 0; p < shape.length; p++)
+         {
+            var pt = R.math.Point2D.create(shape[p][0], shape[p][1]);
+            pt.mul(8);
+            s.push(pt);
+         }
+
+         c_draw.setPoints(s);
+         c_draw.setLineWidth(1.0);
+         c_draw.setLineStyle(this.color);
+         c_draw.setClosed(true);
 
          // Position the object
          this.setPosition(start);
 
+         // Set the bounding box
+         this.setBoundingBox(c_draw.getBoundingBox());
+         this.setOrigin(c_draw.getBoundingBox().getCenter());
+
          // Set the velocity to zero
          this.moveVec = R.math.Vector2D.create(0,0);
 
-         // Set our bounding box so collision tests work
-         this.setBoundingBox(this.shape);
-
-         // Wire up event handlers
+         // Wire up events
          this.addEvents(["onKeyDown", "onKeyUp"]);
       },
 
@@ -57,54 +70,19 @@ var GameObject = function() {
        * Update the object within the rendering context.  This calls the transform
        * components to position the object on the playfield.
        *
-       * @param renderContext {RenderContext} The rendering context
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
        * @param time {Number} The engine time in milliseconds
-       * @param dt {Number} The time (in milliseconds) since the last frame was drawn
        */
-      update: function(renderContext, time, dt) {
+      update: function(renderContext, time) {
          renderContext.pushTransform();
-
-         // The the "update" method of the super class
-         this.base(renderContext, time, dt);
 
          // Move the object, according to the keyboard
          this.move();
 
-         // Draw the object on the render context
-         this.draw(renderContext);
+         // The the "update" method of the super class
+         this.base(renderContext, time);
 
          renderContext.popTransform();
-      },
-
-      /**
-       * Callback method which is used to respond to collisions.
-       *
-       * @param collisionObj {R.engine.BaseObject} The object we've collided with
-       * @param time {Number} The time at which the collision occurred
-       * @param dt {Number} The time (in milliseconds) since the last frame was drawn
-       * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
-       */
-      onCollide: function(collisionObj, time, dt, targetMask) {
-         if (targetMask == 3) {
-            // Colliding with a "red" box
-            this.color = "#0000ff";
-            return R.components.Collider.STOP;
-         }
-
-         return R.components.Collider.CONTINUE;
-      },
-
-      /**
-       * Callback method which is lets our object know that existing
-       * collisions have stopped.
-       *
-       * @param collisionObj {R.engine.BaseObject} The object we've collided with
-       * @param time {Number} The time at which the collision occurred
-       * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
-       */
-      onCollideEnd: function(time) {
-         // Not colliding anymore
-         this.color = "#ffff00";
       },
 
       /**
@@ -131,7 +109,7 @@ var GameObject = function() {
       },
 
       /**
-       * Handle a "keyup" event from the <tt>R.components.input.Keyboard</tt>.
+       * Handle a "keyup" event from <tt>R.components.input.Keyboard</tt>.
        * @param evt {Event} The event object
        * @param charCode {Number} The character code
        */
@@ -158,7 +136,7 @@ var GameObject = function() {
          var pos = this.getPosition();
 
          // Determine if we hit a "wall" of our playfield
-         var playfield = Tutorial7.getFieldRect();
+         var playfield = Tutorial4.getFieldRect();
 
          if ((pos.x + this.width > playfield.r) || (pos.x < 0)) {
             // Stop X movement and back off
@@ -183,23 +161,13 @@ var GameObject = function() {
 
          pos.add(this.moveVec);
          this.setPosition(pos);
-      },
-
-      /**
-       * Draw our game object onto the specified render context.
-       * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to draw onto
-       */
-      draw: function(renderContext) {
-         // Set the color to draw with
-         renderContext.setFillStyle(this.color);
-         renderContext.drawFilledRectangle(this.shape);
       }
 
    }, { // Static
 
       /**
        * Get the class name of this object
-       * @return {String} The string GameObject
+       * @return {String} The string MyObject
        */
       getClassName: function() {
          return "GameObject";
