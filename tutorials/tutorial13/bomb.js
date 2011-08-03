@@ -68,7 +68,9 @@ var Bomb = function() {
        */
       setupEmitter: function() {
          // Create the particle emitter which returns the type of particle
-         // we want to emit.  The 10 is how often a particle is emitted
+         // we want to emit.  5 is the delay between particle emissions and
+         // 350 is the life of the particle (both in milliseconds). An emitter
+         // only emits one particle per cycle.
          var emitter = R.particles.Emitter.create(function(offset) {
             // Create a particle
             return FuseParticle.create(offset, 350);
@@ -78,7 +80,7 @@ var Bomb = function() {
          emitter.setParticleEngine(Tutorial13.pEngine);
 
          // Assign the particle emitter to the emitter component and set the offset
-         // to the approximate location of the fuse end
+         // to the approximate location of the end of the fuse
          this.getComponent("particles").setEmitter(emitter);
          this.getComponent("particles").setOffset(R.clone(this.getPosition()).add(R.math.Point2D.create(4,-15)));
       },
