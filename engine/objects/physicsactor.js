@@ -38,6 +38,7 @@ R.Engine.define({
 
       "R.components.physics.CircleBody",
       "R.components.physics.BoxBody",
+      "R.components.physics.PolyBody",
       "R.components.physics.DistanceJoint",
       "R.components.physics.RevoluteJoint",
       "R.components.physics.MouseJoint",

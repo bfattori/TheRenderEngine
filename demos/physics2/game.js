@@ -124,8 +124,7 @@ var PhysicsDemo2 = function() {
          this.renderContext.setBackgroundColor("#FFFFFF");
 
          // Set up the physics simulation
-         this.simulation = R.physics.Simulation.create("simulation",
-               this.renderContext.getViewport(), R.math.Point2D.create(0,40));
+         this.simulation = R.physics.Simulation.create("simulation", R.math.Point2D.create(0,40));
 
          this.simulation.setIntegrations(3);
          this.setupWorld();

@@ -63,32 +63,28 @@ R.Engine.define({
 R.physics.Simulation = function() {
    return R.engine.BaseObject.extend(/** @scope R.physics.Simulation.prototype */{
 
-      worldAABB: null,
       world: null,
       gravity: null,
       doSleep: true,
-      worldBoundary: null,
       integrations: 0,
       _groundBody: null,
 
       /** @private */
-      constructor: function(name, viewport, gravity) {
+      constructor: function(name, gravity) {
          this.base(name);
          this.gravity = gravity || R.math.Vector2D.create(0, 10);
-         this.worldAABB = new Box2D.Collision.b2AABB();
 
          this.doSleep = true;
          this.integrations = R.physics.Simulation.DEFAULT_INTEGRATIONS;
-         var grav = new Box2D.Common.Math.b2Vec2(this.gravity.x, this.gravity.y);
+         var b2Gravity = new Box2D.Common.Math.b2Vec2(this.gravity.x, this.gravity.y);
 
          // Create the world and get the ground body
-         this.world = new Box2D.Dynamics.b2World(grav, this.doSleep);
+         this.world = new Box2D.Dynamics.b2World(b2Gravity, this.doSleep);
          this._groundBody = R.components.physics.BaseBody.create("WORLD_GROUND", new Box2D.Dynamics.b2FixtureDef());
          this._groundBody.body = this.world.GetGroundBody();
       },
 
       destroy: function() {
-         this.worldBoundary.destroy();
          this.gravity.destroy();
          this.base();
       },
@@ -96,7 +92,6 @@ R.physics.Simulation = function() {
       release: function() {
          this.worldAABB = null;
          this.gravity = null,
-               this.worldBoundary = null;
          this.world = null;
          this.base();
       },

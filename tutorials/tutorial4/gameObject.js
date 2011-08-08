@@ -48,7 +48,7 @@ var GameObject = function() {
          }
 
          c_draw.setPoints(s);
-         c_draw.setLineWidth(1.0);
+         c_draw.setLineWidth(2.0);
          c_draw.setLineStyle(this.color);
          c_draw.setClosed(true);
 
