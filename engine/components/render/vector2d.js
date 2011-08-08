@@ -114,8 +114,11 @@ R.components.render.Vector2D = function() {
     * be rendered to the context.
     *
     * @param pointArray {Array} An array of <tt>Point2D</tt> instances
+    * @param noOffset {Boolean} If <code>true</code>, does not offset the points relative to
+    *        their center.  For objects not drawn around a center point, this allows you to
+    *        pass the points literally without translation.
     */
-   setPoints: function(pointArray) {
+   setPoints: function(pointArray, noOffset) {
 		var pc = [];
 		for (var p in pointArray) {
 			pc.push(R.math.Point2D.create(pointArray[p]));
@@ -125,12 +128,14 @@ R.components.render.Vector2D = function() {
       this.calculateBoundingBox();
 		
 		// Get the center of the bounding box and move all of the points so none are negative
-		var hP = R.math.Point2D.create(this.bBox.getHalfWidth(), this.bBox.getHalfHeight());
-		for (p in this.points) {
-			this.points[p].add(hP);
-		}
-		
-		this.calculateBoundingBox();
+      if (!noOffset) {
+         var hP = R.math.Point2D.create(this.bBox.getHalfWidth(), this.bBox.getHalfHeight());
+         for (p in this.points) {
+            this.points[p].add(hP);
+         }
+         this.calculateBoundingBox();
+      }
+
 		this.getGameObject().markDirty();
    },
 	

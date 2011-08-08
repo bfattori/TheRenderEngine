@@ -47,7 +47,7 @@ var Tutorial12 = function() {
          //R.Engine.setDebugMode(true);
 
          // Create the game's rendering context
-         Tutorial12.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 600, 600);
+         Tutorial12.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 550, 400);
          Tutorial12.renderContext.setBackgroundColor("#000000");
 
          // Create the simulation (physical world) and set the gravity.  The simulation
@@ -135,7 +135,7 @@ var Tutorial12 = function() {
          ball.simulate();
 
          // Create a stack of boxes
-         var bpt = R.math.Point2D.create(400, Tutorial12.getFieldRect().h - 35);
+         var bpt = R.math.Point2D.create(300, Tutorial12.getFieldRect().h - 35);
          for (var b = 0; b < 10; b++) {
             var box = Box.create(bpt);
             Tutorial12.renderContext.add(box);

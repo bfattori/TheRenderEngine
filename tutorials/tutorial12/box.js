@@ -46,6 +46,8 @@ R.Engine.define({
 var Box = function() {
    return R.objects.PhysicsActor.extend(/** @scope Box.prototype */{
 
+      lineStyle: null,
+
       /**
        * @private
        */
@@ -76,6 +78,19 @@ var Box = function() {
 
          // Set the shape of the object
          this.setShape();
+
+         // Wire an event that will reflect whether the object is actively simulating
+         // or is sleeping and using less CPU
+         this.addEvent("sleeping", function(evt, component, state) {
+               var rC = this.getComponent("physics").getRenderComponent();
+               if (!state) {
+                  rC.setLineStyle("#ffff00");
+                  rC.setFillStyle("#00ff00");
+               } else {
+                  rC.setLineStyle("#ffffff");
+                  rC.setFillStyle("#008800");
+               }
+            });
       },
 
       /**
@@ -84,7 +99,8 @@ var Box = function() {
       setShape: function() {
          var draw = this.getComponent("physics").getRenderComponent();
          draw.setPoints(R.math.Math2D.regularPolygon(4, 20));
-         draw.setFillStyle("#008800");
+         draw.setLineStyle("#ffff00");
+         draw.setFillStyle("#00ff00");
          draw.setLineWidth(2);
       }
 

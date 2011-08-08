@@ -63,7 +63,7 @@ var Ball = function() {
 
          // Set the friction and bounciness of the ball
          this.getComponent("physics").setFriction(0.2);
-         this.getComponent("physics").setRestitution(0.01);
+         this.getComponent("physics").setRestitution(0.3);
          this.getComponent("physics").setDensity(1);
 
          // Add the component which the physics component will use to
@@ -76,6 +76,19 @@ var Ball = function() {
 
          // Set the shape of the object
          this.setShape();
+
+         // Wire an event that will reflect whether the object is actively simulating
+         // or is sleeping and using less CPU
+         this.addEvent("sleeping", function(evt, component, state) {
+               var rC = this.getComponent("physics").getRenderComponent();
+               if (!state) {
+                  rC.setLineStyle("#ffff00");
+                  rC.setFillStyle("#ff0000");
+               } else {
+                  rC.setLineStyle("#ffffff");
+                  rC.setFillStyle("#880000");
+               }
+            });
       },
 
       /**
@@ -85,6 +98,7 @@ var Ball = function() {
          var draw = this.getComponent("physics").getRenderComponent();
          draw.setPoints(R.math.Math2D.regularPolygon(20, 50));
          draw.setFillStyle("#ff0000");
+         draw.setLineStyle("#ffff00");
          draw.setLineWidth(2);
       }
 

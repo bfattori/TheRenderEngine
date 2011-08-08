@@ -65,9 +65,13 @@ var Wedge = function() {
          this.add(R.components.physics.PolyBody.create("physics", shape));
 
          // Set the friction and bounciness of the box
-         this.getComponent("physics").setFriction(0.2);
+         this.getComponent("physics").setFriction(0.5);
          this.getComponent("physics").setRestitution(0.01);
          this.getComponent("physics").setDensity(1);
+
+         // Set the physical origin to the top-left corner of the object.  By default,
+         // rigid bodies will calculate the origin at the center of the mass.
+         this.getComponent("physics").setLocalOrigin(R.math.Point2D.create(0,0));
 
          // Add the component which the physics component will use to
          // render the object to the context
@@ -79,6 +83,20 @@ var Wedge = function() {
 
          // Set the shape of the object
          this.setShape(shape);
+
+         // Wire an event that will reflect whether the object is actively simulating
+         // or is sleeping and using less CPU
+         this.addEvent("sleeping", function(evt, component, state) {
+               var rC = this.getComponent("physics").getRenderComponent();
+               if (!state) {
+                  rC.setLineStyle("#ffff00");
+                  rC.setFillStyle("#0000ff");
+               } else {
+                  rC.setLineStyle("#ffffff");
+                  rC.setFillStyle("#000088");
+               }
+            });
+
       },
 
       /**
@@ -86,8 +104,9 @@ var Wedge = function() {
        */
       setShape: function(shape) {
          var draw = this.getComponent("physics").getRenderComponent();
-         this.setOrigin(R.math.Point2D.create(0,0));
-         draw.setPoints(shape);
+         //this.setOrigin(R.math.Point2D.create(0,-27));
+         draw.setPoints(shape, true);
+         draw.setLineStyle("#ffff00");
          draw.setFillStyle("#0000ff");
          draw.setLineWidth(2);
       }
