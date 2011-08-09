@@ -39,7 +39,7 @@ R.Engine.define({
       "R.components.physics.BaseBody"
    ],
    "includes": [
-      "/libs/Box2dWeb-2.1.a.3.min.js"
+      "/libs/Box2dWeb-2.1.a.3.js"
    ]
 });
 
