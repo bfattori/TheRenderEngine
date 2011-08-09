@@ -78,8 +78,17 @@ R.storage.TransientStorage = function(){
 		 */
 		initStorageObject: function(){
 			return window.sessionStorage;
-		}
-		
+		},
+
+      /**
+       * A unique identifier for the table name.
+       * @param name {String} The table name
+       * @return {String} A unique identifier
+       */
+      getTableUID: function(name) {
+         return this.base(name) + "TS";
+      }
+
 	}, /** @scope R.storage.TransientStorage.prototype */ {
 	
 		/**

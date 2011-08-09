@@ -238,6 +238,7 @@ R.ui.TextInputControl = function() {
                var cPos = R.math.Point2D.create(this.calcWidth(this.text) + 4, 2),
                    cEnd = R.clone(cPos);
                cEnd.y += this.calcHeight() - 4;
+               renderContext.setLineWidth(2);
                renderContext.setLineStyle(this.getTextRenderer().getTextColor());
                renderContext.drawLine(cPos, cEnd);
                cPos.destroy();

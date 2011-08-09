@@ -78,7 +78,16 @@ R.storage.PersistentStorage = function(){
 		 */
 		initStorageObject: function(){
 			return window.localStorage;
-		}
+		},
+
+      /**
+       * A unique identifier for the table name.
+       * @param name {String} The table name
+       * @return {String} A unique identifier
+       */
+      getTableUID: function(name) {
+         return this.base(name) + "PS";
+      }
 		
 	}, /** @scope R.storage.PersistentStorage.prototype */ {
 	

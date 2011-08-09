@@ -41,7 +41,8 @@ R.Engine.define({
 
 /**
  * @class <tt>R.storage.WindowStorage</tt> is used to maintain data in "window.name"
- *    using a JSON object.  This type of storage is transient.
+ *    using a JSON object.  This type of storage is transient and should be used as a
+ *    last resort when trying to store data.
  *
  * @extends R.storage.AbstractStorage
  * @constructor
@@ -124,7 +125,7 @@ R.storage.WindowStorage = function(){
             return;
          }
 
-         this.saveData("");
+         this.saveData(null);
       },
 
       /**
@@ -139,13 +140,18 @@ R.storage.WindowStorage = function(){
       },
 
       /**
-       * Save the data to the window's <tt>name</tt> attribute
+       * Save the data to the window's <tt>name</tt> attribute.  We don't want to
+       * overwrite what might already be there, so we mark it up.
        * @param data
        * @private
        */
       saveData: function(data) {
-         // Save the cookie
-         this.getStorageObject() = data;
+         if (data != null) {
+            // First we remove it from window.name
+            this.loadData();
+            // Then we reattach it
+            this.getStorageObject() += "/*TRE_S*/" + data + "/*TRE_E*/";
+         }
       },
 
       /**
@@ -153,7 +159,16 @@ R.storage.WindowStorage = function(){
        * @private
        */
       loadData: function() {
-         return JSON.parse(this.getStorageObject());
+         // Find our object
+         var m = /\/\*TRE_S\*\/(\{.*\})\/\*TRE_E\*\//,
+             res = m.exec(this.getStorageObject());
+
+         if (res && res[1] != null) {
+            this.getStorageObject().replace(m,"");
+            return JSON.parse(res[1]);
+         }
+
+         return {};
       }
 
 	}, /** @scope R.storage.WindowStorage.prototype */ {

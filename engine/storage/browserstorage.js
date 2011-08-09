@@ -88,7 +88,7 @@ R.storage.BrowserStorage = function(){
        */
       getTableUID: function(name){
          var uid = this.fnv.getHash(this.getName() + name);
-         return uid + "PS";
+         return uid;
       },
 
       /**
@@ -291,13 +291,43 @@ R.storage.BrowserStorage = function(){
 			
 			// See if the table exists		
 			if (this.tableExists(name)) {
-				var tName = this.getTableUID(name);
-				return JSON.parse(this.getStorageObject().getItem(tName + ":dat"));
+            try {
+               var tName = this.getTableUID(name);
+               return JSON.parse(this.getStorageObject().getItem(tName + ":dat"));
+            } catch (ex) {
+               // Most likely "undefined", return an empty object
+               return {};
+            }
 			}
 			else {
 				return null;
 			}
 		},
+
+      /**
+       * Get the size of a table's data in bytes.
+       * @param name {String} The name of the table
+       * @return {Number} The size of the table
+       */
+      getTableSize: function(name){
+         if (!this.enabled) {
+            return null;
+         }
+
+         // See if the table exists
+         if (this.tableExists(name)) {
+            try {
+               var tName = this.getTableUID(name);
+               return this.getStorageObject().getItem(tName + ":dat").length;
+            } catch (ex) {
+               // Most likely "undefined", return an empty object
+               return 0;
+            }
+         }
+         else {
+            return 0;
+         }
+      },
 
       /**
        * Execute SQL on the storage object, which may be one of <tt>SELECT</tt>,
@@ -318,7 +348,7 @@ R.storage.BrowserStorage = function(){
             var schema = this.getSchema();
             var db = {};
             for (var s in schema) {
-               db[schema[s]] = this.getTableData(schema[s]);
+               db[s] = this.getTableData(s);
             }
             if (sqlString.indexOf("SELECT") != -1) {
                return stmt.filter(db);
@@ -337,7 +367,7 @@ R.storage.BrowserStorage = function(){
                         tableName = /UPDATE (\w*)/.exec(sqlString)[1];
                      }
                      else {
-                        tableName = /DELETE \w* FROM (\w*)/.exec(sqlString)[1];
+                        tableName = /DELETE .* FROM (\w*)/.exec(sqlString)[1];
                      }
 
                   // Extract that table from the database and store it
