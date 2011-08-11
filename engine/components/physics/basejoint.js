@@ -44,16 +44,16 @@ R.Engine.define({
 });
 
 /**
- * @class The base component which initializes physical joints
- *        for use in a {@link R.physics.Simulation}.
+ * @class The base component which initializes physical joints for use in a {@link R.physics.Simulation}.
  *
  * @param name {String} Name of the component
- * @param shapeDef {b2ShapeDef} The shape definition. Either {@link b2CircleDef}, {@link b2BoxDef}, or
- *          {@link b2PolyDef}.
+ * @param body1 {b2Body} The first body of the joint
+ * @param body2 {b2Body} The second body of the joint
+ * @param jointDef {b2JointDef} The joint definition.
  *
  * @extends R.components.Logic
  * @constructor
- * @description All physical joint components should extend from this component type.
+ * @description All physics joint components extend from this component type.
  */
 R.components.physics.BaseJoint = function() {
    return R.components.Logic.extend(/** @scope R.components.physics.BaseJoint.prototype */{
@@ -89,8 +89,6 @@ R.components.physics.BaseJoint = function() {
       startSimulation: function() {
          if (!this.simulation) {
             this.simulation = this.getGameObject().getSimulation();
-            this.getJointDef().bodyA = this.body1.getBody();
-            this.getJointDef().bodyB = this.body2.getBody();
             this.getJointDef().collideConnected = this.getCollideBodies();
 
             this.joint = this.simulation.addJoint(this.getJointDef());

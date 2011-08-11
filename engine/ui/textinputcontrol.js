@@ -35,7 +35,8 @@
 R.Engine.define({
    "class": "R.ui.TextInputControl",
    "requires": [
-      "R.ui.AbstractUIControl"
+      "R.ui.AbstractUIControl",
+      "R.components.input.Keyboard"
    ]
 });
 
@@ -73,46 +74,49 @@ R.ui.TextInputControl = function() {
          this.blinkTime = 0;
          this.blink = false;
 
+         // We won't get events for keyboard unless we have the component
+         this.add(R.components.input.Keyboard.create("keyinput"));
+
          // We want to add events to capture key presses
          // when the control has focus
-         var self = this;
-         R.Engine.getDefaultContext().addEvent(this, "keydown", function(evt) {
-            if (self.hasFocus()) {
-               if (evt.which == R.engine.Events.KEYCODE_BACKSPACE) {
-                  if (self.text.length > 0) {
-                     self.text = self.text.substring(0, self.text.length - 1);
-                     if (self.password) {
-                        self.passwordText = self.passwordText.substring(0, self.text.length - 1);
+         this.addEvents({
+            "keydown": function(evt) {
+               if (this.hasFocus()) {
+                  if (evt.which == R.engine.Events.KEYCODE_BACKSPACE) {
+                     if (this.text.length > 0) {
+                        this.text = this.text.substring(0, this.text.length - 1);
+                        if (this.password) {
+                           this.passwordText = this.passwordText.substring(0, this.text.length - 1);
+                        }
+                     }
+
+                     evt.stopPropagation();
+                     evt.preventDefault();
+                  }
+
+                  this.getTextRenderer().setText(this.text);
+                  this.triggerEvent("change");
+               }
+            },
+            "keypress":  function(evt) {
+               if (this.hasFocus()) {
+                  if (evt.which != R.engine.Events.KEYCODE_ENTER &&
+                      evt.which != R.engine.Events.KEYCODE_BACKSPACE) {
+                     if (this.maxLength == 0 || this.text.length < this.maxLength) {
+                        if (this.password) {
+                           this.text += this.passwordChar;
+                           this.passwordText += String.fromCharCode(evt.which);
+                        } else {
+                           this.text += String.fromCharCode(evt.which);
+                        }
                      }
                   }
 
+                  this.getTextRenderer().setText(this.text);
+                  this.triggerEvent("change");
                   evt.stopPropagation();
                   evt.preventDefault();
                }
-
-               self.getTextRenderer().setText(self.text);
-               self.triggerEvent("change");
-            }
-         });
-
-         R.Engine.getDefaultContext().addEvent(this, "keypress", function(evt) {
-            if (self.hasFocus()) {
-               if (evt.which != R.engine.Events.KEYCODE_ENTER &&
-                   evt.which != R.engine.Events.KEYCODE_BACKSPACE) {
-                  if (self.maxLength == 0 || self.text.length < self.maxLength) {
-                     if (self.password) {
-                        self.text += self.passwordChar;
-                        self.passwordText += String.fromCharCode(evt.which);
-                     } else {
-                        self.text += String.fromCharCode(evt.which);
-                     }
-                  }
-               }
-               
-               self.getTextRenderer().setText(self.text);
-               self.triggerEvent("change");
-               evt.stopPropagation();
-               evt.preventDefault();
             }
          });
       },
@@ -121,8 +125,8 @@ R.ui.TextInputControl = function() {
        * Destroy the text input control, releasing its event handlers.
        */
       destroy: function() {
-         R.Engine.getDefaultContext().removeEvent(this, "keydown");
-         R.Engine.getDefaultContext().removeEvent(this, "keypress");
+         this.removeEvent("keydown");
+         this.removeEvent("keypress");
          this.base();
       },
 

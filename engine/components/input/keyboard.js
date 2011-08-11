@@ -70,6 +70,20 @@ R.components.input.Keyboard = function() {
        */
       constructor: function(name, priority) {
          this.base(name, priority);
+
+         // Add the event handlers
+         var ctx = R.Engine.getDefaultContext(), self = this;
+         ctx.addEvent(this, "keydown", function(evt) {
+            return self._keyDownListener(evt);
+         });
+
+         ctx.addEvent(this, "keyup", function(evt) {
+            return self._keyUpListener(evt);
+         });
+
+         ctx.addEvent(this, "keypress", function(evt) {
+            return self._keyPressListener(evt);
+         });
       },
 
       /**
@@ -100,39 +114,11 @@ R.components.input.Keyboard = function() {
          this.setGameObject(hostObj);
       },
 
-      /**
-       * Establishes the link between this component and its host object.
-       * When you assign components to a host object, it will call this method
-       * so that each component can refer to its host object, the same way
-       * a host object can refer to a component with {@link HostObject#getComponent}.
-       *
-       * @param hostObject {HostObject} The object which hosts this component
-       */
-      setGameObject: function(gameObject) {
-         this.base(gameObject);
-
-         var ctx = R.Engine.getDefaultContext();
-         var self = this;
-
-         // Add the event handlers
-         ctx.addEvent(this, "keydown", function(evt) {
-            return self._keyDownListener(evt);
-         });
-
-         ctx.addEvent(this, "keyup", function(evt) {
-            return self._keyUpListener(evt);
-         });
-
-         ctx.addEvent(this, "keypress", function(evt) {
-            return self._keyPressListener(evt);
-         });
-      },
-
       /** @private */
       playEvent: function(e) {
          var evt = document.createEvent("KeyboardEvent");
          evt.initKeyEvent(e.type, true, false, null, e.ctrlKey, false, e.shiftKey, false, e.keyCode, 0);
-         this.getGameObject().getRenderContext().getSurface().dispatchEvent(evt);
+         R.Engine.getDefaultContext().getSurface().dispatchEvent(evt);
       },
 
       /** @private */

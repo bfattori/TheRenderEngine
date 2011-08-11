@@ -574,8 +574,7 @@ R.rendercontexts.AbstractRenderContext = function() {
          // Assign handlers to the context, making sure to only add
          // the handler once.  This way we don't have hundreds of mouse move
          // handlers taking up precious milliseconds.
-         var ctxData = ctx.getObjectDataModel(),
-             mouseInfo = ctx.getObjectDataModel(R.rendercontexts.AbstractRenderContext.MOUSE_DATA_MODEL);
+         var mouseInfo = ctx.getObjectDataModel(R.rendercontexts.AbstractRenderContext.MOUSE_DATA_MODEL);
 
          if (!mouseInfo) {
             mouseInfo = ctx.setObjectDataModel(R.rendercontexts.AbstractRenderContext.MOUSE_DATA_MODEL,
@@ -646,8 +645,7 @@ R.rendercontexts.AbstractRenderContext = function() {
          // Assign handlers to the context, making sure to only add
          // the handler once.  This way we don't have hundreds of mouse move
          // handlers taking up precious milliseconds.
-         var ctxData = ctx.getObjectDataModel(),
-             touchInfo = ctx.getObjectDataModel(R.rendercontexts.AbstractRenderContext.TOUCH_DATA_MODEL);
+         var touchInfo = ctx.getObjectDataModel(R.rendercontexts.AbstractRenderContext.TOUCH_DATA_MODEL);
 
          if (!touchInfo) {
             touchInfo = ctx.setObjectDataModel(R.rendercontexts.AbstractRenderContext.TOUCH_DATA_MODEL,

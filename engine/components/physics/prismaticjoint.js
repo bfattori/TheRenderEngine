@@ -1,8 +1,8 @@
 /**
  * The Render Engine
- * RevoluteJointComponent
+ * PrismaticJointComponent
  *
- * @fileoverview A revolute joint which can be used in a {@link Simulation}.
+ * @fileoverview A prismatic joint which can be used in a {@link Simulation}.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  *
@@ -33,45 +33,53 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.physics.RevoluteJoint",
+   "class": "R.components.physics.PrismaticJoint",
    "requires": [
       "R.components.physics.BaseMotorJoint",
       "R.physics.Simulation",
-      "R.math.Point2D",
-      "R.math.Math2D",
-      "R.math.Vector2D"
+      "R.math.Math2D"
    ]
 });
 
 /**
- * @class A revolute joint which allows two bodies to revolve around a common
- *        anchor point in a {@link R.physics.Simulation}.
+ * @class A prismatic joint which allows movement in one degree of freedom: translation along
+ *        an axis anchored in the first body.  The joint limits relative rotations.
  *
  * @param name {String} Name of the component
  * @param body1 {R.components.physics.BaseBody} The first body for the joint
  * @param body2 {R.components.physics.BaseBody} The second body for the joint
  * @param anchor {R.math.Point2D} A point, in world coordinates relative to the two
  *    bodies, to use as the joint's anchor point
+ * @param [axis] {R.math.Vector2D} The axis of translation.  If <code>null</code> the
+ *        "up" vector is applied.
  *
  * @extends R.components.physics.BaseMotorJoint
  * @constructor
- * @description Creates a revolute joint between two physical bodies.
+ * @description Creates a prismatic joint between two physical bodies.
  */
-R.components.physics.RevoluteJoint = function() {
+R.components.physics.PrismaticJoint = function() {
    return R.components.physics.BaseMotorJoint.extend(/** @scope R.components.physics.RevoluteJoint.prototype */{
 
       anchor: null,
       limits: null,
+      axis: null,
 
       /**
        * @private
        */
-      constructor: function(name, body1, body2, anchor) {
-         var jointDef = new Box2D.Dynamics.Joints.b2RevoluteJointDef();
+      constructor: function(name, body1, body2, anchor, axis) {
+         var jointDef = new Box2D.Dynamics.Joints.b2PrismaticJointDef();
 
          this.limits = [];
          this.anchor = R.math.Point2D.create(anchor).div(R.physics.Simulation.WORLD_SIZE);
-         this.base(name || "RevoluteJoint", body1, body2, jointDef);
+
+         if (axis) {
+            this.axis = R.math.Vector2D.create(axis);
+         } else {
+            this.axis = R.clone(R.math.Vector2D.UP);
+         }
+
+         this.base(name || "PrismaticJoint", body1, body2, jointDef);
       },
 
       /**
@@ -80,14 +88,15 @@ R.components.physics.RevoluteJoint = function() {
        */
       startSimulation: function() {
          if (!this.getSimulation()) {
-            var anchor = new Box2D.Common.Math.b2Vec2();
+            var anchor = new Box2D.Common.Math.b2Vec2(), axis = new Box2D.Common.Math.b2Vec2();
             anchor.Set(this.anchor.x, this.anchor.y);
+            axis.Set(this.axis.x, this.axis.y);
 
-            this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor);
+            this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor, axis);
 
             if (this.limits.length != 0) {
-               this.getJointDef().upperAngle = this.limits[1];
-               this.getJointDef().lowerAngle = this.limits[0];
+               this.getJointDef().upperTranslation = this.limits[1];
+               this.getJointDef().lowerTranslation = this.limits[0];
                this.getJointDef().enableLimit = true;
             }
          }
@@ -96,68 +105,55 @@ R.components.physics.RevoluteJoint = function() {
       },
 
       /**
-       * Clear the rotational limits.
+       * Clear the translation limits.
        */
       clearLimits: function() {
          this.limits = [];
       },
 
       /**
-       * Get the upper limiting angle, in degrees, through which the joint can rotate.
-       * @return {Number} The angle, or <code>undefined</code>
-       */
-      getUpperLimitAngle: function() {
-         return this.limits.length != 0 ? R.math.Math2D.radToDeg(this.limits[1]) : undefined;
-      },
-
-      /**
-       * Set the upper limiting angle through which the joint can rotate.
-       *
-       * @param angle {Number} An angle in degrees
-       */
-      setUpperLimitAngle: function(angle) {
-         this.limits[1] = R.math.Math2D.degToRad(angle);
-      },
-
-      /**
-       * Get the lower limiting angle, in degrees, through which the joint can rotate.
-       * @return {Number} The angle, or <code>undefined</code>
-       */
-      getLowerLimitAngle: function() {
-         return this.limits.length != 0 ? R.math.Math2D.radToDeg(this.limits[0]) : undefined;
-      },
-
-      /**
-       * Set the upper limiting angle through which the joint can rotate.
-       *
-       * @param angle {Number} An angle in degrees
-       */
-      setLowerLimitAngle: function(angle) {
-         this.limits[0] = R.math.Math2D.degToRad(angle);
-      },
-
-      /**
-       * During simulation, this returns the current angle of the joint
-       * in degrees.  Outside of simulation it will always return zero.
+       * Get the upper limit of translation, in meters, through which the joint can travel.
        * @return {Number}
        */
-      getJointAngle: function() {
-         if (this.simulation) {
-            return R.math.Math2D.radToDeg(this.getJoint().GetJointAngle());
-         } else {
-            return 0;
-         }
+      getUpperLimit: function() {
+         return this.limits[1];
+      },
+
+      /**
+       * Set the upper limit of translation through which the joint can travel.
+       *
+       * @param limit {Number} The limit, in meters
+       */
+      setUpperLimit: function(limit) {
+         this.limits[1] = limit;
+      },
+
+      /**
+       * Get the lower limit of translation, in meters, through which the joint can travel.
+       * @return {Number}
+       */
+      getLowerLimit: function() {
+         return this.limits[0];
+      },
+
+      /**
+       * Set the lower limit of translation through which the joint can travel.
+       *
+       * @param limit {Number} The limit, in meters
+       */
+      setLowerLimit: function(limit) {
+         this.limits[0] = limit;
       }
 
-   }, { /** @scope R.components.physics.RevoluteJoint.prototype */
+   }, { /** @scope R.components.physics.PrismaticJoint.prototype */
 
       /**
        * Get the class name of this object
        *
-       * @return {String} "R.components.physics.RevoluteJoint"
+       * @return {String} "R.components.physics.PrismaticJoint"
        */
       getClassName: function() {
-         return "R.components.physics.RevoluteJoint";
+         return "R.components.physics.PrismaticJoint";
       }
    });
 };
