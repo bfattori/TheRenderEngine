@@ -143,13 +143,13 @@ R.components.physics.BoxBody = function() {
          if (R.Engine.getDebugMode()) {
             renderContext.pushTransform();
             renderContext.setLineStyle("blue");
-            var ext = this.extents;
+            var ext = R.clone(this.extents).mul(R.physics.Simulation.WORLD_SIZE);
             var hx = ext.x / 2;
             var hy = ext.y / 2;
             var rect = R.math.Rectangle2D.create(-hx, -hy, hx * 2, hy * 2);
-            renderContext.setScale(R.physics.Simulation.WORLD_SIZE * this.getScale());
             renderContext.drawRectangle(rect);
             rect.destroy();
+            ext.destroy();
             renderContext.popTransform();
          }
       }

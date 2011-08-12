@@ -199,6 +199,9 @@ R.components.physics.BaseJoint = function() {
             var b1p = R.math.Point2D.create(this.getBody1().getPosition());
             var b2p = R.math.Point2D.create(this.getBody2().getPosition());
             renderContext.drawLine(b1p, b2p);
+
+            //b1P = R.math.Point2D.create(this.)
+
             b1p.destroy();
             b2p.destroy();
             renderContext.popTransform();

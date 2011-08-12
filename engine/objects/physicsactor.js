@@ -41,6 +41,9 @@ R.Engine.define({
       "R.components.physics.PolyBody",
       "R.components.physics.DistanceJoint",
       "R.components.physics.RevoluteJoint",
+      "R.components.physics.WeldJoint",
+      "R.components.physics.PrismaticJoint",
+      "R.components.physics.PulleyJoint",
       "R.components.physics.MouseJoint",
 
       "R.math.Math2D",
@@ -48,6 +51,68 @@ R.Engine.define({
       "R.resources.loaders.ObjectLoader"
    ]
 });
+
+/** @private */
+var toP2d = function(arr) {
+   return R.math.Point2D.create(arr[0], arr[1]);
+};
+
+/** @private */
+var getRelativePosition = function(aV, obj) {
+   if ($.isArray(aV) && aV.length == 2) {
+      // An absolute position
+      return toP2d(aV);
+   } else {
+      // If the array has 3 values, the third is a relative position string
+      // and the first two are an offset from that point.  Otherwise, we assume
+      // the value is only the position string
+      var rel = ($.isArray(aV) && aV.length == 3 ? aV[2] : aV);
+      var offs = ($.isArray(aV) && aV.length == 3 ? toP2d(aV) : R.math.Point2D.create(0, 0));
+      var rPos = R.math.Point2D.create(0, 0);
+
+      // Calculate the anchor, relative to the position of the object provided
+      var bb = obj.getBoundingBox().offset(obj.getPosition());
+      var c = obj.getCenter();
+      switch (rel.toLowerCase()) {
+         case "center":
+            rPos.set(obj.getCenter());
+            break;
+         case "topleft":
+            rPos.set(bb.x, bb.y);
+            break;
+         case "topright":
+            rPos.set(bb.x + bb.w, bb.y);
+            break;
+         case "bottomleft":
+            rPos.set(bb.x, bb.y + bb.h);
+            break;
+         case "bottomright":
+            rPos.set(bb.x + bb.w, bb.y + bb.h);
+            break;
+         case "topcenter":
+            rPos.set(c.x, bb.y);
+            break;
+         case "bottomcenter":
+            rPos.set(c.x, bb.y + bb.h);
+            break;
+         case "leftmiddle":
+            rPos.set(bb.x, c.y);
+            break;
+         case "rightmiddle":
+            rPos.set(bb.x + bb.h, c.y);
+            break;
+      }
+
+      // Perform the offset
+      return rPos.add(offs);
+   }
+};
+
+/** @private */
+var makeJoint = function(args) {
+   return args[3].create(args[0], args[1], args[2], arguments[1], arguments[2], arguments[3])
+};
+
 
 /**
  * @class A <tt>R.objects.PhysicsActor</tt> is an actor object within a game represented by
@@ -296,10 +361,13 @@ R.objects.PhysicsActor = function() {
                /* pragma:DEBUG_START */
                if (R.Engine.getDebugMode()) {
                   renderContext.drawFilledArc(pt.neg(), 5, 0, 360);
+               } else {
+               /* pragma:DEBUG_END */
+               nextComponent.getRenderComponent().execute(renderContext, time, dt);
+               /* pragma:DEBUG_START */
                }
                /* pragma:DEBUG_END */
 
-               nextComponent.getRenderComponent().execute(renderContext, time, dt);
                pt.destroy();
             }
             if (isPhysicsComponent) {
@@ -388,8 +456,7 @@ R.objects.PhysicsActor = function() {
       },
 
       /**
-       * Get a unique instance of the actor defined by the reference name provided.
-       * You can call this method multiple times to retrieve new instances of the object.
+       * Factory method to create an instance of a physics actor by name.
        *
        * @param name {String} The unique reference name of the actor object
        * @param [objName] {String} The name to assign to the instance when created
@@ -397,67 +464,14 @@ R.objects.PhysicsActor = function() {
        * @static
        */
       get: function(name, objName) {
-         var toP2d = function(arr) {
-            return R.math.Point2D.create(arr[0], arr[1]);
-         };
-
-         var getRelativePosition = function(aV, obj) {
-            if ($.isArray(aV) && aV.length == 2) {
-               // An absolute position
-               return toP2d(aV);
-            } else {
-               // If the array has 3 values, the third is a relative position string
-               // and the first two are an offset from that point.  Otherwise, we assume
-               // the value is only the position string
-               var rel = ($.isArray(aV) && aV.length == 3 ? aV[2] : aV);
-               var offs = ($.isArray(aV) && aV.length == 3 ? toP2d(aV) : R.math.Point2D.create(0, 0));
-               var rPos = R.math.Point2D.create(0, 0);
-
-               // Calculate the anchor, relative to the position of the object provided
-               var bb = obj.getBoundingBox().offset(obj.getPosition());
-               var c = obj.getCenter();
-               switch (rel.toLowerCase()) {
-                  case "center":
-                     rPos.set(obj.getCenter());
-                     break;
-                  case "topleft":
-                     rPos.set(bb.x, bb.y);
-                     break;
-                  case "topright":
-                     rPos.set(bb.x + bb.w, bb.y);
-                     break;
-                  case "bottomleft":
-                     rPos.set(bb.x, bb.y + bb.h);
-                     break;
-                  case "bottomright":
-                     rPos.set(bb.x + bb.w, bb.y + bb.h);
-                     break;
-                  case "topcenter":
-                     rPos.set(c.x, bb.y);
-                     break;
-                  case "bottomcenter":
-                     rPos.set(c.x, bb.y + bb.h);
-                     break;
-                  case "leftmiddle":
-                     rPos.set(bb.x, c.y);
-                     break;
-                  case "rightmiddle":
-                     rPos.set(bb.x + bb.h, c.y);
-                     break;
-               }
-
-               // Perform the offset
-               return rPos.add(offs);
-            }
-         };
 
          var def = R.objects.PhysicsActor.actorLoader.get(name),
-         actor = R.objects.PhysicsActor.create(objName), jointParts = [], relParts = [];
+         actor = R.objects.PhysicsActor.create(objName), jointParts = [], relParts = [], bc, p, part;
          var props = {"friction":"setFriction","restitution":"setRestitution","density":"setDensity"};
 
          // Loop through the parts and build each component
-         for (var p in def.parts) {
-            var part = def.parts[p], bc;
+         for (p in def.parts) {
+            part = def.parts[p], bc;
             if (part.type == "circle") {
                part.radius *= (def.scale ? def.scale : 1);
                bc = R.components.physics.CircleBody.create(part.name, part.radius);
@@ -472,7 +486,7 @@ R.objects.PhysicsActor = function() {
 
             // Set friction, restitution, or density properties.  Both
             // defaults and per-part
-            for (var p in props) {
+            for (p in props) {
                if (def[p]) {
                   bc[props[p]](def[p]);
                }
@@ -529,43 +543,80 @@ R.objects.PhysicsActor = function() {
 
          // 2) link the parts with any joints that were deferred until now
          for (var j = 0; j < jointParts.length; j++) {
-            var part = jointParts[j], jc,
-            fromPart = (part.joint.linkFrom ? part.joint.linkFrom : part.name),
+            part = jointParts[j];
+
+            var jc, fromPart = (part.joint.linkFrom ? part.joint.linkFrom : part.name),
             toPart = (part.joint.linkTo ? part.joint.linkTo : part.name),
-            jointName = fromPart + "_" + toPart;
+            jointName = fromPart + "_" + toPart, anchor, axis, upLim, lowLim, type,
+            args = [jointName, actor.getComponent(fromPart), actor.getComponent(toPart)];
 
-            if (part.joint.type == "distance") {
-               jc = R.components.physics.DistanceJoint.create(jointName,
-               actor.getComponent(fromPart),
-               actor.getComponent(toPart));
-            } else {
-               var anchor = toP2d(part.joint.anchor);
-               anchor.add(actor.getComponent(fromPart).getCenter());
-               if (def.scale) {
-                  anchor.mul(def.scale);
-               }
+            switch (part.joint.type) {
+               case "distance":
+                  args.push(R.components.physics.DistanceJoint);
+                  jc = makeJoint(args);
+                  break;
+               case "revolute":
+                  args.push(R.components.physics.RevoluteJoint);
+                  anchor = part.joint.anchor ? toP2d(part.joint.anchor): toP2d([0,0]);
+                  anchor.add(actor.getComponent(fromPart).getCenter());
+                  anchor.mul(def.scale != undefined ? def.scale : 1);
+                  jc = makeJoint(args, anchor);
 
-               jc = R.components.physics.RevoluteJoint.create(jointName,
-               actor.getComponent(fromPart),
-               actor.getComponent(toPart),
-               anchor);
+                  // Joint rotational limits
+                  if (part.joint.maxLim && part.joint.minLim) {
+                     upLim = part.joint.maxLim;
+                     lowLim = part.joint.minLim;
+                     jc.setUpperLimitAngle(upLim ? upLim : 0);
+                     jc.setLowerLimitAngle(lowLim ? lowLim : 0);
+                  }
+                  anchor.destroy();
+                  break;
+               case "prismatic":
+                  args.push(R.components.physics.PrismaticJoint);
+                  anchor = part.joint.anchor ? toP2d(part.joint.anchor): toP2d([0,0]);
+                  anchor.add(actor.getComponent(fromPart).getCenter());
+                  anchor.mul(def.scale != undefined ? def.scale : 1);
+                  axis = part.joint.axis ? toP2d(part.joint.axis) : R.math.Vector2D.UP;
+                  jc = makeJoint(args, anchor, axis);
 
-               // Joint rotational limits
-               var upLim = part.joint.maxLim,
-               lowLim = part.joint.minLim;
-               jc.setUpperLimitAngle(upLim ? upLim : 0);
-               jc.setLowerLimitAngle(lowLim ? lowLim : 0);
+                  // Joint translation limits
+                  if (part.joint.maxLim && part.joint.minLim) {
+                     upLim = part.joint.maxLim;
+                     lowLim = part.joint.minLim;
+                     jc.setUpperLimit(upLim ? upLim : 0);
+                     jc.setLowerLimit(lowLim ? lowLim : 0);
+                  }
+                  anchor.destroy();
+                  break;
+               case "weld":
+                  args.push(R.components.physics.WeldJoint);
+                  anchor = part.joint.anchor ? toP2d(part.joint.anchor): toP2d([0,0]);
+                  anchor.add(actor.getComponent(fromPart).getCenter());
+                  anchor.mul(def.scale != undefined ? def.scale : 1);
+                  jc = makeJoint(args, anchor, axis);
+                  anchor.destroy();
+                  break;
+               case "pulley":
+                  args.push(R.components.physics.PulleyJoint);
+                  var anchor1 = part.joint.anchor1 ? toP2d(part.joint.anchor1): toP2d([0,0]);
+                  anchor1.add(actor.getComponent(fromPart).getCenter());
+                  anchor1.mul(def.scale != undefined ? def.scale : 1);
+                  var anchor2 = part.joint.anchor2 ? toP2d(part.joint.anchor2): toP2d([0,0]);
+                  anchor2.add(actor.getComponent(fromPart).getCenter());
+                  anchor2.mul(def.scale != undefined ? def.scale : 1);
+                  jc = makeJoint(args, anchor1, anchor2, part.joint.ratio);
+                  anchor1.destroy();
+                  anchor2.destroy();
+                  break;
+            }
 
-               // Motor torque and speed
-               if (part.joint.motorTorque) {
-                  jc.setMotorTorque(part.joint.motorTorque);
-               }
+            // Motor torque and speed (applies to revolute & prismatic joints
+            if (part.joint.motorTorque) {
+               jc.setMotorTorque(part.joint.motorTorque);
+            }
 
-               if (part.joint.motorSpeed) {
-                  jc.setMotorSpeed(part.joint.motorSpeed);
-               }
-
-               anchor.destroy();
+            if (part.joint.motorSpeed) {
+               jc.setMotorSpeed(part.joint.motorSpeed);
             }
 
             // Add the joint to the actor

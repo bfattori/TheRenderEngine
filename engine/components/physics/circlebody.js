@@ -122,8 +122,7 @@ R.components.physics.CircleBody = function() {
          if (R.Engine.getDebugMode()) {
             renderContext.pushTransform();
             renderContext.setLineStyle("blue");
-            renderContext.setScale(1 / this.getScale());
-            renderContext.drawArc(R.math.Point2D.ZERO, this.getRadius(), 0, 360);
+            renderContext.drawArc(R.math.Point2D.ZERO, this.getRadius() * R.physics.Simulation.WORLD_SIZE, 0, 360);
             renderContext.popTransform();
          }
       }

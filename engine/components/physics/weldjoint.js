@@ -51,6 +51,8 @@ R.Engine.define({
  * @param name {String} Name of the component
  * @param body1 {R.components.physics.BaseBody} The first body for the joint
  * @param body2 {R.components.physics.BaseBody} The second body for the joint
+ * @param [anchor] {R.math.Point2D} The anchor point on body1, or <code>null</code>
+ *        to use the body's position
  *
  * @extends R.components.physics.BaseJoint
  * @constructor
@@ -68,7 +70,9 @@ R.components.physics.WeldJoint = function() {
        */
       constructor: function(name, body1, body2, anchor) {
          var jointDef = new Box2D.Dynamics.Joints.b2WeldJointDef();
-         this.anchor = R.math.Point2D.create(anchor).div(R.physics.Simulation.WORLD_SIZE);
+         if (anchor) {
+            this.anchor = R.math.Point2D.create(anchor).div(R.physics.Simulation.WORLD_SIZE);
+         }
 
          this.base(name || "WeldJoint", body1, body2, jointDef);
       },
@@ -80,7 +84,14 @@ R.components.physics.WeldJoint = function() {
       startSimulation: function() {
          if (!this.getSimulation()) {
             var anchor = new Box2D.Common.Math.b2Vec2();
-            anchor.Set(this.anchor.x, this.anchor.y);
+            if (this.anchor) {
+               anchor.Set(this.anchor.x, this.anchor.y);
+            } else {
+               var pos = R.math.Point2D.create(this.getBody1().getPosition())
+                  .add(this.getBody1().getLocalOrigin()).div(R.physics.Simulation.WORLD_SIZE);
+               anchor.Set(pos.x, pos.y);
+               pos.destroy();
+            }
             this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor);
          }
 

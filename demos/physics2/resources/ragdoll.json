@@ -12,9 +12,9 @@
 			"joint": {
 				"type": "revolute",
 				"linkTo": "torso",
-				"anchor": [0,60],
-				"minLim": -10,
-				"maxLim": 10
+				"anchor": [0,30],
+				"minLim": -30,
+				"maxLim": 30
 			}
 		},
 		{
@@ -29,7 +29,7 @@
 			"extents": [67,37],
 			"position": [202,132],
 			"joint": {
-				"type": "revolute",
+				"type": "weld",
 				"linkFrom": "torso",
 				"anchor": [-10,30],
 				"minLim": -1,
@@ -148,13 +148,10 @@
          "name": "tailbone",
          "type": "box",
          "extents": [2,2],
-         "position": [220,242],
+         "position": [200,70],
          "joint": {
-            "type": "revolute",
-            "linkTo": "torso",
-            "anchor": [0,0],
-            "minLim": -1,
-            "maxLim": 1
+            "type": "weld",
+            "linkTo": "torso"
          }
       }
 	]
