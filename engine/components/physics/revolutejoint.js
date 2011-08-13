@@ -86,13 +86,23 @@ R.components.physics.RevoluteJoint = function() {
             this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor);
 
             if (this.limits.length != 0) {
-               this.getJointDef().upperAngle = this.limits[1];
-               this.getJointDef().lowerAngle = this.limits[0];
+               this.getJointDef().upperAngle = R.math.Math2D.degToRad(this.limits[1]);
+               this.getJointDef().lowerAngle = R.math.Math2D.degToRad(this.limits[0]);
                this.getJointDef().enableLimit = true;
             }
          }
 
          this.base();
+      },
+
+      /**
+       * Offset the joint's anchors by the given point
+       * @param pt {R.math.Point2D} The offset amount
+       */
+      offset: function(pt) {
+         var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
+         this.anchor.add(ofs);
+         ofs.destroy();
       },
 
       /**

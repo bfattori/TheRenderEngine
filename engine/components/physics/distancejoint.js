@@ -84,6 +84,24 @@ R.components.physics.DistanceJoint = function() {
       },
 
       /**
+       * Offset the joint's anchors by the given point
+       * @param pt {R.math.Point2D} The offset amount
+       */
+      offset: function(pt) {
+         var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
+
+         if (this.anchor1) {
+            this.anchor1.add(ofs);
+         }
+
+         if (this.anchor2) {
+            this.anchor2.add(ofs);
+         }
+         
+         ofs.destroy();
+      },
+
+      /**
        * When simulation starts set the anchor points to the position of each rigid body.
        * @private
        */

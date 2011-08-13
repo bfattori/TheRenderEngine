@@ -199,7 +199,7 @@ R.components.physics.BaseBody = function() {
        * @return {R.math.Point2D}
        */
       getCenter: function() {
-         return R.clone(this.getPosition()).add(this.getLocalOrigin());
+         return R.clone(this.getPosition());
       },
 
       /**
@@ -480,6 +480,15 @@ R.components.physics.BaseBody = function() {
             this.getBodyDef().linearDamping = linear;
             this.getBodyDef().angularDamping = angular;
          }
+      },
+
+      /**
+       * Set a body to be static or dynamic.  A static body will not move around.
+       * @param state {Boolean} <code>true</code> to set the body as static, <code>false</code> for
+       *        dynamic.
+       */
+      setStatic: function(state) {
+         this.getBodyDef().type = state ? Box2D.Dynamics.b2Body.b2_staticBody : Box2D.Dynamics.b2Body.b2_dynamicBody;
       },
 
       /**

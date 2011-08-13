@@ -78,6 +78,17 @@ R.components.physics.PulleyJoint = function() {
       },
 
       /**
+       * Offset the joint's anchors by the given point
+       * @param pt {R.math.Point2D} The offset amount
+       */
+      offset: function(pt) {
+         var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
+         this.anchor1.add(ofs);
+         this.anchor2.add(ofs);
+         ofs.destroy();
+      },
+
+      /**
        * When simulation starts offset the anchor point by the position of rigid body 1 (the "from" body).
        * @private
        */

@@ -149,8 +149,8 @@ var PhysicsDemo2 = function() {
 
          // Add a rag doll object
          var ragdoll = this.createRagdoll(R.objects.PhysicsActor.get("ragdoll"));
-         var xPos = (R.lang.Math2.random() * 800);
-         ragdoll.setPosition(R.math.Point2D.create(xPos, 150));
+         var xPos = 400; //(R.lang.Math2.random() * 800);
+         ragdoll.setPosition(R.math.Point2D.create(xPos, 80));
          ragdoll.setSimulation(this.simulation);
          this.renderContext.add(ragdoll);
          ragdoll.simulate();
