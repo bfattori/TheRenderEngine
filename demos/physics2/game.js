@@ -117,7 +117,7 @@ var PhysicsDemo2 = function() {
        * @private
        */
       run: function(){
-         R.Engine.setDebugMode(true);
+         //R.Engine.setDebugMode(true);
 
          // Create the game context
          this.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 800, 460);

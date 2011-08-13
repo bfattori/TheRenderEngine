@@ -12,9 +12,8 @@
 			"joint": {
 				"type": "revolute",
 				"linkTo": "torso",
-				"anchor": [0,0],
-				"minLim": -30,
-				"maxLim": 30
+				"anchor": [0,20],
+            "motorTorque": 200
 			}
 		},
 		{
