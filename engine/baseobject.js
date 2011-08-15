@@ -344,18 +344,29 @@ R.engine.BaseObject = function(){
        * object.
        * 
        * @param eventName {String} The event to trigger
+       * @param [eventObj] {Event} The original event object
        * @param data {Array} An array of data to pass to the event handler
        */
-      triggerEvent: function(eventName, data) {
+      triggerEvent: function(eventName, eventObj, data) {
+         var ret;
          if (this.element) {
-            this.jQ().trigger(eventName, data);
+            if (eventObj && !R.isArray(eventObj)) {
+               ret = this.jQ().trigger(eventObj);
+            } else {
+               ret = this.jQ().trigger(eventName, data);
+            }
+            return ret
          } else {
             var listeners = this.eventListeners[eventName.toUpperCase()];
             if (listeners) {
+               if (eventObj && R.isArray(eventObj)) {
+                  data = eventObj;
+                  eventObj = $.Event({ type: eventName });
+               }
                data = data || [];
 
                // Make sure the first element is the event
-               data.unshift($.Event({ type: eventName }));
+               data.unshift(eventObj);
 
                for (var e = 0; e < listeners.length; e++) {
                   var listener = listeners[e];
@@ -366,9 +377,9 @@ R.engine.BaseObject = function(){
                   }
 
                   // Call the listener
-                  var ret = listener.callback.apply(this, data);
+                  ret = listener.callback.apply(this, data);
                   if (ret === false) {
-                     break;
+                     return false;
                   }
                }
             }

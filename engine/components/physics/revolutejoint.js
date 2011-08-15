@@ -86,8 +86,8 @@ R.components.physics.RevoluteJoint = function() {
             this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor);
 
             if (this.limits.length != 0) {
-               this.getJointDef().upperAngle = R.math.Math2D.degToRad(this.limits[1]);
-               this.getJointDef().lowerAngle = R.math.Math2D.degToRad(this.limits[0]);
+               this.getJointDef().upperAngle = R.math.Math2D.degToRad(Math.max(this.limits[1], this.limits[0]));
+               this.getJointDef().lowerAngle = R.math.Math2D.degToRad(Math.min(this.limits[0], this.limits[1]));
                this.getJointDef().enableLimit = true;
             }
          }
@@ -121,7 +121,9 @@ R.components.physics.RevoluteJoint = function() {
       },
 
       /**
-       * Set the upper limiting angle through which the joint can rotate.
+       * Set the upper limiting angle through which the joint can rotate.  Zero is the
+       * "top" of the rotation, with rotation moving positively in a counter-clockwise
+       * rotation.  Negative numbers will move the rotation clockwise.
        *
        * @param angle {Number} An angle in degrees
        */
@@ -138,7 +140,9 @@ R.components.physics.RevoluteJoint = function() {
       },
 
       /**
-       * Set the upper limiting angle through which the joint can rotate.
+       * Set the upper limiting angle through which the joint can rotate.  Zero is the
+       * "top" of the rotation, with rotation moving positively in a counter-clockwise
+       * rotation.  Negative numbers will move the rotation clockwise.
        *
        * @param angle {Number} An angle in degrees
        */

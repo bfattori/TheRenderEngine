@@ -57,14 +57,14 @@ R.Engine.define({
 R.components.physics.BaseMotorJoint = function() {
    return R.components.physics.BaseJoint.extend(/** @scope R.components.physics.BaseMotorJoint.prototype */{
 
-      mTorque: null,
+      mForce: null,
       mSpeed: null,
 
       /**
        * @private
        */
       constructor: function(name, body1, body2, jointDef) {
-         this.mTorque = null;
+         this.mForce = null;
          this.mSpeed = 0;
          this.base(name || "BaseMotorJoint", body1, body2, jointDef);
       },
@@ -75,8 +75,12 @@ R.components.physics.BaseMotorJoint = function() {
        */
       startSimulation: function() {
          if (!this.getSimulation()) {
-            if (this.mTorque != null) {
-               this.getJointDef().maxMotorTorque = this.mTorque;
+            if (this.mForce != null) {
+               if (this.getJointDef().type == Box2D.Dynamics.Joints.b2Joint.e_revoluteJoint)
+                  this.getJointDef().maxMotorTorque = this.mForce;
+               else
+                  this.getJointDef().maxMotorForce = this.mForce;
+               
                this.getJointDef().motorSpeed = this.mSpeed;
                this.getJointDef().enableMotor = true;
             }
@@ -86,17 +90,17 @@ R.components.physics.BaseMotorJoint = function() {
       },
 
       /**
-       * Clear the motor torque.
+       * Clear the motor force.
        */
-      clearTorque: function() {
-         this.mTorque = null;
+      clearForce: function() {
+         this.mForce = null;
       },
 
       /**
-       * Get the torque which will be applied when the joint is used as a motor.
+       * Get the force which will be applied when the joint is used as a motor.
        * @return {Number}
        */
-      getMotorTorque: function() {
+      getMotorForce: function() {
          if (this.simulation) {
             return this.getJoint().GetMotorTorque(1 / R.Engine.getFPS());
          } else {
@@ -105,20 +109,23 @@ R.components.physics.BaseMotorJoint = function() {
       },
 
       /**
-       * Set the torque which is applied via the motor, or to resist forces applied to it.  You can
+       * Set the force which is applied via the motor, or to resist forces applied to it.  You can
        * use this value to simulate joint friction by setting the motor speed to zero
-       * and applying a small amount of torque.  During simulation, the torque is applied directly
-       * to the joint.
+       * and applying a small amount of force.  During simulation, the force is applied directly
+       * to the joint.  In joints where torque is used, the force is applied to the torque instead.
        *
-       * @param torque {Number} The amount of torque to apply
+       * @param force {Number} The amount of force to apply
        */
-      setMotorTorque: function(torque) {
+      setMotorForce: function(force) {
          if (this.simulation) {
             // Apply directly to the joint
-            this.getJoint().SetMotorTorque(torque);
+            if (this.getJointDef().type == Box2D.Dynamics.Joints.b2Joint.e_revoluteJoint)
+               this.getJoint().SetMotorTorque(force);
+            else
+               this.getJoint().SetMotorForce(force);
          } else {
             // Apply to the joint definition
-            this.mTorque = torque;
+            this.mForce = force;
          }
       },
 

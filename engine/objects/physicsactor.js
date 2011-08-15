@@ -467,7 +467,8 @@ R.objects.PhysicsActor = function() {
 
          var def = R.objects.PhysicsActor.actorLoader.get(name),
          actor = R.objects.PhysicsActor.create(objName), jointParts = [], relParts = [], bc, p, part;
-         var props = {"friction":"setFriction","restitution":"setRestitution","density":"setDensity"};
+         var props = {"friction":"setFriction","restitution":"setRestitution","density":"setDensity",
+                      "static":"setStatic","rotation":"setRotation"};
 
          // Loop through the parts and build each component
          for (p in def.parts) {
@@ -475,16 +476,18 @@ R.objects.PhysicsActor = function() {
             if (part.type == "circle") {
                part.radius *= (def.scale ? def.scale : 1);
                bc = R.components.physics.CircleBody.create(part.name, part.radius);
-            } else {
+            } else if (part.type == "box") {
                var ext = toP2d(part.extents);
-               if (def.scale) {
-                  ext.mul(def.scale);
-               }
+               ext.mul(def.scale ? def.scale : 1);
                bc = R.components.physics.BoxBody.create(part.name, ext);
                ext.destroy();
+            } else {
+               var points = [];
+               for (var d = 0; d < part.points.length; d++) {
+                  points.push(toP2d(parts.points[d]));
+               }
+               bc = R.components.physics.PolyBody.create(part.name, points);
             }
-
-            bc.setStatic(part["static"] || false);
 
             // Set friction, restitution, or density properties.  Both
             // defaults and per-part
@@ -516,10 +519,6 @@ R.objects.PhysicsActor = function() {
                relParts.push(part);
             }
 
-            if (part.rotation) {
-               bc.setRotation(part.rotation);
-            }
-
             // Is there a joint defined?  Defer it until later when all the parts are loaded
             // This way we don't have to worry about invalid body references
             if (part.joint) {
@@ -536,10 +535,7 @@ R.objects.PhysicsActor = function() {
             var rPos = part.position;
             var pos = getRelativePosition(rPos, relTo);
             bc = actor.getComponent(part.name);
-            if (def.scale) {
-               bc.setScale(def.scale);
-               pos.mul(def.scale);
-            }
+            pos.mul(def.scale ? def.scale : 1);
             bc.setPosition(pos);
             pos.destroy();
          }
@@ -577,8 +573,8 @@ R.objects.PhysicsActor = function() {
 
                   // Joint rotational limits
                   if (part.joint.maxLim && part.joint.minLim) {
-                     upLim = part.joint.maxLim;
-                     lowLim = part.joint.minLim;
+                     upLim = part.joint.maxAngle;
+                     lowLim = part.joint.minAngle;
                      jc.setUpperLimitAngle(upLim ? upLim : 0);
                      jc.setLowerLimitAngle(lowLim ? lowLim : 0);
                   }
@@ -623,9 +619,9 @@ R.objects.PhysicsActor = function() {
                   break;
             }
 
-            // Motor torque and speed (applies to revolute & prismatic joints
-            if (part.joint.motorTorque) {
-               jc.setMotorTorque(part.joint.motorTorque);
+            // Motor force/torque and speed (applies to revolute & prismatic joints
+            if (part.joint.motorForce) {
+               jc.setMotorForce(part.joint.motorForce);
             }
 
             if (part.joint.motorSpeed) {

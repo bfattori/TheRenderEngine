@@ -124,19 +124,19 @@ R.components.input.Keyboard = function() {
       /** @private */
       _keyDownListener: function(eventObj) {
          this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
-         return this.getGameObject().triggerEvent("keydown", [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey, eventObj]);
+         return this.getGameObject().triggerEvent("keydown", eventObj, [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey]);
       },
 
       /** @private */
       _keyUpListener: function(eventObj) {
          this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
-         return this.getGameObject().triggerEvent("keyup", [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey, eventObj]);
+         return this.getGameObject().triggerEvent("keyup", eventObj, [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey]);
       },
 
       /** @private */
       _keyPressListener: function(eventObj) {
          this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
-         return this.getGameObject().triggerEvent("keypress", [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey, eventObj]);
+         return this.getGameObject().triggerEvent("keypress", eventObj, [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey]);
       }
 
    }, /** @scope R.components.input.Keyboard.prototype */{

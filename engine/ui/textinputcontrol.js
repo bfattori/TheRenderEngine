@@ -80,9 +80,9 @@ R.ui.TextInputControl = function() {
          // We want to add events to capture key presses
          // when the control has focus
          this.addEvents({
-            "keydown": function(evt) {
+            "keydown": function(evt, which) {
                if (this.hasFocus()) {
-                  if (evt.which == R.engine.Events.KEYCODE_BACKSPACE) {
+                  if (which == R.engine.Events.KEYCODE_BACKSPACE) {
                      if (this.text.length > 0) {
                         this.text = this.text.substring(0, this.text.length - 1);
                         if (this.password) {
@@ -98,16 +98,16 @@ R.ui.TextInputControl = function() {
                   this.triggerEvent("change");
                }
             },
-            "keypress":  function(evt) {
+            "keypress":  function(evt, which) {
                if (this.hasFocus()) {
-                  if (evt.which != R.engine.Events.KEYCODE_ENTER &&
-                      evt.which != R.engine.Events.KEYCODE_BACKSPACE) {
+                  if (which != R.engine.Events.KEYCODE_ENTER &&
+                      which != R.engine.Events.KEYCODE_BACKSPACE) {
                      if (this.maxLength == 0 || this.text.length < this.maxLength) {
                         if (this.password) {
                            this.text += this.passwordChar;
-                           this.passwordText += String.fromCharCode(evt.which);
+                           this.passwordText += String.fromCharCode(which);
                         } else {
-                           this.text += String.fromCharCode(evt.which);
+                           this.text += String.fromCharCode(which);
                         }
                      }
                   }

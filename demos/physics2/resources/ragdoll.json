@@ -13,7 +13,9 @@
 				"type": "revolute",
 				"linkTo": "torso",
 				"anchor": [0,20],
-            "motorTorque": 200
+            "motorForce": 50,
+            "minAngle": 45,
+            "maxAngle": -45
 			}
 		},
 		{
@@ -42,10 +44,9 @@
 				"type": "revolute",
 				"linkTo": "torso",
 				"anchor": [0,0],
-				"minLim": 0,
-				"maxLim": 45,
-				"motorTorque": 120,
-				"motorSpeed": 0
+				"minAngle": 0,
+				"maxAngle": 180,
+				"motorForce": 50
 			}
 		},
 		{
@@ -57,8 +58,8 @@
 				"type": "revolute",
 				"linkTo": "leftupperarm",
 				"anchor": [20,10],
-				"minLim": 0,
-				"maxLim": 0
+				"minAngle": -45,
+				"maxAngle": 90
 			}
 		},
 		{
@@ -70,10 +71,9 @@
 				"type": "revolute",
 				"linkTo": "torso",
 				"anchor": [0,0],
-				"minLim": 0,
-				"maxLim": -45,
-				"motorTorque": 120,
-				"motorSpeed": 0
+				"minAngle": 0,
+				"maxAngle": -180,
+				"motorForce": 50
 			}
 		},
 		{
@@ -85,8 +85,8 @@
 				"type": "revolute",
 				"linkTo": "rightupperarm",
 				"anchor": [-20,10],
-				"minLim": 0,
-				"maxLim": 0
+				"minAngle": 45,
+				"maxAngle": -90
 			}
 		},
 		{
@@ -94,13 +94,12 @@
 			"type": "box",
 			"extents": [29,70],
 			"position": [185,180],
-         "rotation": -25,
 			"joint": {
 				"type": "revolute",
 				"linkTo": "pelvis",
 				"anchor": [0,-70],
-				"minLim": -45,
-				"maxLim": 0
+				"minAngle": 135,
+				"maxAngle": 180
 			}
 		},
 		{
@@ -112,8 +111,8 @@
 				"type": "revolute",
 				"linkTo": "leftupperleg",
 				"anchor": [0,-21],
-				"minLim": -1,
-				"maxLim": 1
+				"minAngle": 180,
+				"maxAngle": 180
 			}
 		},
 		{
@@ -121,13 +120,12 @@
 			"type": "box",
 			"extents": [29,70],
 			"position": [220,180],
-         "rotation": 25,
 			"joint": {
 				"type": "revolute",
 				"linkTo": "pelvis",
 				"anchor": [0,-70],
-				"minLim": 0,
-				"maxLim": 45
+				"minAngle": -135,
+				"maxAngle": -180
 			}
 		},
 		{
@@ -139,8 +137,8 @@
 				"type": "revolute",
 				"linkTo": "rightupperleg",
 				"anchor": [0,-21],
-				"minLim": -1,
-				"maxLim": 1
+				"minAngle": 180,
+				"maxAngle": 180
 			}
 		},
       {
