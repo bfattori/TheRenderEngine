@@ -1,0 +1,49 @@
+{
+	"restitution": 0,
+	"friction": 1.2,
+	"root": "pivot",
+	"parts": [
+		{
+			"name": "pivot",
+			"type": "circle",
+			"radius": 20,
+         "static": true,
+			"position": [200,200],
+         "joint": {
+            "type": "revolute",
+            "linkTo": "armature",
+            "anchor": [0,0],
+            "motorTorque": 150
+         }
+		},
+		{
+			"name": "armature",
+			"type": "box",
+			"extents": [200,40],
+			"position": [300,200]
+		},
+      {
+         "name": "pivot2",
+         "type": "circle",
+         "radius": 20,
+         "position": [400,200],
+         "joint": {
+            "type": "distance",
+            "linkTo": "armature",
+            "anchor1": [0,0],
+            "anchor2": [100,0]
+         }
+      },
+      {
+         "name": "armature2",
+         "type": "box",
+         "extents": [100,40],
+         "position": [450,200],
+         "joint": {
+            "type": "revolute",
+            "linkTo": "pivot2",
+            "anchor": [-50,0]
+         }
+      }
+   ]
+}

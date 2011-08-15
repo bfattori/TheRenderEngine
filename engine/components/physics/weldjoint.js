@@ -78,6 +78,18 @@ R.components.physics.WeldJoint = function() {
       },
 
       /**
+       * Offset the joint's anchors by the given point
+       * @param pt {R.math.Point2D} The offset amount
+       */
+      offset: function(pt) {
+         if (this.anchor) {
+            var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
+            this.anchor.add(ofs);
+            ofs.destroy();
+         }
+      },
+
+      /**
        * When simulation starts set the anchor point and bodies.
        * @private
        */
@@ -87,8 +99,7 @@ R.components.physics.WeldJoint = function() {
             if (this.anchor) {
                anchor.Set(this.anchor.x, this.anchor.y);
             } else {
-               var pos = R.math.Point2D.create(this.getBody1().getPosition())
-                  .add(this.getBody1().getLocalOrigin()).div(R.physics.Simulation.WORLD_SIZE);
+               var pos = R.clone(this.getBody1().getPosition()).div(R.physics.Simulation.WORLD_SIZE);
                anchor.Set(pos.x, pos.y);
                pos.destroy();
             }

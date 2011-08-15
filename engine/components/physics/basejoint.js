@@ -83,6 +83,13 @@ R.components.physics.BaseJoint = function() {
       },
 
       /**
+       * Offset the joint's anchors by the given point
+       * @param pt {R.math.Point2D} The offset amount
+       */
+      offset: function(pt) {
+      },
+
+      /**
        * Start simulating the joint.  If the joint isn't a part of the simulation,
        * it is added and simulation occurs.
        */

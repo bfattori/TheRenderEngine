@@ -246,7 +246,7 @@ R.objects.PhysicsActor = function() {
 
          var joints = this.getJoints();
          for (var j in joints) {
-            var jPos = joints[j];
+            joints[j].offset(pt);
          }
 
          pt.destroy();
@@ -355,7 +355,7 @@ R.objects.PhysicsActor = function() {
             if (isPhysicsComponent && nextComponent.getRenderComponent() != null) {
                // Make sure to execute the render component immediately following
                // the body component.
-               var pt = R.clone(nextComponent.getLocalOrigin()).mul(1 / nextComponent.getScaleX()).neg();
+               var pt = R.clone(nextComponent.getLocalOrigin()).neg();
                renderContext.setPosition(pt);
 
                /* pragma:DEBUG_START */
@@ -475,17 +475,16 @@ R.objects.PhysicsActor = function() {
             if (part.type == "circle") {
                part.radius *= (def.scale ? def.scale : 1);
                bc = R.components.physics.CircleBody.create(part.name, part.radius);
-            } else if (part.type == "box") {
-               var ext = toP2d(part.extents).mul(def.scale ? def.scale : 1);
+            } else {
+               var ext = toP2d(part.extents);
+               if (def.scale) {
+                  ext.mul(def.scale);
+               }
                bc = R.components.physics.BoxBody.create(part.name, ext);
                ext.destroy();
-            } else {
-               var pts = [];
-               for (var d in part.points) {
-                  pts.push(toP2d(part.points[d]).mul(def.scale ? def.scale : 1));
-               }
-               bc = R.components.physics.PolyBody.create(part.name, pts);
             }
+
+            bc.setStatic(part["static"] || false);
 
             // Set friction, restitution, or density properties.  Both
             // defaults and per-part
@@ -507,13 +506,18 @@ R.objects.PhysicsActor = function() {
             // origin at the top left corner of the world
             if ($.isArray(part.position) && part.position.length == 2) {
                // Set the position of the part in absolute coordinates
-               var pt = toP2d(part.position).mul(def.scale ? def.scale : 1);
+               var pt = toP2d(part.position);
+               pt.mul(def.scale ? def.scale : 1);
                bc.setPosition(pt);
                pt.destroy();
             } else if (part.relativeTo) {
                // The position is either a string or a 3 element array.  In either case
                // the value contains a relative positioning string and possibly an offset
                relParts.push(part);
+            }
+
+            if (part.rotation) {
+               bc.setRotation(part.rotation);
             }
 
             // Is there a joint defined?  Defer it until later when all the parts are loaded
@@ -532,7 +536,10 @@ R.objects.PhysicsActor = function() {
             var rPos = part.position;
             var pos = getRelativePosition(rPos, relTo);
             bc = actor.getComponent(part.name);
-            pos.mul(def.scale ? def.scale : 1);
+            if (def.scale) {
+               bc.setScale(def.scale);
+               pos.mul(def.scale);
+            }
             bc.setPosition(pos);
             pos.destroy();
          }
@@ -543,19 +550,29 @@ R.objects.PhysicsActor = function() {
 
             var jc, fromPart = (part.joint.linkFrom ? part.joint.linkFrom : part.name),
             toPart = (part.joint.linkTo ? part.joint.linkTo : part.name),
-            jointName = fromPart + "_" + toPart, anchor, axis, upLim, lowLim, type,
+            jointName = fromPart + "_" + toPart, anchor, axis, upLim, lowLim, type, anchor1, anchor2,
             args = [jointName, actor.getComponent(fromPart), actor.getComponent(toPart)];
 
             switch (part.joint.type) {
                case "distance":
                   args.push(R.components.physics.DistanceJoint);
-                  jc = makeJoint(args);
+                  anchor1 = part.joint.anchor ? toP2d(part.joint.anchor1): null;
+                  if (anchor1)
+                     anchor1.add(actor.getComponent(fromPart).getPosition())
+                        .mul(def.scale != undefined ? def.scale : 1);
+
+                  anchor2 = part.joint.anchor ? toP2d(part.joint.anchor2): null;
+                  if (anchor2)
+                     anchor2.add(actor.getComponent(fromPart).getPosition())
+                        .mul(def.scale != undefined ? def.scale : 1);
+
+                  jc = makeJoint(args, anchor1, anchor2);
                   break;
                case "revolute":
                   args.push(R.components.physics.RevoluteJoint);
                   anchor = part.joint.anchor ? toP2d(part.joint.anchor): toP2d([0,0]);
-                  anchor.add(actor.getComponent(fromPart).getCenter());
-                  anchor.mul(def.scale ? def.scale : 1);
+                  anchor.add(actor.getComponent(fromPart).getPosition());
+                  anchor.mul(def.scale != undefined ? def.scale : 1);
                   jc = makeJoint(args, anchor);
 
                   // Joint rotational limits
@@ -570,8 +587,8 @@ R.objects.PhysicsActor = function() {
                case "prismatic":
                   args.push(R.components.physics.PrismaticJoint);
                   anchor = part.joint.anchor ? toP2d(part.joint.anchor): toP2d([0,0]);
-                  anchor.add(actor.getComponent(fromPart).getCenter());
-                  anchor.mul(def.scale ? def.scale : 1);
+                  anchor.add(actor.getComponent(fromPart).getPosition());
+                  anchor.mul(def.scale != undefined ? def.scale : 1);
                   axis = part.joint.axis ? toP2d(part.joint.axis) : R.math.Vector2D.UP;
                   jc = makeJoint(args, anchor, axis);
 
@@ -587,19 +604,19 @@ R.objects.PhysicsActor = function() {
                case "weld":
                   args.push(R.components.physics.WeldJoint);
                   anchor = part.joint.anchor ? toP2d(part.joint.anchor): toP2d([0,0]);
-                  anchor.add(actor.getComponent(fromPart).getCenter());
-                  anchor.mul(def.scale ? def.scale : 1);
+                  anchor.add(actor.getComponent(fromPart).getPosition());
+                  anchor.mul(def.scale != undefined ? def.scale : 1);
                   jc = makeJoint(args, anchor, axis);
                   anchor.destroy();
                   break;
                case "pulley":
                   args.push(R.components.physics.PulleyJoint);
-                  var anchor1 = part.joint.anchor1 ? toP2d(part.joint.anchor1): toP2d([0,0]);
-                  anchor1.add(actor.getComponent(fromPart).getCenter());
-                  anchor1.mul(def.scale ? def.scale : 1);
-                  var anchor2 = part.joint.anchor2 ? toP2d(part.joint.anchor2): toP2d([0,0]);
-                  anchor2.add(actor.getComponent(fromPart).getCenter());
-                  anchor2.mul(def.scale ? def.scale : 1);
+                  anchor1 = part.joint.anchor1 ? toP2d(part.joint.anchor1): toP2d([0,0]);
+                  anchor1.add(actor.getComponent(fromPart).getPosition());
+                  anchor1.mul(def.scale != undefined ? def.scale : 1);
+                  anchor2 = part.joint.anchor2 ? toP2d(part.joint.anchor2): toP2d([0,0]);
+                  anchor2.add(actor.getComponent(fromPart).getPosition());
+                  anchor2.mul(def.scale != undefined ? def.scale : 1);
                   jc = makeJoint(args, anchor1, anchor2, part.joint.ratio);
                   anchor1.destroy();
                   anchor2.destroy();

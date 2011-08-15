@@ -12,9 +12,8 @@
 			"joint": {
 				"type": "revolute",
 				"linkTo": "torso",
-				"anchor": [0,0],
-				"minLim": -30,
-				"maxLim": 30
+				"anchor": [0,20],
+            "motorTorque": 200
 			}
 		},
 		{
@@ -31,9 +30,7 @@
 			"joint": {
 				"type": "weld",
 				"linkFrom": "torso",
-				"anchor": [-10,30],
-				"minLim": -1,
-				"maxLim": 1
+				"anchor": [-10,30]
 			}
 		},
 		{
@@ -44,10 +41,10 @@
 			"joint": {
 				"type": "revolute",
 				"linkTo": "torso",
-				"anchor": [0,-10],
-				"minLim": -1,
-				"maxLim": 1,
-				"motorTorque": 1000,
+				"anchor": [0,0],
+				"minLim": 0,
+				"maxLim": 45,
+				"motorTorque": 120,
 				"motorSpeed": 0
 			}
 		},
@@ -72,10 +69,10 @@
 			"joint": {
 				"type": "revolute",
 				"linkTo": "torso",
-				"anchor": [0,-10],
-				"minLim": -1,
-				"maxLim": 1,
-				"motorTorque": 1000,
+				"anchor": [0,0],
+				"minLim": 0,
+				"maxLim": -45,
+				"motorTorque": 120,
 				"motorSpeed": 0
 			}
 		},
@@ -97,12 +94,13 @@
 			"type": "box",
 			"extents": [29,70],
 			"position": [185,180],
+         "rotation": -25,
 			"joint": {
 				"type": "revolute",
 				"linkTo": "pelvis",
-				"anchor": [20,-70],
-				"minLim": -1,
-				"maxLim": 1
+				"anchor": [0,-70],
+				"minLim": -45,
+				"maxLim": 0
 			}
 		},
 		{
@@ -123,12 +121,13 @@
 			"type": "box",
 			"extents": [29,70],
 			"position": [220,180],
+         "rotation": 25,
 			"joint": {
 				"type": "revolute",
 				"linkTo": "pelvis",
-				"anchor": [20,-70],
-				"minLim": -1,
-				"maxLim": 1
+				"anchor": [0,-70],
+				"minLim": 0,
+				"maxLim": 45
 			}
 		},
 		{
