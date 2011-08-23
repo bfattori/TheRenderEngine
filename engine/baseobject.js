@@ -167,7 +167,7 @@ R.engine.BaseObject = function(){
 		},
 		
 		/**
-		 * Add an event handler to this object, as long as it has an associated HTML element. Within the
+		 * Add an event handler to this object. Within the
        * event handler, <tt>this</tt> refers to the object upon which the event is being triggered. It is
        * possible to bind an event simply by calling <tt>addEvent</tt> with the type and callback, like
        * so:
@@ -248,10 +248,10 @@ R.engine.BaseObject = function(){
        * <pre>
        *    // Shorthand
        *    this.addEvents({
-       *       "keydown": function(which) {
+       *       "keydown": function(evt, which) {
        *          this.onKeyDown(which);
        *       },
-       *       "keyup": function(which) {
+       *       "keyup": function(evt, which) {
        *          this.onKeyUp(which);
        *       }
        *    });

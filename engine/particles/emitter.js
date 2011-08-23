@@ -40,13 +40,25 @@ R.Engine.define({
 });
 
 /**
- * @class Particle emitter class.  A particle emitter emits particles at a regular
+ * @class Particle emitter class.  Emits particles at a regular
  *    interval as long as it is active.  The function that is passed to generate
  *    the particles will be called with three arguments: an offset position, the
  *    current world time, and the delta from when the last frame was drawn.  The function
  *    can either return a single particle or an <code>Array</code> of particles.
  *    Within the scope of the function, "this" refers to the {@link R.particles.Emitter}
  *    object.
+ *    <pre>
+ *       // Create the particle emitter which returns the type of particle
+ *       // we want to emit.  5 is the delay between particle emissions and
+ *       // 350 is the life of the particle (both in milliseconds)
+ *       var emitter = R.particles.Emitter.create(function(offset) {
+ *          // Create a particle
+ *          return FuseParticle.create(offset, 350);
+ *       }, 5);
+ *
+ *       // Assign the emitter to the particle engine which will draw it
+ *       emitter.setParticleEngine(Tutorial13.pEngine);
+ *    </pre>
  *
  * @param emitFunc {Function} A function that emits new particles.
  * @param interval {Number} The time between emissions

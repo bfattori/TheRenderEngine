@@ -84,7 +84,7 @@ R._unsupported = function(method, clazz) {
 	throw new Error(method + " is unsupported in " + clazz.getClassName());	
 };
 
-/** private **/
+/** @private **/
 R.str = Object.prototype.toString;
 
 /**

@@ -70,10 +70,13 @@ var Bomb = function() {
          // Create the particle emitter which returns the type of particle
          // we want to emit.  5 is the delay between particle emissions and
          // 350 is the life of the particle (both in milliseconds). An emitter
-         // only emits one particle per cycle.
+         // can emit multiple particles at a time by returning an array of
+         // particles.
          var emitter = R.particles.Emitter.create(function(offset) {
             // Create a particle
-            return FuseParticle.create(offset, 350);
+            return [FuseParticle.create(offset, 350),
+                    FuseParticle.create(offset, 500),
+                    FuseParticle.create(offset, 180)];
          }, 5);
 
          // Assign the emitter to the particle engine which will draw it
