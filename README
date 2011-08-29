@@ -15,15 +15,14 @@ http://code.google.com/chrome/chromeframe/
 
 Why don't you support IE8, IE7...?
 ----------------------------------
-Most people say "there are no stupid questions," but in this case, there is.  Internet Explorer has never been a
-standards based browser. Up until IE9, Microsoft didn't care about following - they only wanted to lead. Due to their
-lackluster support for standards, they were late adopters of the things that make gaming possible in a browser. Additionally,
-their JavaScript engine was implemented as a plug-in to the browser and linked via a COM bridge.  This made the engine
-especially slow when compared to the other browsers. IE9 is the first browser, from Microsoft, which follows the
-standards closely enough that I would endorse it.  On Windows there just isn't anything much better than a
-browser optimized for Windows - and IE9 (and going forward, hopefully) is just that. Perpetuating the use of
-older technologies by supporting them is a disservice to web developers around the world. Forcing users to either
-upgrade, or find somewhere else to "get their fix", will eventually benefit everyone.
+Internet Explorer has never been a standards based browser. Up until IE9, Microsoft didn't care about following - 
+they only wanted to lead. Due to their lackluster support for standards, they were late adopters of the things that 
+make gaming possible in a browser. Additionally, their JavaScript engine was implemented as a plug-in to the browser 
+and linked via a COM bridge.  This made the engine especially slow when compared to the other browsers. IE9 is the 
+first browser, from Microsoft, which follows the standards closely enough that I would endorse it.  On Windows there 
+just isn't anything much better than a browser optimized for Windows - and IE9 (and going forward, hopefully) is just 
+that. Perpetuating the use of older technologies by supporting them is a disservice to web developers around the 
+world. Forcing users to either upgrade, or find somewhere else to "get their fix", will eventually benefit everyone.
 
 Tutorials & Demos
 -----------------
