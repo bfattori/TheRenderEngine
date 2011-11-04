@@ -124,24 +124,24 @@ R.rendercontexts.HTMLElementContext = function(){
 						// Support for webkit transforms
 						this.hasTxfm = true;
                   this.has3dTxfm = true;
-						this.txfmBrowser = "-webkit-transform";
-						this.txfmOrigin = "-webkit-transform-origin";
+						this.txfmBrowser = "webkitTransform";
+						this.txfmOrigin = "webkitTransformOrigin";
 					}
 					break;
 				case "chrome":
 					// Support for webkit transforms
 					this.hasTxfm = true;
                this.has3dTxfm = true;
-					this.txfmBrowser = "-webkit-transform";
-					this.txfmOrigin = "-webkit-transform-origin";
+					this.txfmBrowser = "webkitTransform";
+					this.txfmOrigin = "webkitTransformOrigin";
 					break;
 				case "firefox":
 					if (version >= 3.5) {
 						// Support for gecko transforms
 						this.hasTxfm = true;
                   this.has3dTxfm = false;
-						this.txfmBrowser = "-moz-transform";
-						this.txfmOrigin = "-moz-transform-origin";
+						this.txfmBrowser = "MozTransform";
+						this.txfmOrigin = "MozTransformOrigin";
 					}
 					break;
 				case "opera":
@@ -149,8 +149,8 @@ R.rendercontexts.HTMLElementContext = function(){
 						// Support for opera transforms
 						this.hasTxfm = true;
                   this.has3dTxfm = false;
-						this.txfmBrowser = "-o-transform";
-						this.txfmOrigin = "-o-transform-origin";
+						this.txfmBrowser = "OTransform";
+						this.txfmOrigin = "OTransformOrigin";
 					}
 					break;
             case "msie":
@@ -159,7 +159,7 @@ R.rendercontexts.HTMLElementContext = function(){
                   this.hasTxfm = true;
                   this.has3dTxfm = false;
                   this.txfmBrowser = "msTransform";
-                  this.txfmOrigin = "-ms-transform-origin";
+                  this.txfmOrigin = "msTransformOrigin";
                }
                break;
 				default:
@@ -201,8 +201,8 @@ R.rendercontexts.HTMLElementContext = function(){
 		 * @param obj {HTMLElement} The object to remove
 		 */
 		remove: function(obj){
-			if (obj.getElement()) {
-				this.jQ().remove(obj.getElement());
+			if (obj.jQ().length) {
+				obj.jQ().remove();
 			}
 			this.base(obj);
 		},
@@ -273,7 +273,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		setPosition: function(point){
 			this.cursorPos.add(point);
 			if (this.hasTxfm) {
-				this.txfm[0] = "translate(" + this.cursorPos.x + "px," + this.cursorPos.y + "px)";
+				this.txfm[0] = "translate" + (this.has3dTxfm ? "3d" : "") + "(" + this.cursorPos.x + "px," + this.cursorPos.y + "px" + (this.has3dTxfm ? ",0" : "") + ")";
 			}
 			this.base(this.cursorPos);
 		},
@@ -286,7 +286,7 @@ R.rendercontexts.HTMLElementContext = function(){
 		setRotation: function(angle){
 			if (this.hasTxfm) {
             angle = Math.floor(angle % 360);
-				this.txfm[1] = "rotate(" + angle + "deg)";
+				this.txfm[1] = "rotate" + (this.has3dTxfm ? "3d(0,0,1," : "(") + angle + "deg)";
 			}
 			this.base(angle);
 		},
@@ -302,7 +302,7 @@ R.rendercontexts.HTMLElementContext = function(){
 			scaleX = scaleX || 1;
 			scaleY = scaleY || scaleX;
 			if (this.hasTxfm) {
-				this.txfm[2] = "scale(" + scaleX + "," + scaleY + ")";
+				this.txfm[2] = "scale" + (this.has3dTxfm ? "3d" : "") + "(" + scaleX + "," + scaleY + (this.has3dTxfm ? ",1" : "") + ")";
 			}
 			this.base(scaleX, scaleY);
 		},
@@ -530,24 +530,33 @@ R.rendercontexts.HTMLElementContext = function(){
 		/**
 		 * Draw an element on the context.
        * @param ref {R.engine.GameObject} A reference game object
+       * @param [el] {HTMLElement} A DOM element to draw
 		 */
-		drawElement: function(ref){
-			if (ref && ref.jQ()) {
+		drawElement: function(ref, el, pos){
+			if (ref && ref.getElement()) {
 				// TODO: Can probably save cycles by checking for changes in the
 				//			transformations before blindly applying them
-				var css = {};
+            el = el || ref.getElement();
+				var css = {}, i;
 				if (this.hasTxfm && ref.getOrigin) {
 					if (ref.getOrigin().isZero()) {
-						css[this.txfmOrigin] = "top left";
+                  el.style[this.txfmOrigin] = "top left";
 					}
 					else {
 						var o = ref.getOrigin();
-						css[this.txfmOrigin] = o.x + "px " + o.y + "px";
+						el.style[this.txfmOrigin] = o.x + "px " + o.y + "px";
 					}
 				}
 				css = this._mergeTransform(ref, css);
-				ref.jQ().css(css);
-			}
+            for (i in css) {
+               el.style[i] = css[i];
+            }
+			} else {
+            el.css({
+               top: pos.y,
+               left: pos.x
+            })
+         }
 		}
 		
 	}, /** @scope R.rendercontexts.HTMLElementContext.prototype */ {

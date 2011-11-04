@@ -69,6 +69,7 @@ R.engine.GameObject = function(){
 		oldDirty: false,
 
 		prePostComponents: null,
+      keepAlive: false,
 		
 		/** @private */
 		constructor: function(name){
@@ -77,6 +78,7 @@ R.engine.GameObject = function(){
 			this.oldDirty = false;
 			this.prePostComponents = [];
          this.renderContext = null;
+         this.keepAlive = false;
 		},
 		
 		/**
@@ -88,6 +90,7 @@ R.engine.GameObject = function(){
 			this.dirtyFlag = false;
 			this.oldDirty = false;
 			this.prePostComponents = null;
+         this.keepAlive = false;
 		},
 		
 		/**
@@ -183,7 +186,26 @@ R.engine.GameObject = function(){
 			
 			this.base(renderContext, time, dt);
 		},
-		
+
+      /**
+       * Keep object alive, even when outside viewport.  Setting an object to the "keep alive"
+       * state will keep the object from being put into the render context's inactive bin,
+       * even when it is outside of the expanded viewport.  This is good for objects which
+       * traverse a large area of the game world.
+       * @param state {Boolean} <code>true</code> to keep the object alive at all times
+       */
+      setKeepAlive: function(state) {
+         this.keepAlive = state;
+      },
+
+      /**
+       * Returns <code>true</code> if the object is to be kept alive (updated) at all times.
+       * @return {Boolean}
+       */
+      isKeepAlive: function() {
+         return this.keepAlive;
+      },
+
 		/**
 		 * Add a component to the game object.  The components will be
 		 * sorted based on their type then their priority within that type.
@@ -261,6 +283,27 @@ R.engine.GameObject = function(){
 		getComponent: function(name){
 			return this.get(name.toUpperCase());
 		},
+
+      /**
+       * Get a component by class name.  If there is more than one component with the given
+       * class, returns the first occurrence.
+       * @param className {String} The class name
+       * @return {R.components.Base} The component, or <code>null</code> if not found
+       */
+      getComponentByClass: function(className) {
+         var clazz = R.getClassForName(className);
+         if (undefined === clazz) {
+            return null;
+         }
+
+         var c = this.getAll();
+         for (var i in c) {
+            if (c[i] instanceof clazz) {
+               return c[i];
+            }
+         }
+         return null;
+      },
 		
 		/**
 		 * Returns a property object with accessor methods.

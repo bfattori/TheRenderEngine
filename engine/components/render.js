@@ -143,7 +143,7 @@ R.components.Render = function() {
       // Check visibility
       if ((this.drawMode == R.components.Render.NO_DRAW) ||
           this.getGameObject().getWorldBox &&
-          (!renderContext.getViewport().isIntersecting(this.getGameObject().getWorldBox())))
+          (!renderContext.getExpandedViewport().isIntersecting(this.getGameObject().getWorldBox())))
       {
          if (this.getGameObject().getElement() && !this.oldDisplay) {
             this.oldDisplay = this.getGameObject().jQ().css("display");

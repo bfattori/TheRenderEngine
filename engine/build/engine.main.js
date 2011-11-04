@@ -655,7 +655,6 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
       while (R.Engine.shutdownCallbacks.length > 0) {
          R.Engine.shutdownCallbacks.shift()();
       }
-      ;
 
       if (R.Engine.metricDisplay) {
          R.Engine.metricDisplay.remove();

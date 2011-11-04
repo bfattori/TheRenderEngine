@@ -83,7 +83,46 @@ R.math.Vector2D = function(){
 		len: function(){
          return Math.sqrt((this.x * this.x) + (this.y * this.y));
 		},
-		
+
+      /**
+       * Set the magnitude/length of this vector without altering the angle
+       * @param len {Number} The length
+       */
+      setLen: function(len) {
+         var angle = R.math.Math2D.degToRad(this.getAngle());
+         this.x = Math.cos(angle) * len;
+         this.y = Math.sin(angle) * len;
+         if(Math.abs(this.x) < 0.00000001) this.x = 0;
+         if(Math.abs(this.y) < 0.00000001) this.y = 0;
+      },
+
+      /**
+       * Get the angle, in degrees, of this vector.
+       * @return {Number}
+       */
+      getAngle: function() {
+         return R.math.Math2D.radToDeg(Math.atan2(this.y, this.x));
+      },
+
+      /**
+       * Set the angle of this vector without altering the length
+       * @param angle {Number} The angle
+       */
+      setAngle: function(angle) {
+         var len = this.len();
+         this.x = Math.cos(R.math.Math2D.degToRad(angle)) * len;
+         this.y = Math.sin(R.math.Math2D.degToRad(angle)) * len;
+      },
+
+      /**
+       * Is the vector to the right or left of this one?
+       * @param vector {R.math.Vector2D} The vectore to compare against
+       * @return {Number} -1 (left) 1 (right)
+       */
+      getSign: function(vector) {
+         return this.rightNormal().dot(vector) < 0 ? -1 : 1;
+      },
+
 		/**
 		 * Get the dot product of this vector and another.
 		 * @param vector {R.math.Vector2D} The Point to perform the operation against.
@@ -106,7 +145,14 @@ R.math.Vector2D = function(){
          // this.z = (this.x * vector.y) - (this.y * vector.x);
 			return this;
 		},
-		
+
+      truncate: function(max) {
+         if (this.len() > max) {
+            this.setLen(max);
+         }
+         return this;
+      },
+
 		/**
 		 * Returns the angle (in degrees) between two vectors.  This assumes that the
 		 * point is being used to represent a vector, and that the supplied point
@@ -117,9 +163,34 @@ R.math.Vector2D = function(){
 		 */
 		angleBetween: function(vector){
          Assert(vector != null, "Angle between undefined vector");
-         var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
-			return R.math.Math2D.radToDeg(v1.angleFrom(v2));
+         var t = R.clone(this).normalize(), v = R.clone(vector).normalize(),
+             a = Math.acos(t.dot(v));
+
+         t.destroy();
+         v.destroy();
+         return R.math.Math2D.radToDeg(a);
+
+         //var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
+			//return R.math.Math2D.radToDeg(v1.angleFrom(v2));
 		},
+
+      /**
+       * Returns the signed angle (in degrees) between two vectors.  This assumes that the
+       * point is being used to represent a vector, and that the supplied point
+       * is also a vector.
+       *
+       * @param vector {R.math.Vector2D} The vector to perform the angular determination against
+       * @return {Number} The angle between two vectors, in degrees
+       */
+      signedAngleBetween: function(vector) {
+         Assert(vector != null, "Angle between undefined vector");
+         var t = R.clone(this).normalize(), v = R.clone(vector).normalize(),
+             a = Math.atan2(v.y, v.x) - Math.atan2(t.y, t.x);
+
+         t.destroy();
+         v.destroy();
+         return R.math.Math2D.radToDeg(a);
+      },
 		
 		/**
 		 * Returns <tt>true</tt> if this vector is parallel to <tt>vector</tt>.

@@ -193,17 +193,30 @@ R.clone = function(obj) {
 };
 
 /**
+ * Cache of classes located by name
+ * @private
+ */
+R.classCache = {};
+
+/**
  * Get the class for the given class name string.
  * @param className {String} The class name string
  * @return {Class} The class object for the given name
  * @throws ReferenceError if the class is invalid or unknown
  */
 R.getClassForName = function(className) {
+   if (R.classCache[className] !== undefined) {
+      return R.classCache[className];
+   }
+
    var cn = className.split("."), c = R.global;
    try {
       while (cn.length > 0) {
          c = c[cn.shift()];
       }
+
+      // Cache it, if found
+      R.classCache[className] = c;
       return c;
    } catch (ex) {
       return undefined;
@@ -237,6 +250,7 @@ R.namespace("components");
 R.namespace("components.input");
 R.namespace("components.transform");
 R.namespace("components.logic");
+R.namespace("components.logic.behaviors");
 R.namespace("components.collision");
 R.namespace("components.render");
 R.namespace("components.physics");

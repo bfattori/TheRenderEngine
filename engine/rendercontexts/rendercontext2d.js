@@ -311,7 +311,8 @@ R.rendercontexts.RenderContext2D = function() {
          while (itr.hasNext()) {
             // Check if the object is visible, so it'll be processed.
             var obj = itr.next(), contextModel = this.getContextData(obj);
-            if (!obj.getWorldBox || (this.getExpandedViewport().isIntersecting(obj.getWorldBox()))) {
+            if (!obj.getWorldBox || (obj.isKeepAlive && obj.isKeepAlive()) ||
+               (this.getExpandedViewport().isIntersecting(obj.getWorldBox()))) {
                // If the object isn't visible, push it into the "visibility" list
                if (!contextModel.isVisible) {
                   contextModel.isVisible = true;
