@@ -71,6 +71,7 @@ R.engine.Object2D = function(){
 		lastPosition: null,
 		origin: null,
       originNeg: null,
+      originPos: null,
 		collisionHull: null,
 		genHull: null,
 		defaultTxfmComponent: null,
@@ -90,6 +91,7 @@ R.engine.Object2D = function(){
 		constructor: function(name, transformComponent){
 			this.base(name);
 			this.lastPosition = R.math.Point2D.create(5, 5);
+         this.originPos = R.math.Point2D.create(5, 5);
          this.oldRenderPosition = R.math.Point2D.create(5, 5);
          this.oldBbox = R.math.Rectangle2D.create(0, 0, 1, 1);
          this.oldScale = R.math.Vector2D.create(1, 1);
@@ -121,6 +123,7 @@ R.engine.Object2D = function(){
 			this.wBox.destroy();
 			this.wCircle.destroy();
 			this.lastPosition.destroy();
+         this.originPos.destroy();
          this.oldRenderPosition.destroy();
          this.oldBbox.destroy();
          this.oldScale.destroy();
@@ -144,6 +147,7 @@ R.engine.Object2D = function(){
 			this.wBox = null;
 			this.wCircle = null;
 			this.lastPosition = null;
+         this.originPos = null;
          this.oldRenderPosition = null;
          this.oldBbox = null;
          this.oldScale = null;
@@ -419,6 +423,14 @@ R.engine.Object2D = function(){
 		getPosition: function(){
 			return this.getDefaultTransformComponent().getPosition();
 		},
+
+      /**
+       * Get the position of the object, at its origin.
+       * @return {R.math.Point2D} The position
+       */
+      getOriginPosition: function(){
+         return this.originPos.set(this.getPosition()).add(this.getOrigin());
+      },
 		
 		/**
 		 * Get the render position of the object.

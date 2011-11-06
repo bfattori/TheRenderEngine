@@ -1,3 +1,36 @@
+/**
+ * The Render Engine
+ * SeekBehavior
+ *
+ * @fileoverview Seek behavior, based on Craig Reynolds "Autonomous Steering Behaviors" article.
+ *               The seek behavior will move the game object toward the provided destination
+ *               position.
+ *
+ * @author: Brett Fattori (brettf@renderengine.com)
+ * @author: $Author: bfattori $
+ * @version: $Revision: 1555 $
+ *
+ * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE
+ */
+
 // Load all required engine components
 R.Engine.define({
    "class": "R.components.logic.behaviors.Seek",
@@ -6,20 +39,31 @@ R.Engine.define({
    ]
 });
 
+   // Add behavior options
+   if (R.Engine.options.behaviors === undefined) {
+      R.Engine.options.behaviors = {};
+   }
+
+   $.extend(R.Engine.options.behaviors, {
+      "seekNearDistance": 10
+   });
+
 /**
- * @class The seek behavior component for vehicles.  Causes a vehicle to move toward a target.
- * @param name The name of the component
- * @param destination The point toward which the vehicle should seek
+ * @class The seek behavior component.  Causes an object to move toward a target.
+ * @param target {R.math.Point2D|R.engine.Object2D} The point, or {@link R.engine.Object2D}, toward which the vehicle should seek
+ * @extends R.components.logic.behaviors.BaseBehavior
+ * @constructor
  */
 R.components.logic.behaviors.Seek = function() {
-   return R.components.logic.behaviors.BaseBehavior.extend({
+   return R.components.logic.behaviors.BaseBehavior.extend(/** @scope R.components.logic.behaviors.Seek.prototype */{
 
-      destPt: null,
+      target: null,
       arrived: false,
 
-      constructor: function(destination) {
+      /** @private */
+      constructor: function(target) {
          this.base("seek");
-         this.destPt = R.math.Vector2D.create(destination);
+         this.setTarget(target);
          this.arrived = false;
       },
 
@@ -33,26 +77,56 @@ R.components.logic.behaviors.Seek = function() {
          this.base();
       },
 
+      /**
+       * Set the target to seek.
+       * @param target {R.math.Point2D|R.engine.Object2D} The point, or object,
+       *    to seek.
+       */
+      setTarget: function(target) {
+         this.target = target;
+      },
+
+      /**
+       * This method is called by the game object to run the component,
+       * updating its state.
+       *
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
+       * @param time {Number} The global engine time
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
+       */
       execute: function(time, dt) {
+         var destPt = R.math.Vector2D.create(0,0);
+         if (this.target.__POINT2D) {
+            destPt.set(this.target);
+         } else if (this.target instanceof R.engine.Object2D && !this.target.isDestroyed()) {
+            destPt.set(this.target.getOriginPosition());
+         } else {
+            // Not a point or object, return zero steering
+            return R.math.Vector2D.ZERO;
+         }
+
          // Calculate the desired velocity to steer toward the destination
          var gO = this.getGameObject(), mC = this.getTransformComponent(), pt = R.clone(gO.getPosition()).add(gO.getOrigin()),
-             offs = R.clone(this.destPt).sub(pt), distance = offs.len(), steering = R.math.Vector2D.create(0,0);
+             offs = R.clone(destPt).sub(pt), distance = offs.len(), steering = R.math.Vector2D.create(0,0);
 
          offs.normalize().mul(mC.getMaxSpeed());
          steering.set(offs.sub(mC.getVelocity()));
 
          offs.destroy();
 
-         if (this.nearPoint(pt, this.destPt, R.Engine.options.seekNearDistance)) {
+         if (this.nearPoint(pt, destPt, R.Engine.options.behaviors.seekNearDistance)) {
             this.arrived = true;
          }
 
          pt.destroy();
+         destPt.destroy();
          return steering;
       },
 
       /**
-       * True if the vehicle has "arrived" at it's destination
+       * True if the object is near its destination.  You can change the "near"
+       * distance, by setting <code>R.Engine.options.behaviors.seekNearDistance</code>.
        * @return {Boolean}
        */
       isArrived: function() {
@@ -76,7 +150,7 @@ R.components.logic.behaviors.Seek = function() {
          return false;
       }
 
-   }, {
+   }, /** @scope R.components.logic.behaviors.Seek.prototype */{
       getClassName: function() {
          return "R.components.logic.behaviors.Seek";
       }

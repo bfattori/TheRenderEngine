@@ -37,6 +37,16 @@ R.Engine.define({
    ]
 });
 
+   // Add behavior options
+   if (R.Engine.options.behaviors === undefined) {
+      R.Engine.options.behaviors = {};
+   }
+
+   $.extend(R.Engine.options.behaviors, {
+      "behaviorLagForceRatio": 5,
+      "behaviorDefaultBlending": 1.0
+   });
+
 /**
  * @class A 2d transform component driven by different behaviors.  Behaviors are located in the
  *        <code>R.components.logic</code> package.
@@ -44,10 +54,11 @@ R.Engine.define({
  * @param name The name of the component
  * @param maxForce The maximum force that can be applied to the vehicle
  * @param maxSpeed The top speed of the vehicle
+ * @extends R.components.Transform2D
  * @constructor
  */
 R.components.transform.BehaviorMover2D = function() {
-   return R.components.Transform2D.extend({
+   return R.components.Transform2D.extend(/** @scope R.components.transform.BehaviorMover2D.prototype */{
 
       velocity: null,
       maxForce: 0,
@@ -75,7 +86,7 @@ R.components.transform.BehaviorMover2D = function() {
          Assert((behavior instanceof R.components.logic.behaviors.BaseBehavior), "Cannot add non-behavior component to BehaviorMover2D!");
          this.behaviors.add(name, {
             b: behavior,
-            w: weight || R.Engine.options.behaviorDefaultBlending
+            w: weight || R.Engine.options.behaviors.behaviorDefaultBlending
          });
          behavior.setGameObject(this.getGameObject());
          behavior.setTransformComponent(this);
@@ -146,7 +157,7 @@ R.components.transform.BehaviorMover2D = function() {
          var acceleration = this.runBehaviors(time, dt);
 
          // Allow the max force to exceed the baseline if the simulation is lagging
-         acceleration.truncate(this.maxForce * ((dt / R.Engine.fpsClock) * R.Engine.options.behaviorLagForceRatio));
+         acceleration.truncate(this.maxForce * ((dt / R.Engine.fpsClock) * R.Engine.options.behaviors.behaviorLagForceRatio));
 
          // Add acceleration to velocity
          this.velocity.add(acceleration);
@@ -212,7 +223,7 @@ R.components.transform.BehaviorMover2D = function() {
          this.maxSpeed = speed;
       }
 
-   }, {
+   }, /** @scope R.components.transform.BehaviorMover2D.prototype */{
       getClassName: function() {
          return "R.components.transform.BehaviorMover2D";
       },

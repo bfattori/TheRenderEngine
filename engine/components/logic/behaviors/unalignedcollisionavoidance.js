@@ -6,28 +6,49 @@ R.Engine.define({
    ]
 });
 
+   // Add behavior options
+   if (R.Engine.options.behaviors === undefined) {
+      R.Engine.options.behaviors = {};
+   }
+
+   $.extend(R.Engine.options.behaviors, {
+      "unalignedAvoidanceCollisionRadius": 150,
+      "unalignedAvoidanceFutureDistance": 60
+   });
+
 /**
- * @class The flee behavior component.  This is essentially opposite of seeking.  Fleeing
- *        needs to be updated dynamically.  If the argument to {@link #fleeFrom} is an
- *        object, it must be a descendant of {@link R.engine.Object2D}.
+ * @class The unaligned collision avoidance behavior component. This component will actively avoid other moving
+ *        objects by examining their future position.
  * @param vehicles {Array} The vehicle list to compare against
  * @param [radius=150] {Number} The radius around each vehicle to use in collision detection
  * @param [checkLength=60] {Number} The distance in front of the vehicle to perform checking
+ * @extends R.components.logic.behaviors.BaseBehavior
+ * @constructor
  */
 R.components.logic.behaviors.UnalignedCollisionAvoidance = function() {
-   return R.components.logic.behaviors.BaseBehavior.extend({
+   return R.components.logic.behaviors.BaseBehavior.extend(/** @scope R.components.logic.behaviors.UnalignedCollisionAvoidance.prototype */{
 
       radius: 0,
       vehicles: null,
       checkLength: 0,
 
+      /** @private */
       constructor: function(vehicles, radius, checkLength) {
          this.base("unalignedcollision");
          this.vehicles = vehicles;
-         this.radius = radius || R.Engine.options.unalignedAvoidanceCollisionRadius;
-         this.checkLength = checkLength || R.Engine.options.unalignedAvoidanceFutureDistance;
+         this.radius = radius || R.Engine.options.behaviors.unalignedAvoidanceCollisionRadius;
+         this.checkLength = checkLength || R.Engine.options.behaviors.unalignedAvoidanceFutureDistance;
       },
 
+      /**
+       * This method is called by the game object to run the component,
+       * updating its state.
+       *
+       * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
+       * @param time {Number} The global engine time
+       * @param dt {Number} The delta between the world time and the last time the world was updated
+       *          in milliseconds.
+       */
       execute: function(time, dt) {
          // No vehicles? nothing to do
          if (!this.vehicles) {
@@ -96,7 +117,7 @@ R.components.logic.behaviors.UnalignedCollisionAvoidance = function() {
          return steering;
       }
 
-   }, {
+   }, /** @scope R.components.logic.behaviors.UnalignedCollisionAvoidance.prototype */{
       getClassName: function() {
          return "R.components.logic.behaviors.UnalignedCollisionAvoidance";
       }

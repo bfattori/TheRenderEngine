@@ -7,8 +7,8 @@
  * http://www.renderengine.com for more information.
  *
  * author: Brett Fattori (brettf@renderengine.com)
- * version: v2.0.0.10 beta
- * date: 7/20/2011
+ * version: v2.0.0.11 beta
+ * date: 8/14/2011
  *
  * Copyright (c) 2011 Brett Fattori
  *
@@ -84,7 +84,7 @@ R._unsupported = function(method, clazz) {
 	throw new Error(method + " is unsupported in " + clazz.getClassName());	
 };
 
-/** private **/
+/** @private **/
 R.str = Object.prototype.toString;
 
 /**
@@ -193,17 +193,30 @@ R.clone = function(obj) {
 };
 
 /**
+ * Cache of classes located by name
+ * @private
+ */
+R.classCache = {};
+
+/**
  * Get the class for the given class name string.
  * @param className {String} The class name string
  * @return {Class} The class object for the given name
  * @throws ReferenceError if the class is invalid or unknown
  */
 R.getClassForName = function(className) {
+   if (R.classCache[className] !== undefined) {
+      return R.classCache[className];
+   }
+
    var cn = className.split("."), c = R.global;
    try {
       while (cn.length > 0) {
          c = c[cn.shift()];
       }
+
+      // Cache it, if found
+      R.classCache[className] = c;
       return c;
    } catch (ex) {
       return undefined;
@@ -237,6 +250,7 @@ R.namespace("components");
 R.namespace("components.input");
 R.namespace("components.transform");
 R.namespace("components.logic");
+R.namespace("components.logic.behaviors");
 R.namespace("components.collision");
 R.namespace("components.render");
 R.namespace("components.physics");
@@ -2455,7 +2469,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
  * @static
  */
 R.Engine = Base.extend(/** @scope R.Engine.prototype */{
-   version: "v2.0.0.10 beta",
+   version: "v2.0.0.11 beta",
    HOME_URL: "http://www.renderengine.com",
    REF_NAME: "The Render Engine",
 
@@ -3056,7 +3070,6 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
       while (R.Engine.shutdownCallbacks.length > 0) {
          R.Engine.shutdownCallbacks.shift()();
       }
-      ;
 
       if (R.Engine.metricDisplay) {
          R.Engine.metricDisplay.remove();

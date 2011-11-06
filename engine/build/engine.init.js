@@ -55,25 +55,7 @@ R.Engine.defaultOptions = {
       "A": "A",
       "B": "B",
       "C": "C"
-   },
-
-   "behaviorLagForceRatio": 5,
-   "behaviorDefaultBlending": 1.0,
-
-   "seekNearDistance": 10,
-
-   "arrivalSlowingDistance": 50,
-
-   "fleeMinimumDistance": 350,
-
-   "unalignedAvoidanceCollisionRadius": 150,
-   "unalignedAvoidanceFutureDistance": 60,
-
-   "obstacleAvoidanceRadius": 60,
-   "obstacleAvoidanceFutureDistance": 40,
-
-   "wanderChange": 1,
-   "wanderRadius": 30
+   }
 };
 
 
