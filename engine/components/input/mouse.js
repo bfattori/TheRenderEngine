@@ -114,6 +114,50 @@ R.components.input.Mouse = function() {
             mouseOver: false,
             mouseDown: false
          });
+
+         var el = gameObject.jQ();
+         if (el) {
+            var mI = R.struct.MouseInfo.create();
+
+            // Wire up event handlers for the DOM element to mimic what is done for
+            // canvas objects
+            el.bind("mousemove", function(evt) {
+               mI.lastPosition.set(mI.position);
+               mI.position.set(evt.pageX, evt.pageY);
+               gameObject.triggerEvent("mousemove", [mI]);
+            });
+
+            el.bind("mouseover", function(evt) {
+               mI.lastPosition.set(mI.position);
+               mI.position.set(evt.pageX, evt.pageY);
+               gameObject.triggerEvent("mousover", [mI]);
+            });
+
+            el.bind("mouseout", function(evt) {
+               mI.lastPosition.set(mI.position);
+               mI.position.set(evt.pageX, evt.pageY);
+               mI.lastOver = gameObject;
+               gameObject.triggerEvent("mouseout", [mI]);
+            });
+
+            el.bind("mousedown", function(evt) {
+               mI.button = evt.which;
+               mI.downPosition.set(evt.pageX, evt.pageY);
+               gameObject.triggerEvent("mousedown", [mI]);
+            });
+
+            el.bind("mouseup", function(evt) {
+               mI.button = R.engine.Events.MOUSE_NO_BUTTON;
+               mI.dragVec.set(0, 0);
+               gameObject.triggerEvent("mouseup", [mI]);
+            });
+
+            el.bind("click", function(evt) {
+               mI.button = evt.which;
+               mI.downPosition.set(evt.pageX, evt.pageY);
+               gameObject.triggerEvent("click", [mI]);
+            });
+         }
       },
 
       /**
@@ -127,54 +171,61 @@ R.components.input.Mouse = function() {
       execute: function(renderContext, time, dt) {
          // Objects may be in motion.  If so, we need to call the mouse
          // methods for just such a case.
-         var gameObject = this.getGameObject(),
-               mouseInfo = renderContext.getMouseInfo(),
-               bBox = gameObject.getWorldBox(),
-               mouseOver = false,
-               dataModel = gameObject.getObjectDataModel(R.components.input.Mouse.MOUSE_DATA_MODEL);
+         var gameObject = this.getGameObject();
 
-         if (mouseInfo && bBox) {
-            mouseOver = R.math.Math2D.boxPointCollision(bBox, mouseInfo.position);
-         }
+         // Only objects without an element will use this.  For object WITH an element,
+         // this component will have intervened and wired up special handlers to fake
+         // the mouseInfo object.
+         if (!gameObject.getElement()) {
+            var mouseInfo = renderContext.getMouseInfo(),
+                bBox = gameObject.getWorldBox(),
+                mouseOver = false,
+                dataModel = gameObject.getObjectDataModel(R.components.input.Mouse.MOUSE_DATA_MODEL);
 
-         // Mouse position changed
-         if (!mouseInfo.position.equals(mouseInfo.lastPosition)) {
-            gameObject.triggerEvent("mousemove", [mouseInfo]);
-         }
-
-         // Mouse is over object
-         if (mouseOver && !dataModel.mouseOver) {
-            dataModel.mouseOver = true;
-            gameObject.triggerEvent("mouseover", [mouseInfo]);
-         }
-
-         // Mouse was over object
-         if (!mouseOver && dataModel.mouseOver === true) {
-            dataModel.mouseOver = false;
-            gameObject.triggerEvent("mouseout", [mouseInfo]);
-         }
-
-         // Whether the mouse is over the object or not, we'll still record that the
-         // mouse button was pressed.
-         if (!dataModel.mouseDown && (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
-            dataModel.mouseDown = true;
-
-            // BAF: 06/17/2011 - https://github.com/bfattori/TheRenderEngine/issues/8
-            // Mouse down can only be triggered if the mouse went down while over the object
-            if (mouseOver) {
-               gameObject.triggerEvent("mousedown", [mouseInfo]);
+            if (mouseInfo && bBox) {
+               mouseOver = R.math.Math2D.boxPointCollision(bBox, mouseInfo.position);
             }
-         }
 
-         // Mouse button released (and mouse was down)
-         if (dataModel.mouseDown && (mouseInfo.button == R.engine.Events.MOUSE_NO_BUTTON)) {
-            dataModel.mouseDown = false;
-            gameObject.triggerEvent("mouseup", [mouseInfo]);
+            // Mouse position changed
+            if (!mouseInfo.position.equals(mouseInfo.lastPosition) && mouseOver) {
+               gameObject.triggerEvent("mousemove", [mouseInfo]);
+            }
 
-            // Trigger the "click" event if the mouse was pressed and released
-            // over an object
-            if (mouseOver) {
-               gameObject.triggerEvent("click", [mouseInfo]);
+            // Mouse is over object
+            if (mouseOver && !dataModel.mouseOver) {
+               dataModel.mouseOver = true;
+               gameObject.triggerEvent("mouseover", [mouseInfo]);
+            }
+
+            // Mouse was over object
+            if (!mouseOver && dataModel.mouseOver === true) {
+               dataModel.mouseOver = false;
+               mouseInfo.lastOver = this;
+               gameObject.triggerEvent("mouseout", [mouseInfo]);
+            }
+
+            // Whether the mouse is over the object or not, we'll still record that the
+            // mouse button was pressed.
+            if (!dataModel.mouseDown && (mouseInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
+
+               // BAF: 06/17/2011 - https://github.com/bfattori/TheRenderEngine/issues/8
+               // Mouse down can only be triggered if the mouse went down while over the object
+               if (mouseOver) {
+                  dataModel.mouseDown = true;
+                  gameObject.triggerEvent("mousedown", [mouseInfo]);
+               }
+            }
+
+            // Mouse button released (and mouse was down)
+            if (dataModel.mouseDown && (mouseInfo.button == R.engine.Events.MOUSE_NO_BUTTON)) {
+               dataModel.mouseDown = false;
+               gameObject.triggerEvent("mouseup", [mouseInfo]);
+
+               // Trigger the "click" event if the mouse was pressed and released
+               // over an object
+               if (mouseOver) {
+                  gameObject.triggerEvent("click", [mouseInfo]);
+               }
             }
          }
       }

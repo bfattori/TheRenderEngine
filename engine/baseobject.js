@@ -126,7 +126,8 @@ R.engine.BaseObject = function(){
 		 * @param element {HTMLElement} The HTML element this object is associated with.
 		 */
 		setElement: function(element){
-			this.element = element;
+         // If it isn't an element (prolly jQuery) then get the root element in the jQuery object
+			this.element = element.nodeType ? element : element[0];
 		},
 		
 		/**
@@ -219,11 +220,11 @@ R.engine.BaseObject = function(){
 			}
 			else {
             R.debug.Console.debug(ref.getName() + " attach event '" + type + "' to " + this.getName());
-				if (this.getElement()) {
+				if (this.getElement() && ref instanceof R.rendercontexts.AbstractRenderContext) {
 					R.engine.Events.setHandler(this.getElement(), type, data || fn, fn);
 					
 					// Remember the handler by the reference object's name and event type
-					this.events[ref.getName() + "," + type] = fn;
+					this.events[ref.getName() + "," + type] = wrapFn;
 				} else {
                // We want to be able to add event handlers to objects which don't
                // have an element associated with them as well
@@ -318,7 +319,7 @@ R.engine.BaseObject = function(){
 			else {
             R.debug.Console.info(ref.getName() + " remove event '" + type + "' from " + this.getName());
             var id = ref.getName() + "," + type;
-				if (this.getElement()) {
+				if (this.getElement() && ref instanceof R.rendercontexts.AbstractRenderContext) {
 					// Find the handler to remove
 					fn = this.events[id];
 					if (fn) {
@@ -349,37 +350,39 @@ R.engine.BaseObject = function(){
        */
       triggerEvent: function(eventName, eventObj, data) {
          var ret;
-         if (this.element) {
-            if (eventObj && !R.isArray(eventObj)) {
+         if (this.getElement() && this instanceof R.rendercontexts.AbstractRenderContext) {
+            if (eventObj && (eventObj instanceof Event)) {
                ret = this.jQ().trigger(eventObj);
             } else {
-               ret = this.jQ().trigger(eventName, data);
+               ret = this.jQ().trigger(eventName, eventObj);
             }
             return ret
          } else {
-            var listeners = this.eventListeners[eventName.toUpperCase()];
-            if (listeners) {
-               if (eventObj && R.isArray(eventObj)) {
-                  data = eventObj;
-                  eventObj = $.Event({ type: eventName });
-               }
-               data = data || [];
-
-               // Make sure the first element is the event
-               data.unshift(eventObj);
-
-               for (var e = 0; e < listeners.length; e++) {
-                  var listener = listeners[e];
-
-                  // Append the predefined listener data to the data object
-                  if (listener.data) {
-                     data = data.concat(listener.data);
+            if (this.eventListeners) {
+               var listeners = this.eventListeners[eventName.toUpperCase()];
+               if (listeners) {
+                  if (eventObj && R.isArray(eventObj)) {
+                     data = eventObj;
+                     eventObj = $.Event({ type: eventName });
                   }
+                  data = data || [];
 
-                  // Call the listener
-                  ret = listener.callback.apply(this, data);
-                  if (ret === false) {
-                     return false;
+                  // Make sure the first element is the event
+                  data.unshift(eventObj);
+
+                  for (var e = 0; e < listeners.length; e++) {
+                     var listener = listeners[e];
+
+                     // Append the predefined listener data to the data object
+                     if (listener.data) {
+                        data = data.concat(listener.data);
+                     }
+
+                     // Call the listener
+                     ret = listener.callback.apply(this, data);
+                     if (ret === false) {
+                        return false;
+                     }
                   }
                }
             }
