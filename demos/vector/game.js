@@ -506,7 +506,7 @@ var Spaceroids = function() {
          this.collisionModel.setAccuracy(R.collision.broadphase.SpatialGrid.HIGH_ACCURACY);
 
          // Wire the event handler to start the game
-         R.Engine.getDefaultContext().addEvent(Spaceroids, "keydown", Spaceroids.onKeyPress);
+         R.Engine.getDefaultContext().addEvent("keydown", Spaceroids.onKeyPress);
 
          // Load the sounds, using a SoundManager2 sound system
          this.soundLoader = R.resources.loaders.SoundLoader.create(new R.sound.SM2());

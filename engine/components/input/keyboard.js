@@ -73,15 +73,15 @@ R.components.input.Keyboard = function() {
 
          // Add the event handlers
          var ctx = R.Engine.getDefaultContext(), self = this;
-         ctx.addEvent(this, "keydown", function(evt) {
+         ctx.addEvent("keydown", function(evt) {
             return self._keyDownListener(evt);
          });
 
-         ctx.addEvent(this, "keyup", function(evt) {
+         ctx.addEvent("keyup", function(evt) {
             return self._keyUpListener(evt);
          });
 
-         ctx.addEvent(this, "keypress", function(evt) {
+         ctx.addEvent("keypress", function(evt) {
             return self._keyPressListener(evt);
          });
       },
@@ -94,9 +94,9 @@ R.components.input.Keyboard = function() {
          var ctx = R.Engine.getDefaultContext();
 
          // Clean up event handlers
-         ctx.removeEvent(this, "keydown");
-         ctx.removeEvent(this, "keyup");
-         ctx.removeEvent(this, "keypress");
+         ctx.removeEvent("keydown");
+         ctx.removeEvent("keyup");
+         ctx.removeEvent("keypress");
 
          this.base();
       },

@@ -134,33 +134,33 @@ var SpriteEditor = function() {
 
          // Set some event handlers
          var self = this;
-         this.editorContext.addEvent(this, "mousedown", function(evt) {
+         this.editorContext.addEvent("mousedown", function(evt) {
             // Grab the current layer's pixels and store them in undo history
             SpriteEditor.undoHistory.push(SpriteEditor.currentLayer.getPixels());
             
-            self.mouseBtn = true;
-            switch (self.drawMode) {
-               case SpriteEditor.PAINT : self.setPixel(evt.pageX + self.pixOffset[0], evt.pageY + self.pixOffset[1]);
+            SpriteEditor.mouseBtn = true;
+            switch (SpriteEditor.drawMode) {
+               case SpriteEditor.PAINT : SpriteEditor.setPixel(evt.pageX + SpriteEditor.pixOffset[0], evt.pageY + SpriteEditor.pixOffset[1]);
                   break;
-               case SpriteEditor.ERASE : self.clearPixel(evt.pageX + self.pixOffset[0], evt.pageY + self.pixOffset[1]);
+               case SpriteEditor.ERASE : SpriteEditor.clearPixel(evt.pageX + SpriteEditor.pixOffset[0], evt.pageY + SpriteEditor.pixOffset[1]);
                   break;
-               case SpriteEditor.SELECT : self.getPixel(evt.pageX + self.pixOffset[0], evt.pageY + self.pixOffset[1]);
+               case SpriteEditor.SELECT : SpriteEditor.getPixel(evt.pageX + SpriteEditor.pixOffset[0], evt.pageY + SpriteEditor.pixOffset[1]);
                   break;
             }
          });
 
-         this.editorContext.addEvent(this, "mouseup", function(evt) {
-            self.mouseBtn = false;
+         this.editorContext.addEvent("mouseup", function(evt) {
+            SpriteEditor.mouseBtn = false;
          });
 
-         this.editorContext.addEvent(this, "mousemove", function(evt) {
-            if (self.mouseBtn) {
-               switch (self.drawMode) {
-                  case SpriteEditor.PAINT : self.setPixel(evt.pageX + self.pixOffset[0], evt.pageY + self.pixOffset[1]);
+         this.editorContext.addEvent("mousemove", function(evt) {
+            if (SpriteEditor.mouseBtn) {
+               switch (SpriteEditor.drawMode) {
+                  case SpriteEditor.PAINT : SpriteEditor.setPixel(evt.pageX + SpriteEditor.pixOffset[0], evt.pageY + SpriteEditor.pixOffset[1]);
                      break;
-                  case SpriteEditor.ERASE : self.clearPixel(evt.pageX + self.pixOffset[0], evt.pageY + self.pixOffset[1]);
+                  case SpriteEditor.ERASE : SpriteEditor.clearPixel(evt.pageX + SpriteEditor.pixOffset[0], evt.pageY + SpriteEditor.pixOffset[1]);
                      break;
-                  case SpriteEditor.SELECT : self.getPixel(evt.pageX + self.pixOffset[0], evt.pageY + self.pixOffset[1]);
+                  case SpriteEditor.SELECT : SpriteEditor.getPixel(evt.pageX + SpriteEditor.pixOffset[0], evt.pageY + SpriteEditor.pixOffset[1]);
                      break;
                }
             }

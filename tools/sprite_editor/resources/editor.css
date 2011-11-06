@@ -363,6 +363,7 @@ div.button.prev-frame {
    border: 1px solid gray;
    min-width: 100px;
    padding: 5px;
+   z-index: 5000;
 }
 
 #menuBar .menuItem.open .menu {

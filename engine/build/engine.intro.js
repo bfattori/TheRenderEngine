@@ -216,7 +216,9 @@ R.getClassForName = function(className) {
       }
 
       // Cache it, if found
-      R.classCache[className] = c;
+      if (R.engine.Linker.processed[className]) {
+         R.classCache[className] = c;
+      }
       return c;
    } catch (ex) {
       return undefined;

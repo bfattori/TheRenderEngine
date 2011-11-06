@@ -108,6 +108,34 @@ R.components.input.Touch = function() {
          var dataModel = gameObject.setObjectDataModel(R.components.input.Mouse.TOUCH_DATA_MODEL, {
             touchDown: false
          });
+
+         var el = gameObject.jQ();
+         if (el) {
+            var tI = R.struct.TouchInfo.create();
+
+            // Wire up event handlers for the DOM element to mimic what is done for
+            // canvas objects
+            el.bind("touchmove", function(evt) {
+               tI.lastPosition.set(tI.position);
+               tI.position.set(evt.pageX, evt.pageY);
+               gameObject.triggerEvent("touchmove", [tI]);
+            });
+
+            el.bind("touchstart", function(evt) {
+               tI.touches = tI.processTouches(evt);
+               tI.button = R.engine.Events.MOUSE_LEFT_BUTTON;
+               tI.downPosition.set(evt.pageX, evt.pageY);
+               gameObject.triggerEvent("touchstart", [tI]);
+            });
+
+            el.bind("touchend", function(evt) {
+               tI.touches = tI.processTouches(evt);
+               tI.button = R.engine.Events.MOUSE_NO_BUTTON;
+               tI.dragVec.set(0, 0);
+               gameObject.triggerEvent("touchend", [tI]);
+            });
+         }
+
       },
 
       /**
@@ -121,31 +149,38 @@ R.components.input.Touch = function() {
       execute: function(renderContext, time, dt) {
          // Objects may be in motion.  If so, we need to call the touch
          // methods for just such a case.
-         var gameObject = this.getGameObject(),
-               touchInfo = renderContext.getTouchInfo(),
-               bBox = gameObject.getWorldBox(),
-               touchOn = false,
-               dataModel = gameObject.getObjectDataModel(R.components.input.Touch.TOUCH_DATA_MODEL);
+         var gameObject = this.getGameObject();
 
-         if (touchInfo && bBox) {
-            touchOn = R.math.Math2D.boxPointCollision(bBox, touchInfo.position);
-         }
 
-         // Touched on object
-         if (touchOn && (touchInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
-            dataModel.touchDown = true;
-            gameObject.triggerEvent("touchstart", [touchInfo]);
-         }
+         // Only objects without an element will use this.  For object WITH an element,
+         // this component will have intervened and wired up special handlers to fake
+         // the mouseInfo object.
+         if (!gameObject.getElement()) {
+            var touchInfo = renderContext.getTouchInfo(),
+                  bBox = gameObject.getWorldBox(),
+                  touchOn = false,
+                  dataModel = gameObject.getObjectDataModel(R.components.input.Touch.TOUCH_DATA_MODEL);
 
-         // Touch position changed
-         if (dataModel.touchDown && !touchInfo.position.equals(touchInfo.lastPosition)) {
-            gameObject.triggerEvent("touchmove", [touchInfo, touchOn]);
-         }
+            if (touchInfo && bBox) {
+               touchOn = R.math.Math2D.boxPointCollision(bBox, touchInfo.position);
+            }
 
-         // Touch ended (and object was touched)
-         if (dataModel.touchDown && touchInfo.button == R.engine.Events.MOUSE_NO_BUTTON) {
-            dataModel.touchDown = false;
-            gameObject.triggerEvent("touchend", [touchInfo]);
+            // Touched on object
+            if (touchOn && (touchInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
+               dataModel.touchDown = true;
+               gameObject.triggerEvent("touchstart", [touchInfo]);
+            }
+
+            // Touch position changed
+            if (dataModel.touchDown && !touchInfo.position.equals(touchInfo.lastPosition)) {
+               gameObject.triggerEvent("touchmove", [touchInfo, touchOn]);
+            }
+
+            // Touch ended (and object was touched)
+            if (dataModel.touchDown && touchInfo.button == R.engine.Events.MOUSE_NO_BUTTON) {
+               dataModel.touchDown = false;
+               gameObject.triggerEvent("touchend", [touchInfo]);
+            }
          }
       }
 

@@ -224,7 +224,7 @@ R.engine.BaseObject = function(){
 					R.engine.Events.setHandler(this.getElement(), type, data || fn, fn);
 					
 					// Remember the handler by the reference object's name and event type
-					this.events[ref.getName() + "," + type] = wrapFn;
+					this.events[ref.getName() + "," + type] = fn;
 				} else {
                // We want to be able to add event handlers to objects which don't
                // have an element associated with them as well
