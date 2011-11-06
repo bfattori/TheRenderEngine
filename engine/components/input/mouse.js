@@ -115,6 +115,7 @@ R.components.input.Mouse = function() {
             mouseDown: false
          });
 
+         // Add event pass-thru for DOM objects
          var el = gameObject.jQ();
          if (el) {
             var mI = R.struct.MouseInfo.create();

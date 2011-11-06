@@ -109,6 +109,7 @@ R.components.input.Touch = function() {
             touchDown: false
          });
 
+         // Add event pass-thru for DOM objects
          var el = gameObject.jQ();
          if (el) {
             var tI = R.struct.TouchInfo.create();
