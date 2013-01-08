@@ -128,357 +128,9 @@ R.debug.ConsoleRef = Base.extend(/** @scope R.debug.ConsoleRef.prototype */{
     * @return {String} The string "ConsoleRef"
     */
    getClassName: function() {
-      return "ConsoleRef";
+      return "R.debug.ConsoleRef";
    }
 
-});
-
-/**
- * @class A debug console that will use a pre-defined element to display its output.  The element with the id 
- *        "debug-console" will be created an appended to the DOM for you.  This object is created when no other
- *        option is available from the browser, or when developer tools cannot be accessed.
- * @extends R.debug.ConsoleRef
- */
-R.debug.HTML = R.debug.ConsoleRef.extend(/** @scope R.debug.HTML.prototype **/{
-
-   msgStore: null,
-   
-   firstTime: null,
-
-   constructor: function() {
-      this.msgStore = [];
-      this.firstTime = true;
-      $("head", document).append(
-            "<style> " +
-            "#debug-console { position: absolute; width: 400px; right: 10px; bottom: 5px; height: 98%; border: 1px solid; overflow: auto; " +
-            "font-family: 'Lucida Console',Courier; font-size: 8pt; color: black; } " +
-            "#debug-console .console-debug, #debug-console .console-info { background: white; } " +
-            "#debug-console .console-warn { font-style: italic; background: #00ffff; } " +
-            "#debug-console .console-error { color: red; background: yellow; font-weight: bold; } " +
-            "</style>"
-      );
-      $(document).ready(function() {
-         $(document.body).append($("<div id='debug-console'><!-- --></div>"));
-      });
-      
-      // Redirect error logging to the console
-      window.onerror = function(err){
-         if (err instanceof Error) {
-            this.error(err.message);
-         } else {
-            this.error(err);
-         }
-      };
-   },
-
-   /** @private */
-   clean: function() {
-      if ($("#debug-console > span").length > 150) {
-         $("#debug-console > span:lt(150)").remove();
-      }
-   },
-
-   /** @private */
-   scroll: function() {
-      var w = $("#debug-console")[0];
-      if (w) {
-         $("#debug-console")[0].scrollTop = w.scrollHeight + 1;
-      }
-   },
-   
-   store: function(type, args) {
-      if (!this.firstTime) {
-         return;
-      }
-      if (!document.getElementById("debug-console")) {
-         this.msgStore.push({
-            t: type,
-            a: this.fixArgs(args)
-         });   
-      } else {
-         this.firstTime = false;
-         for (var i = 0; i < this.msgStore.length; i++) {
-            switch (this.msgStore[i].t) {
-               case "i": this.info(this.msgStore[i].a); break;
-               case "d": this.debug(this.msgStore[i].a); break;
-               case "w": this.warn(this.msgStore[i].a); break;
-               case "e": this.error(this.msgStore[i].a); break;
-            }
-         }
-         this.msgStore = null;
-      }
-   },
-
-   /** @private */
-   fixArgs: function(a) {
-      var o = this.base(a);
-      return o.replace(/\n/g, "<br/>").replace(/ /g, "&nbsp;");
-   },
-
-   /**
-    * Write a debug message to the console.
-    */
-   info: function() {
-      this.clean();
-      this.store("i",arguments);
-      $("#debug-console").append($("<div class='console-info'>" + this.fixArgs(arguments) + "</div>"));
-      this.scroll();
-   },
-
-   /**
-    * Write a debug message to the console
-    */
-   debug: function() {
-      this.clean();
-      this.store("d",arguments);
-      $("#debug-console").append($("<div class='console-debug'>" + this.fixArgs(arguments) + "</div>"));
-      this.scroll();
-   },
-
-   /**
-    * Write a warning message to the console
-    */
-   warn: function() {
-      this.clean();
-      this.store("w",arguments);
-      $("#debug-console").append($("<div class='console-warn'>" + this.fixArgs(arguments) + "</div>"));
-      this.scroll();
-   },
-
-   /**
-    * Write an error message to the console
-    */
-   error: function() {
-      this.clean();
-      this.store("e",arguments);
-      $("#debug-console").append($("<div class='console-error'>" + this.fixArgs(arguments) + "</div>"));
-      this.scroll();
-   },
-
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} The string "R.debug.HTML"
-    */
-   getClassName: function() {
-      return "R.debug.HTML";
-   }
-});
-
-/**
- * @class A debug console abstraction for Webkit browsers.
- * @extends R.debug.ConsoleRef
- */
-R.debug.Webkit = R.debug.ConsoleRef.extend(/** @scope R.debug.Webkit.prototype **/{
-
-   constructor: function() {
-   },
-
-   /**
-    * Write a debug message to the console
-    */
-   info: function() {
-      console.log.apply(console,arguments);
-   },
-
-   /**
-    * Write a debug message to the console
-    */
-   debug: function() {
-      console.debug.apply(console,arguments);
-   },
-
-   /**
-    * Write a warning message to the console
-    */
-   warn: function() {
-      console.warn.apply(console,arguments);
-   },
-
-   /**
-    * Write an error message to the console
-    */
-   error: function() {
-      console.error.apply(console,arguments);
-   },
-
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} The string "R.debug.Webkit"
-    */
-   getClassName: function() {
-      return "R.debug.Safari";
-   }
-
-});
-
-/**
- * @class A debug console for Opera browsers.
- * @extends R.debug.ConsoleRef
- */
-R.debug.Opera = R.debug.ConsoleRef.extend(/** @scope R.debug.Opera.prototype **/{
-
-   constructor: function() {
-   },
-
-   /**
-    * Write a debug message to the console
-    */
-   info: function() {
-      window.opera.postError(this.fixArgs(arguments));
-   },
-
-   /**
-    * Write a debug message to the console
-    */
-   debug: function() {
-      window.opera.postError(["[D]", this.fixArgs(arguments)]);
-   },
-
-   /**
-    * Write a warning message to the console
-    */
-   warn: function() {
-      window.opera.postError(["[W]", this.fixArgs(arguments)]);
-   },
-
-   /**
-    * Write an error message to the console
-    */
-   error: function() {
-      window.opera.postError(["[E!]", this.fixArgs(arguments)]);
-   },
-
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} The string "R.debug.Opera"
-    */
-   getClassName: function() {
-      return "R.debug.Opera";
-   }
-
-});
-
-
-/**
- * @class A console reference to the Firebug console.  This will work with both Firebug and FirebugLite.
- * @extends R.debug.ConsoleRef
- */
-R.debug.Firebug = R.debug.ConsoleRef.extend(/** @scope R.debug.Firebug.prototype **/{
-
-   constructor: function () {
-   },
-
-   /**
-    * Write a debug message to the console
-    */
-   info: function() {
-      if (typeof firebug !== "undefined") {
-         firebug.d.console.log.apply(firebug.d.console, arguments);
-      } else {
-         console.info.apply(console, arguments);
-      }
-   },
-
-   /**
-    * Write a debug message to the console
-    */
-   debug: function() {
-      if (typeof firebug !== "undefined") {
-         firebug.d.console.log.apply(firebug.d.console, arguments);
-      } else {
-         console.debug.apply(console, arguments);
-      }
-   },
-
-   /**
-    * Write a warning message to the console
-    */
-   warn: function() {
-      if (typeof firebug !== "undefined") {
-         firebug.d.console.log.apply(firebug.d.console, arguments);
-      } else {
-         console.warn.apply(console, arguments);
-      }
-   },
-
-   /**
-    * Write an error message to the console
-    */
-   error: function() {
-      if (typeof firebug !== "undefined") {
-         firebug.d.console.log.apply(firebug.d.console, arguments);
-      } else {
-         console.error.apply(console, arguments);
-      }
-   },
-   
-   /**
-    * Write a stack trace to the console
-    */
-   trace: function() {
-      if (typeof firebug !== "undefined") {
-         console.trace.apply(arguments);
-      }
-   },
-
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} The string "R.debug.Firebug"
-    */
-   getClassName: function() {
-      return "R.debug.Firebug";
-   }
-});
-
-/**
- * @class A console reference to the MSIE console.
- * @extends R.debug.ConsoleRef
- */
-R.debug.MSIE = R.debug.ConsoleRef.extend(/** @scope R.debug.MSIE.prototype **/{
-
-   constructor: function() {
-   },
-
-   /**
-    * Write a debug message to the console
-    */
-   info: function() {
-      console.log(this.fixArgs(arguments));
-   },
-
-   /**
-    * Write a debug message to the console
-    */
-   debug: function() {
-      console.info(this.fixArgs(arguments));
-   },
-
-   /**
-    * Write a warning message to the console
-    */
-   warn: function() {
-      console.warn(this.fixArgs(arguments));
-   },
-
-   /**
-    * Write an error message to the console
-    */
-   error: function() {
-      console.error(this.fixArgs(arguments));
-   },
-
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} The string "R.debug.MSIE"
-    */
-   getClassName: function() {
-      return "R.debug.MSIE";
-   }
 });
 
 /**
@@ -536,25 +188,25 @@ R.debug.Console = Base.extend(/** @scope R.debug.Console.prototype */{
 		R.debug.Console.verbosity = R.debug.Console.DEBUGLEVEL_ERRORS;
 		R.debug.Console.enableDebugOutput = false;
 		
-      if (R.engine.Support.checkBooleanParam("debug") && (R.engine.Support.checkBooleanParam("simWii") || jQuery.browser.Wii)) {
-         R.debug.Console.consoleRef = new R.debug.HTML();
-      }
-      else if (typeof firebug !== "undefined" || (typeof console !== "undefined" && console.firebug)) {
-         // Firebug or firebug lite
-         R.debug.Console.consoleRef = new R.debug.Firebug();
-      }
-      else if (typeof console !== "undefined" && jQuery.browser.msie) {
-         R.debug.Console.consoleRef = new R.debug.MSIE();
-      }
-      else if (jQuery.browser.chrome || jQuery.browser.safari) {
-         R.debug.Console.consoleRef = new R.debug.Webkit();
-      }
-      else if (jQuery.browser.opera) {
-         R.debug.Console.consoleRef = new R.debug.Opera();
-      }
-      else {
+//      if (R.engine.Support.checkBooleanParam("debug") && (R.engine.Support.checkBooleanParam("simWii") || jQuery.browser.Wii)) {
+//         R.debug.Console.consoleRef = new R.debug.HTML();
+//      }
+//      else if (typeof firebug !== "undefined" || (typeof console !== "undefined" && console.firebug)) {
+//         // Firebug or firebug lite
+//         R.debug.Console.consoleRef = new R.debug.Firebug();
+//      }
+//      else if (typeof console !== "undefined" && jQuery.browser.msie) {
+//         R.debug.Console.consoleRef = new R.debug.MSIE();
+//      }
+//      else if (jQuery.browser.chrome || jQuery.browser.safari) {
+//         R.debug.Console.consoleRef = new R.debug.Webkit();
+//      }
+//      else if (jQuery.browser.opera) {
+//         R.debug.Console.consoleRef = new R.debug.Opera();
+//      }
+//      else {
          R.debug.Console.consoleRef = new R.debug.ConsoleRef(); // (null console)
-      }
+//      }
    },
 
    /**
@@ -614,9 +266,9 @@ R.debug.Console = Base.extend(/** @scope R.debug.Console.prototype */{
     * @private
     */
    checkVerbosity: function(debugLevel) {
-      return (R.debug.Console.enableDebugOutput && 
-      		  R.debug.Console.verbosity != R.debug.Console.DEBUGLEVEL_NONE &&
-              R.debug.Console.verbosity == R.debug.Console.DEBUGLEVEL_VERBOSE ||
+      if (!R.debug.Console.enableDebugOutput) return;
+
+      return (R.debug.Console.verbosity == R.debug.Console.DEBUGLEVEL_VERBOSE ||
               (debugLevel != R.debug.Console.DEBUGLEVEL_VERBOSE && debugLevel >= R.debug.Console.verbosity));
    },
 

@@ -263,7 +263,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
 	 */
    drawProfilePoint: function(color, val) {
       var ctx = R.debug.Metrics.profileDisplay[0].getContext('2d');
-      ctx.strokeStyle = color
+      ctx.strokeStyle = color;
       try {
          if (!isNaN(val)) {
             ctx.beginPath();

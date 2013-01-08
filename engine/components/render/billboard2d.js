@@ -167,7 +167,7 @@ R.components.render.Billboard2D = function() {
 
          if (this.mode == R.components.render.Billboard2D.REDRAW) {
             // We'll match the type of context the component is rendering to
-            var ctx = this.getGameObject().getRenderContext().constructor;
+            //var ctx = this.getGameObject().getRenderContext().constructor;
 
             if (!this.billboard) {
                // Due to pooling, we don't need to recreate this each time
@@ -175,7 +175,8 @@ R.components.render.Billboard2D = function() {
             }
 
             this.billboard.attr({
-               "src": R.util.RenderUtil.renderComponentToImage(ctx, this.renderComponent, hostBox.w, hostBox.h, null, o),
+               "src": R.util.RenderUtil.renderComponentToImage(R.rendercontexts.CanvasContext, this.renderComponent,
+                       hostBox.w, hostBox.h, null, o),
                "width": hostBox.w,
                "height": hostBox.h
             });
@@ -185,9 +186,9 @@ R.components.render.Billboard2D = function() {
 
          // Render the billboard.  If the bounding box's origin is negative in
          // either X or Y, we'll need to move the transformation there before rendering the object
-         this.transformOrigin(renderContext, true);
+         this.transformOigin(renderContext, true);
          try {
-            renderContext.drawImage(this.getGameObject().getBoundingBox(), this.billboard[0]);
+            renderContext.drawImage(this.getGameObject().getBoundingBox(), this.billboard[0], this.getGameObject());
          }
          catch (ex) {
             // TODO: Find a better way to perform this operation since try/catch is SLOW
@@ -200,7 +201,7 @@ R.components.render.Billboard2D = function() {
          // Debug the billboard image box
          if (R.Engine.getDebugMode()) {
             renderContext.setLineStyle("green");
-            renderContext.drawRectangle(this.getGameObject().getBoundingBox());
+            renderContext.drawRectangle(this.getGameObject().getBoundingBox(), this.getGameObject());
          }
          /* pragma:DEBUG_END */
 

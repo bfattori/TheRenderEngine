@@ -268,6 +268,7 @@ R.namespace("storage");
 R.namespace("text");
 R.namespace("ui");
 R.namespace("util");
+R.namespace("util.console");
 
 /**
  * Return the current time in milliseconds.

@@ -47,12 +47,12 @@ R.Engine.define({
  * @class An updated particle engine with an accumulator buffer so that
  *        effects such as bloom, glow, and tail can be achieved.  A note
  *        of caution, using the accumulator particle engine <em>will be
- *        slow</em> compared with the basic particle engine.
+ *        slower</em> compared with the basic particle engine.
  *        <p/>
  *        Because of the effect used by the accumulator particle engine,
  *        background imagery will be darkened slightly.
  *
- * @extends R.engine.BaseObject
+ * @extends R.particles.ParticleEngine
  * @constructor
  * @description Create a particle engine
  */
