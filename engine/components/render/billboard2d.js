@@ -186,7 +186,7 @@ R.components.render.Billboard2D = function() {
 
          // Render the billboard.  If the bounding box's origin is negative in
          // either X or Y, we'll need to move the transformation there before rendering the object
-         this.transformOigin(renderContext, true);
+         this.transformOrigin(renderContext, true);
          try {
             renderContext.drawImage(this.getGameObject().getBoundingBox(), this.billboard[0], this.getGameObject());
          }
