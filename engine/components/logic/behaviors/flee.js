@@ -51,7 +51,7 @@ R.Engine.define({
 /**
  * @class The flee behavior component.  This is essentially opposite of seeking.  Fleeing
  *        needs to be updated dynamically.  If the argument to {@link #fleeFrom} is an
- *        object, it must be a descendant of {@link R.engine.Object2D}.
+ *        object, it must be a descendant of {@link R.objects.Object2D}.
  * @param target The target to flee from or a point to flee from.
  * @param [minDist=350] The minimum distance at which the vehicle will be triggered to
  *        flee.

@@ -33,7 +33,7 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.engine.Object2D",
+	"class": "R.objects.Object2D",
 	"requires": [
 		"R.engine.GameObject",
 		"R.collision.OBBHull",
@@ -57,8 +57,8 @@ R.Engine.define({
  * @constructor
  * @description Create a game object with methods for operating in a 2D context.
  */
-R.engine.Object2D = function(){
-	return R.engine.GameObject.extend(/** @scope R.engine.Object2D.prototype */{
+R.objects.Object2D = function(){
+	return R.engine.GameObject.extend(/** @scope R.objects.Object2D.prototype */{
 	
 		/** @private */
 		zIndex: 1,
@@ -180,7 +180,7 @@ R.engine.Object2D = function(){
 				// Move the origin
 				rMtx = this.oMtx.dup();
 				// Rotate
-				rMtx = rMtx.multiply(Matrix.Rotation(R.math.Math2D.degToRad(a), R.engine.Object2D.ROTATION_AXIS));
+				rMtx = rMtx.multiply(Matrix.Rotation(R.math.Math2D.degToRad(a), R.objects.Object2D.ROTATION_AXIS));
 				// Move the origin back
 				rMtx = rMtx.multiply(this.oMtxN);
 			}
@@ -590,19 +590,19 @@ R.engine.Object2D = function(){
 			});
 		}
 				
-	}, /** @scope R.engine.Object2D.prototype */ {
+	}, /** @scope R.objects.Object2D.prototype */ {
 		/**
 		 * Get the class name of this object
 		 *
-		 * @return {String} "R.engine.Object2D"
+		 * @return {String} "R.objects.Object2D"
 		 */
 		getClassName: function(){
-			return "R.engine.Object2D";
+			return "R.objects.Object2D";
 		},
 
       /**
        * Get a properties object with values for the given object.
-       * @param obj {R.engine.Object2D} The object to query
+       * @param obj {R.objects.Object2D} The object to query
        * @param [defaults] {Object} Default values that don't need to be serialized unless
        *    they are different.
        * @return {Object}
@@ -631,7 +631,7 @@ R.engine.Object2D = function(){
        * Deserialize the object back into a 2d object.
        * @param obj {Object} The object to deserialize
        * @param [clazz] {Class} The object class to populate
-       * @return {R.engine.Object2D} The object which was deserialized
+       * @return {R.objects.Object2D} The object which was deserialized
        */
       deserialize: function(obj, clazz) {
          // Is there a special transform component assigned to this object?
@@ -643,7 +643,7 @@ R.engine.Object2D = function(){
          }
 
          // Now we can create the class
-         clazz = clazz || R.engine.Object2D.create(obj.name, txfmComponent);
+         clazz = clazz || R.objects.Object2D.create(obj.name, txfmComponent);
          R.engine.PooledObject.deserialize(obj, clazz);
 
          return clazz;

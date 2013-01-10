@@ -34,7 +34,7 @@
 R.Engine.define({
 	"class": "SpriteLayer",
 	"requires": [
-		"R.engine.Object2D",
+		"R.objects.Object2D",
 		"R.struct.HashContainer",
 
 		// Math objects
@@ -46,7 +46,7 @@ R.Engine.define({
  * @class A single layer/frame within a sprite.
  */
 var SpriteLayer = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       pixels: null,
       buffSize: 0,

@@ -2,7 +2,7 @@
 R.Engine.define({
 	"class": "Player",
 	"requires": [
-		"R.engine.Object2D",
+		"R.objects.Object2D",
       "R.engine.Events",
       "R.math.Math2D",
 
@@ -13,7 +13,7 @@ R.Engine.define({
 });
 
 var Player = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       moveVec: null,			// The movement vector
       sprites: null,			// A container for the sprites

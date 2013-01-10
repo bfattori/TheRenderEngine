@@ -1,3 +1,10 @@
+// The class this file defines and its required classes
+R.Engine.define({
+	"class": "R.util.console.HTML",
+	"requires": [
+		"R.debug.ConsoleRef"
+	]
+});
 
 /**
  * @class A debug console that will use a pre-defined element to display its output.  The element with the id

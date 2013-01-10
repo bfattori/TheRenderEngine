@@ -34,17 +34,17 @@ R.debug.Console.startup();
 
 // Default engine options
 R.Engine.defaultOptions = {
-   "skipFrames": true,													// Skip missed frames
+   "skipFrames": true,													// Skip frames which cannot be rendered without impacting framerate
    "billboards": true,													// Use billboards to speed up rendering
-   "textUseBillboards": true,										   // Text will use billboards unless platform doesn't support
-   "hardwareAccel": false,											   // Hardware acceleration supported flag
-   "pointAsArc": true,													// Draw points as arcs or rectangles
+   "textUseBillboards": true,										   // Text will use billboards unless platform doesn't support it
+   "hardwareAccel": false,											   // Hardware acceleration supported flag (deprecated)
+   "pointAsArc": true,													// Draw points as arcs or rectangles (dot or rect)
 	"transientMathObject": false,									   // Transient (non-pooled) MathObjects
 	"useDirtyRectangles": false,										// Enable canvas dirty rectangles redraws
-   "nativeAnimationFrame": true,                            // Enable the use of "requestAnimationFrame" for faster redraws
-   "disableParticleEngine": false,                          // Disable the particle engine (if used)
-   "maxParticles": 250,                                     // Default maximum for particles
-   "useVirtualControlPad": false,                           // Disable the display of the virtual control pad (for touch)
+   "nativeAnimationFrame": true,                            // Enable the use of "requestAnimationFrame"
+   "disableParticleEngine": false,                          // Disable particle engines (if used)
+   "maxParticles": 250,                                     // Default maximum particles engine will allow
+   "useVirtualControlPad": false,                           // Show the virtual d-pad (for touch)
    "virtualPad": {                                          // Virtual d-pad mappings
       "up": "R.engine.Events.KEYCODE_UP_ARROW",
       "down": "R.engine.Events.KEYCODE_DOWN_ARROW",

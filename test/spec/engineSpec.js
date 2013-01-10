@@ -124,7 +124,7 @@ describe("Debug Console", function() {
          expect(ref.getClassName()).toBe("R.debug.ConsoleRef");
       });
 
-      it("should have 5 methods", function() {
+      it("should have five logging methods", function() {
          expect(ref.debug).toBeDefined();
          expect(ref.info).toBeDefined();
          expect(ref.warn).toBeDefined();
@@ -134,7 +134,7 @@ describe("Debug Console", function() {
 
    });
 
-   describe("Logging", function() {
+   describe("Console", function() {
       var ref;
       beforeEach(function() {
          ref = new R.debug.ConsoleRef();
@@ -248,5 +248,168 @@ describe("Math2", function() {
 
    it("should parse 23 decimal as 10111 binary", function() {
       expect(R.lang.Math2.toBinary(23)).toEqual("10111");
+   });
+});
+
+describe("EngineSupport", function() {
+   var arr;
+   beforeEach(function() {
+      arr = [1, 2, 3, "dog", "cat", "bird"];
+   });
+
+   it("should find the index of 'cat'", function() {
+      expect(R.engine.Support.indexOf(arr, 'cat')).not.toBe(-1);
+   });
+
+   it("should remove 3 from the array", function() {
+      R.engine.Support.arrayRemove(arr, 3);
+      expect(arr).not.toContain(3);
+   });
+
+   it("should see an empty string", function() {
+      expect(R.engine.Support.isEmpty("")).toBeTruthy();
+   });
+
+   it("should filter the array to only include strings", function() {
+      var filtered = R.engine.Support.filter(arr, function(item) {
+         return R.isString(item);
+      });
+
+      expect(filtered.length).toBe(3);
+      expect(R.isNumber(filtered[0])).toBeFalsy();
+   });
+
+   it("should duplicate the array using forEach", function() {
+      var newArray = [];
+      R.engine.Support.forEach(arr, function(el) {
+         newArray.push(el);
+      });
+
+      expect(arr).toEqual(newArray);
+   });
+
+   it("should fill a new array with zeros", function() {
+      var newArray = [];
+      R.engine.Support.fillArray(newArray, 10, 0);
+
+      expect(newArray.length).toBe(10);
+      expect(newArray[0]).toEqual(newArray[9]);
+   });
+
+   it("should get the path from a URL not including the trailing slash", function() {
+      expect(R.engine.Support.getPath("http://www.google.com/foo/bar/baz.html")).toBe("http://www.google.com/foo/bar");
+   });
+
+   // TODO: Check query params, etc.
+
+   xit("should wait for an object to be available", function() {
+      var obj;
+
+      runs(function() {
+         setTimeout(function() {
+            obj = {
+               bar: null,
+               foo: function() { this.bar = "foo"; }
+            };
+         }, 200);
+      });
+
+      waitsFor(function() {
+         R.engine.Support.whenReady(obj, function() {
+            obj.foo();
+         });
+      }, 1500);
+
+      runs(function() {
+         expect(obj.bar).toEqual("foo");
+      });
+   });
+});
+
+describe("Linker", function() {
+
+   R.engine.BaseDummyClass = Base.extend({
+   }, {
+      getClassName: function() {
+         return "R.engine.BaseDummyClass";
+      }
+   });
+
+   R.engine.DummyClass = function() {
+      return R.engine.BaseDummyClass.extend({
+      }, {
+         getClassName: function() {
+            return "R.engine.DummyClass";
+         }
+      });
+   };
+
+   beforeEach(function() {
+      spyOn(R.engine.Linker, '_initClass').andCallThrough();
+   });
+
+   it("should define a class without any dependencies and immediately initialize it", function() {
+      R.Engine.define({
+      	"class": "R.engine.DummyClass"
+      });
+
+      expect(R.engine.Linker._initClass).toHaveBeenCalled();
+      expect(R.engine.Linker.resolvedClasses['R.engine.DummyClass']).toBeDefined();
+      expect(R.engine.DummyClass.getClassName()).toBe("R.engine.DummyClass");
+   });
+
+});
+
+describe("Engine", function() {
+   beforeEach(function() {
+      spyOn(R.Engine, 'startup').andCallThrough();
+      spyOn(R.Engine, 'shutdown').andCallThrough();
+   });
+
+   it("should start the engine", function() {
+      expect(R.Engine.running).toBeFalsy();
+      R.Engine.startup();
+      expect(R.Engine.started).toBeTruthy();
+   });
+
+   it("should shutdown the engine", function() {
+      R.Engine.shutdown();
+      expect(R.Engine.running).toBeFalsy();
+   });
+});
+
+describe("Events Engine", function() {
+   it("should fail", function() {
+      expect(true).toBeFalsy();
+   });
+});
+
+describe("PooledObject", function() {
+   it("should fail", function() {
+      expect(true).toBeFalsy();
+   });
+});
+
+describe("BaseObject", function() {
+   it("should fail", function() {
+      expect(true).toBeFalsy();
+   });
+});
+
+describe("GameObject", function() {
+   it("should fail", function() {
+      expect(true).toBeFalsy();
+   });
+});
+
+describe("Object2d", function() {
+   it("should fail", function() {
+      expect(true).toBeFalsy();
+   });
+});
+
+describe("Game", function() {
+   it("should fail", function() {
+      expect(true).toBeFalsy();
    });
 });

@@ -59,7 +59,7 @@ R.Engine.define({
  * @extends R.components.Collider
  * @constructor
  * @description Creates a collider component for box-box collision testing.  Each object
- *              must implement the {@link R.engine.Object2D#getWorldBox} method and return a
+ *              must implement the {@link R.objects.Object2D#getWorldBox} method and return a
  *              world-oriented bounding box.
  */
 R.components.collision.Box = function() {

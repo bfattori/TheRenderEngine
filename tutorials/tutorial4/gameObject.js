@@ -2,7 +2,7 @@
 R.Engine.define({
 	"class": "GameObject",
 	"requires": [
-		"R.engine.Object2D",
+		"R.objects.Object2D",
       "R.math.Math2D",
       "R.engine.Events",
 
@@ -12,7 +12,7 @@ R.Engine.define({
 });
 
 var GameObject = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       // The width of the object
       width: 50,           // The width of the object

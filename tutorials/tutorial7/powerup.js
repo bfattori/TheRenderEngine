@@ -2,7 +2,7 @@
 R.Engine.define({
 	"class": "Powerup",
 	"requires": [
-		"R.engine.Object2D",
+		"R.objects.Object2D",
       "R.engine.Events",
       "R.math.Math2D",
 
@@ -12,7 +12,7 @@ R.Engine.define({
 });
 
 var Powerup = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       constructor: function() {
          this.base("Powerup");

@@ -38,7 +38,7 @@ R.Engine.define({
 		"R.components.transform.Mover2D",
 		"R.components.render.Vector2D",
 		"R.components.collision.Circle",
-		"R.engine.Object2D",
+		"R.objects.Object2D",
 		"R.math.Math2D"
 	]
 });
@@ -49,7 +49,7 @@ R.Engine.define({
  * @param player {Spaceroids.Player} The player object this bullet comes from,
  */
 var SpaceroidsBullet = function() {
-	return R.engine.Object2D.extend({
+	return R.objects.Object2D.extend({
 
    player: null,
    rot: null,

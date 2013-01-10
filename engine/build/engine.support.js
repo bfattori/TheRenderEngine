@@ -52,30 +52,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    indexOf: function(array, obj, from) {
-      if (!array) {
-         return -1;
-      }
-
-      if (Array.prototype.indexOf) {
-         return array.indexOf(obj, from);
-      }
-      else
-      {
-         var len = array.length;
-         var from = Number(from) || 0;
-         from = (from < 0)
-            ? Math.ceil(from)
-            : Math.floor(from);
-         if (from < 0)
-            from += len;
-
-         for (; from < len; from++)
-         {
-            if (from in array && array[from] === obj)
-               return from;
-         }
-         return -1;
-      }
+      return array && R.isArray(array) ? array.indexOf(obj, from) : -1;
    },
 
    /**
@@ -87,13 +64,12 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    arrayRemove: function(array, obj) {
-      if (!array) {
+      if (!array || !R.isArray(array)) {
          return;
       }
 
       var idx = R.engine.Support.indexOf(array, obj);
-      if (idx != -1)
-      {
+      if (idx != -1) {
          array.splice(idx, 1);
       }
    },
@@ -107,7 +83,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    isEmpty: function(str) {
-      return (str == null || $.trim(str) === "");     
+      return R.isEmpty(str);
    },
 
    /**
@@ -128,32 +104,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    filter: function(array, fn, thisp) {
-      if (!array) {
-         return null;
-      }
-
-      if (Array.prototype.filter) {
-         return array.filter(fn, thisp)
-      }
-      else
-      {
-         var len = array.length;
-         if (typeof fn != "function")
-            throw new TypeError();
-
-         var res = new Array();
-         for (var i = 0; i < len; i++)
-         {
-            if (i in array)
-            {
-               var val = array[i]; // in case fn mutates this
-               if (fn.call(thisp, val, i, array))
-                  res.push(val);
-            }
-         }
-
-         return res;
-      }
+      return array && R.isArray(array) ? array.filter(fn, thisp) : undefined;
    },
 
    /**
@@ -167,25 +118,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    forEach: function(array, fn, thisp) {
-      if (!array) {
-         return;
-      }
-
-      if (Array.prototype.forEach) {
-         array.forEach(fn, thisp);
-      }
-      else
-      {
-         var len = array.length;
-         if (typeof fn != "function")
-            throw new TypeError();
-
-         for (var i = 0; i < len; i++)
-         {
-            if (i in array)
-               fn.call(thisp, array[i], i, array);
-         }
-      }
+      return array && R.isArray(array) ? array.forEach(fn, thisp) : undefined;
    },
 
    /**
@@ -213,8 +146,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    getPath: function(url) {
-      var l = url.lastIndexOf("/");
-      return url.substr(0, l);
+      return R.isString(url) ? url.substr(0, url.lastIndexOf("/")) : undefined;
    },
 
    /**
@@ -252,10 +184,8 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     */
    checkBooleanParam: function(paramName) {
       return (R.engine.Support.getQueryParams()[paramName] &&
-              (R.engine.Support.getQueryParams()[paramName] == "true" ||
-               R.engine.Support.getQueryParams()[paramName] == "1" ||
-               R.engine.Support.getQueryParams()[paramName].toLowerCase() == "yes" ||
-               R.engine.Support.getQueryParams()[paramName].toLowerCase() == "y"));
+              (R.engine.Support.getQueryParams()[paramName].toLowerCase() != "0" ||
+               R.engine.Support.getQueryParams()[paramName].toLowerCase() != "false"));
    },
 
    /**
@@ -281,7 +211,8 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    checkNumericParam: function(paramName, val) {
-      return (R.engine.Support.getStringParam(paramName, null) == val)
+      var num = R.engine.Support.getStringParam(paramName, null);
+      return (R.isNumber(num) && num == val);
    },
 
    /**
@@ -331,8 +262,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     * @deprecated Use <tt>JSON.parse()</tt> instead
     */
-   parseJSON: function(jsonString)
-   {
+   parseJSON: function(jsonString) {
       return JSON.parse(jsonString);
    },
    
@@ -537,11 +467,16 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    whenReady: function(obj, fn) {
-      if (typeof obj !== "undefined") {
-         fn();
-      } else {
-         setTimeout(arguments.callee, 50);
-      }
+      var sleeper = function() {
+         if (typeof arguments.callee.obj != "undefined") {
+            arguments.callee.fn();
+         } else {
+            setTimeout(arguments.callee, 50);
+         }
+      };
+      sleeper.fn = fn;
+      sleeper.obj = obj;
+      sleeper();
    },
 
    /**

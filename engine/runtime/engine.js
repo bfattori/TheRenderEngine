@@ -872,30 +872,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    indexOf: function(array, obj, from) {
-      if (!array) {
-         return -1;
-      }
-
-      if (Array.prototype.indexOf) {
-         return array.indexOf(obj, from);
-      }
-      else
-      {
-         var len = array.length;
-         var from = Number(from) || 0;
-         from = (from < 0)
-            ? Math.ceil(from)
-            : Math.floor(from);
-         if (from < 0)
-            from += len;
-
-         for (; from < len; from++)
-         {
-            if (from in array && array[from] === obj)
-               return from;
-         }
-         return -1;
-      }
+      return array && R.isArray(array) ? array.indexOf(obj, from) : -1;
    },
 
    /**
@@ -907,13 +884,12 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    arrayRemove: function(array, obj) {
-      if (!array) {
+      if (!array || !R.isArray(array)) {
          return;
       }
 
       var idx = R.engine.Support.indexOf(array, obj);
-      if (idx != -1)
-      {
+      if (idx != -1) {
          array.splice(idx, 1);
       }
    },
@@ -927,7 +903,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    isEmpty: function(str) {
-      return (str == null || $.trim(str) === "");     
+      return R.isEmpty(str);
    },
 
    /**
@@ -948,32 +924,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    filter: function(array, fn, thisp) {
-      if (!array) {
-         return null;
-      }
-
-      if (Array.prototype.filter) {
-         return array.filter(fn, thisp)
-      }
-      else
-      {
-         var len = array.length;
-         if (typeof fn != "function")
-            throw new TypeError();
-
-         var res = new Array();
-         for (var i = 0; i < len; i++)
-         {
-            if (i in array)
-            {
-               var val = array[i]; // in case fn mutates this
-               if (fn.call(thisp, val, i, array))
-                  res.push(val);
-            }
-         }
-
-         return res;
-      }
+      return array && R.isArray(array) ? array.filter(fn, thisp) : undefined;
    },
 
    /**
@@ -987,25 +938,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    forEach: function(array, fn, thisp) {
-      if (!array) {
-         return;
-      }
-
-      if (Array.prototype.forEach) {
-         array.forEach(fn, thisp);
-      }
-      else
-      {
-         var len = array.length;
-         if (typeof fn != "function")
-            throw new TypeError();
-
-         for (var i = 0; i < len; i++)
-         {
-            if (i in array)
-               fn.call(thisp, array[i], i, array);
-         }
-      }
+      return array && R.isArray(array) ? array.forEach(fn, thisp) : undefined;
    },
 
    /**
@@ -1033,8 +966,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    getPath: function(url) {
-      var l = url.lastIndexOf("/");
-      return url.substr(0, l);
+      return R.isString(url) ? url.substr(0, url.lastIndexOf("/")) : undefined;
    },
 
    /**
@@ -1072,10 +1004,8 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     */
    checkBooleanParam: function(paramName) {
       return (R.engine.Support.getQueryParams()[paramName] &&
-              (R.engine.Support.getQueryParams()[paramName] == "true" ||
-               R.engine.Support.getQueryParams()[paramName] == "1" ||
-               R.engine.Support.getQueryParams()[paramName].toLowerCase() == "yes" ||
-               R.engine.Support.getQueryParams()[paramName].toLowerCase() == "y"));
+              (R.engine.Support.getQueryParams()[paramName].toLowerCase() != "0" ||
+               R.engine.Support.getQueryParams()[paramName].toLowerCase() != "false"));
    },
 
    /**
@@ -1101,7 +1031,8 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    checkNumericParam: function(paramName, val) {
-      return (R.engine.Support.getStringParam(paramName, null) == val)
+      var num = R.engine.Support.getStringParam(paramName, null);
+      return (R.isNumber(num) && num == val);
    },
 
    /**
@@ -1151,8 +1082,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     * @deprecated Use <tt>JSON.parse()</tt> instead
     */
-   parseJSON: function(jsonString)
-   {
+   parseJSON: function(jsonString) {
       return JSON.parse(jsonString);
    },
    
@@ -1357,11 +1287,16 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    whenReady: function(obj, fn) {
-      if (typeof obj !== "undefined") {
-         fn();
-      } else {
-         setTimeout(arguments.callee, 50);
-      }
+      var sleeper = function() {
+         if (typeof arguments.callee.obj != "undefined") {
+            arguments.callee.fn();
+         } else {
+            setTimeout(arguments.callee, 50);
+         }
+      };
+      sleeper.fn = fn;
+      sleeper.obj = obj;
+      sleeper();
    },
 
    /**
@@ -2049,7 +1984,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
     * Engine debug helper objects include:
     * <ul>
     * <li>A left/up glyph at the origin of objects using the {@link R.components.Transform2D} component</li>
-    * <li>Yellow outline in the shape of the collision hull of {@link R.engine.Object2D}, if assigned</li>
+    * <li>Yellow outline in the shape of the collision hull of {@link R.objects.Object2D}, if assigned</li>
     * <li>Yellow outline around objects using box or circle collider components</li>
     * <li>Green outline around objects which are rendered with the {@link R.components.Billboard2D} component</li>
     * <li>Blue outline around box and circle rigid body objects</li>
@@ -3516,6 +3451,66 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
    }
    
 });
+/**
+ * The Render Engine
+ * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
+//====================================================================================================
+//====================================================================================================
+//                                     METRICS STUB
+//====================================================================================================
+//====================================================================================================
+/**
+ * @class A static class which stubs the methods for metrics and is compiled into the
+ *        debugging engine unless the "engine.runtime.metrics" option is used when building
+ *        the engine.
+ * @static
+ */
+R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
+   constructor: null,
+
+   toggleMetrics: function() {
+   },
+
+   hideMetrics: function() {
+   },
+
+   setSampleRate: function() {
+   },
+
+   add: function() {
+   },
+
+   remove: function() {
+   },
+
+   update: function() {
+   },
+
+   doMetrics: function() {
+   }
+
+});
 
 /**
  * The Render Engine
@@ -3552,17 +3547,17 @@ R.debug.Console.startup();
 
 // Default engine options
 R.Engine.defaultOptions = {
-   "skipFrames": true,													// Skip missed frames
+   "skipFrames": true,													// Skip frames which cannot be rendered without impacting framerate
    "billboards": true,													// Use billboards to speed up rendering
-   "textUseBillboards": true,										   // Text will use billboards unless platform doesn't support
-   "hardwareAccel": false,											   // Hardware acceleration supported flag
-   "pointAsArc": true,													// Draw points as arcs or rectangles
+   "textUseBillboards": true,										   // Text will use billboards unless platform doesn't support it
+   "hardwareAccel": false,											   // Hardware acceleration supported flag (deprecated)
+   "pointAsArc": true,													// Draw points as arcs or rectangles (dot or rect)
 	"transientMathObject": false,									   // Transient (non-pooled) MathObjects
 	"useDirtyRectangles": false,										// Enable canvas dirty rectangles redraws
-   "nativeAnimationFrame": true,                            // Enable the use of "requestAnimationFrame" for faster redraws
-   "disableParticleEngine": false,                          // Disable the particle engine (if used)
-   "maxParticles": 250,                                     // Default maximum for particles
-   "useVirtualControlPad": false,                           // Disable the display of the virtual control pad (for touch)
+   "nativeAnimationFrame": true,                            // Enable the use of "requestAnimationFrame"
+   "disableParticleEngine": false,                          // Disable particle engines (if used)
+   "maxParticles": 250,                                     // Default maximum particles engine will allow
+   "useVirtualControlPad": false,                           // Show the virtual d-pad (for touch)
    "virtualPad": {                                          // Virtual d-pad mappings
       "up": "R.engine.Events.KEYCODE_UP_ARROW",
       "down": "R.engine.Events.KEYCODE_DOWN_ARROW",

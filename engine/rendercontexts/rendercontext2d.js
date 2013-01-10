@@ -157,7 +157,7 @@ R.rendercontexts.RenderContext2D = function() {
       },
 
       /**
-       * Sorts objects by their {@link R.engine.Object2D#getZIndex z-index}.  Objects
+       * Sorts objects by their {@link R.objects.Object2D#getZIndex z-index}.  Objects
        * that don't have a z-index are untouched.
        */
       sort: function() {
@@ -210,7 +210,7 @@ R.rendercontexts.RenderContext2D = function() {
 
       /**
        * Swap the zBin that the object is contained within.
-       * @param obj {R.engine.Object2D} The object to swap
+       * @param obj {R.objects.Object2D} The object to swap
        * @param oldBin {Number} The old bin number, or <tt>RenderContext2D.NO_ZBIN</tt> to just
        *    insert into a new bin.
        * @param newBin {Number} The new bin to put the object into

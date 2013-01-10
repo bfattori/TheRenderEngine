@@ -48,7 +48,7 @@ R.Engine.define({
 /**
  * @class An extension of the {@link ColliderComponent} which will check if the
  *        object's are colliding based on their world bounding circles.  If either of the
- *          objects does not have the {@link R.engine.Object2D#getWorldCircle} method
+ *          objects does not have the {@link R.objects.Object2D#getWorldCircle} method
  *          the test will result in no collision.
  *          <p/>
  *          By default, this component will perform a simple intersection test which results
@@ -64,8 +64,8 @@ R.Engine.define({
  * @extends R.components.Collider
  * @constructor
  * @description Creates a collider component for circle-circle collision testing.  Each object
- *              must implement either the {@link R.engine.Object2D#getWorldBox} or
- *              {@link R.engine.Object2D#getCircle} method and return a world-oriented bounding box or
+ *              must implement either the {@link R.objects.Object2D#getWorldBox} or
+ *              {@link R.objects.Object2D#getCircle} method and return a world-oriented bounding box or
  *              circle, respectively.
  */
 R.components.collision.Circle = function() {

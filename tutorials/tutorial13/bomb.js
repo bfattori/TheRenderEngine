@@ -2,7 +2,7 @@
 R.Engine.define({
    "class": "Bomb",
    "requires": [
-      "R.engine.Object2D",
+      "R.objects.Object2D",
       "R.math.Math2D",
 
       "R.components.collision.Convex",
@@ -17,7 +17,7 @@ R.Engine.define({
 });
 
 var Bomb = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       constructor: function() {
          this.base("Bomb");

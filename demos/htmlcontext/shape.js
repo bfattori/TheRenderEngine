@@ -2,7 +2,7 @@
 R.Engine.define({
    "class": "Shape",
    "requires": [
-      "R.engine.Object2D",
+      "R.objects.Object2D",
       "R.math.Math2D",
       "R.util.RenderUtil",
 
@@ -11,7 +11,7 @@ R.Engine.define({
 });
 
 var Shape = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       spinRate: null,
 

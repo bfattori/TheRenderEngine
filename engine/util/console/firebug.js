@@ -1,4 +1,10 @@
-
+// The class this file defines and its required classes
+R.Engine.define({
+	"class": "R.util.console.Firebug",
+	"requires": [
+		"R.debug.ConsoleRef"
+	]
+});
 
 /**
  * @class A console reference to the Firebug console.  This will work with both Firebug and FirebugLite.

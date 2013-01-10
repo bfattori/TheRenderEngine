@@ -34,7 +34,7 @@
 R.Engine.define({
 	"class": "SpriteGrid",
 	"requires": [
-		"R.engine.Object2D",
+		"R.objects.Object2D",
 		"R.struct.Container",
 
 		// Math objects
@@ -46,7 +46,7 @@ R.Engine.define({
  * @class The grid.
  */
 var SpriteGrid = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       pixels: null,
       visible: true,

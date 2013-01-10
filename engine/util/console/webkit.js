@@ -1,4 +1,10 @@
-
+// The class this file defines and its required classes
+R.Engine.define({
+	"class": "R.util.console.Webkit",
+	"requires": [
+		"R.debug.ConsoleRef"
+	]
+});
 
 /**
  * @class A debug console abstraction for Webkit browsers.

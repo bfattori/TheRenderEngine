@@ -37,7 +37,7 @@
 R.Engine.define({
 	"class": "R.text.TextRenderer",
 	"requires": [
-		"R.engine.Object2D",
+		"R.objects.Object2D",
 		"R.components.Transform2D",
 		"R.rendercontexts.RenderContext2D",
 		"R.components.render.Billboard2D"
@@ -60,7 +60,7 @@ R.Engine.define({
  * @see R.text.ContextText
  */
 R.text.TextRenderer = function() {
-	return R.engine.Object2D.extend(/** @scope R.text.TextRenderer.prototype */{
+	return R.objects.Object2D.extend(/** @scope R.text.TextRenderer.prototype */{
 
    drawMode: 0,
    

@@ -829,7 +829,7 @@ var LevelEditor = function() {
 
       /**
        * Get an object of writable properties (and their values) for the given object
-       * @param obj {R.engine.Object2D} The object to query
+       * @param obj {R.objects.Object2D} The object to query
        * @return {Object}
        * @private
        */
@@ -879,7 +879,7 @@ var LevelEditor = function() {
 
       /**
        * Store a single property value
-       * @param obj {R.engine.Object2D}
+       * @param obj {R.objects.Object2D}
        * @param propName {String}
        * @param value {String}
        * @private
@@ -927,7 +927,7 @@ var LevelEditor = function() {
 
       /**
        * Store all of the properties into the object
-       * @param obj {R.engine.Object2D} The object
+       * @param obj {R.objects.Object2D} The object
        * @param props {Object} The properties object
        */
       storeObjectProperties: function(obj, props) {

@@ -50,7 +50,7 @@ R.Engine.define({
 
 /**
  * @class The seek behavior component.  Causes an object to move toward a target.
- * @param target {R.math.Point2D|R.engine.Object2D} The point, or {@link R.engine.Object2D}, toward which the vehicle should seek
+ * @param target {R.math.Point2D|R.objects.Object2D} The point, or {@link R.objects.Object2D}, toward which the vehicle should seek
  * @extends R.components.logic.behaviors.BaseBehavior
  * @constructor
  */
@@ -79,7 +79,7 @@ R.components.logic.behaviors.Seek = function() {
 
       /**
        * Set the target to seek.
-       * @param target {R.math.Point2D|R.engine.Object2D} The point, or object,
+       * @param target {R.math.Point2D|R.objects.Object2D} The point, or object,
        *    to seek.
        */
       setTarget: function(target) {
@@ -99,7 +99,7 @@ R.components.logic.behaviors.Seek = function() {
          var destPt = R.math.Vector2D.create(0,0);
          if (this.target.__POINT2D) {
             destPt.set(this.target);
-         } else if (this.target instanceof R.engine.Object2D && !this.target.isDestroyed()) {
+         } else if (this.target instanceof R.objects.Object2D && !this.target.isDestroyed()) {
             destPt.set(this.target.getOriginPosition());
          } else {
             // Not a point or object, return zero steering

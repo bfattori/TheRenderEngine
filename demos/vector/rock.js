@@ -39,7 +39,7 @@ R.Engine.define({
       "R.components.collision.Convex",
       "R.components.render.ParticleEmitter",
       "R.particles.Emitter",
-      "R.engine.Object2D",
+      "R.objects.Object2D",
       "R.struct.Container",
       "R.math.Math2D"
    ]
@@ -55,7 +55,7 @@ R.Engine.define({
  * @param pHeight {Number} The height of the playfield in pixels
  */
 var SpaceroidsRock = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       size: 10,
       speed: 0.3,

@@ -36,7 +36,7 @@
 R.Engine.define({
    "class": "R.ui.AbstractUIControl",
    "requires": [
-      "R.engine.Object2D",
+      "R.objects.Object2D",
       "R.text.TextRenderer",
       "R.text.ContextText",
       "R.math.Math2D"
@@ -51,10 +51,10 @@ R.Engine.define({
  * @param controlName {String} The name of the control
  * @param textRenderer {R.text.AbstractTextRenderer} Optional text renderer.  Defaults to
  *    {@link R.text.ContextText} renderer.
- * @extends R.engine.Object2D
+ * @extends R.objects.Object2D
  */
 R.ui.AbstractUIControl = function() {
-   return R.engine.Object2D.extend(/** @scope R.ui.AbstractUIControl.prototype */{
+   return R.objects.Object2D.extend(/** @scope R.ui.AbstractUIControl.prototype */{
 
       textRenderer: null,
       styleClass: null,
@@ -494,7 +494,7 @@ R.ui.AbstractUIControl = function() {
          $.extend(defaults, {
             "GroupName":""
          });
-         return R.engine.Object2D.serialize(obj, defaults);
+         return R.objects.Object2D.serialize(obj, defaults);
       },
 
       /**
@@ -505,7 +505,7 @@ R.ui.AbstractUIControl = function() {
        */
       deserialize: function(obj, clazz) {
          clazz = clazz || R.ui.AbstractUIControl.create("UIControl");
-         R.engine.Object2D.deserialize(obj, clazz);
+         R.objects.Object2D.deserialize(obj, clazz);
          return clazz;
       }
 

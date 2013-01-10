@@ -2,13 +2,13 @@
 R.Engine.define({
 	"class": "GameObject",
 	"requires": [
-		"R.engine.Object2D",
+		"R.objects.Object2D",
       "R.math.Math2D"
 	]
 });
 
 var GameObject = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       velocity: null,		// The velocity of our object
       shape: null,			// Our object's shape

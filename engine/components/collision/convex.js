@@ -49,7 +49,7 @@ R.Engine.define({
 /**
  * @class An extension of the {@link ColliderComponent} which will check the
  *        object's convex collision hulls using the Separating Axis Theorm (SAT).  Each object must
- *        have a collision hull assigned to it with {@link R.engine.Object2D#setCollisionHull}.
+ *        have a collision hull assigned to it with {@link R.objects.Object2D#setCollisionHull}.
  *        <p/>
  *        The SAT states that, if an axis can be found where the two object's hulls
  *        don't overlap, then the two objects cannot be colliding.  When a collision

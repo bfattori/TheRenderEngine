@@ -1,4 +1,10 @@
-
+// The class this file defines and its required classes
+R.Engine.define({
+	"class": "R.util.console.Opera",
+	"requires": [
+		"R.debug.ConsoleRef"
+	]
+});
 
 /**
  * @class A debug console for Opera browsers.

@@ -2,7 +2,7 @@
 R.Engine.define({
 	"class": "PianoKeys",
 	"requires": [
-		"R.engine.Object2D",
+		"R.objects.Object2D",
       "R.math.Math2D",
       "R.engine.Events",
 
@@ -12,7 +12,7 @@ R.Engine.define({
 });
 
 var PianoKeys = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       sounds: null,
       dots: null,

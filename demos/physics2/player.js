@@ -33,7 +33,7 @@
 R.Engine.define({
 	"class": "Player",
 	"requires": [
-      "R.engine.Object2D",
+      "R.objects.Object2D",
 		"R.components.Collider",
       "R.components.input.Wiimote",
 		"R.math.Math2D"
@@ -50,7 +50,7 @@ R.Engine.define({
  * @description Create the "player" object
  */
 var Player = function() {
-   return R.engine.Object2D.extend(/** @scope Player.prototype */{
+   return R.objects.Object2D.extend(/** @scope Player.prototype */{
 
       // The toy the cursor is currently over or null
       overToy: null,

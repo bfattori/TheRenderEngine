@@ -323,7 +323,7 @@ R.resources.types.Level = function(){
 
          // FIXTURES
          for (itr = level.getFixtures().iterator(); itr.hasNext(); ) {
-            lvl.fixtures.push(R.engine.Object2D.serialize(itr.next()));
+            lvl.fixtures.push(R.objects.Object2D.serialize(itr.next()));
          }
 
          // TILES & TILEMAPS

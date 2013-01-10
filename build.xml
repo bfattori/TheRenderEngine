@@ -108,7 +108,7 @@
 			<fileset dir="${engine.src}" includes="engine.linker.js" />
 			<fileset dir="${engine.src}" includes="engine.main.js" />
 			<fileset dir="${engine.src}" includes="engine.script.js" />
-			<!--<fileset dir="${engine.src}" includes="debug.metrics.js" />-->
+			<fileset dir="${engine.src}" includes="debug.metrics.stub.js" />
 			<fileset dir="${engine.src}" includes="engine.init.js" />
 		</concat>
 		<replaceregexp match="@BUILD_VERSION" replace="${build.version}" flags="g" byline="true" file="${engine.file}" />
@@ -697,10 +697,6 @@
 
 		<antcall target="${compress.option}">
 			<param name="input.file" value="engine/engine.game.js"/>
-		</antcall>
-
-		<antcall target="${compress.option}">
-			<param name="input.file" value="engine/engine.hostobject.js"/>
 		</antcall>
 
 		<antcall target="${compress.option}">

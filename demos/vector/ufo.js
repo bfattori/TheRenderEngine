@@ -37,7 +37,7 @@ R.Engine.define({
       "R.components.transform.Mover2D",
       "R.components.render.Vector2D",
       "R.components.collision.Convex",
-      "R.engine.Object2D"
+      "R.objects.Object2D"
    ]
 });
 
@@ -47,7 +47,7 @@ R.Engine.define({
  *    moves quicker, and will avoid collisions with asteroids.
  */
 var SpaceroidsUFO = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       isSmall: false,
       alive: false,

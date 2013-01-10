@@ -39,7 +39,7 @@ R.Engine.define({
       "R.components.input.Keyboard",
       "R.components.collision.Convex",
       "R.components.render.ParticleEmitter",
-      "R.engine.Object2D",
+      "R.objects.Object2D",
       "R.struct.Container",
       "R.math.Math2D",
       "R.engine.Events"
@@ -52,7 +52,7 @@ R.Engine.define({
  *        and moving the object.
  */
 var SpaceroidsPlayer = function() {
-   return R.engine.Object2D.extend({
+   return R.objects.Object2D.extend({
 
       size: 4,
       rotDir: 0,

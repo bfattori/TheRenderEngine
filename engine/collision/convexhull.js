@@ -92,7 +92,7 @@ R.collision.ConvexHull = function() {
          var dist = -1;
          var rVec = R.math.Vector2D.create(0, 0);
          var d = R.math.Vector2D.create(0, 0);
-         for (var p = 0; p < points.length; p++) {
+         for (p = 0; p < points.length; p++) {
             d.set(points[p]);
             d.sub(this.center);
             if (d.len() > dist) {
@@ -108,7 +108,7 @@ R.collision.ConvexHull = function() {
          this.vertexes = R.math.Math2D.convexHull(points, lod);
          this.oVerts = [];
          this.uVerts = [];
-         for (var p in this.vertexes) {
+         for (p in this.vertexes) {
             this.oVerts.push(R.math.Vector2D.create(this.vertexes[p]));
             this.uVerts.push(R.math.Vector2D.create(this.vertexes[p]).sub(this.center));
          }
@@ -161,7 +161,7 @@ R.collision.ConvexHull = function() {
       /**
        * Set the object which is using this collision hull.
        *
-       * @param hostObj {R.engine.Object2D} The object which is using the hull
+       * @param hostObj {R.objects.Object2D} The object which is using the hull
        */
       setGameObject: function(gameObject) {
          this.hostObj = gameObject;
@@ -177,7 +177,7 @@ R.collision.ConvexHull = function() {
 
       /**
        * Get the object which is using this collision hull.
-       * @return {R.engine.Object2D}
+       * @return {R.objects.Object2D}
        */
       getGameObject: function() {
          return this.hostObj;

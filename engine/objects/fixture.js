@@ -35,7 +35,7 @@
 R.Engine.define({
 	"class": "R.objects.Fixture",
 	"requires": [
-		"R.engine.Object2D",
+		"R.objects.Object2D",
 		"R.components.Render",
 		"R.math.Point2D",
 		"R.math.Rectangle2D"
@@ -48,10 +48,10 @@ R.Engine.define({
  * @param rect {R.math.Rectangle2D} The box which defines the area of the fixture
  *	@param visible {Boolean} <code>true</tt> to render a visible rectangle for the fixture
  * @constructor
- * @extends R.engine.Object2D
+ * @extends R.objects.Object2D
  */
 R.objects.Fixture = function(){
-	return R.engine.Object2D.extend({
+	return R.objects.Object2D.extend({
 	
 		editing: false,
 		boxRect: null,

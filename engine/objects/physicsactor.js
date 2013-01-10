@@ -47,7 +47,7 @@ R.Engine.define({
       "R.components.physics.MouseJoint",
 
       "R.math.Math2D",
-      "R.engine.Object2D",
+      "R.objects.Object2D",
       "R.resources.loaders.ObjectLoader"
    ]
 });
@@ -117,24 +117,24 @@ var makeJoint = function(args) {
 /**
  * @class A <tt>R.objects.PhysicsActor</tt> is an actor object within a game represented by
  *        a collection of components which can include rigid bodies and joints.
- *        Unlike {@link R.engine.Object2D}, a <code>R.objects.PhysicsActor</code> can associate each rigid
+ *        Unlike {@link R.objects.Object2D}, a <code>R.objects.PhysicsActor</code> can associate each rigid
  *        body with its own {@link R.components.Render}.  When the rigid body is updated, the
  *        render component is updated with it.  That way, a physics actor can be comprised
  *        of multiple bodies, each with their own renderer allowing for a complex object
  *        such as a ragdoll with many parts and joints.  A physics actor is used within a
  *        {@link R.physics.Simulation}.
  *        <p/>
- *        A <code>R.objects.PhysicsActor</code> acts just like an {@link R.engine.Object2D}, but it is special
+ *        A <code>R.objects.PhysicsActor</code> acts just like an {@link R.objects.Object2D}, but it is special
  *        in that it's rigid bodies are animated via a {@link R.physics.Simulation}.  Without being added to a
  *        {@link R.physics.Simulation}, none of the physical bodies will be updated.
  *
  * @param name {String} The name of the actor object
- * @extends R.engine.Object2D
+ * @extends R.objects.Object2D
  * @constructor
  * @description Create a physics actor
  */
 R.objects.PhysicsActor = function() {
-   return R.engine.Object2D.extend(/** @scope R.objects.PhysicsActor.prototype */{
+   return R.objects.Object2D.extend(/** @scope R.objects.PhysicsActor.prototype */{
 
       simulation: null,
       rootBody: null,

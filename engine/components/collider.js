@@ -43,7 +43,7 @@ R.Engine.define({
  * @class Creates a collider component which tests the collision model for
  *              potential collisions. Each frame, the component will update a potential
  *              collision list (PCL) using the game objects current position
- *              obtained from {@link R.engine.Object2D#getPosition}. Each object which meets
+ *              obtained from {@link R.objects.Object2D#getPosition}. Each object which meets
  *              certain criteria will be passed to an <tt>onCollide()</tt> method which
  *              must be implemented by the game object.  By design, an object cannot
  *              collide with itself.  However, this can be changed with the {@link #setCollideSame}
