@@ -326,7 +326,24 @@ R.rendercontexts.HTMLElementContext = function(){
 			this.base(height);
 			this.jQ().height(height);
 		},
-		
+
+        _onlyChanged: function(ref, css) {
+            if (!ref)
+                return css;
+
+            var modifiedCSS = {}, jq = ref.jQ();
+            if (!jq)
+                return css;
+
+            for (var attr in css) {
+                var oldValue = jq.css(attr);
+                if (oldValue !== css[attr]) {
+                    modifiedCSS[attr] = css[attr];
+                }
+            }
+            return modifiedCSS;
+        },
+
 		/**
 		 * Merge in the CSS transformations object, if the browser supports it.
 		 * @param css {Object} CSS properties to merge with
@@ -343,7 +360,7 @@ R.rendercontexts.HTMLElementContext = function(){
 				css.top = css.top || this.cursorPos.y;
 				css.left = css.left || this.cursorPos.x;
 			}
-			
+
 			return css;
 		},
 
@@ -491,7 +508,7 @@ R.rendercontexts.HTMLElementContext = function(){
             width: sD.w,
             height: sD.h
          });
-         obj.css(css);
+         obj.css(this._onlyChanged(ref, css));
          this.base(rect, image, srcRect, ref);
 
          return obj;

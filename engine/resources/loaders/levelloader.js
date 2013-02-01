@@ -106,7 +106,6 @@ R.resources.loaders.LevelLoader = function(){
       /**
        * Export all of the levels, as a JavaScript object, with the
        * level name as the key and the corresponding {@link R.resources.types.Level} as the value.
-       * @param resource {String} The name of the level resource
        * @param [levelNames] {Array} An optional array of levels to export, by name,
        * 		or <code>null</tt> to export all levels
        */

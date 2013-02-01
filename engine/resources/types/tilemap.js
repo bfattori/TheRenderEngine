@@ -283,7 +283,7 @@ R.resources.types.TileMap = function() {
                   continue;
 
                // Get the frame and draw the tile
-               var f = tile.getFrame(time),z
+               var f = tile.getFrame(time, dt),
                    obj = renderContext.drawImage(rect, tile.getSourceImage(), f,
                      (tile.isAnimation() ? tile : null));
 

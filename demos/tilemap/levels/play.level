@@ -23,7 +23,7 @@
     {
       "Name": "Actor",
       "ZIndex": 1,
-      "Position": "496.00,320.00",
+      "Position": "466.00,320.00",
       "Sprite": "sprites:goomba",
       "Collidable": false,
       "Gravity": true,
@@ -32,7 +32,7 @@
       "ACTOR_CONFIG": {
         "actorId": "",
         "bitMask": "0",
-        "onInit": "this.moveRight(0.5);",
+        "onInit": "this.moveRight(0.7);",
         "onCollideWorld": "if (distance < 2) { this.changeDirection(); }"
       }
     },
@@ -48,7 +48,7 @@
       "ACTOR_CONFIG": {
         "actorId": "",
         "bitMask": "0",
-        "onInit": "this.moveLeft(0.7);",
+        "onInit": "this.moveLeft(1.0);",
         "onCollideWorld": "this.flipRenderX();\nthis.changeDirection();"
       }
     }

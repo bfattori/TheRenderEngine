@@ -914,7 +914,7 @@ var LevelEditor = function() {
 
          // Regardless if the editable flag is true, if there is a setter, we'll
          // call it to copy the value over.
-         if (bean[propName][1]) {
+         if (bean[propName] && bean[propName][1]) {
             if (bean[propName][1].multi || bean[propName][1].toggle || bean[propName][1].editor) {
                // Multi-select, toggle, or custom editor
                bean[propName][1].fn(value);

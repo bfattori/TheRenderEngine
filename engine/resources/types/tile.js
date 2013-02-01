@@ -136,7 +136,7 @@ R.resources.types.Tile = function() {
        * A solidity map will be computed for each frame of the tile, if the tile
        * is animated.
        *
-       * @apram frame {Number} The frame number
+       * @param frame {Number} The frame number
        * @param solidityMap {Array} An array of bits which indicate if a pixel is opaque or transparent
        * @param statusFlag {Number} Flag used to assist in short-circuit testing
        */

@@ -165,3 +165,59 @@ var FuseParticle = function() {
       }
    });
 };
+
+/**
+ * @class A fuse particle
+ *
+ * @param pos {R.math.Point2D} The starting position of the particle.  A
+ *            velocity vector will be derived from this position.
+ * @param [ttl=500] {Number} The Time To Live (lifespan) of the particle
+ */
+var ShieldParticle = function() {
+    return R.particles.AbstractParticle.extend(/** @scope ShieldParticle.prototype */{
+
+        vec: null,
+
+        constructor: function(pos, ttl) {
+            this.base(ttl || 500);
+            this.setPosition(pos);
+
+            // Set the initial vector of motion and velocity of the particle
+            var a = Math.floor(R.lang.Math2.random() * 360);
+            this.vec = R.math.Math2D.getDirectionVector(R.math.Vector2D.ZERO, R.math.Vector2D.UP, a);
+            var vel = 0.3 + R.lang.Math2.random();
+            this.vec.mul(vel);
+        },
+
+        /**
+         * Called by the particle engine to draw the particle to the rendering
+         * context.
+         *
+         * @param renderContext {RenderContext} The rendering context
+         * @param time {Number} The engine time in milliseconds
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        draw: function(renderContext, time, dt) {
+            this.getPosition().add(this.vec);
+
+            // Randomize the color a bit to make the particle shimmer
+            var colr,rgba;
+            var s = time - this.getBirth();
+            var e = this.getTTL() - this.getBirth();
+            colr = 255 - Math.floor(40 * (s / e));
+            colr += (-10 + (Math.floor(R.lang.Math2.random() * 20)));
+
+            rgba = "rgb(" + colr + "," + colr + ",0)";
+
+            // Draw the particle
+            renderContext.setFillStyle(rgba);
+            renderContext.drawPoint(this.getPosition());
+        }
+
+    }, {
+        getClassName: function() {
+            return "ShieldParticle";
+        }
+    });
+};
