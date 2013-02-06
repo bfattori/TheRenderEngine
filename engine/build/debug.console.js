@@ -188,20 +188,20 @@ R.debug.Console = Base.extend(/** @scope R.debug.Console.prototype */{
 		R.debug.Console.verbosity = R.debug.Console.DEBUGLEVEL_ERRORS;
 		R.debug.Console.enableDebugOutput = false;
 		
-//      if (R.engine.Support.checkBooleanParam("debug") && (R.engine.Support.checkBooleanParam("simWii") || jQuery.browser.Wii)) {
+//      if (R.engine.Support.checkBooleanParam("debug") && (R.engine.Support.checkBooleanParam("simWii") || R.browser.Wii)) {
 //         R.debug.Console.consoleRef = new R.debug.HTML();
 //      }
 //      else if (typeof firebug !== "undefined" || (typeof console !== "undefined" && console.firebug)) {
 //         // Firebug or firebug lite
 //         R.debug.Console.consoleRef = new R.debug.Firebug();
 //      }
-//      else if (typeof console !== "undefined" && jQuery.browser.msie) {
+//      else if (typeof console !== "undefined" && R.browser.msie) {
 //         R.debug.Console.consoleRef = new R.debug.MSIE();
 //      }
-//      else if (jQuery.browser.chrome || jQuery.browser.safari) {
+//      else if (R.browser.chrome || R.browser.safari) {
 //         R.debug.Console.consoleRef = new R.debug.Webkit();
 //      }
-//      else if (jQuery.browser.opera) {
+//      else if (R.browser.opera) {
 //         R.debug.Console.consoleRef = new R.debug.Opera();
 //      }
 //      else {

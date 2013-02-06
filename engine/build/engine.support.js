@@ -417,16 +417,16 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
 
       	// Build support object
          R.engine.Support._sysInfo = {
-            "browser" : $.browser.chrome ? "chrome" :
-				           ($.browser.android ? "android" :
-                       ($.browser.Wii ? "wii" : 
-                       ($.browser.safariMobile ? "safarimobile" :
-                       ($.browser.safari ? "safari" :
-							  ($.browser.firefox ? "firefox" : 
-                       ($.browser.mozilla ? "mozilla" :
-                       ($.browser.opera ? "opera" : 
-                       ($.browser.msie ? "msie" : "unknown")))))))),
-            "version" : $.browser.version,
+            "browser" : R.browser.chrome ? "chrome" :
+				           (R.browser.android ? "android" :
+                       (R.browser.Wii ? "wii" :
+                       (R.browser.safariMobile ? "safarimobile" :
+                       (R.browser.safari ? "safari" :
+							  (R.browser.firefox ? "firefox" :
+                       (R.browser.mozilla ? "mozilla" :
+                       (R.browser.opera ? "opera" :
+                       (R.browser.msie ? "msie" : "unknown")))))))),
+            "version" : R.browser.version,
             "agent": navigator.userAgent,
             "platform": navigator.platform,
             "cpu": navigator.cpuClass || navigator.oscpu,

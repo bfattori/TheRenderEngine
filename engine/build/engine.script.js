@@ -321,7 +321,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
          }
          /* pragma:DEBUG_END */
 
-         if ($.browser.Wii) {
+         if (R.browser.Wii) {
 
             $.get(scriptPath, function(data) {
 
@@ -392,7 +392,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             };
 				eFn.cb = cb;
 
-            if ($.browser.msie) {
+            if (R.browser.msie) {
                n.defer = true;
                n.onreadystatechange = fn;
                n.onerror = eFn;

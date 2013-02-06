@@ -50,7 +50,47 @@ R._namespaces = {};
  * @type {Object}
  */
 R.global = this;
-	
+
+// Mimic the jQuery.browser object
+R.browser = {
+    userAgent: navigator.userAgent.toLowerCase()
+};
+
+var uAMatcher = {
+    webkit: /(webkit)[ \/]([\w.]+)/,
+    opera: /(opera)(?:.*version)?[ \/]([\w.]+)/,
+    msie: /(msie) ([\w.]+)/,
+    mozilla: /(mozilla)(?:.*? rv:([\w.]+))?/,
+    chrome:/(chrome)/,
+    firefox:/(firefox)/,
+    Wii:/nintendo (wii)/,
+    android:/(android).*AppleWebKit/,
+    safariMobile:/(iphone|ipad|ipod)/,
+};
+
+for (var ua in uAMatcher)
+    if (uAMatcher.hasOwnProperty(ua)) {
+        var matcher = uAMatcher[ua].exec(R.browser.userAgent), version = matcher ? matcher[2] : null;
+        R.browser[ua] = (matcher && matcher[1] ? true : false);
+        R.browser.version = (version != null);
+    }
+
+$.extend(R.browser, {
+    WiiMote:((window.opera && window.opera.wiiremote) ? window.opera.wiiremote : null),
+    WiiScreenWidth:800,
+    WiiScreenHeight:460
+});
+
+// Chrome version
+if (R.browser.chrome) {
+    R.browser.version = /chrome\/([\d\.]*)\b/.exec(R.browser.userAgent)[1];
+}
+
+// Firefox version
+if (R.browser.firefox) {
+    R.browser.version = /firefox\/([\d\.]*)\b/.exec(R.browser.userAgent)[1];
+}
+
 /**
  * Declare a new namespace in R.
  * @param ns {String} The namespace to declare
@@ -468,20 +508,20 @@ R.debug.Console = Base.extend(/** @scope R.debug.Console.prototype */{
 		R.debug.Console.verbosity = R.debug.Console.DEBUGLEVEL_ERRORS;
 		R.debug.Console.enableDebugOutput = false;
 		
-//      if (R.engine.Support.checkBooleanParam("debug") && (R.engine.Support.checkBooleanParam("simWii") || jQuery.browser.Wii)) {
+//      if (R.engine.Support.checkBooleanParam("debug") && (R.engine.Support.checkBooleanParam("simWii") || R.browser.Wii)) {
 //         R.debug.Console.consoleRef = new R.debug.HTML();
 //      }
 //      else if (typeof firebug !== "undefined" || (typeof console !== "undefined" && console.firebug)) {
 //         // Firebug or firebug lite
 //         R.debug.Console.consoleRef = new R.debug.Firebug();
 //      }
-//      else if (typeof console !== "undefined" && jQuery.browser.msie) {
+//      else if (typeof console !== "undefined" && R.browser.msie) {
 //         R.debug.Console.consoleRef = new R.debug.MSIE();
 //      }
-//      else if (jQuery.browser.chrome || jQuery.browser.safari) {
+//      else if (R.browser.chrome || R.browser.safari) {
 //         R.debug.Console.consoleRef = new R.debug.Webkit();
 //      }
-//      else if (jQuery.browser.opera) {
+//      else if (R.browser.opera) {
 //         R.debug.Console.consoleRef = new R.debug.Opera();
 //      }
 //      else {
@@ -1237,16 +1277,16 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
 
       	// Build support object
          R.engine.Support._sysInfo = {
-            "browser" : $.browser.chrome ? "chrome" :
-				           ($.browser.android ? "android" :
-                       ($.browser.Wii ? "wii" : 
-                       ($.browser.safariMobile ? "safarimobile" :
-                       ($.browser.safari ? "safari" :
-							  ($.browser.firefox ? "firefox" : 
-                       ($.browser.mozilla ? "mozilla" :
-                       ($.browser.opera ? "opera" : 
-                       ($.browser.msie ? "msie" : "unknown")))))))),
-            "version" : $.browser.version,
+            "browser" : R.browser.chrome ? "chrome" :
+				           (R.browser.android ? "android" :
+                       (R.browser.Wii ? "wii" :
+                       (R.browser.safariMobile ? "safarimobile" :
+                       (R.browser.safari ? "safari" :
+							  (R.browser.firefox ? "firefox" :
+                       (R.browser.mozilla ? "mozilla" :
+                       (R.browser.opera ? "opera" :
+                       (R.browser.msie ? "msie" : "unknown")))))))),
+            "version" : R.browser.version,
             "agent": navigator.userAgent,
             "platform": navigator.platform,
             "cpu": navigator.cpuClass || navigator.oscpu,
@@ -3058,7 +3098,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
          }
          /* pragma:DEBUG_END */
 
-         if ($.browser.Wii) {
+         if (R.browser.Wii) {
 
             $.get(scriptPath, function(data) {
 
@@ -3129,7 +3169,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             };
 				eFn.cb = cb;
 
-            if ($.browser.msie) {
+            if (R.browser.msie) {
                n.defer = true;
                n.onreadystatechange = fn;
                n.onerror = eFn;

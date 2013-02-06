@@ -50,7 +50,47 @@ R._namespaces = {};
  * @type {Object}
  */
 R.global = this;
-	
+
+// Mimic the jQuery.browser object
+R.browser = {
+    userAgent: navigator.userAgent.toLowerCase()
+};
+
+var uAMatcher = {
+    webkit: /(webkit)[ \/]([\w.]+)/,
+    opera: /(opera)(?:.*version)?[ \/]([\w.]+)/,
+    msie: /(msie) ([\w.]+)/,
+    mozilla: /(mozilla)(?:.*? rv:([\w.]+))?/,
+    chrome:/(chrome)/,
+    firefox:/(firefox)/,
+    Wii:/nintendo (wii)/,
+    android:/(android).*AppleWebKit/,
+    safariMobile:/(iphone|ipad|ipod)/,
+};
+
+for (var ua in uAMatcher)
+    if (uAMatcher.hasOwnProperty(ua)) {
+        var matcher = uAMatcher[ua].exec(R.browser.userAgent), version = matcher ? matcher[2] : null;
+        R.browser[ua] = (matcher && matcher[1] ? true : false);
+        R.browser.version = (version != null);
+    }
+
+$.extend(R.browser, {
+    WiiMote:((window.opera && window.opera.wiiremote) ? window.opera.wiiremote : null),
+    WiiScreenWidth:800,
+    WiiScreenHeight:460
+});
+
+// Chrome version
+if (R.browser.chrome) {
+    R.browser.version = /chrome\/([\d\.]*)\b/.exec(R.browser.userAgent)[1];
+}
+
+// Firefox version
+if (R.browser.firefox) {
+    R.browser.version = /firefox\/([\d\.]*)\b/.exec(R.browser.userAgent)[1];
+}
+
 /**
  * Declare a new namespace in R.
  * @param ns {String} The namespace to declare

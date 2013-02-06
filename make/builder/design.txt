@@ -4,11 +4,10 @@ Create an index.html file which contains the <script> tags to load the base libr
 
    1) base.js
    2) jquery.js
-   3) jquery.ext.engine.js
-   4) sylvester.js
+   3) sylvester.js
 
 Add the engine runtime:
-   5) engine.js
+   4) engine.js
 
 Point to the "game.js" (or whatever it is called) file which will parse the "define" statements to
 build a dependency tree and capture includes.  Includes will be added to the index.html file to be

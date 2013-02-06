@@ -31,25 +31,28 @@
 // Some new browser types we'd like to be able to detect
 var userAgent = navigator.userAgent.toLowerCase();
 
-$.extend(jQuery.browser, {
-   chrome: /chrome/.test( userAgent ),
-	firefox: /firefox/.test( userAgent ),
-   Wii: /nintendo wii/.test( userAgent ),
-	android: /android/.test( userAgent ) && /AppleWebKit/.test( userAgent ),
-   safariMobile: /iphone|ipad|ipod/.test( userAgent) && /safari/.test( userAgent ),
-	WiiMote: ((window.opera && window.opera.wiiremote) ? window.opera.wiiremote : null),
-	WiiScreenWidth: 800,
-	WiiScreenHeight: 460
+// Add back the R.browser object
+R.browser = {};
+
+$.extend(R.browser, {
+    chrome:/chrome/.test(userAgent),
+    firefox:/firefox/.test(userAgent),
+    Wii:/nintendo wii/.test(userAgent),
+    android:/android/.test(userAgent) && /AppleWebKit/.test(userAgent),
+    safariMobile:/iphone|ipad|ipod/.test(userAgent) && /safari/.test(userAgent),
+    WiiMote:((window.opera && window.opera.wiiremote) ? window.opera.wiiremote : null),
+    WiiScreenWidth:800,
+    WiiScreenHeight:460
 });
 
 // Chrome version
-if (jQuery.browser.chrome) {
-	jQuery.browser.version = /chrome\/([\d\.]*)\b/.exec( userAgent )[1];
+if (R.browser.chrome) {
+    R.browser.version = /chrome\/([\d\.]*)\b/.exec(userAgent)[1];
 }
 
 // Firefox version
-if (jQuery.browser.firefox) {
-	jQuery.browser.version = /firefox\/([\d\.]*)\b/.exec( userAgent )[1];
+if (R.browser.firefox) {
+    R.browser.version = /firefox\/([\d\.]*)\b/.exec(userAgent)[1];
 }
 
 /* Addition of some selectors that jQuery doesn't provide:
@@ -60,27 +63,27 @@ if (jQuery.browser.firefox) {
  * + ":notinx(X-Y)" - Select elements with an index outside X and Y, exclusive.
  */
 jQuery.extend(jQuery.expr[':'],
-{
-	"in": function(a,i,m) {
-				var l = parseInt(m[3].split("-")[0]);
-				var h = parseInt(m[3].split("-")[1]);
-				return (i >= l && i <= h);
-			},
-	"inx": function(a,i,m) {
-				var l = parseInt(m[3].split("-")[0]);
-				var h = parseInt(m[3].split("-")[1]);
-				return (i > l && i < h);
-			},
-	"notin": function(a,i,m) {
-				var l = parseInt(m[3].split("-")[0]);
-				var h = parseInt(m[3].split("-")[1]);
-				return (i <= l || i >= h);
-			},
-	"notinx": function(a,i,m) {
-				var l = parseInt(m[3].split("-")[0]);
-				var h = parseInt(m[3].split("-")[1]);
-				return (i < l || i > h);
-			},
-	"siblings" : "jQuery(a).siblings(m[3]).length>0",
-	"parents" : "jQuery(a).parents(m[3]).length>0"
-});
+    {
+        "in":function (a, i, m) {
+            var l = parseInt(m[3].split("-")[0]);
+            var h = parseInt(m[3].split("-")[1]);
+            return (i >= l && i <= h);
+        },
+        "inx":function (a, i, m) {
+            var l = parseInt(m[3].split("-")[0]);
+            var h = parseInt(m[3].split("-")[1]);
+            return (i > l && i < h);
+        },
+        "notin":function (a, i, m) {
+            var l = parseInt(m[3].split("-")[0]);
+            var h = parseInt(m[3].split("-")[1]);
+            return (i <= l || i >= h);
+        },
+        "notinx":function (a, i, m) {
+            var l = parseInt(m[3].split("-")[0]);
+            var h = parseInt(m[3].split("-")[1]);
+            return (i < l || i > h);
+        },
+        "siblings":"jQuery(a).siblings(m[3]).length>0",
+        "parents":"jQuery(a).parents(m[3]).length>0"
+    });

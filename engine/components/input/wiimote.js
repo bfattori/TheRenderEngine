@@ -116,7 +116,7 @@ R.components.input.Wiimote = function() {
             self._mouseUpListener(evt);
          });
 
-         if (!$.browser.Wii) {
+         if (!R.browser.Wii) {
             // In the absense of the WiiMote, we'll use the mouse as the pointer
             ctx.addEvent(this, "mousemove", function(evt) {
                self._mouseMoveListener(evt);
@@ -149,7 +149,7 @@ R.components.input.Wiimote = function() {
          ctx.removeEvent(this, "mousedown");
          ctx.removeEvent(this, "mouseup");
 
-         if (!$.browser.Wii) {
+         if (!R.browser.Wii) {
             // In the absence of the WiiMote, remove the mouse move handler
             ctx.removeEvent(this, "mousemove");
          }
@@ -309,13 +309,13 @@ R.components.input.Wiimote = function() {
        * @private
        */
       execute: function(renderContext, time, dt) {
-         if (!$.browser.Wii) {
+         if (!R.browser.Wii) {
             // If this isn't Opera for Wii, don't do anything
             return;
          }
 
          // Run through the available Wiimotes
-         var op = $.browser.WiiMote;
+         var op = R.browser.WiiMote;
          for (var w = 0; w < 4; w++) {
 
             var remote = op.update(w); // This fixes a dependency problem

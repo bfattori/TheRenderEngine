@@ -124,7 +124,7 @@ R.resources.loaders.ImageLoader = function(){
 			}
 			
 			var thisObj = this;
-			if (!$.browser.Wii) {
+			if (!R.browser.Wii) {
 				image.bind("load", function(){
 					thisObj.setReady(name, true);
 				});

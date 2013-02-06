@@ -60,7 +60,7 @@
 		onClick: null,
 		offsetX: 4,
 		offsetY: 2,
-		iframe: $.browser.msie
+		iframe: R.browser.msie
 	};
 	
 	// Our special parentsUntil method to get all parents up to and including the matched element

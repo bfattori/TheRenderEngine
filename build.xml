@@ -31,11 +31,13 @@
 	<property name="compress.option" value="engine.compress"/>
 
 	<!-- Dump the system date (this is for Windows) -->
-	<exec executable="cmd.exe" outputproperty="build.date" >  
+<!--
+	<exec executable="cmd.exe" outputproperty="build.date" >
 		<arg line="/c"/>
 		<arg line="date.exe"/>
-		<arg line="/T"/>  
+		<arg line="/T"/>
 	</exec>
+-->
 	<!--
 	<propertyregex property="build.date" input="${builddate.out}" select="\1">  
 		<regexp pattern="\w+ ((\d+\/?){3})"/>  
@@ -284,7 +286,6 @@
             <include name="base.js"/>
             <include name="Box2dWeb-2.1.a.3.js"/>
             <include name="jquery.js"/>
-            <include name="jquery.ext.engine.js"/>
             <include name="soundmanager2.js"/>
             <include name="soundmanager2.swf"/>
             <include name="soundmanager2_flash9.swf"/>
