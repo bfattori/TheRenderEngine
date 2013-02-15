@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * The Render Engine
  * AbstractTimer
@@ -176,9 +178,13 @@ R.lang.AbstractTimer = function(){
 		 */
 		getCallback: function(){
 			if (this.timerFn === null) {
-				this.timerFn = function(){
-					arguments.callee.cb.call(arguments.callee.timer);
-				};
+                var timerObj = {
+                    callback: this.callback,
+                    timer: this
+                };
+				this.timerFn = R.bind(timerObj, function(){
+					this.callback.call(this.timer);
+				});
 				this.timerFn.cb = this.callback;
 				this.timerFn.timer = this;
 			}

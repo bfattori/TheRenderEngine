@@ -43,20 +43,13 @@
    <head>
       <title>The Render Engine - Tilemap Demo</title>
 
-      <!-- Supporting Libraries -->
-      <script type="text/javascript" src="../../engine/libs/base.js"></script>
-      <script type="text/javascript" src="../../engine/libs/jquery.js"></script>
-      <script type="text/javascript" src="../../engine/libs/sylvester.js"></script>
-
       <!-- Load the main engine script -->
       <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
    </head>
    <body>
       <script type="text/javascript">
-      	$(document).ready(function() {
-	         // Load the game script
-	         R.Engine.loadGame('witheditor.js','TilemapDemo', 'Tile Map Demo (With Editor)');
-			});
+         // Load the game script
+         R.loadGame('witheditor.js','TilemapDemo', 'Tile Map Demo (With Editor)');
       </script>
    </body>
 </html>

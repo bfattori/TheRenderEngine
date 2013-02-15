@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * The Render Engine
  * OneShotTimeout
@@ -57,13 +59,17 @@ R.lang.OneShotTimeout = function(){
 		 * @private
 		 */
 		constructor: function(name, interval, callback){
-		
-			var cb = function(){
-				arguments.callee.cbFn.call(this);
-				this.destroy();
-			};
-			cb.cbFn = callback;
-			
+
+            var timerObj = {
+                callback: callback,
+                timer: this
+            };
+
+			var cb = R.bind(timerObj, function(){
+				this.callback.call(this.timer);
+				this.timer.destroy();
+			});
+
 			this.base(name, interval, cb);
 		},
 		
@@ -89,4 +95,4 @@ R.lang.OneShotTimeout = function(){
 		}
 	});
 	
-}
+};

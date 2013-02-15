@@ -81,6 +81,8 @@ var PhysicsDemo = function() {
        * the game to its running state.
        */
       setup: function() {
+          R.engine.Script.setUniqueRequest(false);
+          R.Engine.setDebugMode(true);
          PhysicsDemo.spriteLoader = R.resources.loaders.SpriteLoader.create();
 
          // Load the sprites
@@ -118,6 +120,7 @@ var PhysicsDemo = function() {
 
          // Create the game context
          this.renderContext = R.rendercontexts.CanvasContext.create("Playfield", 800, 600);
+         //this.renderContext = R.rendercontexts.HTMLDivContext.create("Playfield", 800, 600);
          this.renderContext.setBackgroundColor("#FFFFFF");
          this.renderContext.captureMouse();
 

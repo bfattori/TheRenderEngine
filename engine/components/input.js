@@ -98,22 +98,25 @@ R.components.Input = function() {
          this.playback = true;
          this.script = script;
 
-         var popCall = function() {
-            if (arguments.callee.script.length == 0) {
-               return;
-            }
-            if (arguments.callee.e != null) {
-               R.debug.Console.log("PLAYBACK:", arguments.callee.e.type);
-               arguments.callee.self.playEvent(arguments.callee.e);
-            }
-            arguments.callee.e = arguments.callee.script.shift();
-            setTimeout(arguments.callee, arguments.callee.e.delay);
-         };
-         popCall.script = this.script;
-         popCall.self = this;
-         popCall.e = null;
+          var scriptObj = {
+              script:script,
+              playEvent:R.Bind(this, this.playEvent),
+              evt:null
+          }, popCall;
 
-         popCall();
+          popCall = R.bind(scriptObj, function () {
+              if (this.script.length == 0) {
+                  return;
+              }
+              if (this.evt != null) {
+                  R.debug.Console.log("PLAYBACK:", this.evt.type);
+                  this.playEvent(this.evt);
+              }
+              this.evt = this.script.shift();
+              setTimeout(popCall, this.evt.delay);
+          });
+
+          popCall();
       },
 
       /** @private */

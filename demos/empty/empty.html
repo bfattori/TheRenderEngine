@@ -36,19 +36,12 @@
    <head>
       <title>The Render Engine</title>
 
-      <!-- Supporting Libraries -->
-      <script type="text/javascript" src="../../engine/libs/base.js"></script>
-      <script type="text/javascript" src="../../engine/libs/jquery.js"></script>
-      <script type="text/javascript" src="../../engine/libs/sylvester.js"></script>
-
       <!-- Load the main engine script -->
       <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
    </head>
    <body>
       <script type="text/javascript">
-         $(document).ready(function() {
-            R.Engine.loadGame("game.js", "EmptyGame");
-         });
+        R.loadGame("game.js", "EmptyGame");
       </script>
    </body>
 </html>

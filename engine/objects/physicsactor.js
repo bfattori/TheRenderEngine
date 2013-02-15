@@ -361,11 +361,11 @@ R.objects.PhysicsActor = function() {
                /* pragma:DEBUG_START */
                if (R.Engine.getDebugMode()) {
                   renderContext.drawFilledArc(pt.neg(), 5, 0, 360);
-               } else {
+               } // else {
                /* pragma:DEBUG_END */
                nextComponent.getRenderComponent().execute(renderContext, time, dt);
                /* pragma:DEBUG_START */
-               }
+               //}
                /* pragma:DEBUG_END */
 
                pt.destroy();

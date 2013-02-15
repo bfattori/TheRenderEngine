@@ -38,7 +38,11 @@ R.Engine.define({
       "R.math.Point3D",
 		"R.math.Vector2D",
       "R.math.Vector3D"
-	]
+    ],
+
+    "includes": [
+        "/../engine/libs/sylvester.js"
+    ]
 });
 
 /**

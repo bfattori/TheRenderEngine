@@ -57,7 +57,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
    pauseReps: 0,              // Queue run repetitions while paused
    gameOptionsLoaded: false,  // Whether the game options have loaded yet
    gameOptionsObject: {},     // Options object for the game
-
+   uniqueRequest: true,
    callbacks: {},					// Script callbacks
    
    /**
@@ -128,7 +128,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 	ajaxLoad: function(path, data, callback) {
       /* pragma:DEBUG_START */
       // If we're in debug mode, force the browser to grab the latest
-      if (R.Engine.getDebugMode()) {
+      if (R.Engine.getDebugMode() && R.engine.Script.isMakeUnique()) {
          path += (path.indexOf("?") == -1 ? "?" : "&") + "_debug=" + R.now();
       }
       /* pragma:DEBUG_END */
@@ -316,7 +316,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 
          /* pragma:DEBUG_START */
          // If we're in debug mode, force the browser to grab the latest
-         if (R.Engine.getDebugMode()) {
+         if (R.Engine.getDebugMode() && R.engine.Script.isMakeUnique()) {
             scriptPath += (scriptPath.indexOf("?") == -1 ? "?" : "&") + "_debug=" + R.now();
          }
          /* pragma:DEBUG_END */
@@ -349,56 +349,57 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             n.type = "text/javascript";
 
             // When the file is loaded
-            var fn = function() {
-               if (!this.readyState || 
-						  this.readyState == "loaded" || 
-						  this.readyState == "complete") {
+            var scriptInfo = {
+                node: n,
+                fullPath: scriptPath,
+                simpPath: simplePath,
+                callback: cb
+            }, successCallback, errorCallback;
 
-						var sNode = arguments.callee.node;
-						var sPath = arguments.callee.fullPath;
 
-						// If there was a callback, get it
-						var callBack = R.engine.Script.callbacks[arguments.callee.simpPath];
+             successCallback = R.bind(scriptInfo, function () {
+                 if (!this.node.readyState ||
+                     this.node.readyState == "loaded" ||
+                     this.node.readyState == "complete") {
 
-                  R.debug.Console.debug("Loaded '" + sPath + "'");
-                  R.engine.Script.handleScriptDone();
-                  if ($.isFunction(callBack)) {
-                  	R.debug.Console.info("Callback for '" + sPath + "'");
-                     callBack(simplePath, R.engine.Script.SCRIPT_LOADED);
-                     
-                     // Delete the callback
-                     delete R.engine.Script.callbacks[arguments.callee.simpPath];
-                  }
-                  
-                  if (!R.Engine.localMode) {
-                     // Delete the script node
-                     $(sNode).remove(); 
-                  }
-               }
-               R.engine.Script.readyForNextScript = true;
-            };
-				fn.node = n;
-				fn.fullPath = scriptPath;
-				fn.simpPath = simplePath;
+                     // If there was a callback, get it
+                     var callBack = R.engine.Script.callbacks[this.simpPath];
 
-            // When an error occurs
-            var eFn = function(msg) {
-					var callBack = arguments.callee.cb;
-               R.debug.Console.error("File not found: ", scriptPath);
-               if (callBack) {
-                  callBack(simplePath, R.engine.Script.SCRIPT_NOT_FOUND);
-               }
-               R.engine.Script.readyForNextScript = true;
-            };
-				eFn.cb = cb;
+                     R.debug.Console.debug("Loaded '" + this.fullPath + "'");
+                     R.engine.Script.handleScriptDone();
+                     if ($.isFunction(callBack)) {
+                         R.debug.Console.info("Callback for '" + this.fullPath + "'");
+                         callBack(this.simpPath, R.engine.Script.SCRIPT_LOADED);
 
-            if (R.browser.msie) {
+                         // Delete the callback
+                         delete R.engine.Script.callbacks[this.simpPath];
+                     }
+
+                     if (!R.Engine.localMode) {
+                         // Delete the script node
+                         $(this.node).remove();
+                     }
+                 }
+                 R.engine.Script.readyForNextScript = true;
+             });
+
+             // When an error occurs
+             errorCallback = R.bind(scriptInfo, function (msg) {
+                 var callBack = this.callback;
+                 R.debug.Console.error("File not found: ", this.fullPath);
+                 if (callBack) {
+                     callBack(this.simpPath, R.engine.Script.SCRIPT_NOT_FOUND);
+                 }
+                 R.engine.Script.readyForNextScript = true;
+             });
+
+             if (R.browser.msie) {
                n.defer = true;
-               n.onreadystatechange = fn;
-               n.onerror = eFn;
+               n.onreadystatechange = successCallback;
+               n.onerror = errorCallback;
             } else {
-               n.onload = fn;
-               n.onerror = eFn;
+               n.onload = successCallback;
+               n.onerror = errorCallback;
             }
 
             var h = document.getElementsByTagName("head")[0];
@@ -664,7 +665,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 
       /* pragma:DEBUG_START */
       // If we're in debug mode, force the browser to grab the latest
-      if (R.Engine.getDebugMode()) {
+      if (R.Engine.getDebugMode() && R.engine.Script.isMakeUnique()) {
          stylesheetPath += (stylesheetPath.indexOf("?") == -1 ? "?" : "&") + "_debug=" + R.now();
       }
       /* pragma:DEBUG_END */
@@ -711,6 +712,14 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     */
    clearScriptCache: function() {
       R.engine.Script.loadedScripts = {};
-   }
+   },
+
+    isMakeUnique: function() {
+        return R.engine.Script.uniqueRequest;
+    },
+
+    setUniqueRequest: function(state) {
+        R.engine.Script.uniqueRequest = state;
+    }
    
 });

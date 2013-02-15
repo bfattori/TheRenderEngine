@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * The Render Engine
  * OneShotTrigger
@@ -57,15 +59,17 @@ R.lang.OneShotTrigger = function(){
 	return R.lang.OneShotTimeout.extend(/** @scope R.lang.OneShotTrigger.prototype */{
 	
 		constructor: function(name, interval, callback, triggerInterval, triggerCallback){
-			var doneFn = function(){
-				var aC = arguments.callee;
-				aC.intv.destroy();
-				aC.cb.call(this);
-			};
-			// Create an Interval internally
-			doneFn.intv = R.lang.IntervalTimer.create(name + "_trigger", triggerInterval, triggerCallback);
-			doneFn.cb = callback;
-			
+			var timerObj = {
+                interval:R.lang.IntervalTimer.create(name + "_trigger", triggerInterval, triggerCallback),
+                callback: callback,
+                timer: this
+            };
+
+            var doneFn = R.bind(timerObj, function(){
+				this.interval.destroy();
+				this.callback.call(this.timer);
+			});
+
 			this.base(name, interval, doneFn);
 		}
 	}, /** @scope R.lang.OneShotTrigger.prototype */ {

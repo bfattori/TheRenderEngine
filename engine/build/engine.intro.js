@@ -65,7 +65,7 @@ var uAMatcher = {
     firefox:/(firefox)/,
     Wii:/nintendo (wii)/,
     android:/(android).*AppleWebKit/,
-    safariMobile:/(iphone|ipad|ipod)/,
+    safariMobile:/(iphone|ipad|ipod)/
 };
 
 for (var ua in uAMatcher)
@@ -75,11 +75,10 @@ for (var ua in uAMatcher)
         R.browser.version = (version != null);
     }
 
-$.extend(R.browser, {
-    WiiMote:((window.opera && window.opera.wiiremote) ? window.opera.wiiremote : null),
-    WiiScreenWidth:800,
-    WiiScreenHeight:460
-});
+R.browser.WiiMote = ((window.opera && window.opera.wiiremote) ? window.opera.wiiremote : null);
+R.browser.WiiScreenWidth = 800;
+R.browser.WiiScreenHeight = 460;
+
 
 // Chrome version
 if (R.browser.chrome) {
@@ -280,6 +279,13 @@ R.global.nativeFrame = (function(){
            };
  })();
 
+// Instead of arguments.callee
+R.bind = function(obj, fn) {
+    return function() {
+        return fn.apply(obj, arguments);
+    }
+};
+
 // Define the engine's default namespaces
 R.namespace("debug");
 R.namespace("lang");
@@ -317,4 +323,24 @@ R.namespace("util.console");
 R.now = (function() {
    return Date.now ? Date.now : function() {return new Date().getTime();};
 })();
+
+R.loadGame = function(fileName, className, description) {
+    var gameLoader = {}, cb;
+
+    gameLoader.fileName = fileName;
+    gameLoader.className = className;
+    gameLoader.description = description;
+
+    cb = R.bind(gameLoader, function() {
+        if (typeof R.Engine !== "undefined" && typeof R.Engine.loadGame !== "undefined") {
+            R.Engine.loadGame(this.fileName, this.className, this.description);
+        } else {
+            setTimeout(cb, 250);
+        }
+    });
+
+
+    setTimeout(cb, 250);
+};
+
 

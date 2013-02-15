@@ -467,15 +467,21 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     * @memberOf R.engine.Support
     */
    whenReady: function(obj, fn) {
-      var sleeper = function() {
-         if (typeof arguments.callee.obj != "undefined") {
-            arguments.callee.fn();
+      var whenObject = {
+        callback: fn,
+        object: obj
+      }, sleeper;
+
+       sleeper.fn = fn;
+       sleeper.obj = obj;
+
+       sleeper = R.bind(whenObject, function() {
+         if (typeof this.object != "undefined") {
+            this.callback();
          } else {
-            setTimeout(arguments.callee, 50);
+            setTimeout(sleeper, 50);
          }
-      };
-      sleeper.fn = fn;
-      sleeper.obj = obj;
+      });
       sleeper();
    },
 

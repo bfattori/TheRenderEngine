@@ -37,7 +37,11 @@ R.Engine.define({
 		"R.math.Rectangle2D",
 		"R.math.Point2D",
 		"R.math.Vector2D"
-	]
+	],
+
+    "includes": [
+        "/../engine/libs/sylvester.js"
+    ]
 });
 
 /**

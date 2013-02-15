@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * The Render Engine
  * MultiTimeout
@@ -57,22 +59,25 @@ R.lang.MultiTimeout = function(){
 	
 		/** @private */
 		constructor: function(name, reps, interval, callback){
-		
-			var cb = function(){
-				var aC = arguments.callee;
-				if (aC.reps-- > 0) {
-					aC.cbFn.call(this, aC.totalReps);
-					aC.totalReps++;
-					this.restart();
+
+            var timerObj = {
+                callback: callback,
+                repetitions: reps,
+                totalReps: 0,
+                timer: this
+            };
+
+			var cb = R.bind(timerObj, function(){
+				if (this.repetitions-- > 0) {
+					this.callback.call(this.timer, this.totalReps);
+					this.totalReps++;
+					this.timer.restart();
 				}
 				else {
-					this.destroy();
+					this.timer.destroy();
 				}
-			};
-			cb.cbFn = callback;
-			cb.reps = reps;
-			cb.totalReps = 0;
-			
+			});
+
 			this.base(name, interval, cb);
 		}
 		

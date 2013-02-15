@@ -46,11 +46,6 @@
 		<meta name="viewport" content="width=device-width; initial-scale=1.0; minimum-scale=1.0 maximum-scale=1.0; user-scalable=0;"/>
 		 -->
 		 
-      <!-- Supporting Libraries -->
-      <script type="text/javascript" src="../../engine/libs/base.js"></script>
-      <script type="text/javascript" src="../../engine/libs/jquery.js"></script>
-      <script type="text/javascript" src="../../engine/libs/sylvester.js"></script>
-
       <!-- Load the main engine script -->
       <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
 
@@ -62,10 +57,8 @@
    </head>
    <body>
       <script type="text/javascript">
-      	$(document).ready(function() {
-			// Load the game script
-			R.Engine.loadGame('game.js','PhysicsDemo','Physics Demo');
-		});
+        // Load the game script
+        R.Engine.loadGame('game.js','PhysicsDemo','Physics Demo');
       </script>
       <input type="button" value="Clean up Toys" onclick="PhysicsDemo.clearToys();"/>
       <input type="button" value="Add Toys" onclick="PhysicsDemo.addToys();"/>
