@@ -1,6 +1,6 @@
 // Load all required engine components
 R.Engine.define({
-	"class": "GameObject",
+	"class": "StarObject",
 	"requires": [
 		"R.objects.Object2D",
       "R.math.Math2D",
@@ -11,7 +11,7 @@ R.Engine.define({
 	]
 });
 
-var GameObject = function() {
+var StarObject = function() {
    return R.objects.Object2D.extend({
 
       // The width of the object
@@ -22,7 +22,7 @@ var GameObject = function() {
       shape: null,         // Our object's shape
 
       constructor: function() {
-         this.base("GameObject");
+         this.base("StarObject");
 
          // Add the component which handles keyboard input
          this.add(R.components.input.Keyboard.create("input"));
@@ -170,7 +170,7 @@ var GameObject = function() {
        * @return {String} The string MyObject
        */
       getClassName: function() {
-         return "GameObject";
+         return "StarObject";
       }
    });
 };

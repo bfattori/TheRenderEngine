@@ -8,12 +8,12 @@ R.Engine.define({
 
 	// Game class dependencies
 	"depends": [
-		"GameObject"
+		"StarObject"
 	]
 });
 
 // Load the game object
-R.engine.Game.load("/gameObject.js");
+R.engine.Game.load("/starObject.js");
 
 /**
  * @class Tutorial Four.  Generate a simple vector drawn object and
@@ -40,7 +40,7 @@ var Tutorial4 = function() {
 
          // Create the game object and add it to the render context.
          // It'll start animating immediately.
-         Tutorial4.renderContext.add(GameObject.create());
+         Tutorial4.renderContext.add(StarObject.create());
       },
 
       /**

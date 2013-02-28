@@ -148,8 +148,6 @@ R.components.transform.BehaviorMover2D = function () {
          * @param dt {Number} The time since the last frame was generated
          */
         execute:function (renderContext, time, dt) {
-            this.base(renderContext, time, dt);
-
             if (this.stopped) {
                 return;
             }
@@ -173,6 +171,8 @@ R.components.transform.BehaviorMover2D = function () {
             // Rotate the vehicle to match the direction of travel
             var ang = R.math.Vector2D.UP.signedAngleBetween(this.velocity);
             this.setRotation(ang);
+
+            this.base(renderContext, time, dt);
         },
 
         /**

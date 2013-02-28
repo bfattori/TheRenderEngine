@@ -10,13 +10,13 @@ R.Engine.define({
 
 	// Game class dependencies
 	"depends": [
-		"GameObject",
+		"BlockObject",
       "TouchObject"
 	]
 });
 
 // Load the game object
-R.engine.Game.load("/gameObject.js");
+R.engine.Game.load("/blockObject.js");
 R.engine.Game.load("/touchObject.js");
 
 /**
@@ -48,7 +48,7 @@ var Tutorial5 = function() {
          Tutorial5.collisionModel = R.collision.broadphase.SpatialGrid.create(480, 480, 5);
 
          // Create the game object and add it to the render context.
-         Tutorial5.renderContext.add(GameObject.create());
+         Tutorial5.renderContext.add(BlockObject.create());
 
          // Now create some touchable and non-touchable objects
          for (var i = 0; i < 3; i++) {

@@ -103,6 +103,7 @@ R.struct.HashContainer = function () {
             // an underscore to prevent keyword collisions
             this.objHash["_" + String(key)] = obj;
             this.base(obj);
+            return this.objHash["_" + String(key)];
         },
 
         /** @private */

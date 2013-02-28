@@ -474,7 +474,7 @@ R.rendercontexts.AbstractRenderContext = function () {
 
             this.setupWorld(time, dt);
 
-            // Run the objects if they are visible
+            // Run the objects through their components
             var objs = this.iterator();
             while (objs.hasNext()) {
                 this.renderObject(objs.next(), time, dt);
