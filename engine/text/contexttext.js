@@ -33,13 +33,13 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.text.ContextText",
-	"requires": [
-		"R.text.AbstractTextRenderer",
-		"R.math.Point2D",
-		"R.rendercontexts.RenderContext2D",
-		"R.text.TextRenderer"
-	]
+    "class":"R.text.ContextText",
+    "requires":[
+        "R.text.AbstractTextRenderer",
+        "R.math.Point2D",
+        "R.rendercontexts.RenderContext2D",
+        "R.text.TextRenderer"
+    ]
 });
 
 /**
@@ -50,92 +50,92 @@ R.Engine.define({
  * @constructor
  * @extends R.text.AbstractTextRenderer
  */
-R.text.ContextText = function(){
-	return R.text.AbstractTextRenderer.extend(/** @scope R.text.ContextText.prototype */{
-	
-		/** @private */
-		constructor: function(){
-			this.base();
-			this.tInit();
-		},
-		
-		/**
-		 * Initialize some basics
-		 * @private
-		 */
-		tInit: function(){
-			this.setTextAlignment(R.rendercontexts.RenderContext2D.FONT_ALIGN_LEFT);
-			this.setTextWeight(R.rendercontexts.RenderContext2D.FONT_WEIGHT_NORMAL);
-			this.setTextFont("sans-serif");
-			this.setTextStyle(R.rendercontexts.RenderContext2D.FONT_STYLE_NORMAL);
-		},
-		
-		/**
-		 * Release the text renderer back into the pool for reuse
-		 */
-		release: function(){
-			this.base();
-			this.tInit();
-		},
-		
-		/**
-		 * Return <tt>true</tt> if the text renderer is native to the context.
-		 * @return {Boolean}
-		 */
-		isNative: function(){
-			return true;
-		},
+R.text.ContextText = function () {
+    return R.text.AbstractTextRenderer.extend(/** @scope R.text.ContextText.prototype */{
 
-      setText: function(text) {
-         this.base(text);
-         this.calculateBoundingBox();
-      },
+        /** @private */
+        constructor:function () {
+            this.base();
+            this.tInit();
+        },
 
-		/**
-		 * Calculate the bounding box for the text and set it on the host object.
-		 * @private
-		 */
-		calculateBoundingBox: function(){
-         if (this.getGameObject().getRenderContext()) {
-            var ctx = this.getGameObject().getRenderContext();
-            ctx.pushTransform();
-            ctx.setFontStyle(this.getTextStyle());
-            ctx.setFontAlign(this.getTextAlignment());
-            ctx.setFontWeight(this.getTextWeight());
-            ctx.setFont(this.getTextFont());
-            ctx.setFontSize(Math.floor(this.getSize() * R.text.TextRenderer.BASE_TEXT_PIXELSIZE) || R.text.TextRenderer.BASE_TEXT_PIXELSIZE);
+        /**
+         * Initialize some basics
+         * @private
+         */
+        tInit:function () {
+            this.setTextAlignment(R.rendercontexts.RenderContext2D.FONT_ALIGN_LEFT);
+            this.setTextWeight(R.rendercontexts.RenderContext2D.FONT_WEIGHT_NORMAL);
+            this.setTextFont("sans-serif");
+            this.setTextStyle(R.rendercontexts.RenderContext2D.FONT_STYLE_NORMAL);
+        },
 
-			   this.getGameObject().setBoundingBox(ctx.getTextMetrics(this.getText()));
-            ctx.popTransform();
-         }
-		},
-		
-		/**
-		 * @private
-		 */
-		execute: function(renderContext, time, dt){
-		
-			if (this.getText().length == 0) {
-				return;
-			}
-			
-			renderContext.setFontStyle(this.getTextStyle());
-			renderContext.setFontAlign(this.getTextAlignment());
-			renderContext.setFontWeight(this.getTextWeight());
-			renderContext.setFont(this.getTextFont());
-			renderContext.setFontSize(Math.floor(this.getSize() * R.text.TextRenderer.BASE_TEXT_PIXELSIZE) || R.text.TextRenderer.BASE_TEXT_PIXELSIZE);
-			
-			renderContext.setFillStyle(this.getColor());
-			renderContext.drawText(R.math.Point2D.ZERO, this.getText(), this.getGameObject());
-		}
-		
-	}, /** @scope R.text.ContextText.prototype */ {
-		/**
-		 * Get the class name of this object
-		 * @return {String} The string "R.text.ContextText"
-		 */
-		getClassName: function(){
-			return "R.text.ContextText";
-		}
-	});
+        /**
+         * Release the text renderer back into the pool for reuse
+         */
+        release:function () {
+            this.base();
+            this.tInit();
+        },
+
+        /**
+         * Return <tt>true</tt> if the text renderer is native to the context.
+         * @return {Boolean}
+         */
+        isNative:function () {
+            return true;
+        },
+
+        setText:function (text) {
+            this.base(text);
+            this.calculateBoundingBox();
+        },
+
+        /**
+         * Calculate the bounding box for the text and set it on the host object.
+         * @private
+         */
+        calculateBoundingBox:function () {
+            if (this.getGameObject().getRenderContext()) {
+                var ctx = this.getGameObject().getRenderContext();
+                ctx.pushTransform();
+                ctx.setFontStyle(this.getTextStyle());
+                ctx.setFontAlign(this.getTextAlignment());
+                ctx.setFontWeight(this.getTextWeight());
+                ctx.setFont(this.getTextFont());
+                ctx.setFontSize(Math.floor(this.getSize() * R.text.TextRenderer.BASE_TEXT_PIXELSIZE) || R.text.TextRenderer.BASE_TEXT_PIXELSIZE);
+
+                this.getGameObject().setBoundingBox(ctx.getTextMetrics(this.getText()));
+                ctx.popTransform();
+            }
+        },
+
+        /**
+         * @private
+         */
+        execute:function (renderContext, time, dt) {
+
+            if (this.getText().length == 0) {
+                return;
+            }
+
+            renderContext.setFontStyle(this.getTextStyle());
+            renderContext.setFontAlign(this.getTextAlignment());
+            renderContext.setFontWeight(this.getTextWeight());
+            renderContext.setFont(this.getTextFont());
+            renderContext.setFontSize(Math.floor(this.getSize() * R.text.TextRenderer.BASE_TEXT_PIXELSIZE) || R.text.TextRenderer.BASE_TEXT_PIXELSIZE);
+
+            renderContext.setFillStyle(this.getColor());
+            renderContext.drawText(R.math.Point2D.ZERO, this.getText(), this.getGameObject());
+        }
+
+    }, /** @scope R.text.ContextText.prototype */ {
+        /**
+         * Get the class name of this object
+         * @return {String} The string "R.text.ContextText"
+         */
+        getClassName:function () {
+            return "R.text.ContextText";
+        }
+    });
 };

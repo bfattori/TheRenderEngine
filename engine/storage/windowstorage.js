@@ -33,10 +33,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.storage.WindowStorage",
-	"requires": [
-		"R.storage.AbstractStorage"
-	]
+    "class":"R.storage.WindowStorage",
+    "requires":[
+        "R.storage.AbstractStorage"
+    ]
 });
 
 /**
@@ -49,138 +49,138 @@ R.Engine.define({
  * @description This class of storage is used to persist data on the window object's <tt>name</tt>
  *    attribute.
  */
-R.storage.WindowStorage = function(){
-	return R.storage.AbstractStorage.extend(/** @scope R.storage.WindowStorage.prototype */{
+R.storage.WindowStorage = function () {
+    return R.storage.AbstractStorage.extend(/** @scope R.storage.WindowStorage.prototype */{
 
-      hash: null,
+        hash:null,
 
-		/** @private */
-		constructor: function(name, options){
-			this.base(name);
-         this.hash = {};
-         this.loadData();
-		},
-
-      destroy: function() {
-         this.dispose();
-         this.base();
-      },
-
-		/**
-		 * Release the object back into the object pool.
-		 */
-		release: function(){
-			this.base();
-         this.hash = null;
-		},
-
-		/**
-		 * Initialize the storage object to the document.cookie object
-		 * @return {Object} The <tt>localStorage</tt> object
-		 */
-		initStorageObject: function(){
-			return window.name;
-		},
-
-      /**
-       * Save a value to the window's <tt>name</tt> attribute storage.
-       * @param key {String} The key to store the data with
-       * @param value {Object} The value to store with the key
-       */
-      save: function(key, value) {
-         if (!this.enabled) {
-            return;
-         }
-
-         if (typeof key === "object" && !R.isArray(key)) {
-            // Set the entire hash
-            this.hash = key;
-         } else {
-            this.hash[key] = value;
-         }
-         this.saveData(JSON.stringify(this.hash));
-      },
-
-      /**
-       * Get the value associated with the key from the window's <tt>name</tt> attribute storage.
-       * @param key {String} The key to retrieve data for
-       * @return {Object} The value that was stored with the key, or <tt>null</tt>
-       */
-      load: function(key) {
-         if (!this.enabled) {
-            return null;
-         }
-
-         if (!key) {
-            return this.hash();
-         }
-         return this.hash[key];
-      },
-
-      /**
-       * Dispose of all of the data
-       */
-      dispose: function() {
-         if (!this.enabled) {
-            return;
-         }
-
-         this.saveData(null);
-      },
-
-      /**
-       * Clear all of the data
-       */
-      clear: function() {
-         if (!this.enabled) {
-            return;
-         }
-
-         this.saveData("{}");
-      },
-
-      /**
-       * Save the data to the window's <tt>name</tt> attribute.  We don't want to
-       * overwrite what might already be there, so we mark it up.
-       * @param data
-       * @private
-       */
-      saveData: function(data) {
-         if (data != null) {
-            // First we remove it from window.name
+        /** @private */
+        constructor:function (name, options) {
+            this.base(name);
+            this.hash = {};
             this.loadData();
-            // Then we reattach it
-            this.getStorageObject() += "/*TRE_S*/" + data + "/*TRE_E*/";
-         }
-      },
+        },
 
-      /**
-       * Load the data from the window's <tt>name</tt> attribute
-       * @private
-       */
-      loadData: function() {
-         // Find our object
-         var m = /\/\*TRE_S\*\/(\{.*\})\/\*TRE_E\*\//,
-             res = m.exec(this.getStorageObject());
+        destroy:function () {
+            this.dispose();
+            this.base();
+        },
 
-         if (res && res[1] != null) {
-            this.getStorageObject().replace(m,"");
-            return JSON.parse(res[1]);
-         }
+        /**
+         * Release the object back into the object pool.
+         */
+        release:function () {
+            this.base();
+            this.hash = null;
+        },
 
-         return {};
-      }
+        /**
+         * Initialize the storage object to the document.cookie object
+         * @return {Object} The <tt>localStorage</tt> object
+         */
+        initStorageObject:function () {
+            return window.name;
+        },
 
-	}, /** @scope R.storage.WindowStorage.prototype */ {
+        /**
+         * Save a value to the window's <tt>name</tt> attribute storage.
+         * @param key {String} The key to store the data with
+         * @param value {Object} The value to store with the key
+         */
+        save:function (key, value) {
+            if (!this.enabled) {
+                return;
+            }
 
-		/**
-		 * Get the class name of this object
-		 *
-		 * @return {String} "R.storage.WindowStorage"
-		 */
-		getClassName: function(){
-			return "R.storage.WindowStorage";
-		}
+            if (typeof key === "object" && !R.isArray(key)) {
+                // Set the entire hash
+                this.hash = key;
+            } else {
+                this.hash[key] = value;
+            }
+            this.saveData(JSON.stringify(this.hash));
+        },
 
-	});
+        /**
+         * Get the value associated with the key from the window's <tt>name</tt> attribute storage.
+         * @param key {String} The key to retrieve data for
+         * @return {Object} The value that was stored with the key, or <tt>null</tt>
+         */
+        load:function (key) {
+            if (!this.enabled) {
+                return null;
+            }
+
+            if (!key) {
+                return this.hash();
+            }
+            return this.hash[key];
+        },
+
+        /**
+         * Dispose of all of the data
+         */
+        dispose:function () {
+            if (!this.enabled) {
+                return;
+            }
+
+            this.saveData(null);
+        },
+
+        /**
+         * Clear all of the data
+         */
+        clear:function () {
+            if (!this.enabled) {
+                return;
+            }
+
+            this.saveData("{}");
+        },
+
+        /**
+         * Save the data to the window's <tt>name</tt> attribute.  We don't want to
+         * overwrite what might already be there, so we mark it up.
+         * @param data
+         * @private
+         */
+        saveData:function (data) {
+            if (data != null) {
+                // First we remove it from window.name
+                this.loadData();
+                // Then we reattach it
+                this.getStorageObject() += "/*TRE_S*/" + data + "/*TRE_E*/";
+            }
+        },
+
+        /**
+         * Load the data from the window's <tt>name</tt> attribute
+         * @private
+         */
+        loadData:function () {
+            // Find our object
+            var m = /\/\*TRE_S\*\/(\{.*\})\/\*TRE_E\*\//,
+                res = m.exec(this.getStorageObject());
+
+            if (res && res[1] != null) {
+                this.getStorageObject().replace(m, "");
+                return JSON.parse(res[1]);
+            }
+
+            return {};
+        }
+
+    }, /** @scope R.storage.WindowStorage.prototype */ {
+
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.storage.WindowStorage"
+         */
+        getClassName:function () {
+            return "R.storage.WindowStorage";
+        }
+
+    });
 };

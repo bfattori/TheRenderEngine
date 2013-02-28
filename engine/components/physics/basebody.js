@@ -34,14 +34,14 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.physics.BaseBody",
-   "requires": [
-      "R.components.Transform2D",
-      "R.math.Point2D",
-      "R.math.Vector2D",
-      "R.math.Rectangle2D",
-      "R.physics.Simulation"
-   ]
+    "class":"R.components.physics.BaseBody",
+    "requires":[
+        "R.components.Transform2D",
+        "R.math.Point2D",
+        "R.math.Vector2D",
+        "R.math.Rectangle2D",
+        "R.physics.Simulation"
+    ]
 });
 
 /**
@@ -56,573 +56,573 @@ R.Engine.define({
  * @description All physical body components should extend from this component type
  *              to inherit such values as density and friction, and gain access to position and rotation.
  */
-R.components.physics.BaseBody = function() {
-   return R.components.Transform2D.extend(/** @scope R.components.physics.BaseBody.prototype */{
+R.components.physics.BaseBody = function () {
+    return R.components.Transform2D.extend(/** @scope R.components.physics.BaseBody.prototype */{
 
-      bodyDef: null,
-      fixtureDef: null,
-      simulation: null,
-      body: null,
-      rotVec: null,
-      bodyPos: null,
-      renderComponent: null,
-      origin: null,
+        bodyDef:null,
+        fixtureDef:null,
+        simulation:null,
+        body:null,
+        rotVec:null,
+        bodyPos:null,
+        renderComponent:null,
+        origin:null,
 
-      scaledPoint: null,
-      _states: null,
+        scaledPoint:null,
+        _states:null,
 
-      /**
-       * @private
-       */
-      constructor: function(name, fixtureDef) {
-         this.base(name || "BaseBody");
+        /**
+         * @private
+         */
+        constructor:function (name, fixtureDef) {
+            this.base(name || "BaseBody");
 
-         this.bodyDef = new Box2D.Dynamics.b2BodyDef();
-         this.bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
+            this.bodyDef = new Box2D.Dynamics.b2BodyDef();
+            this.bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
 
-         this.fixtureDef = fixtureDef;
-         this.fixtureDef.restitution = R.components.physics.BaseBody.DEFAULT_RESTITUTION;
-         this.fixtureDef.density = R.components.physics.BaseBody.DEFAULT_DENSITY;
-         this.fixtureDef.friction = R.components.physics.BaseBody.DEFAULT_FRICTION;
-         this.simulation = null;
-         this.rotVec = R.math.Vector2D.create(0, 0);
-         this.bodyPos = R.math.Point2D.create(0, 0);
-         this.origin = R.math.Point2D.create(0, 0);
-         this.scaledPoint = R.math.Point2D.create(0, 0);
-
-         // 0: Active, 1: Sleeping
-         this._states = [false, false];
-      },
-
-      /**
-       * Destroy the object
-       */
-      destroy: function() {
-         if (this.simulation) {
-            this.stopSimulation();
-         }
-
-         if (this.renderComponent != null) {
-            this.renderComponent.destroy();
-         }
-
-         this.rotVec.destroy();
-         this.bodyPos.destroy();
-         this.origin.destroy();
-         this.scaledPoint.destroy();
-
-         this.base();
-      },
-
-      /**
-       * Releases the object back into the pool
-       */
-      release: function() {
-         this.base();
-
-         this.rotVec = null;
-         this.bodyPos = null;
-         this.origin = null;
-         this._states = null;
-      },
-
-      /**
-       * Start simulating the body.  If the body isn't a part of the simulation,
-       * it is added and simulation occurs.  Position and rotation will be updated.
-       */
-      startSimulation: function() {
-         if (!this.simulation) {
-            this.simulation = this.getGameObject().getSimulation();
-            this.body = this.simulation.addBody(this.getBodyDef(), this.getFixtureDef());
-
-            // Add something to the body so we can get back to this object
-            this.body.__$backRef$__ = this;
-         }
-      },
-
-      /**
-       * Stop simulating the body.  If the body is a part of a simulation,
-       * it is removed and simulation stops.  The position and rotation of
-       * the body will not be updated.
-       */
-      stopSimulation: function() {
-         if (this.simulation) {
-            this.simulation.removeBody(this.getBody());
+            this.fixtureDef = fixtureDef;
+            this.fixtureDef.restitution = R.components.physics.BaseBody.DEFAULT_RESTITUTION;
+            this.fixtureDef.density = R.components.physics.BaseBody.DEFAULT_DENSITY;
+            this.fixtureDef.friction = R.components.physics.BaseBody.DEFAULT_FRICTION;
             this.simulation = null;
-         }
-      },
+            this.rotVec = R.math.Vector2D.create(0, 0);
+            this.bodyPos = R.math.Point2D.create(0, 0);
+            this.origin = R.math.Point2D.create(0, 0);
+            this.scaledPoint = R.math.Point2D.create(0, 0);
 
-      /**
-       * Set the associated render component for this body.  This is typically used by the
-       * {@link PhysicsActor} to link a body to a renderer so that each body can have an
-       * associated renderer applied.
-       *
-       * @param renderComponent {R.components.Render} The render component to associate with this body
-       */
-      setRenderComponent: function(renderComponent) {
-         this.renderComponent = renderComponent;
-         if (renderComponent != null) {
-            this.renderComponent.setGameObject(this.getGameObject());
-         }
-      },
+            // 0: Active, 1: Sleeping
+            this._states = [false, false];
+        },
 
-      /**
-       * Get the associated render component for this body.
-       * @return {R.components.Render} or <code>null</code>
-       */
-      getRenderComponent: function() {
-         return this.renderComponent;
-      },
+        /**
+         * Destroy the object
+         */
+        destroy:function () {
+            if (this.simulation) {
+                this.stopSimulation();
+            }
 
-      /**
-       * Set the origin of the rigid body.  By default, the origin is the top left corner of
-       * the bounding box for the body.  Most times the origin should be set to the center
-       * of the body.
-       *
-       * @param x {Number|R.math.Point2D} The X coordinate or a <tt>Point2D</tt>
-       * @param y {Number} The Y coordinate or <tt>null</tt> if X is a <tt>Point2D</tt>
-       */
-      setLocalOrigin: function(x, y) {
-         this.origin.set(x, y);
-      },
+            if (this.renderComponent != null) {
+                this.renderComponent.destroy();
+            }
 
-      /**
-       * Get the local origin of the body.
-       * @return {R.math.Point2D}
-       */
-      getLocalOrigin: function() {
-         return this.origin;
-      },
+            this.rotVec.destroy();
+            this.bodyPos.destroy();
+            this.origin.destroy();
+            this.scaledPoint.destroy();
 
-      /**
-       * Get the center of the body.
-       * @return {R.math.Point2D}
-       */
-      getCenter: function() {
-         return R.clone(this.getPosition());
-      },
+            this.base();
+        },
 
-      /**
-       * [ABSTRACT] Get a box which bounds the body.
-       * @return {R.math.Rectangle2D}
-       */
-      getBoundingBox: function() {
-         return R.math.Rectangle2D.create(0, 0, 1, 1);
-      },
+        /**
+         * Releases the object back into the pool
+         */
+        release:function () {
+            this.base();
 
-      /**
-       * Get the Box2d fixture definition object.
-       * @return {Box2D.Dynamics.b2FixtureDef}
-       */
-      getFixtureDef: function() {
-         return this.fixtureDef;
-      },
+            this.rotVec = null;
+            this.bodyPos = null;
+            this.origin = null;
+            this._states = null;
+        },
 
-      /**
-       * Get the Box2d body definition object.
-       * @return {b2BodyDef}
-       */
-      getBodyDef: function() {
-         return this.bodyDef;
-      },
+        /**
+         * Start simulating the body.  If the body isn't a part of the simulation,
+         * it is added and simulation occurs.  Position and rotation will be updated.
+         */
+        startSimulation:function () {
+            if (!this.simulation) {
+                this.simulation = this.getGameObject().getSimulation();
+                this.body = this.simulation.addBody(this.getBodyDef(), this.getFixtureDef());
 
-      /**
-       * Get the Box2d body object which was added to the simulation.
-       * @return {b2Body}
-       */
-      getBody: function() {
-         return this.body;
-      },
+                // Add something to the body so we can get back to this object
+                this.body.__$backRef$__ = this;
+            }
+        },
 
-      /**
-       * Update the fixture on a simulated body. Doing so may cause a hiccup in simulation
-       * @protected
-       */
-      updateFixture: function() {
-         if (this.simulation) {
-            // Destroy the current fixture, then recreate it ()
-            this.getBody().DestroyFixture(this.fixtureDef);
-            this.getBody().CreateFixture(this.fixtureDef);
-         }
-      },
+        /**
+         * Stop simulating the body.  If the body is a part of a simulation,
+         * it is removed and simulation stops.  The position and rotation of
+         * the body will not be updated.
+         */
+        stopSimulation:function () {
+            if (this.simulation) {
+                this.simulation.removeBody(this.getBody());
+                this.simulation = null;
+            }
+        },
 
-      /**
-       * Set the resitution (bounciness) of the body.  The value should be between
-       * zero and one.  Values higher than one are accepted, but produce objects which
-       * are unrealistically bouncy.
-       *
-       * @param restitution {Number} A value between 0.0 and 1.0
-       */
-      setRestitution: function(restitution) {
-         this.fixtureDef.restitution = restitution;
-         this.updateFixture();
-      },
+        /**
+         * Set the associated render component for this body.  This is typically used by the
+         * {@link PhysicsActor} to link a body to a renderer so that each body can have an
+         * associated renderer applied.
+         *
+         * @param renderComponent {R.components.Render} The render component to associate with this body
+         */
+        setRenderComponent:function (renderComponent) {
+            this.renderComponent = renderComponent;
+            if (renderComponent != null) {
+                this.renderComponent.setGameObject(this.getGameObject());
+            }
+        },
 
-      /**
-       * Get the resitution (bounciness) value for the body.
-       * @return {Number}
-       */
-      getRestitution: function() {
-         return this.fixtureDef.restitution;
-      },
+        /**
+         * Get the associated render component for this body.
+         * @return {R.components.Render} or <code>null</code>
+         */
+        getRenderComponent:function () {
+            return this.renderComponent;
+        },
 
-      /**
-       * Set the density of the body.
-       *
-       * @param density {Number} The density of the body
-       */
-      setDensity: function(density) {
-         this.fixtureDef.density = density;
-         this.updateFixture();
-      },
+        /**
+         * Set the origin of the rigid body.  By default, the origin is the top left corner of
+         * the bounding box for the body.  Most times the origin should be set to the center
+         * of the body.
+         *
+         * @param x {Number|R.math.Point2D} The X coordinate or a <tt>Point2D</tt>
+         * @param y {Number} The Y coordinate or <tt>null</tt> if X is a <tt>Point2D</tt>
+         */
+        setLocalOrigin:function (x, y) {
+            this.origin.set(x, y);
+        },
 
-      /**
-       * Get the density of the body.
-       * @return {Number}
-       */
-      getDensity: function() {
-         return this.fixtureDef.density;
-      },
+        /**
+         * Get the local origin of the body.
+         * @return {R.math.Point2D}
+         */
+        getLocalOrigin:function () {
+            return this.origin;
+        },
 
-      /**
-       * Set the friction of the body.  Lower values slide easily across other bodies.
-       * Higher values will cause a body to stop moving as it slides across other bodies.
-       * However, even a body which has high friction will keep sliding across a body
-       * with no friction.
-       *
-       * @param friction {Number} The friction of the body
-       */
-      setFriction: function(friction) {
-         this.fixtureDef.friction = friction;
-         this.updateFixture();
-      },
+        /**
+         * Get the center of the body.
+         * @return {R.math.Point2D}
+         */
+        getCenter:function () {
+            return R.clone(this.getPosition());
+        },
 
-      /**
-       * Get the friction of the body.
-       * @return {Number}
-       */
-      getFriction: function() {
-         return this.fixtureDef.friction;
-      },
+        /**
+         * [ABSTRACT] Get a box which bounds the body.
+         * @return {R.math.Rectangle2D}
+         */
+        getBoundingBox:function () {
+            return R.math.Rectangle2D.create(0, 0, 1, 1);
+        },
 
-      /**
-       * Set the initial position of the body.  Once a body is in motion, updating
-       * its position should be avoided since it doesn't fit with physical simulation.
-       * To change an object's position, try applying forces or impulses to the body.
-       *
-       * @param point {R.math.Point2D} The initial position of the body
-       */
-      setPosition: function(point) {
-         if (!this.simulation) {
-            this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_SIZE);
-            this.getBodyDef().position.Set(this.scaledPoint.x, this.scaledPoint.y);
-         } else {
-            this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_SIZE);
-            var bv = new Box2D.Common.Math.b2Vec2(this.scaledPoint.x, this.scaledPoint.y);
-            this.getBody().SetPosition(bv);
-         }
-      },
+        /**
+         * Get the Box2d fixture definition object.
+         * @return {Box2D.Dynamics.b2FixtureDef}
+         */
+        getFixtureDef:function () {
+            return this.fixtureDef;
+        },
 
-      /**
-       * Get the position of the body during simulation.  This value is updated
-       * as the simulation is stepped.
-       * @return {R.math.Point2D}
-       */
-      getPosition: function() {
-         if (this.simulation) {
-            var bp = this.getBody().GetPosition();
-            this.scaledPoint.set(bp.x, bp.y).mul(R.physics.Simulation.WORLD_SIZE);
-            this.bodyPos.set(this.scaledPoint);
-         } else {
-            this.scaledPoint.set(this.getBodyDef().position.x, this.getBodyDef().position.y).mul(R.physics.Simulation.WORLD_SIZE);
-            this.bodyPos.set(this.scaledPoint);
-         }
-         return this.bodyPos;
-      },
+        /**
+         * Get the Box2d body definition object.
+         * @return {b2BodyDef}
+         */
+        getBodyDef:function () {
+            return this.bodyDef;
+        },
 
-      /**
-       * Get the rotation of the body.  This value is updated as the simulation is stepped.
-       * @return {Number}
-       */
-      getRotation: function() {
-         if (this.simulation) {
-            return R.math.Math2D.radToDeg(this.getBody().GetAngle());
-         } else {
-            return this.getBodyDef().angle;
-         }
-      },
+        /**
+         * Get the Box2d body object which was added to the simulation.
+         * @return {b2Body}
+         */
+        getBody:function () {
+            return this.body;
+        },
 
-      /**
-       * Set the angle of rotation for the body, in degrees.
-       * @param angle {Number} The rotation angle in degrees
-       */
-      setRotation: function(angle) {
-         if (this.simulation) {
-            this.getBody().SetAngle(R.math.Math2D.degToRad(angle));
-         } else {
-            this.getBodyDef().angle = R.math.Math2D.degToRad(angle);
-         }
-      },
+        /**
+         * Update the fixture on a simulated body. Doing so may cause a hiccup in simulation
+         * @protected
+         */
+        updateFixture:function () {
+            if (this.simulation) {
+                // Destroy the current fixture, then recreate it ()
+                this.getBody().DestroyFixture(this.fixtureDef);
+                this.getBody().CreateFixture(this.fixtureDef);
+            }
+        },
 
-      /**
-       * Apply a force at a world point. If the force is not applied at the center of mass,
-       * it will generate a torque and affect the angular velocity. This wakes up the body.
-       * Forces are comprised of a force vector and
-       * a position.  The force vector is the direction in which the force is
-       * moving, while the position is where on the body the force is acting.
-       * Forces act upon a body from world coordinates.
-       *
-       * @param forceVector {R.math.Vector2D} The force vector
-       * @param position {R.math.Point2D} The position where the force is acting upon the body
-       */
-      applyForce: function(forceVector, position) {
-         var fv = new Box2D.Common.Math.b2Vec2(forceVector.x, forceVector.y);
-         var dv = new Box2D.Common.Math.b2Vec2(position.x, position.y);
-         this.getBody().ApplyForce(fv, dv);
-      },
+        /**
+         * Set the resitution (bounciness) of the body.  The value should be between
+         * zero and one.  Values higher than one are accepted, but produce objects which
+         * are unrealistically bouncy.
+         *
+         * @param restitution {Number} A value between 0.0 and 1.0
+         */
+        setRestitution:function (restitution) {
+            this.fixtureDef.restitution = restitution;
+            this.updateFixture();
+        },
 
-      /**
-       * Apply an impulse at a point. This immediately modifies the velocity. It also modifies
-       * the angular velocity if the point of application is not at the center of mass. This wakes
-       * up the body.  Impulses are comprised of an impulse vector and
-       * a position.  The impulse vector is the direction of the impulse, while the position
-       * is where on the body the impulse will be applied.
-       * Impulses act upon a body locally, adjusting its velocity.
-       *
-       * @param impulseVector {R.math.Vector2D} The impulse vectory
-       * @param position {R.math.Point2D} the position where the impulse is originating from in the body
-       */
-      applyImpulse: function(impulseVector, position) {
-         var iv = new Box2D.Common.Math.b2Vec2(impulseVector.x, impulseVector.y);
-         var dv = new Box2D.Common.Math.b2Vec2(position.x, position.y);
-         this.getBody().ApplyImpulse(iv, dv);
-      },
+        /**
+         * Get the resitution (bounciness) value for the body.
+         * @return {Number}
+         */
+        getRestitution:function () {
+            return this.fixtureDef.restitution;
+        },
 
-      /**
-       * Apply torque to the body. This affects the angular velocity without affecting the
-       * linear velocity of the center of mass.
-       *
-       * @param torque {Number} The amount of torque to apply to the body
-       */
-      applyTorque: function(torque) {
-         this.getBody().ApplyTorque(torque);
-      },
+        /**
+         * Set the density of the body.
+         *
+         * @param density {Number} The density of the body
+         */
+        setDensity:function (density) {
+            this.fixtureDef.density = density;
+            this.updateFixture();
+        },
 
-      /**
-       * Get the total mass of the body.  If the body is not simulating, this
-       * returns <code>Infinity</code>.
-       *
-       * @return {Number} The mass of the body, or <code>Infinity</code>
-       */
-      getMass: function() {
-         if (this.simulation) {
-            return this.getBody().GetMass();
-         } else {
-            return this.getBodyDef().massData.mass;
-         }
-      },
+        /**
+         * Get the density of the body.
+         * @return {Number}
+         */
+        getDensity:function () {
+            return this.fixtureDef.density;
+        },
 
-      /**
-       * Set the total mass of the body in kilograms.
-       * @param mass {Number} The mass of the body in kg
-       */
-      setMass: function(mass) {
-         if (this.simulation) {
-            var mData = new Box2D.Dynamics.b2MassData();
-            this.getBody().GetMassData(mData);
-            mData.mass = mass;
-            this.getBody().SetMassData(mData);
-            mData = null;
-         } else {
-            this.getBodyDef().massData.mass = mass;
-         }
-      },
+        /**
+         * Set the friction of the body.  Lower values slide easily across other bodies.
+         * Higher values will cause a body to stop moving as it slides across other bodies.
+         * However, even a body which has high friction will keep sliding across a body
+         * with no friction.
+         *
+         * @param friction {Number} The friction of the body
+         */
+        setFriction:function (friction) {
+            this.fixtureDef.friction = friction;
+            this.updateFixture();
+        },
 
-      /**
-       * Get the linear damping of the body.
-       * @return {Number}
-       */
-      getLinearDamping: function() {
-         if (this.simulation) {
-            return this.getBody().GetLinearDamping();
-         } else {
-            return this.getBodyDef().linearDamping;
-         }
-      },
+        /**
+         * Get the friction of the body.
+         * @return {Number}
+         */
+        getFriction:function () {
+            return this.fixtureDef.friction;
+        },
 
-      /**
-       * Get the angular damping of the body.
-       * @return {Number}
-       */
-      getAngularDamping: function() {
-         if (this.simulation) {
-            return this.getBody().GetAngularDamping();
-         } else {
-            return this.getBodyDef().angularDamping;
-         }
-      },
+        /**
+         * Set the initial position of the body.  Once a body is in motion, updating
+         * its position should be avoided since it doesn't fit with physical simulation.
+         * To change an object's position, try applying forces or impulses to the body.
+         *
+         * @param point {R.math.Point2D} The initial position of the body
+         */
+        setPosition:function (point) {
+            if (!this.simulation) {
+                this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_SIZE);
+                this.getBodyDef().position.Set(this.scaledPoint.x, this.scaledPoint.y);
+            } else {
+                this.scaledPoint.set(point).div(R.physics.Simulation.WORLD_SIZE);
+                var bv = new Box2D.Common.Math.b2Vec2(this.scaledPoint.x, this.scaledPoint.y);
+                this.getBody().SetPosition(bv);
+            }
+        },
 
-      /**
-       * Sets the linear and angular damping of a body. Damping is used to reduce the
-       * world velocity of bodies.  Damping differs from friction in that friction
-       * only occurs when two surfaces are in contact.  Damping is not a replacement
-       * for friction.  A value between 0 and <code>Infinity</code> can be used, but
-       * normally the value is between 0 and 1.0.
-       *
-       * @param linear {Number} The amount of linear damping
-       * @param angular {Number} The amount of angular damping
-       */
-      setDamping: function(linear, angular) {
-         if (this.simulation) {
-            this.getBody().SetLinearDamping(linear);
-            this.getBody().SetAngularDamping(linear);
-         } else {
-            this.getBodyDef().linearDamping = linear;
-            this.getBodyDef().angularDamping = angular;
-         }
-      },
+        /**
+         * Get the position of the body during simulation.  This value is updated
+         * as the simulation is stepped.
+         * @return {R.math.Point2D}
+         */
+        getPosition:function () {
+            if (this.simulation) {
+                var bp = this.getBody().GetPosition();
+                this.scaledPoint.set(bp.x, bp.y).mul(R.physics.Simulation.WORLD_SIZE);
+                this.bodyPos.set(this.scaledPoint);
+            } else {
+                this.scaledPoint.set(this.getBodyDef().position.x, this.getBodyDef().position.y).mul(R.physics.Simulation.WORLD_SIZE);
+                this.bodyPos.set(this.scaledPoint);
+            }
+            return this.bodyPos;
+        },
 
-      /**
-       * Set a body to be static or dynamic.  A static body will not move around.
-       * @param state {Boolean} <code>true</code> to set the body as static, <code>false</code> for
-       *        dynamic.
-       */
-      setStatic: function(state) {
-         this.getBodyDef().type = state ? Box2D.Dynamics.b2Body.b2_staticBody : Box2D.Dynamics.b2Body.b2_dynamicBody;
-      },
+        /**
+         * Get the rotation of the body.  This value is updated as the simulation is stepped.
+         * @return {Number}
+         */
+        getRotation:function () {
+            if (this.simulation) {
+                return R.math.Math2D.radToDeg(this.getBody().GetAngle());
+            } else {
+                return this.getBodyDef().angle;
+            }
+        },
 
-      /**
-       * Returns <code>true</code> if the body is static.  A body is static if it
-       * isn't updated part of the simulation during contacts.
-       * @return {Boolean}
-       */
-      isStatic: function() {
-         if (this.simulation) {
-            return this.getBody().GetType() == Box2D.Dynamics.b2Body.b2_staticBody;
-         } else {
-            return this.getBodyDef().type == Box2D.Dynamics.b2Body.b2_staticBody;
-         }
-      },
+        /**
+         * Set the angle of rotation for the body, in degrees.
+         * @param angle {Number} The rotation angle in degrees
+         */
+        setRotation:function (angle) {
+            if (this.simulation) {
+                this.getBody().SetAngle(R.math.Math2D.degToRad(angle));
+            } else {
+                this.getBodyDef().angle = R.math.Math2D.degToRad(angle);
+            }
+        },
 
-      /**
-       * Returns <code>true</code> if the body is sleeping.  A body is sleeping if it
-       * has settled to the point where no movement is being calculated.  If you want
-       * to perform an action upon a body, other than applying force, torque, or impulses,
-       * you must call {@link #wakeUp}.
-       * @return {Boolean}
-       */
-      isSleeping: function() {
-         if (this.simulation) {
-            return !this.getBody().IsAwake();
-         } else {
-            return !this.getBodyDef().awake;
-         }
-      },
+        /**
+         * Apply a force at a world point. If the force is not applied at the center of mass,
+         * it will generate a torque and affect the angular velocity. This wakes up the body.
+         * Forces are comprised of a force vector and
+         * a position.  The force vector is the direction in which the force is
+         * moving, while the position is where on the body the force is acting.
+         * Forces act upon a body from world coordinates.
+         *
+         * @param forceVector {R.math.Vector2D} The force vector
+         * @param position {R.math.Point2D} The position where the force is acting upon the body
+         */
+        applyForce:function (forceVector, position) {
+            var fv = new Box2D.Common.Math.b2Vec2(forceVector.x, forceVector.y);
+            var dv = new Box2D.Common.Math.b2Vec2(position.x, position.y);
+            this.getBody().ApplyForce(fv, dv);
+        },
 
-      /**
-       * Returns <code>true</code> if the body is active.  An active body is updated during
-       * the simulation and can be collided with.
-       * @return {Boolean}
-       */
-      isActive: function() {
-         if (this.simulation) {
-            return this.getBody().IsActive();
-         } else {
-            return this.getBodyDef().active;
-         }
-      },
+        /**
+         * Apply an impulse at a point. This immediately modifies the velocity. It also modifies
+         * the angular velocity if the point of application is not at the center of mass. This wakes
+         * up the body.  Impulses are comprised of an impulse vector and
+         * a position.  The impulse vector is the direction of the impulse, while the position
+         * is where on the body the impulse will be applied.
+         * Impulses act upon a body locally, adjusting its velocity.
+         *
+         * @param impulseVector {R.math.Vector2D} The impulse vectory
+         * @param position {R.math.Point2D} the position where the impulse is originating from in the body
+         */
+        applyImpulse:function (impulseVector, position) {
+            var iv = new Box2D.Common.Math.b2Vec2(impulseVector.x, impulseVector.y);
+            var dv = new Box2D.Common.Math.b2Vec2(position.x, position.y);
+            this.getBody().ApplyImpulse(iv, dv);
+        },
 
-      /**
-       * Wake up a body, adding it back into the collection of bodies being simulated.
-       * If the body is not being simulated, this does nothing.
-       */
-      wakeUp: function() {
-         if (this.simulation) {
-            this.getBody().SetAwake(true);
-         }
-      },
+        /**
+         * Apply torque to the body. This affects the angular velocity without affecting the
+         * linear velocity of the center of mass.
+         *
+         * @param torque {Number} The amount of torque to apply to the body
+         */
+        applyTorque:function (torque) {
+            this.getBody().ApplyTorque(torque);
+        },
 
-      /**
-       * Sets the active state of a body.  Setting the active flag to <tt>false</tt> will
-       * remove the object from simulation.  Setting it to true will add it back into the
-       * simulation.
-       * @param active {Boolean} The activity flag
-       */
-      setActive: function(active) {
-         if (this.simulation) {
-            this.getBody().SetActive(active);
-         } else {
-            this.getBodyDef().active = active;
-         }
-      },
+        /**
+         * Get the total mass of the body.  If the body is not simulating, this
+         * returns <code>Infinity</code>.
+         *
+         * @return {Number} The mass of the body, or <code>Infinity</code>
+         */
+        getMass:function () {
+            if (this.simulation) {
+                return this.getBody().GetMass();
+            } else {
+                return this.getBodyDef().massData.mass;
+            }
+        },
 
-      /**
-       * Checks a couple of flags on the body and triggers events when they change.  Fires
-       * the <code>active</code> event on the game object when this body changes its "active" state.
-       * Fires the <code>sleeping</code> event on the game object when this body changes its
-       * "sleeping" state.  Both events are passed the body which changed state, and a flag
-       * indicating the current state.
-       *
-       * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
-       * @param time {Number} The engine time in milliseconds
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       */
-      execute: function(renderContext, time, dt) {
-         this.base(renderContext, time, dt);
+        /**
+         * Set the total mass of the body in kilograms.
+         * @param mass {Number} The mass of the body in kg
+         */
+        setMass:function (mass) {
+            if (this.simulation) {
+                var mData = new Box2D.Dynamics.b2MassData();
+                this.getBody().GetMassData(mData);
+                mData.mass = mass;
+                this.getBody().SetMassData(mData);
+                mData = null;
+            } else {
+                this.getBodyDef().massData.mass = mass;
+            }
+        },
 
-         // Check the sleeping and active states so we can trigger events
-         var activeChange = false, sleepChange = false;
-         if (!this._states[0] && this.isActive()) {
-            this._states[0] = true;
-            activeChange = true;
-         } else if (this._states[0] && !this.isActive()) {
-            this._states[0] = false;
-            activeChange = true;
-         }
+        /**
+         * Get the linear damping of the body.
+         * @return {Number}
+         */
+        getLinearDamping:function () {
+            if (this.simulation) {
+                return this.getBody().GetLinearDamping();
+            } else {
+                return this.getBodyDef().linearDamping;
+            }
+        },
 
-         if (!this._states[1] && this.isSleeping()) {
-            this._states[1] = true;
-            sleepChange = true;
-         } else if (this._states[1] && !this.isSleeping()) {
-            this._states[1] = false;
-            sleepChange = true;
-         }
+        /**
+         * Get the angular damping of the body.
+         * @return {Number}
+         */
+        getAngularDamping:function () {
+            if (this.simulation) {
+                return this.getBody().GetAngularDamping();
+            } else {
+                return this.getBodyDef().angularDamping;
+            }
+        },
 
-         if (activeChange)
-            this.getGameObject().triggerEvent("active", [this, this._states[0]]);
+        /**
+         * Sets the linear and angular damping of a body. Damping is used to reduce the
+         * world velocity of bodies.  Damping differs from friction in that friction
+         * only occurs when two surfaces are in contact.  Damping is not a replacement
+         * for friction.  A value between 0 and <code>Infinity</code> can be used, but
+         * normally the value is between 0 and 1.0.
+         *
+         * @param linear {Number} The amount of linear damping
+         * @param angular {Number} The amount of angular damping
+         */
+        setDamping:function (linear, angular) {
+            if (this.simulation) {
+                this.getBody().SetLinearDamping(linear);
+                this.getBody().SetAngularDamping(linear);
+            } else {
+                this.getBodyDef().linearDamping = linear;
+                this.getBodyDef().angularDamping = angular;
+            }
+        },
 
-         if (sleepChange)
-            this.getGameObject().triggerEvent("sleeping", [this, this._states[1]]);
-      }
+        /**
+         * Set a body to be static or dynamic.  A static body will not move around.
+         * @param state {Boolean} <code>true</code> to set the body as static, <code>false</code> for
+         *        dynamic.
+         */
+        setStatic:function (state) {
+            this.getBodyDef().type = state ? Box2D.Dynamics.b2Body.b2_staticBody : Box2D.Dynamics.b2Body.b2_dynamicBody;
+        },
 
-   }, { /** @scope R.components.physics.BaseBody.prototype */
+        /**
+         * Returns <code>true</code> if the body is static.  A body is static if it
+         * isn't updated part of the simulation during contacts.
+         * @return {Boolean}
+         */
+        isStatic:function () {
+            if (this.simulation) {
+                return this.getBody().GetType() == Box2D.Dynamics.b2Body.b2_staticBody;
+            } else {
+                return this.getBodyDef().type == Box2D.Dynamics.b2Body.b2_staticBody;
+            }
+        },
 
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.physics.BaseBody"
-       */
-      getClassName: function() {
-         return "R.components.physics.BaseBody";
-      },
+        /**
+         * Returns <code>true</code> if the body is sleeping.  A body is sleeping if it
+         * has settled to the point where no movement is being calculated.  If you want
+         * to perform an action upon a body, other than applying force, torque, or impulses,
+         * you must call {@link #wakeUp}.
+         * @return {Boolean}
+         */
+        isSleeping:function () {
+            if (this.simulation) {
+                return !this.getBody().IsAwake();
+            } else {
+                return !this.getBodyDef().awake;
+            }
+        },
 
-      /**
-       * The default restitution (bounciness) of a body
-       * @type {Number}
-       */
-      DEFAULT_RESTITUTION: 0.48,
+        /**
+         * Returns <code>true</code> if the body is active.  An active body is updated during
+         * the simulation and can be collided with.
+         * @return {Boolean}
+         */
+        isActive:function () {
+            if (this.simulation) {
+                return this.getBody().IsActive();
+            } else {
+                return this.getBodyDef().active;
+            }
+        },
 
-      /**
-       * The default density of a body
-       */
-      DEFAULT_DENSITY: 1.0,
+        /**
+         * Wake up a body, adding it back into the collection of bodies being simulated.
+         * If the body is not being simulated, this does nothing.
+         */
+        wakeUp:function () {
+            if (this.simulation) {
+                this.getBody().SetAwake(true);
+            }
+        },
 
-      /**
-       * The default friction of a body
-       * @type {Number}
-       */
-      DEFAULT_FRICTION: 0.5
+        /**
+         * Sets the active state of a body.  Setting the active flag to <tt>false</tt> will
+         * remove the object from simulation.  Setting it to true will add it back into the
+         * simulation.
+         * @param active {Boolean} The activity flag
+         */
+        setActive:function (active) {
+            if (this.simulation) {
+                this.getBody().SetActive(active);
+            } else {
+                this.getBodyDef().active = active;
+            }
+        },
 
-   });
+        /**
+         * Checks a couple of flags on the body and triggers events when they change.  Fires
+         * the <code>active</code> event on the game object when this body changes its "active" state.
+         * Fires the <code>sleeping</code> event on the game object when this body changes its
+         * "sleeping" state.  Both events are passed the body which changed state, and a flag
+         * indicating the current state.
+         *
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
+         * @param time {Number} The engine time in milliseconds
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (renderContext, time, dt) {
+            this.base(renderContext, time, dt);
+
+            // Check the sleeping and active states so we can trigger events
+            var activeChange = false, sleepChange = false;
+            if (!this._states[0] && this.isActive()) {
+                this._states[0] = true;
+                activeChange = true;
+            } else if (this._states[0] && !this.isActive()) {
+                this._states[0] = false;
+                activeChange = true;
+            }
+
+            if (!this._states[1] && this.isSleeping()) {
+                this._states[1] = true;
+                sleepChange = true;
+            } else if (this._states[1] && !this.isSleeping()) {
+                this._states[1] = false;
+                sleepChange = true;
+            }
+
+            if (activeChange)
+                this.getGameObject().triggerEvent("active", [this, this._states[0]]);
+
+            if (sleepChange)
+                this.getGameObject().triggerEvent("sleeping", [this, this._states[1]]);
+        }
+
+    }, { /** @scope R.components.physics.BaseBody.prototype */
+
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.physics.BaseBody"
+         */
+        getClassName:function () {
+            return "R.components.physics.BaseBody";
+        },
+
+        /**
+         * The default restitution (bounciness) of a body
+         * @type {Number}
+         */
+        DEFAULT_RESTITUTION:0.48,
+
+        /**
+         * The default density of a body
+         */
+        DEFAULT_DENSITY:1.0,
+
+        /**
+         * The default friction of a body
+         * @type {Number}
+         */
+        DEFAULT_FRICTION:0.5
+
+    });
 };

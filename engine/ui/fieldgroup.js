@@ -33,11 +33,11 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.ui.FieldGroup",
-   "requires": [
-      "R.ui.AbstractUIControl",
-      "R.struct.Container"
-   ]
+    "class":"R.ui.FieldGroup",
+    "requires":[
+        "R.ui.AbstractUIControl",
+        "R.struct.Container"
+    ]
 });
 
 /**
@@ -47,214 +47,221 @@ R.Engine.define({
  * @param label {String} The label for the field group.
  * @extends R.ui.AbstractUIControl
  */
-R.ui.FieldGroup = function() {
-   return R.ui.AbstractUIControl.extend(/** @scope R.ui.FieldGroup.prototype */{
+R.ui.FieldGroup = function () {
+    return R.ui.AbstractUIControl.extend(/** @scope R.ui.FieldGroup.prototype */{
 
-      label: null,
-      labelPosition: 0,
-      controls: null,
+        label:null,
+        labelPosition:0,
+        controls:null,
 
-      /** @private */
-      constructor: function(label, textRenderer) {
-         this.base("FieldGroup", textRenderer);
-         this.addClass("fieldgroup");
-         this.setLabel(label || "");
-         this.labelPosition = R.ui.FieldGroup.LABEL_TOPLEFT;
-         this.controls = R.struct.Container.create("UIControls");
-      },
+        /** @private */
+        constructor:function (label, textRenderer) {
+            this.base("FieldGroup", textRenderer);
+            this.addClass("fieldgroup");
+            this.setLabel(label || "");
+            this.labelPosition = R.ui.FieldGroup.LABEL_TOPLEFT;
+            this.controls = R.struct.Container.create("UIControls");
+        },
 
-      /**
-       * Destroy the text input control, releasing its event handlers.
-       */
-      destroy: function() {
-         this.base();
-         this.controls.cleanUp();
-      },
+        /**
+         * Destroy the text input control, releasing its event handlers.
+         */
+        destroy:function () {
+            this.base();
+            this.controls.cleanUp();
+        },
 
-      /**
-       * Releases the object back into the object pool.  See {@link R.engine.PooledObject#release}
-       * for more information.
-       */
-      release: function() {
-         this.base();
-         this.label = null;
-         this.labelPosition = R.ui.FieldGroup.LABEL_TOPLEFT;
-         this.controls = null;
-      },
+        /**
+         * Releases the object back into the object pool.  See {@link R.engine.PooledObject#release}
+         * for more information.
+         */
+        release:function () {
+            this.base();
+            this.label = null;
+            this.labelPosition = R.ui.FieldGroup.LABEL_TOPLEFT;
+            this.controls = null;
+        },
 
-      /**
-       * Set the label for the field group, or an empty string to show no label.
-       * @param label {String} The label
-       */
-      setLabel: function(label) {
-         this.label = label;
-      },
+        /**
+         * Set the label for the field group, or an empty string to show no label.
+         * @param label {String} The label
+         */
+        setLabel:function (label) {
+            this.label = label;
+        },
 
-      /**
-       * Get the field group label.
-       * @return {String}
-       */
-      getLabel: function() {
-         return this.label;
-      },
+        /**
+         * Get the field group label.
+         * @return {String}
+         */
+        getLabel:function () {
+            return this.label;
+        },
 
-      /**
-       * Add a control to this field group.
-       * @param uiControl {R.ui.AbstractUIControl} The control to add
-       */
-      addControl: function(uiControl) {
-         Assert(uiControl instanceof R.ui.AbstractUIControl, "You can only add UI controls to a field group");
-         this.controls.add(uiControl);
-      },
+        /**
+         * Add a control to this field group.
+         * @param uiControl {R.ui.AbstractUIControl} The control to add
+         */
+        addControl:function (uiControl) {
+            Assert(uiControl instanceof R.ui.AbstractUIControl, "You can only add UI controls to a field group");
+            this.controls.add(uiControl);
+        },
 
-      /**
-       * Remove a control from this field group.
-       * @param uiControl {R.ui.AbstractUIControl} The control to remove
-       * @return {R.ui.AbstractUIControl} The control removed
-       */
-      removeControl: function(uiControl) {
-         return this.controls.remove(uiControl);
-      },
+        /**
+         * Remove a control from this field group.
+         * @param uiControl {R.ui.AbstractUIControl} The control to remove
+         * @return {R.ui.AbstractUIControl} The control removed
+         */
+        removeControl:function (uiControl) {
+            return this.controls.remove(uiControl);
+        },
 
-      /**
-       * Get the first control, within the field group, which has the specified name,
-       * or <code>null</code> if no control with the name is in the group.
-       * @param controlName {String} The name of the control to get
-       * @return {R.ui.AbstractUIControl} The control, or <code>null</code>
-       */
-      getControlByName: function(controlName) {
-         var controls = this.controls.filter(function(c) {
-            return (c.getControlName() === controlName);
-         });
-         if (controls.length != 0) {
-            return controls[0];
-         } else {
-            return null;
-         }
-      },
-
-      /**
-       * Draw the field group within the context.
-       * @param renderContext {R.rendercontexts.RenderContext2D} The render context where the control is
-       *    drawn.
-       * @param worldTime {Number} The current world time, in milliseconds
-       * @param dt {Number} The time since the last frame was drawn by the engine, in milliseconds
-       */
-      drawControl: function(renderContext, worldTime, dt) {
-         // Draw the current input text.  The text baseline is the bottom of the font,
-         // so we need to move that down by the height of the control (with some padding to look right)
-         renderContext.pushTransform();
-
-         if (this.label != "") {
-            this.getTextRenderer().setText(this.label);
-
-            // Draw the label
-            var labelPos = R.math.Point2D.create(0,0), wBox = R.clone(this.getWorldBox()),
-                textWidth = this.getTextRenderer().getBoundingBox().w,
-                textHeight = this.getTextRenderer().getBoundingBox().h;
-            switch (this.labelPosition) {
-               case R.ui.FieldGroup.LABEL_TOPLEFT:
-                  labelPos.x = wBox.x + 10; labelPos.y = wBox.y + 1; break;
-               case R.ui.FieldGroup.LABEL_TOPRIGHT:
-                  labelPos.x = (wBox.x + wBox.w) - (textWidth + 10); labelPos.y = wBox.y + 1; break;
-               case R.ui.FieldGroup.LABEL_BOTTOMLEFT:
-                  labelPos.x = wBox.x + 10; labelPos.y = (wBox.y + wBox.h) + textHeight - 2; break;
-               case R.ui.FieldGroup.LABEL_BOTTOMRIGHT:
-                  labelPos.x = (wBox.x + wBox.w) - (textWidth + 10);
-                  labelPos.y = (wBox.y + wBox.h) + textHeight - 2; break;
+        /**
+         * Get the first control, within the field group, which has the specified name,
+         * or <code>null</code> if no control with the name is in the group.
+         * @param controlName {String} The name of the control to get
+         * @return {R.ui.AbstractUIControl} The control, or <code>null</code>
+         */
+        getControlByName:function (controlName) {
+            var controls = this.controls.filter(function (c) {
+                return (c.getControlName() === controlName);
+            });
+            if (controls.length != 0) {
+                return controls[0];
+            } else {
+                return null;
             }
+        },
 
+        /**
+         * Draw the field group within the context.
+         * @param renderContext {R.rendercontexts.RenderContext2D} The render context where the control is
+         *    drawn.
+         * @param worldTime {Number} The current world time, in milliseconds
+         * @param dt {Number} The time since the last frame was drawn by the engine, in milliseconds
+         */
+        drawControl:function (renderContext, worldTime, dt) {
+            // Draw the current input text.  The text baseline is the bottom of the font,
+            // so we need to move that down by the height of the control (with some padding to look right)
             renderContext.pushTransform();
-            renderContext.setPosition(labelPos);
-            this.getTextRenderer().update(renderContext, worldTime, dt);
-            renderContext.popTransform();
 
-            labelPos.destroy();
-            wBox.destroy();
-         }
+            if (this.label != "") {
+                this.getTextRenderer().setText(this.label);
 
-         // Render the controls in the group
-         var itr = this.controls.iterator();
-         while (itr.hasNext()) {
-            var control = itr.next();
-            if (control.getRenderContext() == null) {
-               control.setRenderContext(renderContext);
+                // Draw the label
+                var labelPos = R.math.Point2D.create(0, 0), wBox = R.clone(this.getWorldBox()),
+                    textWidth = this.getTextRenderer().getBoundingBox().w,
+                    textHeight = this.getTextRenderer().getBoundingBox().h;
+                switch (this.labelPosition) {
+                    case R.ui.FieldGroup.LABEL_TOPLEFT:
+                        labelPos.x = wBox.x + 10;
+                        labelPos.y = wBox.y + 1;
+                        break;
+                    case R.ui.FieldGroup.LABEL_TOPRIGHT:
+                        labelPos.x = (wBox.x + wBox.w) - (textWidth + 10);
+                        labelPos.y = wBox.y + 1;
+                        break;
+                    case R.ui.FieldGroup.LABEL_BOTTOMLEFT:
+                        labelPos.x = wBox.x + 10;
+                        labelPos.y = (wBox.y + wBox.h) + textHeight - 2;
+                        break;
+                    case R.ui.FieldGroup.LABEL_BOTTOMRIGHT:
+                        labelPos.x = (wBox.x + wBox.w) - (textWidth + 10);
+                        labelPos.y = (wBox.y + wBox.h) + textHeight - 2;
+                        break;
+                }
+
+                renderContext.pushTransform();
+                renderContext.setPosition(labelPos);
+                this.getTextRenderer().update(renderContext, worldTime, dt);
+                renderContext.popTransform();
+
+                labelPos.destroy();
+                wBox.destroy();
             }
-            control.update(renderContext, worldTime, dt);
-         }
-         itr.destroy();
 
-         renderContext.popTransform();
-      }
+            // Render the controls in the group
+            var itr = this.controls.iterator();
+            while (itr.hasNext()) {
+                var control = itr.next();
+                if (control.getRenderContext() == null) {
+                    control.setRenderContext(renderContext);
+                }
+                control.update(renderContext, worldTime, dt);
+            }
+            itr.destroy();
 
-   }, /** @scope R.ui.FieldGroup.prototype */{
+            renderContext.popTransform();
+        }
 
-      LABEL_TOPLEFT: 0,
+    }, /** @scope R.ui.FieldGroup.prototype */{
 
-      LABEL_TOPRIGHT: 1,
+        LABEL_TOPLEFT:0,
 
-      LABEL_BOTTOMLEFT: 2,
+        LABEL_TOPRIGHT:1,
 
-      LABEL_BOTTOMRIGHT: 3,
+        LABEL_BOTTOMLEFT:2,
 
-      /**
-       * Get the class name of this object
-       * @return {String} The string "R.ui.FieldGroup"
-       */
-      getClassName: function() {
-         return "R.ui.FieldGroup";
-      },
+        LABEL_BOTTOMRIGHT:3,
 
-      /**
-       * Get a properties object with values for the given object.
-       * @param obj {R.ui.FieldGroup} The field group to query
-       * @param [defaults] {Object} Default values that don't need to be serialized unless
-       *    they are different.
-       * @return {Object}
-       */
-      serialize: function(obj, defaults) {
-         var fg = R.ui.AbstractUIControl.serialize(obj, defaults),
-             itr = obj.controls.iterator();
+        /**
+         * Get the class name of this object
+         * @return {String} The string "R.ui.FieldGroup"
+         */
+        getClassName:function () {
+            return "R.ui.FieldGroup";
+        },
 
-         fg.CONTROLS = {};
-         while (itr.hasNext()) {
-            var control = itr.next();
-            fg.CONTROLS[control.getControlName()] = control.constructor.serialize(control);
-         }
-         itr.destroy();
-         return fg;
-      },
+        /**
+         * Get a properties object with values for the given object.
+         * @param obj {R.ui.FieldGroup} The field group to query
+         * @param [defaults] {Object} Default values that don't need to be serialized unless
+         *    they are different.
+         * @return {Object}
+         */
+        serialize:function (obj, defaults) {
+            var fg = R.ui.AbstractUIControl.serialize(obj, defaults),
+                itr = obj.controls.iterator();
 
-      /**
-       * Deserialize the object back into a field group.
-       * @param obj {Object} The object to deserialize
-       * @param [clazz] {Class} The object class to populate
-       * @return {R.ui.ButtonControl} The object which was deserialized
-       */
-      deserialize: function(obj, clazz) {
-         // Get the controls for the group
-         var controls;
-         if (obj.CONTROLS) {
-            controls = obj.CONTROLS;
-            delete obj.CONTROLS;
-         }
+            fg.CONTROLS = {};
+            while (itr.hasNext()) {
+                var control = itr.next();
+                fg.CONTROLS[control.getControlName()] = control.constructor.serialize(control);
+            }
+            itr.destroy();
+            return fg;
+        },
 
-         // Now we can deserialize the class
-         clazz = clazz || R.ui.FieldGroup.create();
-         R.ui.AbstractUIControl.deserialize(obj, clazz);
+        /**
+         * Deserialize the object back into a field group.
+         * @param obj {Object} The object to deserialize
+         * @param [clazz] {Class} The object class to populate
+         * @return {R.ui.ButtonControl} The object which was deserialized
+         */
+        deserialize:function (obj, clazz) {
+            // Get the controls for the group
+            var controls;
+            if (obj.CONTROLS) {
+                controls = obj.CONTROLS;
+                delete obj.CONTROLS;
+            }
 
-         // Re-populate the controls into the form
-         for (var c in controls) {
-            // Grab the classname field so we can recreate the object
-            var control = controls[c], controlClazz = R.classForName(control.CLASSNAME),
-                uiControl = controlClazz.deserialize(control);
+            // Now we can deserialize the class
+            clazz = clazz || R.ui.FieldGroup.create();
+            R.ui.AbstractUIControl.deserialize(obj, clazz);
 
-            // Add the control which was deserialized
-            clazz.addControl(uiControl);
-         }
+            // Re-populate the controls into the form
+            for (var c in controls) {
+                // Grab the classname field so we can recreate the object
+                var control = controls[c], controlClazz = R.classForName(control.CLASSNAME),
+                    uiControl = controlClazz.deserialize(control);
 
-         return clazz;
-      }
-   });
+                // Add the control which was deserialized
+                clazz.addControl(uiControl);
+            }
+
+            return clazz;
+        }
+    });
 
 };

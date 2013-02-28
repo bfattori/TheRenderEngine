@@ -2,7 +2,7 @@
  * The Render Engine
  * NotifierComponent
  *
- * @fileoverview An extension of the logic component which efficiently 
+ * @fileoverview An extension of the logic component which efficiently
  *               notifies a list of recipients when events are triggered.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
@@ -33,12 +33,12 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.components.logic.Notifier",
-	"requires": [
-		"R.components.Logic",
-		"R.util.FNV1Hash",
-		"R.struct.HashContainer"
-	]
+    "class":"R.components.logic.Notifier",
+    "requires":[
+        "R.components.Logic",
+        "R.util.FNV1Hash",
+        "R.struct.HashContainer"
+    ]
 });
 
 /**
@@ -61,131 +61,132 @@ R.Engine.define({
  * @constructor
  * @description Create a notifier component
  */
-R.components.logic.Notifier = function() {
-	return R.components.Logic.extend(/** @scope R.components.logic.Notifier.prototype */{
+R.components.logic.Notifier = function () {
+    "use strict";
+    return R.components.Logic.extend(/** @scope R.components.logic.Notifier.prototype */{
 
-   notifyLists: null,
-   hasher: null,
+        notifyLists:null,
+        hasher:null,
 
-   /**
-    * @private
-    */
-   constructor: function(name, priority) {
-      this.base(name, priority || 1.0);
-      this.notifyLists = {};
-      this.hasher = R.util.FNV1Hash.create();
-   },
+        /**
+         * @private
+         */
+        constructor:function (name, priority) {
+            this.base(name, priority || 1.0);
+            this.notifyLists = {};
+            this.hasher = R.util.FNV1Hash.create();
+        },
 
-	/**
-	 * Destroy the component instance
-	 */
-	destroy: function() {
-		this.hasher.destroy();
-		for (var n in this.notifyLists) {
-			this.notifyLists[n].destroy();
-		}
-		this.base();
-	},
+        /**
+         * Destroy the component instance
+         */
+        destroy:function () {
+            this.hasher.destroy();
+            for (var n in this.notifyLists) {
+                this.notifyLists[n].destroy();
+            }
+            this.base();
+        },
 
-   /**
-    * Releases the component back into the object pool. See {@link R.engine.PooledObject#release}
-    * for more information.
-    */
-   release: function() {
-      this.base();
-      this.notifyLists = null;
-      this.hasher = null;
-   },
+        /**
+         * Releases the component back into the object pool. See {@link R.engine.PooledObject#release}
+         * for more information.
+         */
+        release:function () {
+            this.base();
+            this.notifyLists = null;
+            this.hasher = null;
+        },
 
-   /**
-    * Subscribe to the event type specified, receiving a subscriber Id in return.  
-    * When the event type is posted, the specified callback will either be called in
-    * the scope of <tt>thisObj</tt>, or if <tt>thisObj</tt> is <tt>null</tt> then the
-    * scope will be this component's host object.
-    * <p/>
-    * Any object can subscribe to any other object's events.  This is a handy method
-    * to use event passing as a way to propagate actions from one object to a group
-    * of other objects.
-    *
-    * @param type {String} The type name of the event.
-    * @param fn {Function} The function to call when the event triggers.
-    * @param [thisObj] {Object} The object which will represent "this" for the callback.
-    * 
-    * @return {String} A subscriber Id which can later be used to unsubscribe
-    */
-   subscribe: function(type, fn, thisObj) {
-      if (this.notifyLists[type] == null) {
-         this.notifyLists[type] = R.struct.HashContainer.create("subscribers");;
-      }
-      
-      // get a unique subscriber Id
-      var subId = this.hasher.updateHash(type + fn.toString() + (thisObj || this.getGameObject()).toString());
-      this.notifyLists[type].add(subId, {parent: thisObj, func: fn});
-      return subId;
-   },
+        /**
+         * Subscribe to the event type specified, receiving a subscriber Id in return.
+         * When the event type is posted, the specified callback will either be called in
+         * the scope of <tt>thisObj</tt>, or if <tt>thisObj</tt> is <tt>null</tt> then the
+         * scope will be this component's host object.
+         * <p/>
+         * Any object can subscribe to any other object's events.  This is a handy method
+         * to use event passing as a way to propagate actions from one object to a group
+         * of other objects.
+         *
+         * @param type {String} The type name of the event.
+         * @param fn {Function} The function to call when the event triggers.
+         * @param [thisObj] {Object} The object which will represent "this" for the callback.
+         *
+         * @return {String} A subscriber Id which can later be used to unsubscribe
+         */
+        subscribe:function (type, fn, thisObj) {
+            if (this.notifyLists[type] == null) {
+                this.notifyLists[type] = R.struct.HashContainer.create("subscribers");
+                ;
+            }
 
-   /**
-    * Unsubscribe from the event type specified.  If you only
-    * pass the event type, all subscribers will be removed for that type.  
-    * Passing the optional <tt>subscriberId</tt> will unsubscribe a specific
-    * subscriber.
-    *
-    * @param type {String} The event type to unsubscribe from
-    * @param [subscriberId] {String} The subscriber Id which was returned from {@link #subscribe}
-    */
-   unsubscribe: function(type, subscriberId) {
-      if (subscriberId != null) {
-         // Remove a specific subscriber
-         this.notifyLists[type].remove(subscriberId);
-      } else {
-         // Remove all subscribers for the event type
-         this.notifyLists[type].clear();
-      }
-   },
+            // get a unique subscriber Id
+            var subId = this.hasher.updateHash(type + fn.toString() + (thisObj || this.getGameObject()).toString());
+            this.notifyLists[type].add(subId, {parent:thisObj, func:fn});
+            return subId;
+        },
 
-   /**
-    * Post a message of the given type, with the event object
-    * which subscribers can act upon.  The event object is free-form and
-    * can contain anything.  The subscribers should know what to look for
-    * and how to interpret the event object being passed to them.
-    *
-    * @param type {String} The type of the event
-    * @param eventObj {Object} An object which subscribers can use
-    */
-   post: function(type, eventObj) {
-      this.notifyRecipients(type, eventObj);      
-   },
+        /**
+         * Unsubscribe from the event type specified.  If you only
+         * pass the event type, all subscribers will be removed for that type.
+         * Passing the optional <tt>subscriberId</tt> will unsubscribe a specific
+         * subscriber.
+         *
+         * @param type {String} The event type to unsubscribe from
+         * @param [subscriberId] {String} The subscriber Id which was returned from {@link #subscribe}
+         */
+        unsubscribe:function (type, subscriberId) {
+            if (subscriberId != null) {
+                // Remove a specific subscriber
+                this.notifyLists[type].remove(subscriberId);
+            } else {
+                // Remove all subscribers for the event type
+                this.notifyLists[type].clear();
+            }
+        },
 
-   /**
-    * Run through the list of subscribers for the event type specified.  
-    * Optimized for speed if the list is large.
-    * @private
-    */
-   notifyRecipients: function(type, eventObj) {
-      if (this.notifyLists[type] == null)
-      {
-         // No handlers for this type
-         return;
-      }
+        /**
+         * Post a message of the given type, with the event object
+         * which subscribers can act upon.  The event object is free-form and
+         * can contain anything.  The subscribers should know what to look for
+         * and how to interpret the event object being passed to them.
+         *
+         * @param type {String} The type of the event
+         * @param eventObj {Object} An object which subscribers can use
+         */
+        post:function (type, eventObj) {
+            this.notifyRecipients(type, eventObj);
+        },
 
-		var s = null;
-		var scopeObj = null;
-		var host = this.getHostOject();
-		for (var itr = this.notifyLists[type].iterator(); itr.hasNext(); ) {
-			s = itr.next();
-			scopeObj = s.parent || host;
-			s.func.call(scopeObj, eventObj);
-		}
-      itr.destroy();
-   }
-}, /** @scope R.components.logic.Notifier.prototype */{
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} "R.components.logic.Notifier"
-    */
-   getClassName: function() {
-      return "R.components.logic.Notifier";
-   }
-});
+        /**
+         * Run through the list of subscribers for the event type specified.
+         * Optimized for speed if the list is large.
+         * @private
+         */
+        notifyRecipients:function (type, eventObj) {
+            if (this.notifyLists[type] == null) {
+                // No handlers for this type
+                return;
+            }
+
+            var s = null;
+            var scopeObj = null;
+            var host = this.getHostOject();
+            for (var itr = this.notifyLists[type].iterator(); itr.hasNext();) {
+                s = itr.next();
+                scopeObj = s.parent || host;
+                s.func.call(scopeObj, eventObj);
+            }
+            itr.destroy();
+        }
+    }, /** @scope R.components.logic.Notifier.prototype */{
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.logic.Notifier"
+         */
+        getClassName:function () {
+            return "R.components.logic.Notifier";
+        }
+    });
 }

@@ -32,16 +32,16 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.math.Vector3D",
-	"requires": [
-		"R.math.Point3D",
-		"R.math.Math2D"
-	]
+    "class":"R.math.Vector3D",
+    "requires":[
+        "R.math.Point3D",
+        "R.math.Math2D"
+    ]
 });
 
 /**
  * @class A 3D vector class with helpful manipulation methods.
- * 
+ *
  * @param x {R.math.Point3D|Number} If this arg is a R.math.Vector3D, its values will be
  *                           copied into the new vector.  If a number,
  *                           the X length of the vector.
@@ -53,96 +53,97 @@ R.Engine.define({
  * @description Create a new 3D Vector
  * @extends R.math.Point3D
  */
-R.math.Vector3D = function(){
-	return R.math.Point3D.extend(/** @scope R.math.Vector3D.prototype */{
-	
-		/**
-		 * @private
-		 */
-		constructor: function(x, y, z){
-			this.base(x, y, z);
-		},
-		
-		/**
-		 * A mutator method that normalizes this vector, returning a unit length vector.
-		 * @return {R.math.Vector3D} This vector, normalized
-		 * @see #len
-		 */
-		normalize: function(){
-         var ln = this.len();
-         if (ln != 0) {
-            this.x /= ln;
-            this.y /= ln;
-            this.z /= ln;
-         }
-			return this;
-		},
-		
-		/**
-		 * Get the magnitude/length of this vector.
-		 *
-		 * @return {Number} A value representing the length (magnitude) of the vector.
-		 */
-		len: function(){
-         return Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
-		},
-		
-		/**
-		 * Get the dot product of this vector and another.
-		 * @param vector {R.math.Vector3D} The Point to perform the operation against.
-		 * @return {Number} The dot product
-		 */
-		dot: function(vector){
-         return (this.x * vector.x) + (this.y * vector.y) + (this.z * vector.z);
-		},
-		
-		/**
-		 * A mutator method that gets the cross product of this vector and another.
-		 * @param vector {R.math.Vector3D} The vector to perform the operation against.
-		 * @return {R.math.Vector3D} This vector
-		 */
-		cross: function(vector){
-         this.x = this.y - vector.y;
-         this.y = vector.x - this.x;
-         this.z = (this.x * vector.y) - (this.y * vector.x);
-			return this;
-		},
-		
-		/**
-		 * Returns the angle (in degrees) between two vectors.  This assumes that the
-		 * point is being used to represent a vector, and that the supplied point
-		 * is also a vector.
-		 *
-		 * @param vector {R.math.Vector3D} The vector to perform the angular determination against
-		 * @return {Number} The angle between two vectors, in degrees
-		 */
-		angleBetween: function(vector){
-         var v1 = $V([this.x,this.y,this.z]), v2 = $V([vector.x,vector.y,vector.z]);
-			return R.math.Math2D.radToDeg(v1.angleFrom(v2));
-		}
-		
-	}, /** @scope R.math.Vector3D.prototype */{ 
-		/**
-		 * Return the classname of the this object
-		 * @return {String} "R.math.Vector3D"
-		 */
-		getClassName: function(){
-			return "R.math.Vector3D";
-		},
-		
-		/** @private */
-		resolved: function() {
-			R.math.Vector3D.ZERO = R.math.Vector3D.create(0, 0, 0);
-         if (Object.freeze) {
-            Object.freeze(R.math.Vector3D.ZERO);
-         }
-		},
-		
-		/**
-		 * The "zero" vector. This vector should not be modified.
-		 * @type {R.math.Vector3D}
-		 * @memberOf R.math.Vector3D
-		 */
-		ZERO: null
-	});
+R.math.Vector3D = function () {
+    "use strict";
+    return R.math.Point3D.extend(/** @scope R.math.Vector3D.prototype */{
+
+        /**
+         * @private
+         */
+        constructor:function (x, y, z) {
+            this.base(x, y, z);
+        },
+
+        /**
+         * A mutator method that normalizes this vector, returning a unit length vector.
+         * @return {R.math.Vector3D} This vector, normalized
+         * @see #len
+         */
+        normalize:function () {
+            var ln = this.len();
+            if (ln != 0) {
+                this.x /= ln;
+                this.y /= ln;
+                this.z /= ln;
+            }
+            return this;
+        },
+
+        /**
+         * Get the magnitude/length of this vector.
+         *
+         * @return {Number} A value representing the length (magnitude) of the vector.
+         */
+        len:function () {
+            return Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
+        },
+
+        /**
+         * Get the dot product of this vector and another.
+         * @param vector {R.math.Vector3D} The Point to perform the operation against.
+         * @return {Number} The dot product
+         */
+        dot:function (vector) {
+            return (this.x * vector.x) + (this.y * vector.y) + (this.z * vector.z);
+        },
+
+        /**
+         * A mutator method that gets the cross product of this vector and another.
+         * @param vector {R.math.Vector3D} The vector to perform the operation against.
+         * @return {R.math.Vector3D} This vector
+         */
+        cross:function (vector) {
+            this.x = this.y - vector.y;
+            this.y = vector.x - this.x;
+            this.z = (this.x * vector.y) - (this.y * vector.x);
+            return this;
+        },
+
+        /**
+         * Returns the angle (in degrees) between two vectors.  This assumes that the
+         * point is being used to represent a vector, and that the supplied point
+         * is also a vector.
+         *
+         * @param vector {R.math.Vector3D} The vector to perform the angular determination against
+         * @return {Number} The angle between two vectors, in degrees
+         */
+        angleBetween:function (vector) {
+            var v1 = $V([this.x, this.y, this.z]), v2 = $V([vector.x, vector.y, vector.z]);
+            return R.math.Math2D.radToDeg(v1.angleFrom(v2));
+        }
+
+    }, /** @scope R.math.Vector3D.prototype */{
+        /**
+         * Return the classname of the this object
+         * @return {String} "R.math.Vector3D"
+         */
+        getClassName:function () {
+            return "R.math.Vector3D";
+        },
+
+        /** @private */
+        resolved:function () {
+            R.math.Vector3D.ZERO = R.math.Vector3D.create(0, 0, 0);
+            if (Object.freeze) {
+                Object.freeze(R.math.Vector3D.ZERO);
+            }
+        },
+
+        /**
+         * The "zero" vector. This vector should not be modified.
+         * @type {R.math.Vector3D}
+         * @memberOf R.math.Vector3D
+         */
+        ZERO:null
+    });
 };

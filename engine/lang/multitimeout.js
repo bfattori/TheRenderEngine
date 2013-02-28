@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * The Render Engine
  * MultiTimeout
@@ -34,10 +32,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.lang.MultiTimeout",
-	"requires": [
-		"R.lang.Timeout"
-	]
+    "class":"R.lang.MultiTimeout",
+    "requires":[
+        "R.lang.Timeout"
+    ]
 });
 
 /**
@@ -54,42 +52,43 @@ R.Engine.define({
  * @constructor
  * @description Creat a multi-timeout triggering timer
  */
-R.lang.MultiTimeout = function(){
-	return R.lang.Timeout.extend(/** @scope R.lang.MultiTimeout.prototype */{
-	
-		/** @private */
-		constructor: function(name, reps, interval, callback){
+R.lang.MultiTimeout = function () {
+    "use strict";
+    return R.lang.Timeout.extend(/** @scope R.lang.MultiTimeout.prototype */{
+
+        /** @private */
+        constructor:function (name, reps, interval, callback) {
 
             var timerObj = {
-                callback: callback,
-                repetitions: reps,
-                totalReps: 0,
-                timer: this
+                callback:callback,
+                repetitions:reps,
+                totalReps:0,
+                timer:this
             };
 
-			var cb = R.bind(timerObj, function(){
-				if (this.repetitions-- > 0) {
-					this.callback.call(this.timer, this.totalReps);
-					this.totalReps++;
-					this.timer.restart();
-				}
-				else {
-					this.timer.destroy();
-				}
-			});
+            var cb = R.bind(timerObj, function () {
+                if (this.repetitions-- > 0) {
+                    this.callback.call(this.timer, this.totalReps);
+                    this.totalReps++;
+                    this.timer.restart();
+                }
+                else {
+                    this.timer.destroy();
+                }
+            });
 
-			this.base(name, interval, cb);
-		}
-		
-	}, /** @scope R.lang.MultiTimeout.prototype */ {
-	
-		/**
-		 * Get the class name of this object
-		 * @return {String} "R.lang.MultiTimeout"
-		 */
-		getClassName: function(){
-			return "R.lang.MultiTimeout";
-		}
-	});
-	
+            this.base(name, interval, cb);
+        }
+
+    }, /** @scope R.lang.MultiTimeout.prototype */ {
+
+        /**
+         * Get the class name of this object
+         * @return {String} "R.lang.MultiTimeout"
+         */
+        getClassName:function () {
+            return "R.lang.MultiTimeout";
+        }
+    });
+
 }

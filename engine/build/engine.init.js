@@ -1,4 +1,3 @@
-
 /**
  * The Render Engine
  * Engine initialization
@@ -34,28 +33,28 @@ R.debug.Console.startup();
 
 // Default engine options
 R.Engine.defaultOptions = {
-   "skipFrames": true,													// Skip frames which cannot be rendered without impacting framerate
-   "billboards": true,													// Use billboards to speed up rendering
-   "textUseBillboards": true,										   // Text will use billboards unless platform doesn't support it
-   "hardwareAccel": false,											   // Hardware acceleration supported flag (deprecated)
-   "pointAsArc": true,													// Draw points as arcs or rectangles (dot or rect)
-	"transientMathObject": false,									   // Transient (non-pooled) MathObjects
-	"useDirtyRectangles": false,										// Enable canvas dirty rectangles redraws
-   "nativeAnimationFrame": true,                            // Enable the use of "requestAnimationFrame"
-   "disableParticleEngine": false,                          // Disable particle engines (if used)
-   "maxParticles": 250,                                     // Default maximum particles engine will allow
-   "useVirtualControlPad": false,                           // Show the virtual d-pad (for touch)
-   "virtualPad": {                                          // Virtual d-pad mappings
-      "up": "R.engine.Events.KEYCODE_UP_ARROW",
-      "down": "R.engine.Events.KEYCODE_DOWN_ARROW",
-      "left": "R.engine.Events.KEYCODE_LEFT_ARROW",
-      "right": "R.engine.Events.KEYCODE_RIGHT_ARROW"
-   },
-   "virtualButtons": {                                      // Virtual control button mappings
-      "A": "A",
-      "B": "B",
-      "C": "C"
-   }
+    "skipFrames":true, // Skip frames which cannot be rendered without impacting framerate
+    "billboards":true, // Use billboards to speed up rendering
+    "textUseBillboards":true, // Text will use billboards unless platform doesn't support it
+    "hardwareAccel":false, // Hardware acceleration supported flag (deprecated)
+    "pointAsArc":true, // Draw points as arcs or rectangles (dot or rect)
+    "transientMathObject":false, // Transient (non-pooled) MathObjects
+    "useDirtyRectangles":false, // Enable canvas dirty rectangles redraws
+    "nativeAnimationFrame":true, // Enable the use of "requestAnimationFrame"
+    "disableParticleEngine":false, // Disable particle engines (if used)
+    "maxParticles":250, // Default maximum particles engine will allow
+    "useVirtualControlPad":false, // Show the virtual d-pad (for touch)
+    "virtualPad":{                                          // Virtual d-pad mappings
+        "up":"R.engine.Events.KEYCODE_UP_ARROW",
+        "down":"R.engine.Events.KEYCODE_DOWN_ARROW",
+        "left":"R.engine.Events.KEYCODE_LEFT_ARROW",
+        "right":"R.engine.Events.KEYCODE_RIGHT_ARROW"
+    },
+    "virtualButtons":{                                      // Virtual control button mappings
+        "A":"A",
+        "B":"B",
+        "C":"C"
+    }
 };
 
 
@@ -66,7 +65,7 @@ R.Engine.options = $.extend({}, R.Engine.defaultOptions);
 R.Engine.setDebugMode(R.engine.Support.checkBooleanParam("debug"));
 
 if (R.Engine.getDebugMode()) {
-   R.debug.Console.setDebugLevel(R.engine.Support.getNumericParam("debugLevel", R.debug.Console.DEBUGLEVEL_DEBUG));
+    R.debug.Console.setDebugLevel(R.engine.Support.getNumericParam("debugLevel", R.debug.Console.DEBUGLEVEL_DEBUG));
 }
 
 // Local mode keeps loaded script source available

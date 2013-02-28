@@ -33,10 +33,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.struct.RayInfo",
-	"requires": [
-		"R.engine.PooledObject"
-	]
+    "class":"R.struct.RayInfo",
+    "requires":[
+        "R.engine.PooledObject"
+    ]
 });
 
 /**
@@ -50,129 +50,129 @@ R.Engine.define({
  * @constructor
  * @description Creates a ray info data structure for ray casting.
  */
-R.struct.RayInfo = function() {
-	return R.engine.PooledObject.extend(/** @scope R.struct.RayInfo.prototype */{
+R.struct.RayInfo = function () {
+    return R.engine.PooledObject.extend(/** @scope R.struct.RayInfo.prototype */{
 
-      /**
-       * The overlap in pixels
-       * @type {Number}
-       */
-      overlap: 0,
+        /**
+         * The overlap in pixels
+         * @type {Number}
+         */
+        overlap:0,
 
-      /**
-       * The collision normal
-       * @type {R.math.Vector2D}
-       */
-		normal: null,
+        /**
+         * The collision normal
+         * @type {R.math.Vector2D}
+         */
+        normal:null,
 
-      /**
-       * The object that was collided with
-       * @type {R.engine.GameObject}
-       */
-		shape: null,
+        /**
+         * The object that was collided with
+         * @type {R.engine.GameObject}
+         */
+        shape:null,
 
-      /**
-       * The point along the ray at which the collision occurred
-       * @type {R.math.Point2D}
-       */
-		impactPoint: null,
+        /**
+         * The point along the ray at which the collision occurred
+         * @type {R.math.Point2D}
+         */
+        impactPoint:null,
 
-      /**
-       * The starting point of the ray
-       * @type {R.math.Point2D}
-       */
-      startPoint: null,
+        /**
+         * The starting point of the ray
+         * @type {R.math.Point2D}
+         */
+        startPoint:null,
 
-      /**
-       * The direction and magnitude of the ray
-       * @type {R.math.Vector2D}
-       */
-      direction: null,
+        /**
+         * The direction and magnitude of the ray
+         * @type {R.math.Vector2D}
+         */
+        direction:null,
 
-      /**
-       * The world time at the time of the collision
-       * @type {Number}
-       */
-      worldTime: 0,
+        /**
+         * The world time at the time of the collision
+         * @type {Number}
+         */
+        worldTime:0,
 
-      /**
-       * The time delta between the world time and the last time the engine was updated
-       * @type {Number}
-       */
-      delta: 0,
+        /**
+         * The time delta between the world time and the last time the engine was updated
+         * @type {Number}
+         */
+        delta:0,
 
-      /**
-       * A data object which can contain additional information about the ray
-       * @type {Object}
-       */
-      data: null,
+        /**
+         * A data object which can contain additional information about the ray
+         * @type {Object}
+         */
+        data:null,
 
-      /** @private */
-		constructor: function(start, dir) {
-			this.startPoint = R.clone(start);
-         this.direction = R.clone(dir);
-			this.normal = R.clone(dir).normalize().neg();
-			this.shape = null;
-			this.impactPoint = R.math.Point2D.create(0,0);
-         this.worldTime = 0;
-         this.delta = 0;
-         this.data = {};
-			this.base("RayInfo");
-		},
+        /** @private */
+        constructor:function (start, dir) {
+            this.startPoint = R.clone(start);
+            this.direction = R.clone(dir);
+            this.normal = R.clone(dir).normalize().neg();
+            this.shape = null;
+            this.impactPoint = R.math.Point2D.create(0, 0);
+            this.worldTime = 0;
+            this.delta = 0;
+            this.data = {};
+            this.base("RayInfo");
+        },
 
-      /**
-       * Destroy the collision data object.
-       */
-		destroy: function() {
-         if (this.impactPoint) {
-			   this.impactPoint.destroy();
-         }
-         if (this.normal) {
-			   this.normal.destroy();
-         }
-         if (this.data && this.data.destroy) {
-            this.data.destroy();
-         }
-         this.startPoint.destroy();
-         this.direction.destroy();
-			this.base();
-		},
+        /**
+         * Destroy the collision data object.
+         */
+        destroy:function () {
+            if (this.impactPoint) {
+                this.impactPoint.destroy();
+            }
+            if (this.normal) {
+                this.normal.destroy();
+            }
+            if (this.data && this.data.destroy) {
+                this.data.destroy();
+            }
+            this.startPoint.destroy();
+            this.direction.destroy();
+            this.base();
+        },
 
-      /**
-       * Release the collision data object back into the pool for reuse.
-       */
-		release: function() {
-			this.base();
-			this.overlap = 0;
-			this.normal = null;
-			this.shape = null;
-			this.impactPoint = null;
-         this.startPoint = null;
-         this.direction = null;
-         this.worldTime = 0;
-         this.delta = 0;
-		},
+        /**
+         * Release the collision data object back into the pool for reuse.
+         */
+        release:function () {
+            this.base();
+            this.overlap = 0;
+            this.normal = null;
+            this.shape = null;
+            this.impactPoint = null;
+            this.startPoint = null;
+            this.direction = null;
+            this.worldTime = 0;
+            this.delta = 0;
+        },
 
-      /**
-       * Set the point of impact along the ray.
-       * @param impact {R.math.Point2D} The impact point
-       * @param shape {R.engine.PooledObject} The object that was impacted
-       * @param [data] {Object} Optional data object
-       */
-      set: function(impact, shape, data) {
-         this.worldTime = R.Engine.worldTime;
-         this.delta = R.Engine.lastTime;
-         this.impactPoint.set(impact);
-         this.shape = shape;
-         var end = R.math.Vector2D.create(this.startPoint).add(this.direction);
-         this.overlap = end.sub(impact).len();
-         end.destroy();
-         this.data = data;
-      }
+        /**
+         * Set the point of impact along the ray.
+         * @param impact {R.math.Point2D} The impact point
+         * @param shape {R.engine.PooledObject} The object that was impacted
+         * @param [data] {Object} Optional data object
+         */
+        set:function (impact, shape, data) {
+            this.worldTime = R.Engine.worldTime;
+            this.delta = R.Engine.lastTime;
+            this.impactPoint.set(impact);
+            this.shape = shape;
+            var end = R.math.Vector2D.create(this.startPoint).add(this.direction);
+            this.overlap = end.sub(impact).len();
+            end.destroy();
+            this.data = data;
+        }
 
-	}, /** @scope R.struct.RayInfo.prototype */{
-      getClassName: function() {
-         return "R.struct.RayInfo";
-      }
-   });
+    }, /** @scope R.struct.RayInfo.prototype */{
+        getClassName:function () {
+            return "R.struct.RayInfo";
+        }
+    });
 };

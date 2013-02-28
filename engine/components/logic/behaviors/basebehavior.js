@@ -31,10 +31,10 @@
 
 // Load all required engine components
 R.Engine.define({
-   "class": "R.components.logic.behaviors.BaseBehavior",
-   "requires": [
-      "R.components.Logic"
-   ]
+    "class":"R.components.logic.behaviors.BaseBehavior",
+    "requires":[
+        "R.components.Logic"
+    ]
 });
 
 /**
@@ -42,40 +42,41 @@ R.Engine.define({
  * @extends R.components.Logic
  * @constructor
  */
-R.components.logic.behaviors.BaseBehavior = function() {
-   return R.components.Logic.extend(/** @scope R.components.logic.behaviors.BaseBehavior.prototype */{
+R.components.logic.behaviors.BaseBehavior = function () {
+    "use strict";
+    return R.components.Logic.extend(/** @scope R.components.logic.behaviors.BaseBehavior.prototype */{
 
-      transformComponent: null,
+        transformComponent:null,
 
-      /** @private */
-      constructor: function(name) {
-         this.base(name);
-      },
+        /** @private */
+        constructor:function (name) {
+            this.base(name);
+        },
 
-      reset: function() {
-         this.transformComponent = null;
-         this.base();
-      },
+        reset:function () {
+            this.transformComponent = null;
+            this.base();
+        },
 
-      /**
-       * Sets the transformation component which contains this behavior.
-       * @param component {R.components.transform.BehaviorMover2D} The behavior mover component
-       */
-      setTransformComponent: function(component) {
-         this.transformComponent = component;
-      },
+        /**
+         * Sets the transformation component which contains this behavior.
+         * @param component {R.components.transform.BehaviorMover2D} The behavior mover component
+         */
+        setTransformComponent:function (component) {
+            this.transformComponent = component;
+        },
 
-      /**
-       * Gets the transformation component which contains this behavior.
-       * @return {R.components.transform.BehaviorMover2D}
-       */
-      getTransformComponent: function() {
-         return this.transformComponent;
-      }
+        /**
+         * Gets the transformation component which contains this behavior.
+         * @return {R.components.transform.BehaviorMover2D}
+         */
+        getTransformComponent:function () {
+            return this.transformComponent;
+        }
 
-   }, /** @scope R.components.logic.behaviors.BaseBehavior.prototype */{
-      getClassName: function() {
-         return "R.components.logic.behaviors.BaseBehavior";
-      }
-   });
+    }, /** @scope R.components.logic.behaviors.BaseBehavior.prototype */{
+        getClassName:function () {
+            return "R.components.logic.behaviors.BaseBehavior";
+        }
+    });
 };

@@ -33,76 +33,77 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.collision.CircleHull",
-	"requires": [
-		"R.collision.ConvexHull",
-		"R.math.Rectangle2D",
-		"R.math.Point2D"
-	]
+    "class":"R.collision.CircleHull",
+    "requires":[
+        "R.collision.ConvexHull",
+        "R.math.Rectangle2D",
+        "R.math.Point2D"
+    ]
 });
 
 /**
  * @class A circular convex hull.
  *
  * @param center {Rectangle2D|Point2D|Array} Either the circle's center point, or a rectangle to use
- * 		 to approximate the bounding circle.
+ *          to approximate the bounding circle.
  * @param radius {Number} The circle's radius if the first argument is a <tt>Point2D</tt>, or a
- * 		 percentage of the calculated radius if the first argument is an <tt>Array</tt>.
+ *          percentage of the calculated radius if the first argument is an <tt>Array</tt>.
  *
  * @extends R.collision.ConvexHull
  * @constructor
  * @description Creates a circular hull.
  */
-R.collision.CircleHull = function() {
-	return R.collision.ConvexHull.extend(/** @scope R.collision.CircleHull.prototype */{
+R.collision.CircleHull = function () {
+    "use strict";
+    return R.collision.ConvexHull.extend(/** @scope R.collision.CircleHull.prototype */{
 
-	/**
-	 * @private
-	 */
-	constructor: function(center, radius) {
-		if (center && (center.length && center.splice && center.shift)) {
-			// An array of points
-			this.base(center, center.length);
-			if (radius) {
-				this.radius *= radius;
-			}
-		} else {
-			// Approximate with a rectangle 
-			var rect;
-			if (center instanceof R.math.Rectangle2D) {
-				rect = center;
-			} else {
-				var p = center;
-				rect = R.math.Rectangle2D.create(R.math.Point2D.create(p.x - radius, p.y - radius),
-							  		R.math.Point2D.create(p.x + radius, p.y - radius),
-							  		R.math.Point2D.create(p.x + radius, p.y + radius),
-							  		R.math.Point2D.create(p.x - radius, p.y + radius));
-			}
-			this.base([R.math.Point2D.create(0,0),
-						  R.math.Point2D.create(rect.w,0),
-						  R.math.Point2D.create(rect.w,rect.h),
-						  R.math.Point2D.create(0,rect.h)]);
-			rect.destroy();
-		}
-	},
-	
-	/**
-	 * Return the type of convex hull this represents.
-	 * @return {Number} {@link R.collision.ConvexHull#CONVEX_CIRCLE}
-	 */
-	getType: function() {
-		return R.collision.ConvexHull.CONVEX_CIRCLE;
-	}
+        /**
+         * @private
+         */
+        constructor:function (center, radius) {
+            if (center && (center.length && center.splice && center.shift)) {
+                // An array of points
+                this.base(center, center.length);
+                if (radius) {
+                    this.radius *= radius;
+                }
+            } else {
+                // Approximate with a rectangle
+                var rect;
+                if (center instanceof R.math.Rectangle2D) {
+                    rect = center;
+                } else {
+                    var p = center;
+                    rect = R.math.Rectangle2D.create(R.math.Point2D.create(p.x - radius, p.y - radius),
+                        R.math.Point2D.create(p.x + radius, p.y - radius),
+                        R.math.Point2D.create(p.x + radius, p.y + radius),
+                        R.math.Point2D.create(p.x - radius, p.y + radius));
+                }
+                this.base([R.math.Point2D.create(0, 0),
+                    R.math.Point2D.create(rect.w, 0),
+                    R.math.Point2D.create(rect.w, rect.h),
+                    R.math.Point2D.create(0, rect.h)]);
+                rect.destroy();
+            }
+        },
 
-}, /** @scope R.collision.CircleHull.prototype */{ 
+        /**
+         * Return the type of convex hull this represents.
+         * @return {Number} {@link R.collision.ConvexHull#CONVEX_CIRCLE}
+         */
+        getType:function () {
+            return R.collision.ConvexHull.CONVEX_CIRCLE;
+        }
 
-   /**
-    * Get the class name of this object
-    * @return {String} "R.collision.CircleHull"
-    */
-   getClassName: function() {
-      return "R.collision.CircleHull";
-   }   
-});
+    }, /** @scope R.collision.CircleHull.prototype */{
+
+        /**
+         * Get the class name of this object
+         * @return {String} "R.collision.CircleHull"
+         */
+        getClassName:function () {
+            return "R.collision.CircleHull";
+        }
+    });
 
 };

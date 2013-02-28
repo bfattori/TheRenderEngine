@@ -33,11 +33,11 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.components.Base",
-	"requires": [
-		"R.engine.BaseObject",
-		"R.engine.GameObject"
-	]
+    "class":"R.components.Base",
+    "requires":[
+        "R.engine.BaseObject",
+        "R.engine.GameObject"
+    ]
 });
 
 /**
@@ -75,212 +75,228 @@ R.Engine.define({
  * @param type {Number} The type of the component
  * @param priority {Number} A value between 0.0 and 1.0.  Default: 0.5
  */
-R.components.Base = function() {
-	return R.engine.BaseObject.extend(/** @scope R.components.Base.prototype */{
+R.components.Base = function () {
+    "use strict";
+    return R.engine.BaseObject.extend(/** @scope R.components.Base.prototype */{
 
-   priority: 0,
+        priority:0,
 
-   type: -1,
+        type:-1,
 
-   host: null,
+        host:null,
 
-   /**
-    * @private 
-    */
-   constructor: function(name, type, priority) {
-      Assert((name != null), "You must assign a name to every Component.");
-      name = name.toUpperCase();
+        /**
+         * @private
+         */
+        constructor:function (name, type, priority) {
+            Assert((name != null), "You must assign a name to every Component.");
+            name = name.toUpperCase();
 
-      Assert((type != null && (type >= R.components.Base.TYPE_PRE && type <= R.components.Base.TYPE_POST)),
-             "You must specify a type for component");
+            Assert((type != null && (type >= R.components.Base.TYPE_PRE && type <= R.components.Base.TYPE_POST)),
+                "You must specify a type for component");
 
-      this.type = type;
+            this.type = type;
 
-      Assert((priority != null && (priority >= 0.0 && priority <= 1.0)),
-             "Priority must be between 0.0 and 1.0 for component");
+            Assert((priority != null && (priority >= 0.0 && priority <= 1.0)),
+                "Priority must be between 0.0 and 1.0 for component");
 
-      this.priority = priority || 0.5;
-      this.base(name);
-   },
+            this.priority = priority || 0.5;
+            this.base(name);
+        },
 
-   /**
-    * Releases the object back into the object pool.  See {@link PooledObject#release}
-    * for more information.
-    */
-   release: function() {
-      this.base();
-      this.priority = 0;
-      this.type = -1;
-      this.host = null;
-   },
+        /**
+         * Releases the object back into the object pool.  See {@link PooledObject#release}
+         * for more information.
+         */
+        release:function () {
+            this.base();
+            this.priority = 0;
+            this.type = -1;
+            this.host = null;
+        },
 
-   /**
-    * Deprecated in favor of {@link #setGameObject}
-    * @deprecated
-    */
-   setHostObject: function(hostObject) {
-      this.setGameObject(hostObject);
-   },
+        /**
+         * Deprecated in favor of {@link #setGameObject}
+         * @deprecated
+         */
+        setHostObject:function (hostObject) {
+            this.setGameObject(hostObject);
+        },
 
-   /**
-    * Establishes the link between this component and its game object.
-    * When you assign components to a game object, it will call this method
-    * so that each component can refer to its game object, the same way
-    * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
-    *
-    * @param gameObject {R.engine.GameObject} The object which hosts this component
-    */
-   setGameObject: function(gameObject) {
-      this.host = gameObject;
-   },
+        /**
+         * Establishes the link between this component and its game object.
+         * When you assign components to a game object, it will call this method
+         * so that each component can refer to its game object, the same way
+         * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
+         *
+         * @param gameObject {R.engine.GameObject} The object which hosts this component
+         */
+        setGameObject:function (gameObject) {
+            this.host = gameObject;
+        },
 
-   /**
-    * Deprecated in favor of {@link #getGameObject}
-    * @deprecated
-    */
-   getHostObject: function() {
-      return this.getGameObject();
-   },
+        /**
+         * Deprecated in favor of {@link #getGameObject}
+         * @deprecated
+         */
+        getHostObject:function () {
+            return this.getGameObject();
+        },
 
-   /**
-    * Gets the game object this component is a part of.  When the component was
-    * assigned to a game object, the game object will have set itself as the container
-    * via {@link #setGameObject}.
-    *
-    * @return {R.engine.GameObject}
-    */
-   getGameObject: function() {
-      return this.host;
-   },
+        /**
+         * Gets the game object this component is a part of.  When the component was
+         * assigned to a game object, the game object will have set itself as the container
+         * via {@link #setGameObject}.
+         *
+         * @return {R.engine.GameObject}
+         */
+        getGameObject:function () {
+            return this.host;
+        },
 
-   /**
-    * Get the type of this component.  The value will be one of:
-    * {@link #TYPE_INPUT}, {@link #TYPE_TRANSFORM}, {@link #TYPE_LOGIC},
-    * {@link #TYPE_COLLIDER}, or {@link #TYPE_RENDERING}
-    *
-    * @return {Number} The component type Id
-    */
-   getType: function() {
-      return this.type;
-   },
+        /**
+         * Get the type of this component.  The value will be one of:
+         * {@link #TYPE_INPUT}, {@link #TYPE_TRANSFORM}, {@link #TYPE_LOGIC},
+         * {@link #TYPE_COLLIDER}, or {@link #TYPE_RENDERING}
+         *
+         * @return {Number} The component type Id
+         */
+        getType:function () {
+            return this.type;
+        },
 
-   /**
-    * Set the execution priority of this component with
-    * 1.0 being the highest priority and 0.0 being the lowest.  Components
-    * within a game object are sorted by type, and then priority.  As such,
-    * two components with the same type will be sorted by priority with the
-    * higher value executing before the lower value.  This allows you to layer
-    * components like the {@link R.components.Render} component so that one effect
-    * is drawn before another.
-    *
-    * @param priority {Number} A value between 0.0 and 1.0
-    */
-   setPriority: function(priority) {
-      this.priority = priority;
-      if (this.host) {
-         this.host.sort();
-      }
-   },
+        /**
+         * Set the execution priority of this component with
+         * 1.0 being the highest priority and 0.0 being the lowest.  Components
+         * within a game object are sorted by type, and then priority.  As such,
+         * two components with the same type will be sorted by priority with the
+         * higher value executing before the lower value.  This allows you to layer
+         * components like the {@link R.components.Render} component so that one effect
+         * is drawn before another.
+         *
+         * @param priority {Number} A value between 0.0 and 1.0
+         */
+        setPriority:function (priority) {
+            this.priority = priority;
+            if (this.host) {
+                this.host.sort();
+            }
+        },
 
-   /**
-    * Returns the priority of this component.
-    *
-    * @return {Number} A value between 0.0 and 1.0
-    */
-   getPriority: function() {
-      return this.priority;
-   },
+        /**
+         * Returns the priority of this component.
+         *
+         * @return {Number} A value between 0.0 and 1.0
+         */
+        getPriority:function () {
+            return this.priority;
+        },
 
-   /**
-    * [ABSTRACT] This method is called by the game object to run the component,
-    * updating its state.  Not all components will need an execute
-    * method.  However, it is important to include one if you need to 
-    * update the state of the component for each engine cycle.
-    *
-    * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
-    * @param time {Number} The global engine time
-    * @param dt {Number} The delta between the world time and the last time the world was updated
-    *          in milliseconds.
-    */
-   execute: function(renderContext, time, dt) {
-      // ABSTRACT METHOD DECLARATION
-   },
+        /**
+         * [ABSTRACT] This method is called by the game object to run the component,
+         * updating its state.  Not all components will need an execute
+         * method.  However, it is important to include one if you need to
+         * update the state of the component for each engine cycle.
+         *
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
+         * @param time {Number} The global engine time
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (renderContext, time, dt) {
+            // ABSTRACT METHOD DECLARATION
+        },
 
-   /**
-    * Get the type of the component as a string.
-    * @return {String}
-    */
-   getTypeString: function() {
-      var ts = "";
-      switch (this.getType()) {
-         case R.components.Base.TYPE_PRE: ts = "TYPE_PRE"; break;
-         case R.components.Base.TYPE_INPUT: ts = "TYPE_INPUT"; break;
-         case R.components.Base.TYPE_TRANSFORM: ts = "TYPE_TRANSFORM"; break;
-         case R.components.Base.TYPE_LOGIC: ts = "TYPE_LOGIC"; break;
-         case R.components.Base.TYPE_COLLIDER: ts = "TYPE_COLLIDER"; break;
-         case R.components.Base.TYPE_RENDERING: ts = "TYPE_RENDERING"; break;
-         case R.components.Base.TYPE_POST: ts = "TYPE_POST"; break;
-         default: ts = "TYPE_UNKNOWN";
-      }
+        /**
+         * Get the type of the component as a string.
+         * @return {String}
+         */
+        getTypeString:function () {
+            var ts = "";
+            switch (this.getType()) {
+                case R.components.Base.TYPE_PRE:
+                    ts = "TYPE_PRE";
+                    break;
+                case R.components.Base.TYPE_INPUT:
+                    ts = "TYPE_INPUT";
+                    break;
+                case R.components.Base.TYPE_TRANSFORM:
+                    ts = "TYPE_TRANSFORM";
+                    break;
+                case R.components.Base.TYPE_LOGIC:
+                    ts = "TYPE_LOGIC";
+                    break;
+                case R.components.Base.TYPE_COLLIDER:
+                    ts = "TYPE_COLLIDER";
+                    break;
+                case R.components.Base.TYPE_RENDERING:
+                    ts = "TYPE_RENDERING";
+                    break;
+                case R.components.Base.TYPE_POST:
+                    ts = "TYPE_POST";
+                    break;
+                default:
+                    ts = "TYPE_UNKNOWN";
+            }
 
-      return ts;
-   }
+            return ts;
+        }
 
 
-}, /** @scope R.components.Base.prototype */{
+    }, /** @scope R.components.Base.prototype */{
 
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} The string "R.components.Base"
-    */
-   getClassName: function() {
-      return "R.components.Base";
-   },
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} The string "R.components.Base"
+         */
+        getClassName:function () {
+            return "R.components.Base";
+        },
 
-   /**
-    * The constant value for PRE process components.  <i>Reserved for internal use.</i>
-    * @type {Number}
-    * @private
-    */
-   TYPE_PRE:				0,
+        /**
+         * The constant value for PRE process components.  <i>Reserved for internal use.</i>
+         * @type {Number}
+         * @private
+         */
+        TYPE_PRE:0,
 
-   /**
-    * The constant value for INPUT components.
-    * @type {Number}
-    */
-   TYPE_INPUT:          1,
+        /**
+         * The constant value for INPUT components.
+         * @type {Number}
+         */
+        TYPE_INPUT:1,
 
-   /**
-    * The constant value for TRANSFORM (movement) components.
-    * @type {Number}
-    */
-   TYPE_TRANSFORM:      2,
+        /**
+         * The constant value for TRANSFORM (movement) components.
+         * @type {Number}
+         */
+        TYPE_TRANSFORM:2,
 
-   /**
-    * The constant value for LOGIC components.
-    * @type {Number}
-    */
-   TYPE_LOGIC:          3,
+        /**
+         * The constant value for LOGIC components.
+         * @type {Number}
+         */
+        TYPE_LOGIC:3,
 
-   /**
-    * The constant value for COLLIDER components.
-    * @type {Number}
-    */
-   TYPE_COLLIDER:       4,
+        /**
+         * The constant value for COLLIDER components.
+         * @type {Number}
+         */
+        TYPE_COLLIDER:4,
 
-   /**
-    * The constant value for RENDERING components.
-    * @type {Number}
-    */
-   TYPE_RENDERING:      5,
-   
-   /**
-    * The constant value for POST process components.  <i>Reserved for internal use.</i>
-    * @type {Number}
-    * @private
-    */
-   TYPE_POST:				6
-});
+        /**
+         * The constant value for RENDERING components.
+         * @type {Number}
+         */
+        TYPE_RENDERING:5,
+
+        /**
+         * The constant value for POST process components.  <i>Reserved for internal use.</i>
+         * @type {Number}
+         * @private
+         */
+        TYPE_POST:6
+    });
 
 };

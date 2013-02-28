@@ -32,10 +32,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.lang.IntervalTimer",
-	"requires": [
-		"R.lang.AbstractTimer"
-	]
+    "class":"R.lang.IntervalTimer",
+    "requires":[
+        "R.lang.AbstractTimer"
+    ]
 });
 
 /**
@@ -47,40 +47,41 @@ R.Engine.define({
  * @constructor
  * @description Create an interval timer
  */
-R.lang.IntervalTimer = function(){
-	return R.lang.AbstractTimer.extend(/** @scope R.lang.IntervalTimer.prototype */{
-	
-		/**
-		 * Cancel this interval timer.
-		 */
-		cancel: function(){
-			R.global.clearInterval(this.getTimer());
-			this.base();
-		},
-		
-		/**
-		 * Cancel and destroy the interval timer.
-		 */
-		destroy: function(){
-			this.cancel();
-			this.base();
-		},
-		
-		/**
-		 * Restart this interval timer.
-		 */
-		restart: function(){
-			this.setTimer(R.global.setInterval(this.getCallback(), this.getInterval()));
-		}
-	}, /** @scope R.lang.IntervalTimer.prototype */ {
-	
-		/**
-		 * Get the class name of this object
-		 * @return {String} "R.lang.IntervalTimer"
-		 */
-		getClassName: function(){
-			return "R.lang.IntervalTimer";
-		}
-	});
-	
+R.lang.IntervalTimer = function () {
+    "use strict";
+    return R.lang.AbstractTimer.extend(/** @scope R.lang.IntervalTimer.prototype */{
+
+        /**
+         * Cancel this interval timer.
+         */
+        cancel:function () {
+            R.global.clearInterval(this.getTimer());
+            this.base();
+        },
+
+        /**
+         * Cancel and destroy the interval timer.
+         */
+        destroy:function () {
+            this.cancel();
+            this.base();
+        },
+
+        /**
+         * Restart this interval timer.
+         */
+        restart:function () {
+            this.setTimer(R.global.setInterval(this.getCallback(), this.getInterval()));
+        }
+    }, /** @scope R.lang.IntervalTimer.prototype */ {
+
+        /**
+         * Get the class name of this object
+         * @return {String} "R.lang.IntervalTimer"
+         */
+        getClassName:function () {
+            return "R.lang.IntervalTimer";
+        }
+    });
+
 }

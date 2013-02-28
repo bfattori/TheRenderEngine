@@ -32,10 +32,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.rendercontexts.DocumentContext",
-	"requires": [
-		"R.rendercontexts.HTMLElementContext"
-	]
+    "class":"R.rendercontexts.DocumentContext",
+    "requires":[
+        "R.rendercontexts.HTMLElementContext"
+    ]
 });
 
 /**
@@ -50,35 +50,35 @@ R.Engine.define({
  * represents the HTML document body.  Theoretically, only one of these
  * contexts should ever be created.
  */
-R.rendercontexts.DocumentContext = function(){
-	return R.rendercontexts.HTMLElementContext.extend(/** @scope R.rendercontexts.DocumentContext.prototype */{
-	
-		/** @private */
-		constructor: function(){
-			this.base("DocumentContext", document.body);
+R.rendercontexts.DocumentContext = function () {
+    return R.rendercontexts.HTMLElementContext.extend(/** @scope R.rendercontexts.DocumentContext.prototype */{
 
-         // Special case
-         this.setObjectDataModel("DOMPosition", R.math.Point2D.ZERO);
-		},
-		
-		/**
-		 * Reset the context, clearing it and preparing it for drawing.
-		 */
-		reset: function(rect){
-		}
-		
-	}, { /** @scope R.rendercontexts.DocumentContext.prototype */
-		/**
-		 * Get the class name of this object
-		 *
-		 * @return {String} "R.rendercontexts.DocumentContext"
-		 */
-		getClassName: function(){
-			return "R.rendercontexts.DocumentContext";
-		},
-		
-		// The engine looks for this field to know when to startup
-		started: true
+        /** @private */
+        constructor:function () {
+            this.base("DocumentContext", document.body);
 
-	});
+            // Special case
+            this.setObjectDataModel("DOMPosition", R.math.Point2D.ZERO);
+        },
+
+        /**
+         * Reset the context, clearing it and preparing it for drawing.
+         */
+        reset:function (rect) {
+        }
+
+    }, { /** @scope R.rendercontexts.DocumentContext.prototype */
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.rendercontexts.DocumentContext"
+         */
+        getClassName:function () {
+            return "R.rendercontexts.DocumentContext";
+        },
+
+        // The engine looks for this field to know when to startup
+        started:true
+
+    });
 };

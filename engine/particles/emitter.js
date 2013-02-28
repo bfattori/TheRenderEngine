@@ -33,10 +33,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.particles.Emitter",
-	"requires": [
-		"R.engine.PooledObject"
-	]
+    "class":"R.particles.Emitter",
+    "requires":[
+        "R.engine.PooledObject"
+    ]
 });
 
 /**
@@ -67,107 +67,107 @@ R.Engine.define({
  * @constructor
  * @description Create a particle emitter
  */
-R.particles.Emitter = function(){
-	return R.engine.PooledObject.extend(/** @scope R.particles.Emitter.prototype */{
+R.particles.Emitter = function () {
+    return R.engine.PooledObject.extend(/** @scope R.particles.Emitter.prototype */{
 
-		active: true,
-		emitFn: null,
-		interval: null,
-      nextEmit: 0,
-      engine: null,
+        active:true,
+        emitFn:null,
+        interval:null,
+        nextEmit:0,
+        engine:null,
 
-		/** @private */
-		constructor: function(emitFunc, interval, active){
-			this.base("ParticleEmitter");
-			this.emitFn = emitFunc;
-			this.interval = interval;
-         this.active = active === undefined ? true : active;
-         this.nextEmit = 0;
-         this.engine = null;
-		},
+        /** @private */
+        constructor:function (emitFunc, interval, active) {
+            this.base("ParticleEmitter");
+            this.emitFn = emitFunc;
+            this.interval = interval;
+            this.active = active === undefined ? true : active;
+            this.nextEmit = 0;
+            this.engine = null;
+        },
 
-		/**
-		 * Release the particle back into the pool.
-		 */
-		release: function(){
-			this.base();
-			this.interval = null;
-			this.emitFn = null;
-			this.active = true;
-         this.nextEmit = 0;
-         this.engine = null;
-		},
+        /**
+         * Release the particle back into the pool.
+         */
+        release:function () {
+            this.base();
+            this.interval = null;
+            this.emitFn = null;
+            this.active = true;
+            this.nextEmit = 0;
+            this.engine = null;
+        },
 
-      /**
-       * Set the active state of the particle emitter
-       * @param state {Boolean} <code>true</code> to enable emission of particles, <code>false</code> to
-       *    disable emission.
-       */
-      setActive: function(state) {
-         this.active = state;
-      },
+        /**
+         * Set the active state of the particle emitter
+         * @param state {Boolean} <code>true</code> to enable emission of particles, <code>false</code> to
+         *    disable emission.
+         */
+        setActive:function (state) {
+            this.active = state;
+        },
 
-      /**
-       * Method to check if the emitter is active.
-       * @return {Boolean}
-       */
-      isActive: function() {
-         return this.active;
-      },
+        /**
+         * Method to check if the emitter is active.
+         * @return {Boolean}
+         */
+        isActive:function () {
+            return this.active;
+        },
 
-      /**
-       * Set the interval at which particles are emitted.
-       * @param interval {Number} The number of milliseconds between emissions
-       */
-      setInterval: function(interval) {
-         this.interval = interval;
-      },
+        /**
+         * Set the interval at which particles are emitted.
+         * @param interval {Number} The number of milliseconds between emissions
+         */
+        setInterval:function (interval) {
+            this.interval = interval;
+        },
 
-      /**
-       * Return the interval at which particles are emitted.
-       * @return {Number}
-       */
-      getInterval: function() {
-         return this.interval;
-      },
+        /**
+         * Return the interval at which particles are emitted.
+         * @return {Number}
+         */
+        getInterval:function () {
+            return this.interval;
+        },
 
-      /**
-       * Set the particle engine the particle emitter should emit particles to.
-       * @param particleEngine {R.particles.ParticleEngine}
-       */
-      setParticleEngine: function(particleEngine) {
-         this.engine = particleEngine;
-      },
+        /**
+         * Set the particle engine the particle emitter should emit particles to.
+         * @param particleEngine {R.particles.ParticleEngine}
+         */
+        setParticleEngine:function (particleEngine) {
+            this.engine = particleEngine;
+        },
 
-		/**
-		 * Emit a particle to the particle engine, if the emitter is active.
-		 * @param offset {R.math.Point2D} Offset from the particle's position to render at
-		 * @param time {Number} The world time, in milliseconds
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       * @private
-		 */
-		emit: function(offset, time, dt){
-         if (this.active && time > this.nextEmit) {
-            this.nextEmit = time + this.interval;
-            var particles = this.emitFn.call(this, offset, time, dt);
-            if (particles.length) {
-               this.engine.addParticles(particles);
-            } else {
-               this.engine.addParticle(particles);
+        /**
+         * Emit a particle to the particle engine, if the emitter is active.
+         * @param offset {R.math.Point2D} Offset from the particle's position to render at
+         * @param time {Number} The world time, in milliseconds
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         * @private
+         */
+        emit:function (offset, time, dt) {
+            if (this.active && time > this.nextEmit) {
+                this.nextEmit = time + this.interval;
+                var particles = this.emitFn.call(this, offset, time, dt);
+                if (particles.length) {
+                    this.engine.addParticles(particles);
+                } else {
+                    this.engine.addParticle(particles);
+                }
             }
-         }
-		}
+        }
 
-	}, /** @scope R.particles.Emitter.prototype */ {
-		/**
-		 * Get the class name of this object
-		 *
-		 * @return {String} "R.particles.Emitter"
-		 */
-		getClassName: function(){
-			return "R.particles.Emitter";
-		}
-	});
+    }, /** @scope R.particles.Emitter.prototype */ {
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.particles.Emitter"
+         */
+        getClassName:function () {
+            return "R.particles.Emitter";
+        }
+    });
 
 }

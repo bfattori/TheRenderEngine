@@ -33,12 +33,12 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.physics.PulleyJoint",
-   "requires": [
-      "R.components.physics.BaseJoint",
-      "R.physics.Simulation",
-      "R.math.Math2D"
-   ]
+    "class":"R.components.physics.PulleyJoint",
+    "requires":[
+        "R.components.physics.BaseJoint",
+        "R.physics.Simulation",
+        "R.math.Math2D"
+    ]
 });
 
 /**
@@ -57,66 +57,66 @@ R.Engine.define({
  * @constructor
  * @description Creates a pulley joint between two physical bodies.
  */
-R.components.physics.PulleyJoint = function() {
-   return R.components.physics.BaseJoint.extend(/** @scope R.components.physics.PulleyJoint.prototype */{
+R.components.physics.PulleyJoint = function () {
+    return R.components.physics.BaseJoint.extend(/** @scope R.components.physics.PulleyJoint.prototype */{
 
-      anchor1: null,
-      anchor2: null,
-      ratio: 0,
+        anchor1:null,
+        anchor2:null,
+        ratio:0,
 
-      /**
-       * @private
-       */
-      constructor: function(name, body1, body2, anchor1, anchor2, ratio) {
-         var jointDef = new Box2D.Dynamics.Joints.b2PulleyJointDef();
+        /**
+         * @private
+         */
+        constructor:function (name, body1, body2, anchor1, anchor2, ratio) {
+            var jointDef = new Box2D.Dynamics.Joints.b2PulleyJointDef();
 
-         this.anchor1 = R.math.Point2D.create(anchor1).div(R.physics.Simulation.WORLD_SIZE);
-         this.anchor2 = R.math.Point2D.create(anchor2).div(R.physics.Simulation.WORLD_SIZE);
-         this.ratio = ratio || 1;
+            this.anchor1 = R.math.Point2D.create(anchor1).div(R.physics.Simulation.WORLD_SIZE);
+            this.anchor2 = R.math.Point2D.create(anchor2).div(R.physics.Simulation.WORLD_SIZE);
+            this.ratio = ratio || 1;
 
-         this.base(name || "PulleyJoint", body1, body2, jointDef);
-      },
+            this.base(name || "PulleyJoint", body1, body2, jointDef);
+        },
 
-      /**
-       * Offset the joint's anchors by the given point
-       * @param pt {R.math.Point2D} The offset amount
-       */
-      offset: function(pt) {
-         var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
-         this.anchor1.add(ofs);
-         this.anchor2.add(ofs);
-         ofs.destroy();
-      },
+        /**
+         * Offset the joint's anchors by the given point
+         * @param pt {R.math.Point2D} The offset amount
+         */
+        offset:function (pt) {
+            var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
+            this.anchor1.add(ofs);
+            this.anchor2.add(ofs);
+            ofs.destroy();
+        },
 
-      /**
-       * When simulation starts offset the anchor point by the position of rigid body 1 (the "from" body).
-       * @private
-       */
-      startSimulation: function() {
-         if (!this.getSimulation()) {
-            var sim = this.getGameObject().getSimulation();
+        /**
+         * When simulation starts offset the anchor point by the position of rigid body 1 (the "from" body).
+         * @private
+         */
+        startSimulation:function () {
+            if (!this.getSimulation()) {
+                var sim = this.getGameObject().getSimulation();
 
-            var anchor1 = new Box2D.Common.Math.b2Vec2(), anchor2 = new Box2D.Common.Math.b2Vec2();
-            anchor1.Set(this.anchor1.x, this.anchor1.y);
-            anchor2.Set(this.anchor2.x, this.anchor2.y);
+                var anchor1 = new Box2D.Common.Math.b2Vec2(), anchor2 = new Box2D.Common.Math.b2Vec2();
+                anchor1.Set(this.anchor1.x, this.anchor1.y);
+                anchor2.Set(this.anchor2.x, this.anchor2.y);
 
-            this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(),
-                                          sim.getGroundBody(), sim.getGroundBody(),
-                                          anchor1, anchor2, this.ratio);
-         }
+                this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(),
+                    sim.getGroundBody(), sim.getGroundBody(),
+                    anchor1, anchor2, this.ratio);
+            }
 
-         this.base();
-      }
+            this.base();
+        }
 
-   }, { /** @scope R.components.physics.PulleyJoint.prototype */
+    }, { /** @scope R.components.physics.PulleyJoint.prototype */
 
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.physics.PulleyJoint"
-       */
-      getClassName: function() {
-         return "R.components.physics.PulleyJoint";
-      }
-   });
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.physics.PulleyJoint"
+         */
+        getClassName:function () {
+            return "R.components.physics.PulleyJoint";
+        }
+    });
 };

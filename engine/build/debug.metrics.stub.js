@@ -34,27 +34,27 @@
  * @static
  */
 R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
-   constructor: null,
+    constructor:null,
 
-   toggleMetrics: function() {
-   },
+    toggleMetrics:function () {
+    },
 
-   hideMetrics: function() {
-   },
+    hideMetrics:function () {
+    },
 
-   setSampleRate: function() {
-   },
+    setSampleRate:function () {
+    },
 
-   add: function() {
-   },
+    add:function () {
+    },
 
-   remove: function() {
-   },
+    remove:function () {
+    },
 
-   update: function() {
-   },
+    update:function () {
+    },
 
-   doMetrics: function() {
-   }
+    doMetrics:function () {
+    }
 
 });

@@ -33,11 +33,11 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.physics.PolyBody",
-   "requires": [
-      "R.components.physics.BaseBody",
-      "R.math.Math2D"
-   ]
+    "class":"R.components.physics.PolyBody",
+    "requires":[
+        "R.components.physics.BaseBody",
+        "R.math.Math2D"
+    ]
 });
 
 /**
@@ -51,115 +51,114 @@ R.Engine.define({
  * @constructor
  * @description A polygonal rigid body component.
  */
-R.components.physics.PolyBody = function() {
-   return R.components.physics.BaseBody.extend(/** @scope R.components.physics.PolyBody.prototype */{
+R.components.physics.PolyBody = function () {
+    return R.components.physics.BaseBody.extend(/** @scope R.components.physics.PolyBody.prototype */{
 
-      points: null,
-      center: null,
-      extents: null,
+        points:null,
+        center:null,
+        extents:null,
 
-      /**
-       * @private
-       */
-      constructor: function(name, points) {
-         var fixDef = new Box2D.Dynamics.b2FixtureDef();
-         fixDef.shape = new Box2D.Collision.Shapes.b2PolygonShape();
+        /**
+         * @private
+         */
+        constructor:function (name, points) {
+            var fixDef = new Box2D.Dynamics.b2FixtureDef();
+            fixDef.shape = new Box2D.Collision.Shapes.b2PolygonShape();
 
-         this.base(name, fixDef);
-         this.points = points;
+            this.base(name, fixDef);
+            this.points = points;
 
-         // Calculate the extents of the points
-         this.extents = R.math.Math2D.getBoundingBox(points);
+            // Calculate the extents of the points
+            this.extents = R.math.Math2D.getBoundingBox(points);
 
-         // Calculate the center of the points
-         this.center = R.math.Math2D.getCenterOfPoints(points);
-         this.setLocalOrigin(this.center);
-      },
+            // Calculate the center of the points
+            this.center = R.math.Math2D.getCenterOfPoints(points);
+            this.setLocalOrigin(this.center);
+        },
 
-      /**
-       * Destroy the object
-       */
-      destroy: function() {
-         this.center.destroy();
-         this.extents.destroy();
-         this.base();
-      },
+        /**
+         * Destroy the object
+         */
+        destroy:function () {
+            this.center.destroy();
+            this.extents.destroy();
+            this.base();
+        },
 
-      /**
-       * Return the object to the pool.
-       */
-      release: function() {
-         this.points = null;
-         this.center = null;
-         this.extents = null;
-         this.base();
-      },
+        /**
+         * Return the object to the pool.
+         */
+        release:function () {
+            this.points = null;
+            this.center = null;
+            this.extents = null;
+            this.base();
+        },
 
-      /**
-       * Deprecated in favor of {@link #setGameObject}
-       * @deprecated
-       */
-      setHostObject: function(hostObj) {
-         this.setGameObject(hostObj);
-      },
+        /**
+         * Deprecated in favor of {@link #setGameObject}
+         * @deprecated
+         */
+        setHostObject:function (hostObj) {
+            this.setGameObject(hostObj);
+        },
 
-      setGameObject: function(gameObject) {
-         this.base(gameObject);
+        setGameObject:function (gameObject) {
+            this.base(gameObject);
 
-         var scaled = [], pt = R.math.Point2D.create(0,0);
-         for (var p = 0; p < this.points.length; p++) {
-            pt.set(this.points[p]);
-            pt.div(R.physics.Simulation.WORLD_SIZE);
-            scaled.push(new Box2D.Common.Math.b2Vec2(pt.x, pt.y));
-         }
-         this.getFixtureDef().shape.SetAsArray(scaled);
-         pt.destroy();
-      },
+            var scaled = [], pt = R.math.Point2D.create(0, 0);
+            for (var p = 0; p < this.points.length; p++) {
+                pt.set(this.points[p]);
+                pt.div(R.physics.Simulation.WORLD_SIZE);
+                scaled.push(new Box2D.Common.Math.b2Vec2(pt.x, pt.y));
+            }
+            this.getFixtureDef().shape.SetAsArray(scaled);
+            pt.destroy();
+        },
 
-      /**
-       * Get a box which bounds the body, local to the body.
-       * @return {R.math.Rectangle2D}
-       */
-      getBoundingBox: function() {
-         return this.extents;
-      },
+        /**
+         * Get a box which bounds the body, local to the body.
+         * @return {R.math.Rectangle2D}
+         */
+        getBoundingBox:function () {
+            return this.extents;
+        },
 
-      /**
-       * Get the extents of the box's body.
-       * @return {R.math.Point2D}
-       */
-      getExtents: function() {
-         return this.extents;
-      }
+        /**
+         * Get the extents of the box's body.
+         * @return {R.math.Point2D}
+         */
+        getExtents:function () {
+            return this.extents;
+        }
 
-      /* pragma:DEBUG_START */
-   /**
-    * Adds shape debugging
-    * @private
-    */
-      ,execute: function(renderContext, time, dt) {
-         this.base(renderContext, time, dt);
-         if (R.Engine.getDebugMode()) {
-            renderContext.pushTransform();
-            renderContext.setLineStyle("blue");
-            renderContext.setScale(1 / this.getScale());
-            renderContext.drawPolygon(this.points);
-            renderContext.popTransform();
-         }
-      }
-      /* pragma:DEBUG_END */
+        /* pragma:DEBUG_START */
+        /**
+         * Adds shape debugging
+         * @private
+         */, execute:function (renderContext, time, dt) {
+            this.base(renderContext, time, dt);
+            if (R.Engine.getDebugMode()) {
+                renderContext.pushTransform();
+                renderContext.setLineStyle("blue");
+                renderContext.setScale(1 / this.getScale());
+                renderContext.drawPolygon(this.points);
+                renderContext.popTransform();
+            }
+        }
+        /* pragma:DEBUG_END */
 
 
-   }, { /** @scope R.components.physics.BoxBody.prototype */
+    }, { /** @scope R.components.physics.BoxBody.prototype */
 
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.physics.BoxBody"
-       */
-      getClassName: function() {
-         return "R.components.physics.BoxBody";
-      }
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.physics.BoxBody"
+         */
+        getClassName:function () {
+            return "R.components.physics.BoxBody";
+        }
 
-   });
+    });
 };

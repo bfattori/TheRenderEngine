@@ -33,10 +33,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.storage.CookieStorage",
-	"requires": [
-		"R.storage.AbstractStorage"
-	]
+    "class":"R.storage.CookieStorage",
+    "requires":[
+        "R.storage.AbstractStorage"
+    ]
 });
 
 /**
@@ -51,166 +51,169 @@ R.Engine.define({
  * @constructor
  * @description This class of storage is used to persist data in a cookie.
  */
-R.storage.CookieStorage = function(){
-	return R.storage.AbstractStorage.extend(/** @scope R.storage.CookieStorage.prototype */{
+R.storage.CookieStorage = function () {
+    return R.storage.AbstractStorage.extend(/** @scope R.storage.CookieStorage.prototype */{
 
-		enabled: null,
-      cookieName: null,
-      options: null,
-      hash: null,
+        enabled:null,
+        cookieName:null,
+        options:null,
+        hash:null,
 
-		/** @private */
-		constructor: function(name, options){
-			this.enabled = R.engine.Support.sysInfo().support.storage.cookie;
-			AssertWarn(this.enabled, "CookieStorage is not supported by browser - DISABLED");
-			this.base(name);
-         this.cookieName = name;
-         this.options = $.extend({
-            path: "/",
-            domain: null,
-            secure: null,
-            expires: null
-         }, options);
-         this.hash = this.loadData() || {};
-		},
+        /** @private */
+        constructor:function (name, options) {
+            this.enabled = R.engine.Support.sysInfo().support.storage.cookie;
+            AssertWarn(this.enabled, "CookieStorage is not supported by browser - DISABLED");
+            this.base(name);
+            this.cookieName = name;
+            this.options = $.extend({
+                path:"/",
+                domain:null,
+                secure:null,
+                expires:null
+            }, options);
+            this.hash = this.loadData() || {};
+        },
 
-      destroy: function() {
-         this.dispose();
-         this.base();
-      },
+        destroy:function () {
+            this.dispose();
+            this.base();
+        },
 
-		/**
-		 * Release the object back into the object pool.
-		 */
-		release: function(){
-			this.base();
-			this.cookieName = null;
-         this.options = null;
-         this.hash = null;
-		},
+        /**
+         * Release the object back into the object pool.
+         */
+        release:function () {
+            this.base();
+            this.cookieName = null;
+            this.options = null;
+            this.hash = null;
+        },
 
-		/**
-		 * Initialize the storage object to the document.cookie object
-		 * @return {Object} The <tt>localStorage</tt> object
-		 */
-		initStorageObject: function(){
-			return window.document.cookie;
-		},
+        /**
+         * Initialize the storage object to the document.cookie object
+         * @return {Object} The <tt>localStorage</tt> object
+         */
+        initStorageObject:function () {
+            return window.document.cookie;
+        },
 
-      /**
-       * Save a value to cookie storage.
-       * @param key {String} The key to store the data with
-       * @param value {Object} The value to store with the key
-       */
-      save: function(key, value) {
-         if (!this.enabled) {
-            return;
-         }
-
-         if (typeof key === "object" && !R.isArray(key)) {
-            // Set the entire hash
-            this.hash = key;
-         } else {
-            this.hash[key] = value;
-         }
-         this.saveData(JSON.stringify(this.hash));
-      },
-
-      /**
-       * Get the value associated with the key from cookie storage.
-       * @param key {String} The key to retrieve data for
-       * @return {Object} The value that was stored with the key, or <tt>null</tt>
-       */
-      load: function(key) {
-         if (!this.enabled) {
-            return null;
-         }
-
-         if (!key) {
-            return this.hash();
-         }
-         return this.hash[key];
-      },
-
-      /**
-       * Dispose of the cookie (remove it from the user's browser).
-       */
-      dispose: function() {
-         if (!this.enabled) {
-            return;
-         }
-
-         var oldExpires = this.options.expires;
-         $.extend(this.options, {
-            expires: -1
-         });
-         this.saveData("");
-         $.extend(this.options, {
-            expires: oldExpires
-         });
-      },
-
-      /**
-       * Clear all of the data stored in the cookie.
-       */
-      clear: function() {
-         if (!this.enabled) {
-            return;
-         }
-
-         this.saveData("{}");
-      },
-
-      /**
-       * Saves the data object into the cookie.
-       * @param data
-       * @private
-       */
-      saveData: function(data) {
-         AssertWarn(data.length < R.engine.Support.sysInfo().support.storage.cookie.maxLength,
-               "Data to save to cookie is larger than supported size - will be truncated");
-
-         var p = "";
-         $.each(this.options, function(k,v) {
-            if (v) {
-               p += (p.length > 0 ? ";" : "") + k + (function(o) {
-                  switch (o) {
-                     case "secure": return "";
-                     case "expires": return "=" + new Date(R.now() + v).toGMTString();
-                     default: return "=" + v;
-                  }
-               })(k);
+        /**
+         * Save a value to cookie storage.
+         * @param key {String} The key to store the data with
+         * @param value {Object} The value to store with the key
+         */
+        save:function (key, value) {
+            if (!this.enabled) {
+                return;
             }
-         });
 
-         // Save the cookie
-         this.getStorageObject() = this.cookieName + "=" + data + ";" + p;
-      },
+            if (typeof key === "object" && !R.isArray(key)) {
+                // Set the entire hash
+                this.hash = key;
+            } else {
+                this.hash[key] = value;
+            }
+            this.saveData(JSON.stringify(this.hash));
+        },
 
-      /**
-       * Loads the data object from the cookie
-       * @private
-       */
-      loadData: function() {
-         if (!this.enabled) {
-            return null;
-         }
+        /**
+         * Get the value associated with the key from cookie storage.
+         * @param key {String} The key to retrieve data for
+         * @return {Object} The value that was stored with the key, or <tt>null</tt>
+         */
+        load:function (key) {
+            if (!this.enabled) {
+                return null;
+            }
 
-         var va = this.getStorageObject().match('(?:^|;)\\s*' + this.cookieName + '=([^;]*)');
-         var value = (va) ? va[1] : null;
-         return JSON.parse(value);
-      }
+            if (!key) {
+                return this.hash();
+            }
+            return this.hash[key];
+        },
 
-	}, /** @scope R.storage.CookieStorage.prototype */ {
+        /**
+         * Dispose of the cookie (remove it from the user's browser).
+         */
+        dispose:function () {
+            if (!this.enabled) {
+                return;
+            }
 
-		/**
-		 * Get the class name of this object
-		 *
-		 * @return {String} "R.storage.CookieStorage"
-		 */
-		getClassName: function(){
-			return "R.storage.CookieStorage";
-		}
+            var oldExpires = this.options.expires;
+            $.extend(this.options, {
+                expires:-1
+            });
+            this.saveData("");
+            $.extend(this.options, {
+                expires:oldExpires
+            });
+        },
 
-	});
+        /**
+         * Clear all of the data stored in the cookie.
+         */
+        clear:function () {
+            if (!this.enabled) {
+                return;
+            }
+
+            this.saveData("{}");
+        },
+
+        /**
+         * Saves the data object into the cookie.
+         * @param data
+         * @private
+         */
+        saveData:function (data) {
+            AssertWarn(data.length < R.engine.Support.sysInfo().support.storage.cookie.maxLength,
+                "Data to save to cookie is larger than supported size - will be truncated");
+
+            var p = "";
+            $.each(this.options, function (k, v) {
+                if (v) {
+                    p += (p.length > 0 ? ";" : "") + k + (function (o) {
+                        switch (o) {
+                            case "secure":
+                                return "";
+                            case "expires":
+                                return "=" + new Date(R.now() + v).toGMTString();
+                            default:
+                                return "=" + v;
+                        }
+                    })(k);
+                }
+            });
+
+            // Save the cookie
+            this.getStorageObject() = this.cookieName + "=" + data + ";" + p;
+        },
+
+        /**
+         * Loads the data object from the cookie
+         * @private
+         */
+        loadData:function () {
+            if (!this.enabled) {
+                return null;
+            }
+
+            var va = this.getStorageObject().match('(?:^|;)\\s*' + this.cookieName + '=([^;]*)');
+            var value = (va) ? va[1] : null;
+            return JSON.parse(value);
+        }
+
+    }, /** @scope R.storage.CookieStorage.prototype */ {
+
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.storage.CookieStorage"
+         */
+        getClassName:function () {
+            return "R.storage.CookieStorage";
+        }
+
+    });
 };

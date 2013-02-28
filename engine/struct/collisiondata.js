@@ -33,10 +33,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.struct.CollisionData",
-	"requires": [
-		"R.engine.PooledObject"
-	]
+    "class":"R.struct.CollisionData",
+    "requires":[
+        "R.engine.PooledObject"
+    ]
 });
 
 /**
@@ -55,97 +55,97 @@ R.Engine.define({
  * @constructor
  * @description Creates a collision data structure.
  */
-R.struct.CollisionData = function() {
-	return R.engine.PooledObject.extend(/** @scope R.struct.CollisionData.prototype */{
+R.struct.CollisionData = function () {
+    return R.engine.PooledObject.extend(/** @scope R.struct.CollisionData.prototype */{
 
-      /**
-       * The overlap in pixels
-       * @type {Number}
-       */
-      overlap: 0,
+        /**
+         * The overlap in pixels
+         * @type {Number}
+         */
+        overlap:0,
 
-      /**
-       * The collision normal
-       * @type {R.math.Vector2D}
-       */
-		unitVector: null,
+        /**
+         * The collision normal
+         * @type {R.math.Vector2D}
+         */
+        unitVector:null,
 
-      /**
-       * The game object which collided
-       * @type {R.engine.GameObject}
-       */
-		shape1: null,
+        /**
+         * The game object which collided
+         * @type {R.engine.GameObject}
+         */
+        shape1:null,
 
-      /**
-       * The game object that was collided with
-       * @type {R.engine.GameObject}
-       */
-		shape2: null,
+        /**
+         * The game object that was collided with
+         * @type {R.engine.GameObject}
+         */
+        shape2:null,
 
-      /**
-       * A vector which can be used to move the two objects apart so they aren't colliding
-       * @type {R.math.Vector2D}
-       */
-		impulseVector: null,
+        /**
+         * A vector which can be used to move the two objects apart so they aren't colliding
+         * @type {R.math.Vector2D}
+         */
+        impulseVector:null,
 
-      /**
-       * The world time at the time of the collision
-       * @type {Number}
-       */
-      worldTime: 0,
+        /**
+         * The world time at the time of the collision
+         * @type {Number}
+         */
+        worldTime:0,
 
-      /**
-       * The time delta between the world time and the last time the engine was updated
-       * @type {Number}
-       */
-      delta: 0,
+        /**
+         * The time delta between the world time and the last time the engine was updated
+         * @type {Number}
+         */
+        delta:0,
 
-      /** @private */
-		constructor: function(o,u,s1,s2,i,wt,dt) {
-			this.overlap = o;
-			this.unitVector = u;
-			this.shape1 = s1;
-			this.shape2 = s2;
-			this.impulseVector = i;
-         this.worldTime = wt;
-         this.delta = dt;
+        /** @private */
+        constructor:function (o, u, s1, s2, i, wt, dt) {
+            this.overlap = o;
+            this.unitVector = u;
+            this.shape1 = s1;
+            this.shape2 = s2;
+            this.impulseVector = i;
+            this.worldTime = wt;
+            this.delta = dt;
 
-         //if (Object.freeze) {
-         //   Object.freeze(this);
-         //}
+            //if (Object.freeze) {
+            //   Object.freeze(this);
+            //}
 
-			this.base("CollisionData");
-		},
+            this.base("CollisionData");
+        },
 
-      /**
-       * Destroy the collision data object.
-       */
-		destroy: function() {
-         if (this.impulseVector) {
-			   this.impulseVector.destroy();
-         }
-         if (this.unitVector) {
-			   this.unitVector.destroy();
-         }
-			this.base();
-		},
+        /**
+         * Destroy the collision data object.
+         */
+        destroy:function () {
+            if (this.impulseVector) {
+                this.impulseVector.destroy();
+            }
+            if (this.unitVector) {
+                this.unitVector.destroy();
+            }
+            this.base();
+        },
 
-      /**
-       * Release the collision data object back into the pool for reuse.
-       */
-		release: function() {
-			this.base();
-			this.overlap = 0;
-			this.unitVector = null;
-			this.shape1 = null;
-			this.shape2 = null;
-			this.impulseVector = null;
-         this.worldTime = 0;
-         this.delta = 0;
-		}
-	}, {
-      getClassName: function() {
-         return "R.struct.CollisionData";
-      }
-   });
+        /**
+         * Release the collision data object back into the pool for reuse.
+         */
+        release:function () {
+            this.base();
+            this.overlap = 0;
+            this.unitVector = null;
+            this.shape1 = null;
+            this.shape2 = null;
+            this.impulseVector = null;
+            this.worldTime = 0;
+            this.delta = 0;
+        }
+    }, {
+        getClassName:function () {
+            return "R.struct.CollisionData";
+        }
+    });
 };

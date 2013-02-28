@@ -33,12 +33,12 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.render.ParticleEmitter",
-   "requires": [
-      "R.components.Render",
-      "R.particles.Emitter",
-      "R.math.Point2D"
-   ]
+    "class":"R.components.render.ParticleEmitter",
+    "requires":[
+        "R.components.Render",
+        "R.particles.Emitter",
+        "R.math.Point2D"
+    ]
 });
 
 /**
@@ -52,107 +52,108 @@ R.Engine.define({
  * @constructor
  * @description Creates a component which emits particles.
  */
-R.components.render.ParticleEmitter = function() {
-   return R.components.Render.extend(/** @scope R.components.render.ParticleEmitter.prototype */{
+R.components.render.ParticleEmitter = function () {
+    "use strict";
+    return R.components.Render.extend(/** @scope R.components.render.ParticleEmitter.prototype */{
 
-      emitter: null,
-      offset: null,
+        emitter:null,
+        offset:null,
 
-      /**
-       * @private
-       */
-      constructor: function(name, emitter, priority) {
-         this.base(name, priority);
-         this.emitter = emitter;
-         this.offset = R.math.Point2D.create(0,0);
-      },
+        /**
+         * @private
+         */
+        constructor:function (name, emitter, priority) {
+            this.base(name, priority);
+            this.emitter = emitter;
+            this.offset = R.math.Point2D.create(0, 0);
+        },
 
-      /**
-       * Destroy the particle emitter component.
-       */
-      destroy: function() {
-         this.offset.destroy();
-         this.base();
-      },
+        /**
+         * Destroy the particle emitter component.
+         */
+        destroy:function () {
+            this.offset.destroy();
+            this.base();
+        },
 
-      /**
-       * Releases the component back into the object pool. See {@link R.engine.PooledObject#release}
-       * for more information.
-       */
-      release: function() {
-         this.base();
-         this.emitter = null;
-         this.offset = null;
-      },
+        /**
+         * Releases the component back into the object pool. See {@link R.engine.PooledObject#release}
+         * for more information.
+         */
+        release:function () {
+            this.base();
+            this.emitter = null;
+            this.offset = null;
+        },
 
-      /**
-       * Set the particle emitter object.
-       * @param emitter {R.particles.Emitter} The particle emitter
-       */
-      setEmitter: function(emitter) {
-         this.emitter = emitter;
-      },
+        /**
+         * Set the particle emitter object.
+         * @param emitter {R.particles.Emitter} The particle emitter
+         */
+        setEmitter:function (emitter) {
+            this.emitter = emitter;
+        },
 
-      /**
-       * Get the particle emitter assigned to this component.
-       * @return {R.particles.Emitter}
-       */
-      getEmitter: function() {
-         return this.emitter;
-      },
+        /**
+         * Get the particle emitter assigned to this component.
+         * @return {R.particles.Emitter}
+         */
+        getEmitter:function () {
+            return this.emitter;
+        },
 
-      /**
-       * Set the active state of the particle emitter.
-       * @param state {Boolean} <code>true</code> to set the emitter to generate particles
-       */
-      setActive: function(state) {
-         this.emitter.setActive(state);
-      },
+        /**
+         * Set the active state of the particle emitter.
+         * @param state {Boolean} <code>true</code> to set the emitter to generate particles
+         */
+        setActive:function (state) {
+            this.emitter.setActive(state);
+        },
 
-      /**
-       * Set the offset, from the rendering origin, where the particles are emitted
-       * from.  This will default to the rendering origin.
-       * @param ptOrX {Number|R.math.Point2D} The X offset, or a point
-       * @param [y] {Number} The Y offset if <code>ptOrX</code> is a number
-       */
-      setOffset: function(ptOrX, y) {
-         this.offset.set(ptOrX, y);
-      },
+        /**
+         * Set the offset, from the rendering origin, where the particles are emitted
+         * from.  This will default to the rendering origin.
+         * @param ptOrX {Number|R.math.Point2D} The X offset, or a point
+         * @param [y] {Number} The Y offset if <code>ptOrX</code> is a number
+         */
+        setOffset:function (ptOrX, y) {
+            this.offset.set(ptOrX, y);
+        },
 
-      /**
-       * Get the offset where the particles will be emitted, from the rendering origin.
-       * @return {R.math.Point2D}
-       */
-      getOffset: function() {
-         return this.offset;
-      },
+        /**
+         * Get the offset where the particles will be emitted, from the rendering origin.
+         * @return {R.math.Point2D}
+         */
+        getOffset:function () {
+            return this.offset;
+        },
 
-      /**
-       * Emit particles to the render context.
-       *
-       * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render to
-       * @param time {Number} The engine time in milliseconds
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       */
-      execute: function(renderContext, time, dt) {
-         if (!this.base(renderContext, time, dt)) {
-            return;
-         }
+        /**
+         * Emit particles to the render context.
+         *
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render to
+         * @param time {Number} The engine time in milliseconds
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (renderContext, time, dt) {
+            if (!this.base(renderContext, time, dt)) {
+                return;
+            }
 
-         if (this.emitter) {
-            this.transformOrigin(renderContext, true);
-            this.emitter.emit(this.getOffset(), time, dt);
-            this.transformOrigin(renderContext, false);
-         }
-      }
-   }, /** @scope R.components.render.ParticleEmitter.prototype */{
-      /**
-       * Get the class name of this object
-       * @return {String} "R.components.render.ParticleEmitter"
-       */
-      getClassName: function() {
-         return "R.components.render.ParticleEmitter";
-      }
-   });
+            if (this.emitter) {
+                this.transformOrigin(renderContext, true);
+                this.emitter.emit(this.getOffset(), time, dt);
+                this.transformOrigin(renderContext, false);
+            }
+        }
+    }, /** @scope R.components.render.ParticleEmitter.prototype */{
+        /**
+         * Get the class name of this object
+         * @return {String} "R.components.render.ParticleEmitter"
+         */
+        getClassName:function () {
+            return "R.components.render.ParticleEmitter";
+        }
+    });
 };

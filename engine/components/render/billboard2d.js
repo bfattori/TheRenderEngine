@@ -33,13 +33,13 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.render.Billboard2D",
-   "requires": [
-      "R.components.Render",
-      "R.util.RenderUtil",
-      "R.text.AbstractTextRenderer",
-      "R.math.Point2D"
-   ]
+    "class":"R.components.render.Billboard2D",
+    "requires":[
+        "R.components.Render",
+        "R.util.RenderUtil",
+        "R.text.AbstractTextRenderer",
+        "R.math.Point2D"
+    ]
 });
 
 /**
@@ -65,180 +65,181 @@ R.Engine.define({
  * @extends R.components.Render
  * @description Creates a 2d billboard component.
  */
-R.components.render.Billboard2D = function() {
-   return R.components.Render.extend(/** @scope R.components.render.Billboard2D.prototype */{
+R.components.render.Billboard2D = function () {
+    "use strict";
+    return R.components.Render.extend(/** @scope R.components.render.Billboard2D.prototype */{
 
-      billboard: null,
-      mode: null,
-      renderComponent: null,
-      hostRect: null,
+        billboard:null,
+        mode:null,
+        renderComponent:null,
+        hostRect:null,
 
-      /**
-       * @private
-       */
-      constructor: function(name, renderComponent, priority) {
-         Assert(renderComponent instanceof R.components.Render ||
-               renderComponent instanceof R.text.AbstractTextRenderer, "Attempt to assign a non-render component to a billboard component");
-         this.base(name, priority || 0.1);
-         this.mode = R.components.render.Billboard2D.REDRAW;
-         this.renderComponent = renderComponent;
+        /**
+         * @private
+         */
+        constructor:function (name, renderComponent, priority) {
+            Assert(renderComponent instanceof R.components.Render ||
+                renderComponent instanceof R.text.AbstractTextRenderer, "Attempt to assign a non-render component to a billboard component");
+            this.base(name, priority || 0.1);
+            this.mode = R.components.render.Billboard2D.REDRAW;
+            this.renderComponent = renderComponent;
 
-      },
+        },
 
-      /**
-       * Destroy the object
-       */
-      destroy: function() {
-         this.renderComponent.destroy();
-         this.base();
-      },
+        /**
+         * Destroy the object
+         */
+        destroy:function () {
+            this.renderComponent.destroy();
+            this.base();
+        },
 
-      /**
-       * Releases the component back into the object pool. See {@link R.engine.PooledObject#release}
-       * for more information.
-       */
-      release: function() {
-         this.base();
-         this.mode = null;
-         this.renderComponent = null;
-      },
+        /**
+         * Releases the component back into the object pool. See {@link R.engine.PooledObject#release}
+         * for more information.
+         */
+        release:function () {
+            this.base();
+            this.mode = null;
+            this.renderComponent = null;
+        },
 
-      /**
-       * Deprecated in favor of {@link #setGameObject}.
-       * @deprecated
-       */
-      setHostObject: function(hostObject) {
-         this.setGameObject(hostObject);
-      },
+        /**
+         * Deprecated in favor of {@link #setGameObject}.
+         * @deprecated
+         */
+        setHostObject:function (hostObject) {
+            this.setGameObject(hostObject);
+        },
 
-      /**
-       * Establishes the link between this component and its game object.
-       * When you assign components to a game object, it will call this method
-       * so that each component can refer to its game object, the same way
-       * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
-       *
-       * @param hostObject {R.engine.GameObject} The object which hosts this component
-       */
-      setGameObject: function(gameObject) {
-         this.renderComponent.setGameObject(gameObject);
-         this.base(gameObject);
-      },
+        /**
+         * Establishes the link between this component and its game object.
+         * When you assign components to a game object, it will call this method
+         * so that each component can refer to its game object, the same way
+         * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
+         *
+         * @param hostObject {R.engine.GameObject} The object which hosts this component
+         */
+        setGameObject:function (gameObject) {
+            this.renderComponent.setGameObject(gameObject);
+            this.base(gameObject);
+        },
 
-      /**
-       * Call this method when the linked render component has been updated
-       * to force the billboard to be redrawn.
-       */
-      regenerate: function() {
-         this.mode = R.components.render.Billboard2D.REDRAW;
-         this.hostRect = null;
-         this.getGameObject().markDirty();
-      },
+        /**
+         * Call this method when the linked render component has been updated
+         * to force the billboard to be redrawn.
+         */
+        regenerate:function () {
+            this.mode = R.components.render.Billboard2D.REDRAW;
+            this.hostRect = null;
+            this.getGameObject().markDirty();
+        },
 
-      /**
-       * Get the linked render component.
-       * @return {R.components.Render}
-       */
-      getComponent: function() {
-         return this.renderComponent;
-      },
+        /**
+         * Get the linked render component.
+         * @return {R.components.Render}
+         */
+        getComponent:function () {
+            return this.renderComponent;
+        },
 
-      /**
-       * Draws the contents of the billboard to the render context.  This
-       * component operates in one of two modes.  When the contents of the
-       * subclassed component are redrawing, a temporary render context is created
-       * to which the component renders.  The second mode is where the contents
-       * of the context from the first mode are rendered instead of performing
-       * all of the operations required to render the component.  This component
-       * is only good if the contents don't change often.
-       *
-       * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
-       * @param time {Number} The engine time in milliseconds
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       */
-      execute: function(renderContext, time, dt) {
-         if (!this.base(renderContext, time, dt)) {
-            return;
-         }
-
-         // Get the host object's bounding box
-         var hostBox = this.getGameObject().getBoundingBox();
-         var o = R.math.Point2D.create(this.getGameObject().getOrigin());
-
-         if (this.mode == R.components.render.Billboard2D.REDRAW) {
-            // We'll match the type of context the component is rendering to
-            //var ctx = this.getGameObject().getRenderContext().constructor;
-
-            if (!this.billboard) {
-               // Due to pooling, we don't need to recreate this each time
-               this.billboard = $("<img/>");
+        /**
+         * Draws the contents of the billboard to the render context.  This
+         * component operates in one of two modes.  When the contents of the
+         * subclassed component are redrawing, a temporary render context is created
+         * to which the component renders.  The second mode is where the contents
+         * of the context from the first mode are rendered instead of performing
+         * all of the operations required to render the component.  This component
+         * is only good if the contents don't change often.
+         *
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
+         * @param time {Number} The engine time in milliseconds
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (renderContext, time, dt) {
+            if (!this.base(renderContext, time, dt)) {
+                return;
             }
 
-            this.billboard.attr({
-               "src": R.util.RenderUtil.renderComponentToImage(R.rendercontexts.CanvasContext, this.renderComponent,
-                       hostBox.w, hostBox.h, null, o),
-               "width": hostBox.w,
-               "height": hostBox.h
-            });
+            // Get the host object's bounding box
+            var hostBox = this.getGameObject().getBoundingBox();
+            var o = R.math.Point2D.create(this.getGameObject().getOrigin());
 
-            this.mode = R.components.render.Billboard2D.NORMAL;
-         }
+            if (this.mode == R.components.render.Billboard2D.REDRAW) {
+                // We'll match the type of context the component is rendering to
+                //var ctx = this.getGameObject().getRenderContext().constructor;
 
-         // Render the billboard.  If the bounding box's origin is negative in
-         // either X or Y, we'll need to move the transformation there before rendering the object
-         this.transformOrigin(renderContext, true);
-         try {
-            renderContext.drawImage(this.getGameObject().getBoundingBox(), this.billboard[0], this.getGameObject());
-         }
-         catch (ex) {
-            // TODO: Find a better way to perform this operation since try/catch is SLOW
-            // It appears that Firefox might not have a full image rendered, so calling
-            // drawImage fails with a component exception.  To abate this possible issue,
-            // we try the call and catch the failure...
-         }
+                if (!this.billboard) {
+                    // Due to pooling, we don't need to recreate this each time
+                    this.billboard = $("<img/>");
+                }
 
-         /* pragma:DEBUG_START */
-         // Debug the billboard image box
-         if (R.Engine.getDebugMode()) {
-            renderContext.setLineStyle("green");
-            renderContext.drawRectangle(this.getGameObject().getBoundingBox(), this.getGameObject());
-         }
-         /* pragma:DEBUG_END */
+                this.billboard.attr({
+                    "src":R.util.RenderUtil.renderComponentToImage(R.rendercontexts.CanvasContext, this.renderComponent,
+                        hostBox.w, hostBox.h, null, o),
+                    "width":hostBox.w,
+                    "height":hostBox.h
+                });
 
-         this.transformOrigin(renderContext, false);
-         o.destroy();
-      }
+                this.mode = R.components.render.Billboard2D.NORMAL;
+            }
 
-   }, /** @scope R.components.render.Billboard2D.prototype */{
+            // Render the billboard.  If the bounding box's origin is negative in
+            // either X or Y, we'll need to move the transformation there before rendering the object
+            this.transformOrigin(renderContext, true);
+            try {
+                renderContext.drawImage(this.getGameObject().getBoundingBox(), this.billboard[0], this.getGameObject());
+            }
+            catch (ex) {
+                // TODO: Find a better way to perform this operation since try/catch is SLOW
+                // It appears that Firefox might not have a full image rendered, so calling
+                // drawImage fails with a component exception.  To abate this possible issue,
+                // we try the call and catch the failure...
+            }
 
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.render.Billboard2D"
-       */
-      getClassName: function() {
-         return "R.components.render.Billboard2D";
-      },
+            /* pragma:DEBUG_START */
+            // Debug the billboard image box
+            if (R.Engine.getDebugMode()) {
+                renderContext.setLineStyle("green");
+                renderContext.drawRectangle(this.getGameObject().getBoundingBox(), this.getGameObject());
+            }
+            /* pragma:DEBUG_END */
 
-      /**
-       * The component will render to a temporary context from which the
-       * actual content will be rendered.
-       * @type {Number}
-       */
-      REDRAW: 0,
+            this.transformOrigin(renderContext, false);
+            o.destroy();
+        }
 
-      /**
-       * The component will render the contents of the billboard.
-       * @type {Number}
-       */
-      NORMAL: 1,
+    }, /** @scope R.components.render.Billboard2D.prototype */{
 
-      /**
-       * A temporary context to which all billboards will render their
-       * bitmaps.
-       * @private
-       */
-      tempContext: null
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.render.Billboard2D"
+         */
+        getClassName:function () {
+            return "R.components.render.Billboard2D";
+        },
 
-   });
+        /**
+         * The component will render to a temporary context from which the
+         * actual content will be rendered.
+         * @type {Number}
+         */
+        REDRAW:0,
+
+        /**
+         * The component will render the contents of the billboard.
+         * @type {Number}
+         */
+        NORMAL:1,
+
+        /**
+         * A temporary context to which all billboards will render their
+         * bitmaps.
+         * @private
+         */
+        tempContext:null
+
+    });
 };

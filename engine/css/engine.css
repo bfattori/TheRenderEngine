@@ -29,192 +29,192 @@
  */
 
 body {
-	overflow: hidden;
-	margin: 0;
-	font: 10pt Arial;
+    overflow: hidden;
+    margin: 0;
+    font: 10pt Arial;
 }
 
 div.metrics {
-   position: fixed;
-   top: 10px;
-   width: 200px;
-   right: 10px;
-   border: 1px solid black;
-   background: white;
-   padding: 2px;
-   font: 10px Arial, Helvetica;
-	z-index: 10000;
+    position: fixed;
+    top: 10px;
+    width: 200px;
+    right: 10px;
+    border: 1px solid black;
+    background: white;
+    padding: 2px;
+    font: 10px Arial, Helvetica;
+    z-index: 10000;
 }
 
 div.metrics .items {
-   clear: both;
-   position: relative;
-   width: 200px;
-   background: ghostwhite;
+    clear: both;
+    position: relative;
+    width: 200px;
+    background: ghostwhite;
 }
 
 div.metric-button {
-   background-color: silver;
-   width: 15px;
-   height: 15px;
-   border: 1px outset white;
-   float: left;
-   margin-right: 3px;
+    background-color: silver;
+    width: 15px;
+    height: 15px;
+    border: 1px outset white;
+    float: left;
+    margin-right: 3px;
 }
 
 div.metric-button.close,
 div.metric-button.minimize,
 div.metric-button.maximize {
-   float: right;
+    float: right;
 }
 
 .run {
-   background: url('$<enginePath>/css/run.png') no-repeat;
+    background: url('$<enginePath>/css/run.png') no-repeat;
 }
 
 .step {
-   background: url('$<enginePath>/css/step.png') no-repeat;
+    background: url('$<enginePath>/css/step.png') no-repeat;
 }
 
 .pause {
-   background: url('$<enginePath>/css/pause.png') no-repeat;
+    background: url('$<enginePath>/css/pause.png') no-repeat;
 }
 
 .shutdown {
-   background: url('$<enginePath>/css/shutdown.png') no-repeat;
+    background: url('$<enginePath>/css/shutdown.png') no-repeat;
 }
 
 .minimize {
-   background: url('$<enginePath>/css/minimize.png') no-repeat;
+    background: url('$<enginePath>/css/minimize.png') no-repeat;
 }
 
 .maximize {
-   background: url('$<enginePath>/css/maximize.png') no-repeat;
+    background: url('$<enginePath>/css/maximize.png') no-repeat;
 }
 
 .close {
-   background: url('$<enginePath>/css/close.png') no-repeat;
+    background: url('$<enginePath>/css/close.png') no-repeat;
 }
 
 canvas.engine-profile {
-   position: fixed;
-   bottom: 10px;
-   width: 150px;
-	height: 100px;
-   left: 10px;
-   border: 1px solid white;
-   background: black;
-	z-index: 10000;
+    position: fixed;
+    bottom: 10px;
+    width: 150px;
+    height: 100px;
+    left: 10px;
+    border: 1px solid white;
+    background: black;
+    z-index: 10000;
 }
 
 .virtual-d-pad,
 .virtual-buttons {
-   position: absolute;
-   left: 20px;
-   bottom: 20px;
-   z-index: 20000;
-   height: 155px;
-   width: 150px;
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    z-index: 20000;
+    height: 155px;
+    width: 150px;
 }
 
 .virtual-buttons {
-   left: auto;
-   right: 20px;
+    left: auto;
+    right: 20px;
 }
 
 .virtual-d-pad .button,
 .virtual-buttons .button {
-   position: absolute;
-   background: gray url('$<enginePath>/css/virtualdpad.png') no-repeat;
-   opacity: 0.5;
-   border-radius: 10px;
-   width: 46px;
-   height: 46px;
+    position: absolute;
+    background: gray url('$<enginePath>/css/virtualdpad.png') no-repeat;
+    opacity: 0.5;
+    border-radius: 10px;
+    width: 46px;
+    height: 46px;
 }
 
 .virtual-buttons .button {
-   font: 20pt Arial,Helvetica,sans-serif;
-   font-weight: bold;
-   color: black;
-   background: gray;
-   text-align: center;
-   padding-top: 8px;
-   height: 38px;
-   border-radius: 30px;
+    font: 20pt Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: black;
+    background: gray;
+    text-align: center;
+    padding-top: 8px;
+    height: 38px;
+    border-radius: 30px;
 }
 
 .virtual-d-pad .button.up {
-   top: 0;
-   left: 40px;
-   background-position: 3px 2px;
+    top: 0;
+    left: 40px;
+    background-position: 3px 2px;
 }
 
 .virtual-d-pad .button.down {
-   bottom: 10px;
-   left: 40px;
-   background-position: -37px 4px;
+    bottom: 10px;
+    left: 40px;
+    background-position: -37px 4px;
 }
 
 .virtual-d-pad .button.left {
-   left: 0;
-   top: 50px;
-   background-position: -79px 2px;
+    left: 0;
+    top: 50px;
+    background-position: -79px 2px;
 }
 
 .virtual-d-pad .button.right {
-   right: 20px;
-   top: 50px;
-   background-position: -116px 2px;
+    right: 20px;
+    top: 50px;
+    background-position: -116px 2px;
 }
 
 .virtual-buttons .button.A {
-   left: 0;
-   top: 50px;
+    left: 0;
+    top: 50px;
 }
 
 .virtual-buttons .button.B {
-   left: 60px;
-   top: 50px;
+    left: 60px;
+    top: 50px;
 }
 
 .virtual-buttons .button.C {
-   left: 120px;
-   top: 50px;
+    left: 120px;
+    top: 50px;
 }
 
 .ui.default {
-   color: #000000;
-   background-color: #ffffff;
-   border: 1px #888888;
-   font-family: Arial, Helvetica, sans-serif;
-   font-size: 12px;
+    color: #000000;
+    background-color: #ffffff;
+    border: 1px #888888;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
 }
 
 .ui.inputcontrol {
 }
 
 .ui.buttoncontrol {
-   background-color: silver;
-   text-align: center;
-   width: 100px;
-   height: 24px;
+    background-color: silver;
+    text-align: center;
+    width: 100px;
+    height: 24px;
 }
 
 .ui.checkboxcontrol,
 .ui.radiocontrol {
-   color: #555;
-   width: 16px;
-   height: 16px;
+    color: #555;
+    width: 16px;
+    height: 16px;
 }
 
 .ui.labelcontrol {
-   color: #fff;
-   background-color: transparent;
-   border: 1px transparent;
-   font-weight: bold;
+    color: #fff;
+    background-color: transparent;
+    border: 1px transparent;
+    font-weight: bold;
 }
 
 .ui.fieldgroup {
-   background-color: transparent;
-   color: white;
+    background-color: transparent;
+    color: white;
 }

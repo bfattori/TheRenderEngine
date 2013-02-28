@@ -33,11 +33,11 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.render.Image",
-   "requires": [
-      "R.components.Render",
-      "R.resources.types.Image"
-   ]
+    "class":"R.components.render.Image",
+    "requires":[
+        "R.components.Render",
+        "R.resources.types.Image"
+    ]
 });
 
 /**
@@ -52,94 +52,95 @@ R.Engine.define({
  * @constructor
  * @description Creates a component which renders images from an {@link ImageLoader}.
  */
-R.components.render.Image = function() {
-   return R.components.Render.extend(/** @scope R.components.render.Image.prototype */{
+R.components.render.Image = function () {
+    "use strict";
+    return R.components.Render.extend(/** @scope R.components.render.Image.prototype */{
 
-      currentImage: null,
-      bbox: null,
-      imageLoader: null,
+        currentImage:null,
+        bbox:null,
+        imageLoader:null,
 
-      /**
-       * @private
-       */
-      constructor: function(name, priority, image) {
-         if (priority instanceof R.resources.types.Image) {
-            image = priority;
-            priority = 0.1;
-         }
-         this.base(name, priority);
-         if (image != null) {
+        /**
+         * @private
+         */
+        constructor:function (name, priority, image) {
+            if (priority instanceof R.resources.types.Image) {
+                image = priority;
+                priority = 0.1;
+            }
+            this.base(name, priority);
+            if (image != null) {
+                this.currentImage = image;
+                this.bbox = this.currentImage.getBoundingBox();
+            }
+        },
+
+        /**
+         * Releases the component back into the object pool. See {@link R.engine.PooledObject#release}
+         * for more information.
+         */
+        release:function () {
+            this.base();
+            this.currentImage = null;
+            this.bbox = null;
+        },
+
+        /**
+         * Calculates the bounding box which encloses the image.
+         * @private
+         */
+        calculateBoundingBox:function () {
+            return this.bbox;
+        },
+
+        /**
+         * Set the image the component will render from the {@link R.resources.loaders.ImageLoader}
+         * specified when creating the component.  This allows the user to change
+         * the image on the fly.
+         *
+         * @param image {R.resources.types.Image} The image to render
+         */
+        setImage:function (image) {
             this.currentImage = image;
-            this.bbox = this.currentImage.getBoundingBox();
-         }
-      },
+            this.bbox = image.getBoundingBox();
+            this.getGameObject().markDirty();
+        },
 
-      /**
-       * Releases the component back into the object pool. See {@link R.engine.PooledObject#release}
-       * for more information.
-       */
-      release: function() {
-         this.base();
-         this.currentImage = null;
-         this.bbox = null;
-      },
+        /**
+         * Get the image the component is rendering.
+         * @return {HTMLImage}
+         */
+        getImage:function () {
+            return this.currentImage;
+        },
 
-      /**
-       * Calculates the bounding box which encloses the image.
-       * @private
-       */
-      calculateBoundingBox: function() {
-         return this.bbox;
-      },
+        /**
+         * Draw the image to the render context.
+         *
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render to
+         * @param time {Number} The engine time in milliseconds
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (renderContext, time, dt) {
 
-      /**
-       * Set the image the component will render from the {@link R.resources.loaders.ImageLoader}
-       * specified when creating the component.  This allows the user to change
-       * the image on the fly.
-       *
-       * @param image {R.resources.types.Image} The image to render
-       */
-      setImage: function(image) {
-         this.currentImage = image;
-         this.bbox = image.getBoundingBox();
-         this.getGameObject().markDirty();
-      },
+            if (!this.base(renderContext, time, dt)) {
+                return;
+            }
 
-      /**
-       * Get the image the component is rendering.
-       * @return {HTMLImage}
-       */
-      getImage: function() {
-         return this.currentImage;
-      },
-
-      /**
-       * Draw the image to the render context.
-       *
-       * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render to
-       * @param time {Number} The engine time in milliseconds
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       */
-      execute: function(renderContext, time, dt) {
-
-         if (!this.base(renderContext, time, dt)) {
-            return;
-         }
-
-         if (this.currentImage) {
-            this.transformOrigin(renderContext, true);
-            renderContext.drawImage(this.bbox, this.currentImage.getImage(), null, this.getGameObject());
-            this.transformOrigin(renderContext, false);
-         }
-      }
-   }, /** @scope R.components.render.Image.prototype */{
-      /**
-       * Get the class name of this object
-       * @return {String} "R.components.render.Image"
-       */
-      getClassName: function() {
-         return "R.components.render.Image";
-      }
-   });
+            if (this.currentImage) {
+                this.transformOrigin(renderContext, true);
+                renderContext.drawImage(this.bbox, this.currentImage.getImage(), null, this.getGameObject());
+                this.transformOrigin(renderContext, false);
+            }
+        }
+    }, /** @scope R.components.render.Image.prototype */{
+        /**
+         * Get the class name of this object
+         * @return {String} "R.components.render.Image"
+         */
+        getClassName:function () {
+            return "R.components.render.Image";
+        }
+    });
 };

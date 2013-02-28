@@ -32,10 +32,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.render.DOM",
-   "requires": [
-      "R.components.Render"
-   ]
+    "class":"R.components.render.DOM",
+    "requires":[
+        "R.components.Render"
+    ]
 });
 
 /**
@@ -48,79 +48,80 @@ R.Engine.define({
  * @extends R.components.Render
  * @description Creates a DOM element render component.
  */
-R.components.render.DOM = function() {
-   return R.components.Render.extend(/** @scope R.components.render.DOM.prototype */{
+R.components.render.DOM = function () {
+    "use strict";
+    return R.components.Render.extend(/** @scope R.components.render.DOM.prototype */{
 
-      scenery: false,
-      doRefresh: false,
-      originGlyph: null,
+        scenery:false,
+        doRefresh:false,
+        originGlyph:null,
 
-      constructor: function(name, scenery) {
-         this.base(name);
-         this.scenery = scenery || false;
-         this.doRefresh = true;
+        constructor:function (name, scenery) {
+            this.base(name);
+            this.scenery = scenery || false;
+            this.doRefresh = true;
 
-         if (R.Engine.getDebugMode()) {
-            this.originGlyph = $("<div style='z-index: 5000; position: absolute; width: 10px; height: 10px; background: red'></div>");
-            $("body", document).append(this.originGlyph);
-         }
-      },
+            if (R.Engine.getDebugMode()) {
+                this.originGlyph = $("<div style='z-index: 5000; position: absolute; width: 10px; height: 10px; background: red'></div>");
+                $("body", document).append(this.originGlyph);
+            }
+        },
 
-      destroy: function() {
-         this.base();
-         if (R.Engine.getDebugMode()) {
-            this.originGlyph.remove();
-         }
-      },
+        destroy:function () {
+            this.base();
+            if (R.Engine.getDebugMode()) {
+                this.originGlyph.remove();
+            }
+        },
 
-      reset: function() {
-         this.scenery = false;
-         this.doRefresh = true;
-         this.base();
-      },
+        reset:function () {
+            this.scenery = false;
+            this.doRefresh = true;
+            this.base();
+        },
 
-      refresh: function() {
-         this.doRefresh = true;
-      },
+        refresh:function () {
+            this.doRefresh = true;
+        },
 
-      /**
-       * Handles whether or not the component should draw to the
-       * render context.
-       *
-       * @param renderContext {R.rendercontexts.HTMLElementContext} The rendering context
-       * @param time {Number} The engine time in milliseconds
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       */
-      execute: function(renderContext, time, dt) {
-         // Due to this being a render component, it won't update if the object goes off-screen
-         // by default.  So, we need to make sure it continues to update regardless
-         this.base(renderContext, time, dt);
+        /**
+         * Handles whether or not the component should draw to the
+         * render context.
+         *
+         * @param renderContext {R.rendercontexts.HTMLElementContext} The rendering context
+         * @param time {Number} The engine time in milliseconds
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (renderContext, time, dt) {
+            // Due to this being a render component, it won't update if the object goes off-screen
+            // by default.  So, we need to make sure it continues to update regardless
+            this.base(renderContext, time, dt);
 
-         if (this.doRefresh || !this.scenery) {
-            renderContext.drawElement(this.getGameObject());
-            this.doRefresh = !this.scenery;
-         }
+            if (this.doRefresh || !this.scenery) {
+                renderContext.drawElement(this.getGameObject());
+                this.doRefresh = !this.scenery;
+            }
 
-         if (R.Engine.getDebugMode()) {
-            // Draw a dot where the origin is located
-            var p = R.math.Point2D.create(5,5),
-                pt = R.clone(this.getGameObject().getPosition()).add(this.getGameObject().getOrigin()).sub(p);
-            renderContext.drawElement(null, this.originGlyph, pt);
-            pt.destroy();
-            p.destroy();
-         }
-      }
+            if (R.Engine.getDebugMode()) {
+                // Draw a dot where the origin is located
+                var p = R.math.Point2D.create(5, 5),
+                    pt = R.clone(this.getGameObject().getPosition()).add(this.getGameObject().getOrigin()).sub(p);
+                renderContext.drawElement(null, this.originGlyph, pt);
+                pt.destroy();
+                p.destroy();
+            }
+        }
 
-   }, /** @scope R.components.render.DOM.prototype */{
+    }, /** @scope R.components.render.DOM.prototype */{
 
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.render.DOM"
-       */
-      getClassName: function() {
-         return "R.components.render.DOM";
-      }
-   });
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.render.DOM"
+         */
+        getClassName:function () {
+            return "R.components.render.DOM";
+        }
+    });
 }

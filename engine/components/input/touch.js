@@ -33,12 +33,12 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.input.Touch",
-   "requires": [
-      "R.components.Input",
-      "R.engine.Events",
-      "R.struct.Touch"
-   ]
+    "class":"R.components.input.Touch",
+    "requires":[
+        "R.components.Input",
+        "R.engine.Events",
+        "R.struct.Touch"
+    ]
 });
 
 /**
@@ -63,141 +63,142 @@ R.Engine.define({
  * @constructor
  * @description Create an instance of a touch input component.
  */
-R.components.input.Touch = function() {
-   return R.components.Input.extend(/** @scope R.components.input.Touch.prototype */{
+R.components.input.Touch = function () {
+    "use strict";
+    return R.components.Input.extend(/** @scope R.components.input.Touch.prototype */{
 
-      hasTouchMethods: null,
+        hasTouchMethods:null,
 
-      /**
-       * @private
-       */
-      constructor: function(name, passThru, priority) {
-         this.base(name, priority);
-      },
+        /**
+         * @private
+         */
+        constructor:function (name, passThru, priority) {
+            this.base(name, priority);
+        },
 
-      /**
-       * Destroy this instance and remove all references.
-       */
-      destroy: function() {
-         if (this.getGameObject()) {
-            delete this.getGameObject().getObjectDataModel()[R.components.input.Touch.TOUCH_DATA_MODEL];
-         }
-         this.base();
-      },
+        /**
+         * Destroy this instance and remove all references.
+         */
+        destroy:function () {
+            if (this.getGameObject()) {
+                delete this.getGameObject().getObjectDataModel()[R.components.input.Touch.TOUCH_DATA_MODEL];
+            }
+            this.base();
+        },
 
-      /**
-       * Deprecated in favor of {@link #setGameObject}
-       * @deprecated
-       */
-      setHostObject: function(hostObj) {
-         this.setGameObject(hostObj);
-      },
+        /**
+         * Deprecated in favor of {@link #setGameObject}
+         * @deprecated
+         */
+        setHostObject:function (hostObj) {
+            this.setGameObject(hostObj);
+        },
 
-      /**
-       * Establishes the link between this component and its host object.
-       * When you assign components to a host object, it will call this method
-       * so that each component can refer to its host object, the same way
-       * a host object can refer to a component with {@link R.engine.GameObject#getComponent}.
-       *
-       * @param gameObject {R.engine.GameObject} The object which hosts this component
-       */
-      setGameObject: function(gameObject) {
-         this.base(gameObject);
+        /**
+         * Establishes the link between this component and its host object.
+         * When you assign components to a host object, it will call this method
+         * so that each component can refer to its host object, the same way
+         * a host object can refer to a component with {@link R.engine.GameObject#getComponent}.
+         *
+         * @param gameObject {R.engine.GameObject} The object which hosts this component
+         */
+        setGameObject:function (gameObject) {
+            this.base(gameObject);
 
-         // Set some flags we can check
-         var dataModel = gameObject.setObjectDataModel(R.components.input.Mouse.TOUCH_DATA_MODEL, {
-            touchDown: false
-         });
-
-         // Add event pass-thru for DOM objects
-         var el = gameObject.jQ();
-         if (el) {
-            var tI = R.struct.TouchInfo.create();
-
-            // Wire up event handlers for the DOM element to mimic what is done for
-            // canvas objects
-            el.bind("touchmove", function(evt) {
-               tI.lastPosition.set(tI.position);
-               tI.position.set(evt.pageX, evt.pageY);
-               gameObject.triggerEvent("touchmove", [tI]);
+            // Set some flags we can check
+            var dataModel = gameObject.setObjectDataModel(R.components.input.Mouse.TOUCH_DATA_MODEL, {
+                touchDown:false
             });
 
-            el.bind("touchstart", function(evt) {
-               tI.touches = tI.processTouches(evt);
-               tI.button = R.engine.Events.MOUSE_LEFT_BUTTON;
-               tI.downPosition.set(evt.pageX, evt.pageY);
-               gameObject.triggerEvent("touchstart", [tI]);
-            });
+            // Add event pass-thru for DOM objects
+            var el = gameObject.jQ();
+            if (el) {
+                var tI = R.struct.TouchInfo.create();
 
-            el.bind("touchend", function(evt) {
-               tI.touches = tI.processTouches(evt);
-               tI.button = R.engine.Events.MOUSE_NO_BUTTON;
-               tI.dragVec.set(0, 0);
-               gameObject.triggerEvent("touchend", [tI]);
-            });
-         }
+                // Wire up event handlers for the DOM element to mimic what is done for
+                // canvas objects
+                el.bind("touchmove", function (evt) {
+                    tI.lastPosition.set(tI.position);
+                    tI.position.set(evt.pageX, evt.pageY);
+                    gameObject.triggerEvent("touchmove", [tI]);
+                });
 
-      },
+                el.bind("touchstart", function (evt) {
+                    tI.touches = tI.processTouches(evt);
+                    tI.button = R.engine.Events.MOUSE_LEFT_BUTTON;
+                    tI.downPosition.set(evt.pageX, evt.pageY);
+                    gameObject.triggerEvent("touchstart", [tI]);
+                });
 
-      /**
-       * Perform the checks on the touch info object, and also perform
-       * intersection tests to be able to call touch events.
-       * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context
-       * @param time {Number} The current world time
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       */
-      execute: function(renderContext, time, dt) {
-         // Objects may be in motion.  If so, we need to call the touch
-         // methods for just such a case.
-         var gameObject = this.getGameObject();
-
-
-         // Only objects without an element will use this.  For object WITH an element,
-         // this component will have intervened and wired up special handlers to fake
-         // the mouseInfo object.
-         if (!gameObject.getElement()) {
-            var touchInfo = renderContext.getTouchInfo(),
-                  bBox = gameObject.getWorldBox(),
-                  touchOn = false,
-                  dataModel = gameObject.getObjectDataModel(R.components.input.Touch.TOUCH_DATA_MODEL);
-
-            if (touchInfo && bBox) {
-               touchOn = R.math.Math2D.boxPointCollision(bBox, touchInfo.position);
+                el.bind("touchend", function (evt) {
+                    tI.touches = tI.processTouches(evt);
+                    tI.button = R.engine.Events.MOUSE_NO_BUTTON;
+                    tI.dragVec.set(0, 0);
+                    gameObject.triggerEvent("touchend", [tI]);
+                });
             }
 
-            // Touched on object
-            if (touchOn && (touchInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
-               dataModel.touchDown = true;
-               gameObject.triggerEvent("touchstart", [touchInfo]);
+        },
+
+        /**
+         * Perform the checks on the touch info object, and also perform
+         * intersection tests to be able to call touch events.
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context
+         * @param time {Number} The current world time
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (renderContext, time, dt) {
+            // Objects may be in motion.  If so, we need to call the touch
+            // methods for just such a case.
+            var gameObject = this.getGameObject();
+
+
+            // Only objects without an element will use this.  For object WITH an element,
+            // this component will have intervened and wired up special handlers to fake
+            // the mouseInfo object.
+            if (!gameObject.getElement()) {
+                var touchInfo = renderContext.getTouchInfo(),
+                    bBox = gameObject.getWorldBox(),
+                    touchOn = false,
+                    dataModel = gameObject.getObjectDataModel(R.components.input.Touch.TOUCH_DATA_MODEL);
+
+                if (touchInfo && bBox) {
+                    touchOn = R.math.Math2D.boxPointCollision(bBox, touchInfo.position);
+                }
+
+                // Touched on object
+                if (touchOn && (touchInfo.button != R.engine.Events.MOUSE_NO_BUTTON)) {
+                    dataModel.touchDown = true;
+                    gameObject.triggerEvent("touchstart", [touchInfo]);
+                }
+
+                // Touch position changed
+                if (dataModel.touchDown && !touchInfo.position.equals(touchInfo.lastPosition)) {
+                    gameObject.triggerEvent("touchmove", [touchInfo, touchOn]);
+                }
+
+                // Touch ended (and object was touched)
+                if (dataModel.touchDown && touchInfo.button == R.engine.Events.MOUSE_NO_BUTTON) {
+                    dataModel.touchDown = false;
+                    gameObject.triggerEvent("touchend", [touchInfo]);
+                }
             }
+        }
 
-            // Touch position changed
-            if (dataModel.touchDown && !touchInfo.position.equals(touchInfo.lastPosition)) {
-               gameObject.triggerEvent("touchmove", [touchInfo, touchOn]);
-            }
+    }, /** @scope R.components.input.Touch.prototype */{
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.input.Touch"
+         */
+        getClassName:function () {
+            return "R.components.input.Touch";
+        },
 
-            // Touch ended (and object was touched)
-            if (dataModel.touchDown && touchInfo.button == R.engine.Events.MOUSE_NO_BUTTON) {
-               dataModel.touchDown = false;
-               gameObject.triggerEvent("touchend", [touchInfo]);
-            }
-         }
-      }
-
-   }, /** @scope R.components.input.Touch.prototype */{
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.input.Touch"
-       */
-      getClassName: function() {
-         return "R.components.input.Touch";
-      },
-
-      /**
-       * @private
-       */
-      TOUCH_DATA_MODEL: "TouchInputComponent"
-   });
+        /**
+         * @private
+         */
+        TOUCH_DATA_MODEL:"TouchInputComponent"
+    });
 };

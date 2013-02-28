@@ -33,16 +33,16 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.resources.loaders.TileLoader",
-	"requires": [
-		"R.resources.loaders.SpriteLoader",
-		"R.resources.types.Tile"
-	]
+    "class":"R.resources.loaders.TileLoader",
+    "requires":[
+        "R.resources.loaders.SpriteLoader",
+        "R.resources.types.Tile"
+    ]
 });
 
 /**
  * @class Loads tile resources and makes them available to the system.  Tiles are
- *        defined by an external JSON resource file.  A tile definition file 
+ *        defined by an external JSON resource file.  A tile definition file
  *        is a JSON file which is nearly identical to sprite sheets.  The format
  *        describes the image which contains the sprites, the dimensions of the image,
  *        the version of the file, and the tile definitions.  Tiles can be either single
@@ -89,114 +89,114 @@ R.Engine.define({
  * @param name {String=TileLoader} The name of the resource loader
  * @extends R.resources.loaders.SpriteLoader
  */
-R.resources.loaders.TileLoader = function(){
-	return R.resources.loaders.SpriteLoader.extend(/** @scope R.resources.loaders.TileLoader.prototype */{
+R.resources.loaders.TileLoader = function () {
+    return R.resources.loaders.SpriteLoader.extend(/** @scope R.resources.loaders.TileLoader.prototype */{
 
-      tiles: null,
+        tiles:null,
 
-		/** @private */
-		constructor: function(name){
-			this.base(name || "TileLoader");
-         this.tiles = {};
-		},
-		
-		/**
-		 * Called after the data has been loaded, passing along the info object and name
-		 * of the sprite resource.
-		 * @param name {String} The name of the sprite resource
-		 * @param info {Object} The sprite resource definition
-		 */
-		afterLoad: function(name, info) {
-         this.base(name, info);
-		},
-		
-		/**
-		 * Creates a {@link R.resources.types.Tile} object representing the named tile.
-		 *
-		 * @param resource {String} The name of a loaded tile resource
-		 * @param tile {String} The name of the tile from the resource
-		 * @return {R.resources.types.Tile} A {@link R.resources.types.Tile} instance
-		 */
-		getTile: function(resource, tile){
-			var info = this.get(resource).info;
-         if (info != null && info.sprites[tile]) {
-            var aTile = this.tiles[tile];
-            if (!aTile) {
-               // We want to make sure we only create a tile singleton, not instances for each tile
-               aTile = this.tiles[tile] = R.resources.types.Tile.create(tile, info.sprites[tile], this.get(resource), this);
+        /** @private */
+        constructor:function (name) {
+            this.base(name || "TileLoader");
+            this.tiles = {};
+        },
+
+        /**
+         * Called after the data has been loaded, passing along the info object and name
+         * of the sprite resource.
+         * @param name {String} The name of the sprite resource
+         * @param info {Object} The sprite resource definition
+         */
+        afterLoad:function (name, info) {
+            this.base(name, info);
+        },
+
+        /**
+         * Creates a {@link R.resources.types.Tile} object representing the named tile.
+         *
+         * @param resource {String} The name of a loaded tile resource
+         * @param tile {String} The name of the tile from the resource
+         * @return {R.resources.types.Tile} A {@link R.resources.types.Tile} instance
+         */
+        getTile:function (resource, tile) {
+            var info = this.get(resource).info;
+            if (info != null && info.sprites[tile]) {
+                var aTile = this.tiles[tile];
+                if (!aTile) {
+                    // We want to make sure we only create a tile singleton, not instances for each tile
+                    aTile = this.tiles[tile] = R.resources.types.Tile.create(tile, info.sprites[tile], this.get(resource), this);
+                }
+                return aTile;
+            } else {
+                return null;
             }
-		      return aTile;
-         } else {
-            return null;
-         }
-		},
-		
-		/**
-		 * Export all of the tiles in the specified resource, as a JavaScript object, with the
-		 * tile name as the key and the corresponding {@link R.resources.types.Tile} as the value.
-		 * @param resource {String} The name of the tile resource
-		 * @param [tileNames] {Array} An optional array of tiles to export, by name,
-		 * 		or <code>null</tt> to export all tiles
-		 */
-		exportAll: function(resource, tileNames){
-			var o = {};
-			var tiles = this.getSpriteNames(resource);
-			for (var i in tiles) {
-				if (!tileNames || R.engine.Support.indexOf(tileNames, tiles[i]) != -1) {
-					o[tiles[i]] = this.getTile(resource, tiles[i]);
-				}
-			}
-			return o;
-		},
-		
-		/**
-		 * Sparsity is used to reduce the size of the solidity map for each frame of every tile.
-		 * The higher the sparsity, the more pixels will be averaged together to get a smaller map.
-		 * This has the potential to improve performance when performing ray casting by eliminating
-		 * the need to calculate collisions per pixel.
-       * @param resource {String} The name of the tile resource
-		 * @return {Number}
-		 */
-		getSparsity: function(resource) {
-			return this.get(resource).info.sparsity;
-		},
-		
-		/**
-		 * Get the transparency threshold at which pixels are considered to be either transparent or
-		 * solid.  Pixel alpha values above the specified threshold will be considered solid when
-		 * calculating the solidity map of a tile.
-       * @param resource {String} The name of the tile resource
-		 * @return {Number} Value between 0 and 255
-		 */
-		getThreshold: function(resource) {
-         return this.get(resource).info.transparencyThreshold;
-		},
+        },
 
-      /**
-       * Get the state of the flag indicating if all tiles should be considered fully opaque.
-       * @param resource {String} The name of the tile resource
-       * @return {Boolean} 
-       */
-      getOpacityFlag: function(resource) {
-         return this.get(resource).info.assumeOpaque;
-      },
+        /**
+         * Export all of the tiles in the specified resource, as a JavaScript object, with the
+         * tile name as the key and the corresponding {@link R.resources.types.Tile} as the value.
+         * @param resource {String} The name of the tile resource
+         * @param [tileNames] {Array} An optional array of tiles to export, by name,
+         *         or <code>null</tt> to export all tiles
+         */
+        exportAll:function (resource, tileNames) {
+            var o = {};
+            var tiles = this.getSpriteNames(resource);
+            for (var i in tiles) {
+                if (!tileNames || R.engine.Support.indexOf(tileNames, tiles[i]) != -1) {
+                    o[tiles[i]] = this.getTile(resource, tiles[i]);
+                }
+            }
+            return o;
+        },
 
-		/**
-		 * The name of the resource this loader will get.
-		 * @returns {String} The string "tile"
-		 */
-		getResourceType: function(){
-			return "tile";
-		}
-		
-	}, /** @scope R.resources.loaders.TileLoader.prototype */ {
-		/**
-		 * Get the class name of this object.
-		 * @return {String} The string "R.resources.loaders.TileLoader"
-		 */
-		getClassName: function(){
-			return "R.resources.loaders.TileLoader";
-		}
-	});
-	
+        /**
+         * Sparsity is used to reduce the size of the solidity map for each frame of every tile.
+         * The higher the sparsity, the more pixels will be averaged together to get a smaller map.
+         * This has the potential to improve performance when performing ray casting by eliminating
+         * the need to calculate collisions per pixel.
+         * @param resource {String} The name of the tile resource
+         * @return {Number}
+         */
+        getSparsity:function (resource) {
+            return this.get(resource).info.sparsity;
+        },
+
+        /**
+         * Get the transparency threshold at which pixels are considered to be either transparent or
+         * solid.  Pixel alpha values above the specified threshold will be considered solid when
+         * calculating the solidity map of a tile.
+         * @param resource {String} The name of the tile resource
+         * @return {Number} Value between 0 and 255
+         */
+        getThreshold:function (resource) {
+            return this.get(resource).info.transparencyThreshold;
+        },
+
+        /**
+         * Get the state of the flag indicating if all tiles should be considered fully opaque.
+         * @param resource {String} The name of the tile resource
+         * @return {Boolean}
+         */
+        getOpacityFlag:function (resource) {
+            return this.get(resource).info.assumeOpaque;
+        },
+
+        /**
+         * The name of the resource this loader will get.
+         * @returns {String} The string "tile"
+         */
+        getResourceType:function () {
+            return "tile";
+        }
+
+    }, /** @scope R.resources.loaders.TileLoader.prototype */ {
+        /**
+         * Get the class name of this object.
+         * @return {String} The string "R.resources.loaders.TileLoader"
+         */
+        getClassName:function () {
+            return "R.resources.loaders.TileLoader";
+        }
+    });
+
 }

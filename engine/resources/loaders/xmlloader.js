@@ -32,10 +32,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.resources.loaders.XMLLoader",
-	"requires": [
-		"R.resources.loaders.RemoteLoader"
-	]
+    "class":"R.resources.loaders.XMLLoader",
+    "requires":[
+        "R.resources.loaders.RemoteLoader"
+    ]
 });
 
 /**
@@ -45,58 +45,58 @@ R.Engine.define({
  * @param name {String=XMLLoader} The name of the resource loader
  * @extends R.resources.loaders.RemoteLoader
  */
-R.resources.loaders.XMLLoader = function(){
-	return R.resources.loaders.RemoteLoader.extend(/** @scope R.resources.loaders.XMLLoader.prototype */{
-	
-		objects: null,
-		
-		/** private */
-		constructor: function(name){
-			this.base(name || "XMLLoader");
-			this.objects = {};
-		},
-		
-		/**
-		 * Load an XML file from a URL.
-		 *
-		 * @param name {String} The name of the resource
-		 * @param url {String} The URL where the resource is located
-		 */
-		load: function(name, url /*, doc */){
-		
-			if (!arguments[2]) {
-				Assert(url.indexOf("http") == -1, "XML must be located relative to this server");
-				var thisObj = this;
-				
-				// Get the file from the server
-				$.get(url, function(data){
-					// 2nd pass - store the XML
-					thisObj.load(name, url, data);
-				}, "xml");
-			}
-			else {
-				// The object has been loaded and is ready for use
-				this.setReady(name);
-				this.base(name, url, arguments[2]);
-			}
-		},
-		
-		/**
-		 * The name of the resource this loader will get.
-		 * @returns {String} The string "object"
-		 */
-		getResourceType: function(){
-			return "xml";
-		}
-		
-	}, /** @scope R.resources.loaders.XMLLoader.prototype */ {
-		/**
-		 * Get the class name of this object.
-		 * @return {String} The string "R.resources.loaders.XMLLoader"
-		 */
-		getClassName: function(){
-			return "R.resources.loaders.XMLLoader";
-		}
-	});
-	
+R.resources.loaders.XMLLoader = function () {
+    return R.resources.loaders.RemoteLoader.extend(/** @scope R.resources.loaders.XMLLoader.prototype */{
+
+        objects:null,
+
+        /** private */
+        constructor:function (name) {
+            this.base(name || "XMLLoader");
+            this.objects = {};
+        },
+
+        /**
+         * Load an XML file from a URL.
+         *
+         * @param name {String} The name of the resource
+         * @param url {String} The URL where the resource is located
+         */
+        load:function (name, url /*, doc */) {
+
+            if (!arguments[2]) {
+                Assert(url.indexOf("http") == -1, "XML must be located relative to this server");
+                var thisObj = this;
+
+                // Get the file from the server
+                $.get(url, function (data) {
+                    // 2nd pass - store the XML
+                    thisObj.load(name, url, data);
+                }, "xml");
+            }
+            else {
+                // The object has been loaded and is ready for use
+                this.setReady(name);
+                this.base(name, url, arguments[2]);
+            }
+        },
+
+        /**
+         * The name of the resource this loader will get.
+         * @returns {String} The string "object"
+         */
+        getResourceType:function () {
+            return "xml";
+        }
+
+    }, /** @scope R.resources.loaders.XMLLoader.prototype */ {
+        /**
+         * Get the class name of this object.
+         * @return {String} The string "R.resources.loaders.XMLLoader"
+         */
+        getClassName:function () {
+            return "R.resources.loaders.XMLLoader";
+        }
+    });
+
 }

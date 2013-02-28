@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * The Render Engine
  * OneShotTrigger
@@ -34,15 +32,15 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.lang.OneShotTrigger",
-	"requires": [
-		"R.lang.OneShotTimeout"
-	]
+    "class":"R.lang.OneShotTrigger",
+    "requires":[
+        "R.lang.OneShotTimeout"
+    ]
 });
 
 /**
- * @class An extension of {@link R.lang.OneShotTimeout} which is a one-shot timer that triggers a callback, 
- *        at regular intervals, until the timer has expired.  When the timer expires, the 
+ * @class An extension of {@link R.lang.OneShotTimeout} which is a one-shot timer that triggers a callback,
+ *        at regular intervals, until the timer has expired.  When the timer expires, the
  *        trigger will automatically destroy itself.  Within the callbacks, <tt>this</tt>
  *        refers to the <tt>Timer</tt> object itself.
  *
@@ -55,32 +53,33 @@ R.Engine.define({
  * @constructor
  * @description Create a one-shot triggering timeout
  */
-R.lang.OneShotTrigger = function(){
-	return R.lang.OneShotTimeout.extend(/** @scope R.lang.OneShotTrigger.prototype */{
-	
-		constructor: function(name, interval, callback, triggerInterval, triggerCallback){
-			var timerObj = {
+R.lang.OneShotTrigger = function () {
+    "use strict";
+    return R.lang.OneShotTimeout.extend(/** @scope R.lang.OneShotTrigger.prototype */{
+
+        constructor:function (name, interval, callback, triggerInterval, triggerCallback) {
+            var timerObj = {
                 interval:R.lang.IntervalTimer.create(name + "_trigger", triggerInterval, triggerCallback),
-                callback: callback,
-                timer: this
+                callback:callback,
+                timer:this
             };
 
-            var doneFn = R.bind(timerObj, function(){
-				this.interval.destroy();
-				this.callback.call(this.timer);
-			});
+            var doneFn = R.bind(timerObj, function () {
+                this.interval.destroy();
+                this.callback.call(this.timer);
+            });
 
-			this.base(name, interval, doneFn);
-		}
-	}, /** @scope R.lang.OneShotTrigger.prototype */ {
-	
-		/**
-		 * Get the class name of this object
-		 * @return {String} "R.lang.OneShotTrigger"
-		 */
-		getClassName: function(){
-			return "R.lang.OneShotTrigger";
-		}
-	});
-	
+            this.base(name, interval, doneFn);
+        }
+    }, /** @scope R.lang.OneShotTrigger.prototype */ {
+
+        /**
+         * Get the class name of this object
+         * @return {String} "R.lang.OneShotTrigger"
+         */
+        getClassName:function () {
+            return "R.lang.OneShotTrigger";
+        }
+    });
+
 }

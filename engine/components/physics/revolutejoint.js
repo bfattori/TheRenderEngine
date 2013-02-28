@@ -33,14 +33,14 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.physics.RevoluteJoint",
-   "requires": [
-      "R.components.physics.BaseMotorJoint",
-      "R.physics.Simulation",
-      "R.math.Point2D",
-      "R.math.Math2D",
-      "R.math.Vector2D"
-   ]
+    "class":"R.components.physics.RevoluteJoint",
+    "requires":[
+        "R.components.physics.BaseMotorJoint",
+        "R.physics.Simulation",
+        "R.math.Point2D",
+        "R.math.Math2D",
+        "R.math.Vector2D"
+    ]
 });
 
 /**
@@ -57,121 +57,121 @@ R.Engine.define({
  * @constructor
  * @description Creates a revolute joint between two physical bodies.
  */
-R.components.physics.RevoluteJoint = function() {
-   return R.components.physics.BaseMotorJoint.extend(/** @scope R.components.physics.RevoluteJoint.prototype */{
+R.components.physics.RevoluteJoint = function () {
+    return R.components.physics.BaseMotorJoint.extend(/** @scope R.components.physics.RevoluteJoint.prototype */{
 
-      anchor: null,
-      limits: null,
+        anchor:null,
+        limits:null,
 
-      /**
-       * @private
-       */
-      constructor: function(name, body1, body2, anchor) {
-         var jointDef = new Box2D.Dynamics.Joints.b2RevoluteJointDef();
+        /**
+         * @private
+         */
+        constructor:function (name, body1, body2, anchor) {
+            var jointDef = new Box2D.Dynamics.Joints.b2RevoluteJointDef();
 
-         this.limits = [];
-         this.anchor = R.math.Point2D.create(anchor).div(R.physics.Simulation.WORLD_SIZE);
-         this.base(name || "RevoluteJoint", body1, body2, jointDef);
-      },
+            this.limits = [];
+            this.anchor = R.math.Point2D.create(anchor).div(R.physics.Simulation.WORLD_SIZE);
+            this.base(name || "RevoluteJoint", body1, body2, jointDef);
+        },
 
-      /**
-       * When simulation starts offset the anchor point by the position of rigid body 1 (the "from" body).
-       * @private
-       */
-      startSimulation: function() {
-         if (!this.getSimulation()) {
-            var anchor = new Box2D.Common.Math.b2Vec2();
-            anchor.Set(this.anchor.x, this.anchor.y);
+        /**
+         * When simulation starts offset the anchor point by the position of rigid body 1 (the "from" body).
+         * @private
+         */
+        startSimulation:function () {
+            if (!this.getSimulation()) {
+                var anchor = new Box2D.Common.Math.b2Vec2();
+                anchor.Set(this.anchor.x, this.anchor.y);
 
-            this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor);
+                this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor);
 
-            if (this.limits.length != 0) {
-               this.getJointDef().upperAngle = R.math.Math2D.degToRad(Math.max(this.limits[1], this.limits[0]));
-               this.getJointDef().lowerAngle = R.math.Math2D.degToRad(Math.min(this.limits[0], this.limits[1]));
-               this.getJointDef().enableLimit = true;
+                if (this.limits.length != 0) {
+                    this.getJointDef().upperAngle = R.math.Math2D.degToRad(Math.max(this.limits[1], this.limits[0]));
+                    this.getJointDef().lowerAngle = R.math.Math2D.degToRad(Math.min(this.limits[0], this.limits[1]));
+                    this.getJointDef().enableLimit = true;
+                }
             }
-         }
 
-         this.base();
-      },
+            this.base();
+        },
 
-      /**
-       * Offset the joint's anchors by the given point
-       * @param pt {R.math.Point2D} The offset amount
-       */
-      offset: function(pt) {
-         var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
-         this.anchor.add(ofs);
-         ofs.destroy();
-      },
+        /**
+         * Offset the joint's anchors by the given point
+         * @param pt {R.math.Point2D} The offset amount
+         */
+        offset:function (pt) {
+            var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
+            this.anchor.add(ofs);
+            ofs.destroy();
+        },
 
-      /**
-       * Clear the rotational limits.
-       */
-      clearLimits: function() {
-         this.limits = [];
-      },
+        /**
+         * Clear the rotational limits.
+         */
+        clearLimits:function () {
+            this.limits = [];
+        },
 
-      /**
-       * Get the upper limiting angle, in degrees, through which the joint can rotate.
-       * @return {Number} The angle, or <code>undefined</code>
-       */
-      getUpperLimitAngle: function() {
-         return this.limits.length != 0 ? R.math.Math2D.radToDeg(this.limits[1]) : undefined;
-      },
+        /**
+         * Get the upper limiting angle, in degrees, through which the joint can rotate.
+         * @return {Number} The angle, or <code>undefined</code>
+         */
+        getUpperLimitAngle:function () {
+            return this.limits.length != 0 ? R.math.Math2D.radToDeg(this.limits[1]) : undefined;
+        },
 
-      /**
-       * Set the upper limiting angle through which the joint can rotate.  Zero is the
-       * "top" of the rotation, with rotation moving positively in a counter-clockwise
-       * rotation.  Negative numbers will move the rotation clockwise.
-       *
-       * @param angle {Number} An angle in degrees
-       */
-      setUpperLimitAngle: function(angle) {
-         this.limits[1] = R.math.Math2D.degToRad(angle);
-      },
+        /**
+         * Set the upper limiting angle through which the joint can rotate.  Zero is the
+         * "top" of the rotation, with rotation moving positively in a counter-clockwise
+         * rotation.  Negative numbers will move the rotation clockwise.
+         *
+         * @param angle {Number} An angle in degrees
+         */
+        setUpperLimitAngle:function (angle) {
+            this.limits[1] = R.math.Math2D.degToRad(angle);
+        },
 
-      /**
-       * Get the lower limiting angle, in degrees, through which the joint can rotate.
-       * @return {Number} The angle, or <code>undefined</code>
-       */
-      getLowerLimitAngle: function() {
-         return this.limits.length != 0 ? R.math.Math2D.radToDeg(this.limits[0]) : undefined;
-      },
+        /**
+         * Get the lower limiting angle, in degrees, through which the joint can rotate.
+         * @return {Number} The angle, or <code>undefined</code>
+         */
+        getLowerLimitAngle:function () {
+            return this.limits.length != 0 ? R.math.Math2D.radToDeg(this.limits[0]) : undefined;
+        },
 
-      /**
-       * Set the upper limiting angle through which the joint can rotate.  Zero is the
-       * "top" of the rotation, with rotation moving positively in a counter-clockwise
-       * rotation.  Negative numbers will move the rotation clockwise.
-       *
-       * @param angle {Number} An angle in degrees
-       */
-      setLowerLimitAngle: function(angle) {
-         this.limits[0] = R.math.Math2D.degToRad(angle);
-      },
+        /**
+         * Set the upper limiting angle through which the joint can rotate.  Zero is the
+         * "top" of the rotation, with rotation moving positively in a counter-clockwise
+         * rotation.  Negative numbers will move the rotation clockwise.
+         *
+         * @param angle {Number} An angle in degrees
+         */
+        setLowerLimitAngle:function (angle) {
+            this.limits[0] = R.math.Math2D.degToRad(angle);
+        },
 
-      /**
-       * During simulation, this returns the current angle of the joint
-       * in degrees.  Outside of simulation it will always return zero.
-       * @return {Number}
-       */
-      getJointAngle: function() {
-         if (this.simulation) {
-            return R.math.Math2D.radToDeg(this.getJoint().GetJointAngle());
-         } else {
-            return 0;
-         }
-      }
+        /**
+         * During simulation, this returns the current angle of the joint
+         * in degrees.  Outside of simulation it will always return zero.
+         * @return {Number}
+         */
+        getJointAngle:function () {
+            if (this.simulation) {
+                return R.math.Math2D.radToDeg(this.getJoint().GetJointAngle());
+            } else {
+                return 0;
+            }
+        }
 
-   }, { /** @scope R.components.physics.RevoluteJoint.prototype */
+    }, { /** @scope R.components.physics.RevoluteJoint.prototype */
 
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.physics.RevoluteJoint"
-       */
-      getClassName: function() {
-         return "R.components.physics.RevoluteJoint";
-      }
-   });
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.physics.RevoluteJoint"
+         */
+        getClassName:function () {
+            return "R.components.physics.RevoluteJoint";
+        }
+    });
 };

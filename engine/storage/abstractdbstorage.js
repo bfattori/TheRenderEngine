@@ -32,10 +32,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.storage.AbstractDBStorage",
-	"requires": [
-		"R.storage.AbstractStorage"
-	]
+    "class":"R.storage.AbstractDBStorage",
+    "requires":[
+        "R.storage.AbstractStorage"
+    ]
 });
 
 /**
@@ -52,125 +52,125 @@ R.Engine.define({
  *              {@link R.storage.PersistentStorage}, or {@link R.storage.IndexedStorage} for
  *              implementations.
  */
-R.storage.AbstractDBStorage = function(){
-	return R.storage.AbstractStorage.extend(/** @scope R.storage.AbstractDBStorage.prototype */{
+R.storage.AbstractDBStorage = function () {
+    return R.storage.AbstractStorage.extend(/** @scope R.storage.AbstractDBStorage.prototype */{
 
-      schema: null,
+        schema:null,
 
-		/** @private */
-		constructor: function(name){
-         this.schema = null;
-			this.base(name || "AbstractDBStorage");
-		},
+        /** @private */
+        constructor:function (name) {
+            this.schema = null;
+            this.base(name || "AbstractDBStorage");
+        },
 
-		/**
-		 * Get the data storage schema from the storage object.
-		 * @return {Array} An array of tables for the storage object
-		 */
-		getSchema: function(){
-			return this.schema;
-		},
+        /**
+         * Get the data storage schema from the storage object.
+         * @return {Array} An array of tables for the storage object
+         */
+        getSchema:function () {
+            return this.schema;
+        },
 
-      /**
-       * Set the data storage schema for the storage object.
-       * @schema {Array} An array of table names
-       */
-      setSchema: function(schema) {
-         this.schema = schema;
-      },
+        /**
+         * Set the data storage schema for the storage object.
+         * @schema {Array} An array of table names
+         */
+        setSchema:function (schema) {
+            this.schema = schema;
+        },
 
-		/**
-		 * [ABSTRACT] Finalize any pending storage requests.
-		 */
-		flush: function(){
-		},
+        /**
+         * [ABSTRACT] Finalize any pending storage requests.
+         */
+        flush:function () {
+        },
 
-		/**
-		 * Create a new table to store data in.
-		 *
-		 * @param name {String} The name of the table
-		 * @param def {Object} Table definition object
-		 * @return {Boolean} <code>true</code> if the table was created.  <code>false</code> if
-		 *         the table already exists or couldn't be created for another reason.
-		 */
-		createTable: function(name, def){
-         return false;
-		},
+        /**
+         * Create a new table to store data in.
+         *
+         * @param name {String} The name of the table
+         * @param def {Object} Table definition object
+         * @return {Boolean} <code>true</code> if the table was created.  <code>false</code> if
+         *         the table already exists or couldn't be created for another reason.
+         */
+        createTable:function (name, def) {
+            return false;
+        },
 
-		/**
-		 * Drop a table by its given name
-		 *
-		 * @param name {String} The name of the table to drop
-		 */
-		dropTable: function(name){
-			if (!this.schema) {
-				return;
-			}
-			delete this.schema[name];
-		},
+        /**
+         * Drop a table by its given name
+         *
+         * @param name {String} The name of the table to drop
+         */
+        dropTable:function (name) {
+            if (!this.schema) {
+                return;
+            }
+            delete this.schema[name];
+        },
 
-		/**
-		 * Returns <tt>true</tt> if the table with the given name exists
-		 * @param name {String} The name of the table
-		 * @return {Boolean}
-		 */
-		tableExists: function(name){
-			return false;
-		},
+        /**
+         * Returns <tt>true</tt> if the table with the given name exists
+         * @param name {String} The name of the table
+         * @return {Boolean}
+         */
+        tableExists:function (name) {
+            return false;
+        },
 
-		/**
-		 * Set the data, for the given table, in the storage.
-		 *
-		 * @param name {String} The name of the table
-		 * @param data {Object} The table data to store
-		 * @return {Number} 1 if the data was stored, or 0 if the table doesn't exist
-		 */
-		setTableData: function(name, data){
-			return 0;
-		},
+        /**
+         * Set the data, for the given table, in the storage.
+         *
+         * @param name {String} The name of the table
+         * @param data {Object} The table data to store
+         * @return {Number} 1 if the data was stored, or 0 if the table doesn't exist
+         */
+        setTableData:function (name, data) {
+            return 0;
+        },
 
-		/**
-		 * Get the schema object, for the given table.
-		 * @param name {String} The name of the table
-		 * @return {Object} The data object, or <tt>null</tt> if no table with the given name exists
-		 */
-		getTableDef: function(name){
-			return null;
-		},
+        /**
+         * Get the schema object, for the given table.
+         * @param name {String} The name of the table
+         * @return {Object} The data object, or <tt>null</tt> if no table with the given name exists
+         */
+        getTableDef:function (name) {
+            return null;
+        },
 
-		/**
-		 * Get the data object, for the given table.
-		 * @param name {String} The name of the table
-		 * @return {Object} The data object, or <tt>null</tt> if no table with the given name exists
-		 */
-		getTableData: function(name){
-			return null;
-		},
+        /**
+         * Get the data object, for the given table.
+         * @param name {String} The name of the table
+         * @return {Object} The data object, or <tt>null</tt> if no table with the given name exists
+         */
+        getTableData:function (name) {
+            return null;
+        },
 
-		/**
-		 * Execute SQL on the storage object, which may be one of <tt>SELECT</tt>,
-		 * <tt>UPDATE</tt>, <tt>INSERT</tt>, or <tt>DELETE</tt>.
-		 * @param sqlString {String} The SQL to execute
-		 * @param bindings {Array} An optional array of bindings
-		 * @return {Object} If the SQL is a <tt>SELECT</tt>, the object will be the result of
-		 * 	the statement, otherwise the result will be a <tt>Boolean</tt> if the statement was
-		 * 	successful.
-		 */
-		execSql: function(sqlString, bindings){
-         return false;
-		}
+        /**
+         * Execute SQL on the storage object, which may be one of <tt>SELECT</tt>,
+         * <tt>UPDATE</tt>, <tt>INSERT</tt>, or <tt>DELETE</tt>.
+         * @param sqlString {String} The SQL to execute
+         * @param bindings {Array} An optional array of bindings
+         * @return {Object} If the SQL is a <tt>SELECT</tt>, the object will be the result of
+         *     the statement, otherwise the result will be a <tt>Boolean</tt> if the statement was
+         *     successful.
+         */
+        execSql:function (sqlString, bindings) {
+            return false;
+        }
 
-	}, /** @scope R.storage.AbstractStorage.prototype */ {
+    }, /** @scope R.storage.AbstractStorage.prototype */ {
 
-		/**
-		 * Get the class name of this object
-		 *
-		 * @return {String} "R.storage.AbstractStorage"
-		 */
-		getClassName: function(){
-			return "R.storage.AbstractStorage";
-		}
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.storage.AbstractStorage"
+         */
+        getClassName:function () {
+            return "R.storage.AbstractStorage";
+        }
 
-	});
+    });
 
 };

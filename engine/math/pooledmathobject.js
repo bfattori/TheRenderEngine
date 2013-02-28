@@ -3,7 +3,7 @@
  * PooledMathObject
  *
  * @fileoverview A library of math primitive objects, including points, vectors, rectangles,
- * 				  and circles.
+ *                   and circles.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  * @author: $Author: bfattori $
@@ -33,10 +33,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.math.PooledMathObject",
-	"requires": [
-		"R.engine.PooledObject"
-	]
+    "class":"R.math.PooledMathObject",
+    "requires":[
+        "R.engine.PooledObject"
+    ]
 });
 
 /**
@@ -48,64 +48,65 @@ R.Engine.define({
  * Google's Chrome browser seems to operate better with transient objects while
  * other browsers appear to run better with pooled objects.
  * <p/>
- * 
+ *
  * @param name {String} The name of the object
  * @extends R.engine.PooledObject
  * @constructor
- * @description Create a math object. 
+ * @description Create a math object.
  */
-R.math.PooledMathObject = function(){
-	return R.engine.PooledObject.extend(/** @scope R.math.PooledMathObject.prototype */{
-	
-		/** @private */
-		constructor: function(name){
-			if (!R.Engine.options.transientMathObject) {
-				this.base(name);
-			}
-		},
-		
-		/**
-		 * Destroy this object instance (remove it from the Engine).  The object's release
-		 * method is called after destruction so it will be returned to the pool of objects
-		 * to be used again.
-		 */
-		destroy: function(){
-			if (!R.Engine.options.transientMathObject) {
-				this.base();
-			}
-		}
-		
-	}, /** @scope R.math.PooledMathObject.prototype */ {
-	
-		/**
-		 * Similar to a constructor, all pooled objects implement this method.
-		 * The <tt>create()</tt> method will either create a new instance, if no object of the object's
-		 * class exists within the pool, or will reuse an existing pooled instance of
-		 * the object.  Either way, the constructor for the object instance is called so that
-		 * instance creation can be maintained in the constructor.
-		 * <p/>
-		 * Usage: <tt>var obj = [ObjectClass].create(arg1, arg2, arg3...);</tt>
-		 *
-		 * @memberOf R.math.PooledMathObject
-		 */
-		create: function(){
-			if (R.Engine.options.transientMathObject) {
-				return new this(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]);
-			}
-			else {
-				return R.engine.PooledObject.create.apply(this, arguments);
-			}
-		},
-		
-		/**
-		 * Get the class name of this object
-		 *
-		 * @return {String} "R.math.PooledMathObject"
-		 */
-		getClassName: function(){
-			return "R.math.PooledMathObject";
-		}
-		
-	});
-	
+R.math.PooledMathObject = function () {
+    "use strict";
+    return R.engine.PooledObject.extend(/** @scope R.math.PooledMathObject.prototype */{
+
+        /** @private */
+        constructor:function (name) {
+            if (!R.Engine.options.transientMathObject) {
+                this.base(name);
+            }
+        },
+
+        /**
+         * Destroy this object instance (remove it from the Engine).  The object's release
+         * method is called after destruction so it will be returned to the pool of objects
+         * to be used again.
+         */
+        destroy:function () {
+            if (!R.Engine.options.transientMathObject) {
+                this.base();
+            }
+        }
+
+    }, /** @scope R.math.PooledMathObject.prototype */ {
+
+        /**
+         * Similar to a constructor, all pooled objects implement this method.
+         * The <tt>create()</tt> method will either create a new instance, if no object of the object's
+         * class exists within the pool, or will reuse an existing pooled instance of
+         * the object.  Either way, the constructor for the object instance is called so that
+         * instance creation can be maintained in the constructor.
+         * <p/>
+         * Usage: <tt>var obj = [ObjectClass].create(arg1, arg2, arg3...);</tt>
+         *
+         * @memberOf R.math.PooledMathObject
+         */
+        create:function () {
+            if (R.Engine.options.transientMathObject) {
+                return new this(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]);
+            }
+            else {
+                return R.engine.PooledObject.create.apply(this, arguments);
+            }
+        },
+
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.math.PooledMathObject"
+         */
+        getClassName:function () {
+            return "R.math.PooledMathObject";
+        }
+
+    });
+
 }

@@ -33,10 +33,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.struct.Touch",
-	"requires": [
-		"R.math.Point2D"
-	]
+    "class":"R.struct.Touch",
+    "requires":[
+        "R.math.Point2D"
+    ]
 });
 
 /**
@@ -51,48 +51,48 @@ R.Engine.define({
  */
 R.struct.Touch = Base.extend(/** @scope R.struct.Touch.prototype */{
 
-   touchX: null,
-   touchY: null,
+    touchX:null,
+    touchY:null,
 
-   /**
-    * @private
-    */
-   constructor: function(touch) {
-      this.touchX = touch.pageX;
-      this.touchY = touch.pageY;
-   },
+    /**
+     * @private
+     */
+    constructor:function (touch) {
+        this.touchX = touch.pageX;
+        this.touchY = touch.pageY;
+    },
 
-   /**
-    * Get the X coordinate of the touch
-    * @return {Number} The X coordinate of the touch
-    */
-   getX: function() {
-      return this.touchX;
-   },
+    /**
+     * Get the X coordinate of the touch
+     * @return {Number} The X coordinate of the touch
+     */
+    getX:function () {
+        return this.touchX;
+    },
 
-   /**
-    * Get the Y coordinate of the touch
-    * @return {Number} The Y coordinate of the touch
-    */
-   getY: function() {
-      return this.touchY;
-   },
+    /**
+     * Get the Y coordinate of the touch
+     * @return {Number} The Y coordinate of the touch
+     */
+    getY:function () {
+        return this.touchY;
+    },
 
-   /**
-    * Get a {@link R.math.Point2D} which represents the location of the touch
-    * @return {R.math.Point2D} The coordinates of the touch
-    */
-   get: function() {
-      return R.math.Point2D.create(this.touchX, this.touchY);
-   }
+    /**
+     * Get a {@link R.math.Point2D} which represents the location of the touch
+     * @return {R.math.Point2D} The coordinates of the touch
+     */
+    get:function () {
+        return R.math.Point2D.create(this.touchX, this.touchY);
+    }
 
 }, /** @scope R.struct.Touch.prototype */{
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} "R.struct.Touch"
-    */
-   getClassName: function() {
-      return "R.struct.Touch";
-   }
+    /**
+     * Get the class name of this object
+     *
+     * @return {String} "R.struct.Touch"
+     */
+    getClassName:function () {
+        return "R.struct.Touch";
+    }
 });

@@ -2,7 +2,7 @@
  * The Render Engine
  * SpatialGridNode
  *
- * @fileoverview A simple collision model which divides a finite space up into 
+ * @fileoverview A simple collision model which divides a finite space up into
  *               a coarse grid to assist in quickly finding objects within that
  *               space.
  *
@@ -35,10 +35,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.collision.broadphase.SpatialGridNode",
-	"requires": [
-		"R.collision.broadphase.AbstractCollisionNode"
-	]
+    "class":"R.collision.broadphase.SpatialGridNode",
+    "requires":[
+        "R.collision.broadphase.AbstractCollisionNode"
+    ]
 });
 
 /**
@@ -52,45 +52,46 @@ R.Engine.define({
  * @description Create an instance of an <tt>R.collision.broadphase.SpatialNode</tt> for use within a {@link R.collision.broadphase.SpatialGrid}
  * @param rect {R.math.Rectangle2D} The rectangle which defines this node.
  */
-R.collision.broadphase.SpatialGridNode = function(){
-	return R.collision.broadphase.AbstractCollisionNode.extend(/** @scope R.collision.broadphase.SpatialGridNode.prototype */{
-	
-		rect: null,
-		
-		/** @private */
-		constructor: function(rect){
-			this.base();
-			this.rect = rect;
-		},
-		
-		/**
-		 * Get the rectangle which defines this node.
-		 * @return {R.math.Rectangle2D}
-		 */
-		getRect: function(){
-			return this.rect
-		},
-		
-		/**
-		 * Returns true if the spatial node contains the point specified.
-		 * @param point {R.math.Point2D} The point to check
-		 * @return {Boolean}
-		 */
-		contains: function(point){
-			return this.getRect().containsPoint(point);
-		}
-		
-	}, /** @scope R.collision.broadphase.SpatialGridNode.prototype */ {
-	
-		/**
-		 * Get the class name of this object
-		 *
-		 * @return {String} "R.collision.broadphase.SpatialGridNode"
-		 */
-		getClassName: function(){
-			return "R.collision.broadphase.SpatialGridNode";
-		}
-		
-	});
-	
+R.collision.broadphase.SpatialGridNode = function () {
+    "use strict";
+    return R.collision.broadphase.AbstractCollisionNode.extend(/** @scope R.collision.broadphase.SpatialGridNode.prototype */{
+
+        rect:null,
+
+        /** @private */
+        constructor:function (rect) {
+            this.base();
+            this.rect = rect;
+        },
+
+        /**
+         * Get the rectangle which defines this node.
+         * @return {R.math.Rectangle2D}
+         */
+        getRect:function () {
+            return this.rect
+        },
+
+        /**
+         * Returns true if the spatial node contains the point specified.
+         * @param point {R.math.Point2D} The point to check
+         * @return {Boolean}
+         */
+        contains:function (point) {
+            return this.getRect().containsPoint(point);
+        }
+
+    }, /** @scope R.collision.broadphase.SpatialGridNode.prototype */ {
+
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.collision.broadphase.SpatialGridNode"
+         */
+        getClassName:function () {
+            return "R.collision.broadphase.SpatialGridNode";
+        }
+
+    });
+
 }

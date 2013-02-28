@@ -32,16 +32,16 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.math.Vector2D",
-	"requires": [
-		"R.math.Math2D",
-      "R.math.Point2D"
-	]
+    "class":"R.math.Vector2D",
+    "requires":[
+        "R.math.Math2D",
+        "R.math.Point2D"
+    ]
 });
 
 /**
  * @class A 2D vector class with helpful manipulation methods.
- * 
+ *
  * @param x {R.math.Vector2D|Number} If this arg is a Vector2D, its values will be
  *                           copied into the new vector.  If a number,
  *                           the X length of the vector.
@@ -51,289 +51,291 @@ R.Engine.define({
  * @description Create a new 2D Vector
  * @extends R.math.Point2D
  */
-R.math.Vector2D = function(){
-	return R.math.Point2D.extend(/** @scope R.math.Vector2D.prototype */{
-	
-		/**
-		 * @private
-		 */
-		constructor: function(x, y){
-			return this.base(x, y);
-		},
+R.math.Vector2D = function () {
+    "use strict";
+    return R.math.Point2D.extend(/** @scope R.math.Vector2D.prototype */{
 
-		/**
-		 * A mutator method that normalizes this vector, returning a unit length vector.
-		 * @return {R.math.Vector2D} This vector, normalized
-		 * @see #len
-		 */
-		normalize: function(){
-         var ln = this.len();
-         if (ln != 0) {
-            this.x /= ln;
-            this.y /= ln;
-         }
-			return this;
-		},
-		
-		/**
-		 * Get the magnitude/length of this vector.
-		 *
-		 * @return {Number} A value representing the length (magnitude) of the vector.
-		 */
-		len: function(){
-         return Math.sqrt((this.x * this.x) + (this.y * this.y));
-		},
+        /**
+         * @private
+         */
+        constructor:function (x, y) {
+            return this.base(x, y);
+        },
 
-      /**
-       * Set the magnitude/length of this vector without altering the angle
-       * @param len {Number} The length
-       */
-      setLen: function(len) {
-         var angle = R.math.Math2D.degToRad(this.getAngle());
-         this.x = Math.cos(angle) * len;
-         this.y = Math.sin(angle) * len;
-         if(Math.abs(this.x) < 0.00000001) this.x = 0;
-         if(Math.abs(this.y) < 0.00000001) this.y = 0;
-      },
+        /**
+         * A mutator method that normalizes this vector, returning a unit length vector.
+         * @return {R.math.Vector2D} This vector, normalized
+         * @see #len
+         */
+        normalize:function () {
+            var ln = this.len();
+            if (ln != 0) {
+                this.x /= ln;
+                this.y /= ln;
+            }
+            return this;
+        },
 
-      /**
-       * Get the angle, in degrees, of this vector.
-       * @return {Number}
-       */
-      getAngle: function() {
-         return R.math.Math2D.radToDeg(Math.atan2(this.y, this.x));
-      },
+        /**
+         * Get the magnitude/length of this vector.
+         *
+         * @return {Number} A value representing the length (magnitude) of the vector.
+         */
+        len:function () {
+            return Math.sqrt((this.x * this.x) + (this.y * this.y));
+        },
 
-      /**
-       * Set the angle of this vector without altering the length
-       * @param angle {Number} The angle
-       */
-      setAngle: function(angle) {
-         var len = this.len();
-         this.x = Math.cos(R.math.Math2D.degToRad(angle)) * len;
-         this.y = Math.sin(R.math.Math2D.degToRad(angle)) * len;
-      },
+        /**
+         * Set the magnitude/length of this vector without altering the angle
+         * @param len {Number} The length
+         */
+        setLen:function (len) {
+            var angle = R.math.Math2D.degToRad(this.getAngle());
+            this.x = Math.cos(angle) * len;
+            this.y = Math.sin(angle) * len;
+            if (Math.abs(this.x) < 0.00000001) this.x = 0;
+            if (Math.abs(this.y) < 0.00000001) this.y = 0;
+        },
 
-      /**
-       * Is the vector to the right or left of this one?
-       * @param vector {R.math.Vector2D} The vectore to compare against
-       * @return {Number} -1 (left) 1 (right)
-       */
-      getSign: function(vector) {
-         return this.rightNormal().dot(vector) < 0 ? -1 : 1;
-      },
+        /**
+         * Get the angle, in degrees, of this vector.
+         * @return {Number}
+         */
+        getAngle:function () {
+            return R.math.Math2D.radToDeg(Math.atan2(this.y, this.x));
+        },
 
-		/**
-		 * Get the dot product of this vector and another.
-		 * @param vector {R.math.Vector2D} The Point to perform the operation against.
-		 * @return {Number} The dot product
-		 */
-		dot: function(vector){
-         Assert(vector != null, "Dot product to undefined vector");
-         return (this.x * vector.x) + (this.y * vector.y);
-		},
-		
-		/**
-		 * A mutator method that gets the cross product of this vector and another.
-		 * @param vector {R.math.Vector2D} The vector to perform the operation against.
-		 * @return {R.math.Vector2D} This vector
-		 */
-		cross: function(vector){
-         Assert(vector != null, "Cross multiply with undefined vector");
-         this.x = this.y - vector.y;
-         this.y = vector.x - this.x;
-         // this.z = (this.x * vector.y) - (this.y * vector.x);
-			return this;
-		},
+        /**
+         * Set the angle of this vector without altering the length
+         * @param angle {Number} The angle
+         */
+        setAngle:function (angle) {
+            var len = this.len();
+            this.x = Math.cos(R.math.Math2D.degToRad(angle)) * len;
+            this.y = Math.sin(R.math.Math2D.degToRad(angle)) * len;
+        },
 
-      truncate: function(max) {
-         if (this.len() > max) {
-            this.setLen(max);
-         }
-         return this;
-      },
+        /**
+         * Is the vector to the right or left of this one?
+         * @param vector {R.math.Vector2D} The vectore to compare against
+         * @return {Number} -1 (left) 1 (right)
+         */
+        getSign:function (vector) {
+            return this.rightNormal().dot(vector) < 0 ? -1 : 1;
+        },
 
-		/**
-		 * Returns the angle (in degrees) between two vectors.  This assumes that the
-		 * point is being used to represent a vector, and that the supplied point
-		 * is also a vector.
-		 *
-		 * @param vector {R.math.Vector2D} The vector to perform the angular determination against
-		 * @return {Number} The angle between two vectors, in degrees
-		 */
-		angleBetween: function(vector){
-         Assert(vector != null, "Angle between undefined vector");
-         var t = R.clone(this).normalize(), v = R.clone(vector).normalize(),
-             a = Math.acos(t.dot(v));
+        /**
+         * Get the dot product of this vector and another.
+         * @param vector {R.math.Vector2D} The Point to perform the operation against.
+         * @return {Number} The dot product
+         */
+        dot:function (vector) {
+            Assert(vector != null, "Dot product to undefined vector");
+            return (this.x * vector.x) + (this.y * vector.y);
+        },
 
-         t.destroy();
-         v.destroy();
-         return R.math.Math2D.radToDeg(a);
+        /**
+         * A mutator method that gets the cross product of this vector and another.
+         * @param vector {R.math.Vector2D} The vector to perform the operation against.
+         * @return {R.math.Vector2D} This vector
+         */
+        cross:function (vector) {
+            Assert(vector != null, "Cross multiply with undefined vector");
+            this.x = this.y - vector.y;
+            this.y = vector.x - this.x;
+            // this.z = (this.x * vector.y) - (this.y * vector.x);
+            return this;
+        },
 
-         //var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
-			//return R.math.Math2D.radToDeg(v1.angleFrom(v2));
-		},
+        truncate:function (max) {
+            if (this.len() > max) {
+                this.setLen(max);
+            }
+            return this;
+        },
 
-      /**
-       * Returns the signed angle (in degrees) between two vectors.  This assumes that the
-       * point is being used to represent a vector, and that the supplied point
-       * is also a vector.
-       *
-       * @param vector {R.math.Vector2D} The vector to perform the angular determination against
-       * @return {Number} The angle between two vectors, in degrees
-       */
-      signedAngleBetween: function(vector) {
-         Assert(vector != null, "Angle between undefined vector");
-         var t = R.clone(this).normalize(), v = R.clone(vector).normalize(),
-             a = Math.atan2(v.y, v.x) - Math.atan2(t.y, t.x);
+        /**
+         * Returns the angle (in degrees) between two vectors.  This assumes that the
+         * point is being used to represent a vector, and that the supplied point
+         * is also a vector.
+         *
+         * @param vector {R.math.Vector2D} The vector to perform the angular determination against
+         * @return {Number} The angle between two vectors, in degrees
+         */
+        angleBetween:function (vector) {
+            Assert(vector != null, "Angle between undefined vector");
+            var t = R.clone(this).normalize(), v = R.clone(vector).normalize(),
+                a = Math.acos(t.dot(v));
 
-         t.destroy();
-         v.destroy();
-         return R.math.Math2D.radToDeg(a);
-      },
-		
-		/**
-		 * Returns <tt>true</tt> if this vector is parallel to <tt>vector</tt>.
-		 * @param vector {R.math.Vector2D} The vector to compare against
-		 * @return {Boolean}
-		 */
-		isParallelTo: function(vector){
-         Assert(vector != null, "Parallel to undefined vector");
-         var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
-			return v1.isParallelTo(v2);
-		},
-		
-		/**
-		 * Returns <tt>true</tt> if this vector is anti-parallel to <tt>vector</tt>.
-		 * @param vector {R.math.Vector2D} The vector to compare against
-		 * @return {Boolean}
-		 */
-		isAntiparallelTo: function(vector){
-         Assert(vector != null, "Anti-parallel to undefined vector");
-         var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
-			return v1.isAntiparallelTo(v2);
-		},
-		
-		/**
-		 * Returns <tt>true</tt> if this vector is perpendicular to <tt>vector</tt>.
-		 * @param vector {R.math.Vector2D} The vector to compare against
-		 * @return {Boolean}
-		 */
-		isPerpendicularTo: function(vector){
-         Assert(vector != null, "Perpendicular to undefined vector");
-         var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
-			return v1.isPependicularTo(v2);
-		},
-		
-		/**
-		 * Mutator method that modifies the vector rotated <tt>angle</tt> degrees about
-		 * the vector defined by <tt>axis</tt>.
-		 *
-		 * @param angle {Number} The rotation angle in degrees
-		 * @param axis {R.math.Vector2D} The axis to rotate about
-		 * @return {R.math.Vector2D} This vector
-		 */
-		rotate: function(angle, axis){
-         var v1 = $V([this.x,this.y,1]);
-			var v3 = v1.rotate(R.math.Math2D.degToRad(angle), axis);
-         this.x = v3.elements[0]; this.y = v3.elements[1];
-			return this;
-		},
-		
-		/**
-		 * Project this vector onto <tt>vector</tt>.
-		 *
-		 * @param vector {R.math.Vector2D} The vector to project onto
-		 * @return {R.math.Vector2D}
-		 */
-		projectOnto: function(vector){
-         Assert(vector != null, "Project onto undefined vector");
-			var proj = R.math.Vector2D.create(0, 0), v = vector, dp = this.dot(vector);
-			proj.set((dp / (v.x * v.x + v.y * v.y)) * v.x, (dp / (v.x * v.x + v.y * v.y)) * v.y);
-			return proj;
-		},
-		
-		/**
-		 * Get the right-hand normal of this vector.  The left-hand
-		 * normal would simply be <tt>this.rightNormal().neg()</tt>.
-		 * @return {R.math.Vector2D}
-		 */
-		rightNormal: function(){
-			return R.math.Vector2D.create(-this.y, this.x).normalize();
-		},
+            t.destroy();
+            v.destroy();
+            return R.math.Math2D.radToDeg(a);
 
-		/**
-		 * Get the perproduct (sign) of this vector and <tt>vector</tt>.  Returns
-       * -1 if <tt>vector</tt> is to the left, or 1 if it is to the right
-       * of this vector.
-		 * @param vector {R.math.Vector2D} The other vector
-		 * @return {Number}
-		 */
-		perProduct: function(vector){
-         Assert(vector != null, "Per-product with undefined vector");
-			return this.dot(vector.rightNormal());
-		}
-		
-	}, /** @scope R.math.Vector2D.prototype */{ 
-		/**
-		 * Return the classname of the this object
-		 * @return {String} "R.math.Vector2D"
-		 */
-		getClassName: function(){
-			return "R.math.Vector2D";
-		},
+            //var v1 = $V([this.x,this.y,1]), v2 = $V([vector.x,vector.y,1]);
+            //return R.math.Math2D.radToDeg(v1.angleFrom(v2));
+        },
 
-		/** @private */
-		resolved: function() {
-			R.math.Vector2D.ZERO = R.math.Vector2D.create(0, 0);
-			R.math.Vector2D.UP = R.math.Vector2D.create(0, -1);
-			R.math.Vector2D.LEFT = R.math.Vector2D.create(-1, 0);
-			R.math.Vector2D.DOWN = R.math.Vector2D.create(0, 1);
-			R.math.Vector2D.RIGHT = R.math.Vector2D.create(1, 0);
-         if (Object.freeze) {
-            Object.freeze(R.math.Vector2D.ZERO);
-            Object.freeze(R.math.Vector2D.UP);
-            Object.freeze(R.math.Vector2D.LEFT);
-            Object.freeze(R.math.Vector2D.DOWN);
-            Object.freeze(R.math.Vector2D.RIGHT);
-         }
+        /**
+         * Returns the signed angle (in degrees) between two vectors.  This assumes that the
+         * point is being used to represent a vector, and that the supplied point
+         * is also a vector.
+         *
+         * @param vector {R.math.Vector2D} The vector to perform the angular determination against
+         * @return {Number} The angle between two vectors, in degrees
+         */
+        signedAngleBetween:function (vector) {
+            Assert(vector != null, "Angle between undefined vector");
+            var t = R.clone(this).normalize(), v = R.clone(vector).normalize(),
+                a = Math.atan2(v.y, v.x) - Math.atan2(t.y, t.x);
 
-		},
+            t.destroy();
+            v.destroy();
+            return R.math.Math2D.radToDeg(a);
+        },
 
-		/**
-		 * The "zero" vector. This vector should not be modified.
-		 * @type {R.math.Vector2D}
-		 * @memberOf R.math.Vector2D
-		 */
-		ZERO:	null,
+        /**
+         * Returns <tt>true</tt> if this vector is parallel to <tt>vector</tt>.
+         * @param vector {R.math.Vector2D} The vector to compare against
+         * @return {Boolean}
+         */
+        isParallelTo:function (vector) {
+            Assert(vector != null, "Parallel to undefined vector");
+            var v1 = $V([this.x, this.y, 1]), v2 = $V([vector.x, vector.y, 1]);
+            return v1.isParallelTo(v2);
+        },
 
-		/**
-		 * The normalized "up" vector. This vector should not be modified.
-		 * @type {R.math.Vector2D}
-		 * @memberOf R.math.Vector2D
-		 */
-		UP: null,
+        /**
+         * Returns <tt>true</tt> if this vector is anti-parallel to <tt>vector</tt>.
+         * @param vector {R.math.Vector2D} The vector to compare against
+         * @return {Boolean}
+         */
+        isAntiparallelTo:function (vector) {
+            Assert(vector != null, "Anti-parallel to undefined vector");
+            var v1 = $V([this.x, this.y, 1]), v2 = $V([vector.x, vector.y, 1]);
+            return v1.isAntiparallelTo(v2);
+        },
 
-		/**
-		 * The normalized "left" vector. This vector should not be modified.
-		 * @type {R.math.Vector2D}
-		 * @memberOf R.math.Vector2D
-		 */
-		LEFT: null,
-		
-		/**
-		 * The normalized "down" vector. This vector should not be modified.
-		 * @type {R.math.Vector2D}
-		 * @memberOf R.math.Vector2D
-		 */
-		DOWN: null,
-		
-		/**
-		 * The normalized "right" vector. This vector should not be modified.
-		 * @type {R.math.Vector2D}
-		 * @memberOf R.math.Vector2D
-		 */
-		RIGHT: null
-	});
-	
+        /**
+         * Returns <tt>true</tt> if this vector is perpendicular to <tt>vector</tt>.
+         * @param vector {R.math.Vector2D} The vector to compare against
+         * @return {Boolean}
+         */
+        isPerpendicularTo:function (vector) {
+            Assert(vector != null, "Perpendicular to undefined vector");
+            var v1 = $V([this.x, this.y, 1]), v2 = $V([vector.x, vector.y, 1]);
+            return v1.isPependicularTo(v2);
+        },
+
+        /**
+         * Mutator method that modifies the vector rotated <tt>angle</tt> degrees about
+         * the vector defined by <tt>axis</tt>.
+         *
+         * @param angle {Number} The rotation angle in degrees
+         * @param axis {R.math.Vector2D} The axis to rotate about
+         * @return {R.math.Vector2D} This vector
+         */
+        rotate:function (angle, axis) {
+            var v1 = $V([this.x, this.y, 1]);
+            var v3 = v1.rotate(R.math.Math2D.degToRad(angle), axis);
+            this.x = v3.elements[0];
+            this.y = v3.elements[1];
+            return this;
+        },
+
+        /**
+         * Project this vector onto <tt>vector</tt>.
+         *
+         * @param vector {R.math.Vector2D} The vector to project onto
+         * @return {R.math.Vector2D}
+         */
+        projectOnto:function (vector) {
+            Assert(vector != null, "Project onto undefined vector");
+            var proj = R.math.Vector2D.create(0, 0), v = vector, dp = this.dot(vector);
+            proj.set((dp / (v.x * v.x + v.y * v.y)) * v.x, (dp / (v.x * v.x + v.y * v.y)) * v.y);
+            return proj;
+        },
+
+        /**
+         * Get the right-hand normal of this vector.  The left-hand
+         * normal would simply be <tt>this.rightNormal().neg()</tt>.
+         * @return {R.math.Vector2D}
+         */
+        rightNormal:function () {
+            return R.math.Vector2D.create(-this.y, this.x).normalize();
+        },
+
+        /**
+         * Get the perproduct (sign) of this vector and <tt>vector</tt>.  Returns
+         * -1 if <tt>vector</tt> is to the left, or 1 if it is to the right
+         * of this vector.
+         * @param vector {R.math.Vector2D} The other vector
+         * @return {Number}
+         */
+        perProduct:function (vector) {
+            Assert(vector != null, "Per-product with undefined vector");
+            return this.dot(vector.rightNormal());
+        }
+
+    }, /** @scope R.math.Vector2D.prototype */{
+        /**
+         * Return the classname of the this object
+         * @return {String} "R.math.Vector2D"
+         */
+        getClassName:function () {
+            return "R.math.Vector2D";
+        },
+
+        /** @private */
+        resolved:function () {
+            R.math.Vector2D.ZERO = R.math.Vector2D.create(0, 0);
+            R.math.Vector2D.UP = R.math.Vector2D.create(0, -1);
+            R.math.Vector2D.LEFT = R.math.Vector2D.create(-1, 0);
+            R.math.Vector2D.DOWN = R.math.Vector2D.create(0, 1);
+            R.math.Vector2D.RIGHT = R.math.Vector2D.create(1, 0);
+            if (Object.freeze) {
+                Object.freeze(R.math.Vector2D.ZERO);
+                Object.freeze(R.math.Vector2D.UP);
+                Object.freeze(R.math.Vector2D.LEFT);
+                Object.freeze(R.math.Vector2D.DOWN);
+                Object.freeze(R.math.Vector2D.RIGHT);
+            }
+
+        },
+
+        /**
+         * The "zero" vector. This vector should not be modified.
+         * @type {R.math.Vector2D}
+         * @memberOf R.math.Vector2D
+         */
+        ZERO:null,
+
+        /**
+         * The normalized "up" vector. This vector should not be modified.
+         * @type {R.math.Vector2D}
+         * @memberOf R.math.Vector2D
+         */
+        UP:null,
+
+        /**
+         * The normalized "left" vector. This vector should not be modified.
+         * @type {R.math.Vector2D}
+         * @memberOf R.math.Vector2D
+         */
+        LEFT:null,
+
+        /**
+         * The normalized "down" vector. This vector should not be modified.
+         * @type {R.math.Vector2D}
+         * @memberOf R.math.Vector2D
+         */
+        DOWN:null,
+
+        /**
+         * The normalized "right" vector. This vector should not be modified.
+         * @type {R.math.Vector2D}
+         * @memberOf R.math.Vector2D
+         */
+        RIGHT:null
+    });
+
 };

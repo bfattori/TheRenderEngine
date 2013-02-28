@@ -2,8 +2,8 @@
  * The Render Engine
  * AABBHull
  *
- * @fileoverview A collision shape which represents an object's bounding box 
- * 				  as the convex hull.
+ * @fileoverview A collision shape which represents an object's bounding box
+ *                   as the convex hull.
  *
  * @author: Brett Fattori (brettf@renderengine.com)
  *
@@ -34,11 +34,11 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.collision.OBBHull",
-	"requires": [
-		"R.collision.ConvexHull",
-		"R.math.Point2D"
-	]
+    "class":"R.collision.OBBHull",
+    "requires":[
+        "R.collision.ConvexHull",
+        "R.math.Point2D"
+    ]
 });
 
 /**
@@ -50,23 +50,24 @@ R.Engine.define({
  * @constructor
  * @description Creates an Object Bounding Box hull.
  */
-R.collision.OBBHull = function(){
-	return R.collision.ConvexHull.extend(/** @scope R.collision.OBBHull.prototype */{
-	
-		/** @private */
-		constructor: function(rect){
-			var points = [R.math.Point2D.create(0, 0), R.math.Point2D.create(rect.w, 0), R.math.Point2D.create(rect.w, rect.h), R.math.Point2D.create(0, rect.h)];
-			this.base(points);
-		}
-		
-	}, /** @scope R.collision.OBBHull.prototype */{ 
-		/**
-		 * Get the class name of this object
-		 * @return {String} "R.collision.OBBHull"
-		 */
-		getClassName: function(){
-			return "R.collision.OBBHull";
-		}
-	});
-	
+R.collision.OBBHull = function () {
+    "use strict";
+    return R.collision.ConvexHull.extend(/** @scope R.collision.OBBHull.prototype */{
+
+        /** @private */
+        constructor:function (rect) {
+            var points = [R.math.Point2D.create(0, 0), R.math.Point2D.create(rect.w, 0), R.math.Point2D.create(rect.w, rect.h), R.math.Point2D.create(0, rect.h)];
+            this.base(points);
+        }
+
+    }, /** @scope R.collision.OBBHull.prototype */{
+        /**
+         * Get the class name of this object
+         * @return {String} "R.collision.OBBHull"
+         */
+        getClassName:function () {
+            return "R.collision.OBBHull";
+        }
+    });
+
 }

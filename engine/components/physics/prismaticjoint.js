@@ -33,12 +33,12 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.physics.PrismaticJoint",
-   "requires": [
-      "R.components.physics.BaseMotorJoint",
-      "R.physics.Simulation",
-      "R.math.Math2D"
-   ]
+    "class":"R.components.physics.PrismaticJoint",
+    "requires":[
+        "R.components.physics.BaseMotorJoint",
+        "R.physics.Simulation",
+        "R.math.Math2D"
+    ]
 });
 
 /**
@@ -57,113 +57,113 @@ R.Engine.define({
  * @constructor
  * @description Creates a prismatic joint between two physical bodies.
  */
-R.components.physics.PrismaticJoint = function() {
-   return R.components.physics.BaseMotorJoint.extend(/** @scope R.components.physics.RevoluteJoint.prototype */{
+R.components.physics.PrismaticJoint = function () {
+    return R.components.physics.BaseMotorJoint.extend(/** @scope R.components.physics.RevoluteJoint.prototype */{
 
-      anchor: null,
-      limits: null,
-      axis: null,
+        anchor:null,
+        limits:null,
+        axis:null,
 
-      /**
-       * @private
-       */
-      constructor: function(name, body1, body2, anchor, axis) {
-         var jointDef = new Box2D.Dynamics.Joints.b2PrismaticJointDef();
+        /**
+         * @private
+         */
+        constructor:function (name, body1, body2, anchor, axis) {
+            var jointDef = new Box2D.Dynamics.Joints.b2PrismaticJointDef();
 
-         this.limits = [];
-         this.anchor = R.math.Point2D.create(anchor).div(R.physics.Simulation.WORLD_SIZE);
+            this.limits = [];
+            this.anchor = R.math.Point2D.create(anchor).div(R.physics.Simulation.WORLD_SIZE);
 
-         if (axis) {
-            this.axis = R.math.Vector2D.create(axis);
-         } else {
-            this.axis = R.clone(R.math.Vector2D.UP);
-         }
-
-         this.base(name || "PrismaticJoint", body1, body2, jointDef);
-      },
-
-      /**
-       * Offset the joint's anchors by the given point
-       * @param pt {R.math.Point2D} The offset amount
-       */
-      offset: function(pt) {
-         var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
-         this.anchor.add(ofs);
-         ofs.destroy();
-      },
-
-      /**
-       * When simulation starts offset the anchor point by the position of rigid body 1 (the "from" body).
-       * @private
-       */
-      startSimulation: function() {
-         if (!this.getSimulation()) {
-            var anchor = new Box2D.Common.Math.b2Vec2(), axis = new Box2D.Common.Math.b2Vec2();
-            anchor.Set(this.anchor.x, this.anchor.y);
-            axis.Set(this.axis.x, this.axis.y);
-
-            this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor, axis);
-
-            if (this.limits.length != 0) {
-               this.getJointDef().upperTranslation = this.limits[1];
-               this.getJointDef().lowerTranslation = this.limits[0];
-               this.getJointDef().enableLimit = true;
+            if (axis) {
+                this.axis = R.math.Vector2D.create(axis);
+            } else {
+                this.axis = R.clone(R.math.Vector2D.UP);
             }
-         }
 
-         this.base();
-      },
+            this.base(name || "PrismaticJoint", body1, body2, jointDef);
+        },
 
-      /**
-       * Clear the translation limits.
-       */
-      clearLimits: function() {
-         this.limits = [];
-      },
+        /**
+         * Offset the joint's anchors by the given point
+         * @param pt {R.math.Point2D} The offset amount
+         */
+        offset:function (pt) {
+            var ofs = R.clone(pt).div(R.physics.Simulation.WORLD_SIZE);
+            this.anchor.add(ofs);
+            ofs.destroy();
+        },
 
-      /**
-       * Get the upper limit of translation, in meters, through which the joint can travel.
-       * @return {Number}
-       */
-      getUpperLimit: function() {
-         return this.limits[1];
-      },
+        /**
+         * When simulation starts offset the anchor point by the position of rigid body 1 (the "from" body).
+         * @private
+         */
+        startSimulation:function () {
+            if (!this.getSimulation()) {
+                var anchor = new Box2D.Common.Math.b2Vec2(), axis = new Box2D.Common.Math.b2Vec2();
+                anchor.Set(this.anchor.x, this.anchor.y);
+                axis.Set(this.axis.x, this.axis.y);
 
-      /**
-       * Set the upper limit of translation through which the joint can travel.
-       *
-       * @param limit {Number} The limit, in meters
-       */
-      setUpperLimit: function(limit) {
-         this.limits[1] = limit;
-      },
+                this.getJointDef().Initialize(this.getBody1().getBody(), this.getBody2().getBody(), anchor, axis);
 
-      /**
-       * Get the lower limit of translation, in meters, through which the joint can travel.
-       * @return {Number}
-       */
-      getLowerLimit: function() {
-         return this.limits[0];
-      },
+                if (this.limits.length != 0) {
+                    this.getJointDef().upperTranslation = this.limits[1];
+                    this.getJointDef().lowerTranslation = this.limits[0];
+                    this.getJointDef().enableLimit = true;
+                }
+            }
 
-      /**
-       * Set the lower limit of translation through which the joint can travel.
-       *
-       * @param limit {Number} The limit, in meters
-       */
-      setLowerLimit: function(limit) {
-         this.limits[0] = limit;
-      }
+            this.base();
+        },
 
-   }, { /** @scope R.components.physics.PrismaticJoint.prototype */
+        /**
+         * Clear the translation limits.
+         */
+        clearLimits:function () {
+            this.limits = [];
+        },
 
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.physics.PrismaticJoint"
-       */
-      getClassName: function() {
-         return "R.components.physics.PrismaticJoint";
-      }
-   });
+        /**
+         * Get the upper limit of translation, in meters, through which the joint can travel.
+         * @return {Number}
+         */
+        getUpperLimit:function () {
+            return this.limits[1];
+        },
+
+        /**
+         * Set the upper limit of translation through which the joint can travel.
+         *
+         * @param limit {Number} The limit, in meters
+         */
+        setUpperLimit:function (limit) {
+            this.limits[1] = limit;
+        },
+
+        /**
+         * Get the lower limit of translation, in meters, through which the joint can travel.
+         * @return {Number}
+         */
+        getLowerLimit:function () {
+            return this.limits[0];
+        },
+
+        /**
+         * Set the lower limit of translation through which the joint can travel.
+         *
+         * @param limit {Number} The limit, in meters
+         */
+        setLowerLimit:function (limit) {
+            this.limits[0] = limit;
+        }
+
+    }, { /** @scope R.components.physics.PrismaticJoint.prototype */
+
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.physics.PrismaticJoint"
+         */
+        getClassName:function () {
+            return "R.components.physics.PrismaticJoint";
+        }
+    });
 };

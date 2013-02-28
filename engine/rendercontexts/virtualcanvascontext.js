@@ -1,7 +1,7 @@
 /**
  * The Render Engine
  * VirtualCanvasContext
- * 
+ *
  * @fileoverview An extension of the canvas context used to represent a game world larger than
  *    the viewport.
  *
@@ -34,11 +34,11 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.rendercontexts.VirtualCanvasContext",
-	"requires": [
-		"R.rendercontexts.CanvasContext",
-		"R.math.Math2D"
-	]
+    "class":"R.rendercontexts.VirtualCanvasContext",
+    "requires":[
+        "R.rendercontexts.CanvasContext",
+        "R.math.Math2D"
+    ]
 });
 
 /**
@@ -56,127 +56,127 @@ R.Engine.define({
  * @param worldHeight {Number} The height of the world, in pixels
  * @extends R.rendercontexts.CanvasContext
  */
-R.rendercontexts.VirtualCanvasContext = function(){
-	return R.rendercontexts.CanvasContext.extend(/** @scope R.rendercontexts.VirtualCanvasContext.prototype */{
+R.rendercontexts.VirtualCanvasContext = function () {
+    return R.rendercontexts.CanvasContext.extend(/** @scope R.rendercontexts.VirtualCanvasContext.prototype */{
 
-      scrollFromPt: null,
-      scrollToPt: null,
-      moving: false,
-      expireTime: 0,
-      duration: 0,
+        scrollFromPt:null,
+        scrollToPt:null,
+        moving:false,
+        expireTime:0,
+        duration:0,
 
-		/** @private */
-		constructor: function(name, windowWidth, windowHeight, worldWidth, worldHeight){
-			// Create an element for us to use as our window
-			this.base(name || "VirtualCanvasContext", windowWidth, windowHeight);
-         this.setWorldBoundary(R.math.Rectangle2D.create(0, 0, worldWidth, worldHeight));
-         this.scrollToPt = R.math.Point2D.create(0,0);
-         this.scrollFromPt = R.math.Point2D.create(0,0);
-         this.moving = false;
-         this.expireTime = 0;
-         this.duration = 0;
-		},
-		
-		/**
-		 * Set the horizontal world position in pixels.
-		 *
-		 * @param x {Number} The horizontal scroll in pixels
-		 */
-		setHorizontalScroll: function(x){
-			var maxX = this.getWorldBoundary().w - this.getViewport().w;
-         x = (x < 0 ? 0 : (x > maxX ? maxX : x));
-         this.getWorldPosition().setX(x);
-         this.getViewport().getTopLeft().setX(x);
-		},
-		
-      /**
-       * Set the vertical world position in pixels.
-       *
-		 * @param y {Number} The vertical scroll in pixels
-		 */
-		setVerticalScroll: function(y){
-         var maxY = this.getWorldBoundary().h - this.getViewport().h;
-         y = (y < 0 ? 0 : (y > maxY ? maxY : y));
-         this.getWorldPosition().setY(y);
-         this.getViewport().getTopLeft().setY(y);
-		},
+        /** @private */
+        constructor:function (name, windowWidth, windowHeight, worldWidth, worldHeight) {
+            // Create an element for us to use as our window
+            this.base(name || "VirtualCanvasContext", windowWidth, windowHeight);
+            this.setWorldBoundary(R.math.Rectangle2D.create(0, 0, worldWidth, worldHeight));
+            this.scrollToPt = R.math.Point2D.create(0, 0);
+            this.scrollFromPt = R.math.Point2D.create(0, 0);
+            this.moving = false;
+            this.expireTime = 0;
+            this.duration = 0;
+        },
 
-      /**
-       * Set the current world position to a specific point.
-       * @param pt {R.math.Point2D} The point to set the scroll to.
-       */
-      setScroll: function(pt) {
-         this.setHorizontalScroll(pt.x);
-         this.setVerticalScroll(pt.y);
-      },
+        /**
+         * Set the horizontal world position in pixels.
+         *
+         * @param x {Number} The horizontal scroll in pixels
+         */
+        setHorizontalScroll:function (x) {
+            var maxX = this.getWorldBoundary().w - this.getViewport().w;
+            x = (x < 0 ? 0 : (x > maxX ? maxX : x));
+            this.getWorldPosition().setX(x);
+            this.getViewport().getTopLeft().setX(x);
+        },
 
-      /**
-       * Scroll to the given point, or location, over the given duration.
-       * @param duration {Number} The number of milliseconds for the transition to occur
-       * @param ptOrX {Number|R.math.Point2D} The X coordinate, or point, to scroll to
-       * @param [y] {Number} The Y coordinate, if <tt>ptOrX</tt> is a number
-       */
-      scrollTo: function(duration, ptOrX, y) {
-         this.scrollFromPt.set(this.getWorldPosition());
-         this.scrollToPt.set(ptOrX, y);
-         this.moving = true;
-         this.expireTime = R.Engine.worldTime + duration;
-         this.duration = duration;
-      },
-		
-		/**
-		 * Get the horizontal scroll amount in pixels.
-		 * @return {Number} The horizontal scroll
-		 */
-		getHorizontalScroll: function(){
-			return this.getWorldPosition().x;
-		},
-		
-		/**
-		 * Get the vertical scroll amount in pixels.
-		 * @return {Number} The vertical scroll
-		 */
-		getVerticalScroll: function(){
-         return this.getWorldPosition().y;
-		},
+        /**
+         * Set the vertical world position in pixels.
+         *
+         * @param y {Number} The vertical scroll in pixels
+         */
+        setVerticalScroll:function (y) {
+            var maxY = this.getWorldBoundary().h - this.getViewport().h;
+            y = (y < 0 ? 0 : (y > maxY ? maxY : y));
+            this.getWorldPosition().setY(y);
+            this.getViewport().getTopLeft().setY(y);
+        },
 
-      /**
-       * If a transition was initiated with {@link #scrollTo},
-       * this will update the viewport accordingly.
-       *
-       * @param worldTime {Number} The current world time
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       */
-      setupWorld: function(worldTime, dt) {
-         if (this.moving) {
-            if (worldTime < this.expireTime) {
-               // Moving
-               var sc = R.math.Point2D.create(this.scrollToPt).sub(this.scrollFromPt)
-                  .mul((this.duration - (this.expireTime - worldTime)) / this.duration),
-                   sp = R.math.Point2D.create(this.scrollFromPt).add(sc);
-               this.setScroll(sp);
-               sc.destroy();
-               sp.destroy();
-            } else {
-               // Arrived
-               this.moving = false;
-               this.expireTime = 0;
-               this.setScroll(this.scrollToPt);
+        /**
+         * Set the current world position to a specific point.
+         * @param pt {R.math.Point2D} The point to set the scroll to.
+         */
+        setScroll:function (pt) {
+            this.setHorizontalScroll(pt.x);
+            this.setVerticalScroll(pt.y);
+        },
+
+        /**
+         * Scroll to the given point, or location, over the given duration.
+         * @param duration {Number} The number of milliseconds for the transition to occur
+         * @param ptOrX {Number|R.math.Point2D} The X coordinate, or point, to scroll to
+         * @param [y] {Number} The Y coordinate, if <tt>ptOrX</tt> is a number
+         */
+        scrollTo:function (duration, ptOrX, y) {
+            this.scrollFromPt.set(this.getWorldPosition());
+            this.scrollToPt.set(ptOrX, y);
+            this.moving = true;
+            this.expireTime = R.Engine.worldTime + duration;
+            this.duration = duration;
+        },
+
+        /**
+         * Get the horizontal scroll amount in pixels.
+         * @return {Number} The horizontal scroll
+         */
+        getHorizontalScroll:function () {
+            return this.getWorldPosition().x;
+        },
+
+        /**
+         * Get the vertical scroll amount in pixels.
+         * @return {Number} The vertical scroll
+         */
+        getVerticalScroll:function () {
+            return this.getWorldPosition().y;
+        },
+
+        /**
+         * If a transition was initiated with {@link #scrollTo},
+         * this will update the viewport accordingly.
+         *
+         * @param worldTime {Number} The current world time
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        setupWorld:function (worldTime, dt) {
+            if (this.moving) {
+                if (worldTime < this.expireTime) {
+                    // Moving
+                    var sc = R.math.Point2D.create(this.scrollToPt).sub(this.scrollFromPt)
+                            .mul((this.duration - (this.expireTime - worldTime)) / this.duration),
+                        sp = R.math.Point2D.create(this.scrollFromPt).add(sc);
+                    this.setScroll(sp);
+                    sc.destroy();
+                    sp.destroy();
+                } else {
+                    // Arrived
+                    this.moving = false;
+                    this.expireTime = 0;
+                    this.setScroll(this.scrollToPt);
+                }
             }
-         }
-         this.base(worldTime, dt);
-      }
-		
-	}, /** @scope R.rendercontexts.VirtualCanvasContext.prototype */ {
-	
-		/**
-		 * Get the class name of this object
-		 * @return {String} The string "R.rendercontexts.VirtualCanvasContext"
-		 */
-		getClassName: function(){
-			return "R.rendercontexts.VirtualCanvasContext";
-		}
-	});
-	
+            this.base(worldTime, dt);
+        }
+
+    }, /** @scope R.rendercontexts.VirtualCanvasContext.prototype */ {
+
+        /**
+         * Get the class name of this object
+         * @return {String} The string "R.rendercontexts.VirtualCanvasContext"
+         */
+        getClassName:function () {
+            return "R.rendercontexts.VirtualCanvasContext";
+        }
+    });
+
 };

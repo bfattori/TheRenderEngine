@@ -33,17 +33,17 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.components.render.Vector2D",
-	"requires": [
-		"R.components.Render",
-		"R.collision.ConvexHull",
-		"R.collision.OBBHull",
-		"R.collision.CircleHull",
-		"R.math.Math2D",
-		"R.math.Point2D",
-		"R.math.Vector2D",
-		"R.math.Rectangle2D"
-	]
+    "class":"R.components.render.Vector2D",
+    "requires":[
+        "R.components.Render",
+        "R.collision.ConvexHull",
+        "R.collision.OBBHull",
+        "R.collision.CircleHull",
+        "R.math.Math2D",
+        "R.math.Point2D",
+        "R.math.Vector2D",
+        "R.math.Rectangle2D"
+    ]
 });
 
 /**
@@ -55,259 +55,260 @@ R.Engine.define({
  * @constructor
  * @description Creates a 2d vector drawing component
  */
-R.components.render.Vector2D = function() {
-	return R.components.Render.extend(/** @scope R.components.render.Vector2D.prototype */{
+R.components.render.Vector2D = function () {
+    "use strict";
+    return R.components.Render.extend(/** @scope R.components.render.Vector2D.prototype */{
 
-   strokeStyle: "#ffffff",     // Default to white lines
-   lineWidth: 1,
-   fillStyle: null,          // Default to none
-   points: null,
-   bBox: null,
-   closedManifold: null,
+        strokeStyle:"#ffffff", // Default to white lines
+        lineWidth:1,
+        fillStyle:null, // Default to none
+        points:null,
+        bBox:null,
+        closedManifold:null,
 
-   /**
-    * @private
-    */
-   constructor: function(name, priority) {
-      this.base(name, priority || 0.1);
-      this.closedManifold = true;
-		this.points = [];
-		this.bBox = R.math.Rectangle2D.create(0,0,0,0);
-   },
+        /**
+         * @private
+         */
+        constructor:function (name, priority) {
+            this.base(name, priority || 0.1);
+            this.closedManifold = true;
+            this.points = [];
+            this.bBox = R.math.Rectangle2D.create(0, 0, 0, 0);
+        },
 
-	/**
-	 * Destroys the object instance
-	 */
-	destroy: function() {
-		this.bBox.destroy();
-		while (this.points.length > 0) {
-			this.points.shift().destroy();
-		}
-		this.base();
-	},
+        /**
+         * Destroys the object instance
+         */
+        destroy:function () {
+            this.bBox.destroy();
+            while (this.points.length > 0) {
+                this.points.shift().destroy();
+            }
+            this.base();
+        },
 
-   /**
-    * Release the component back into the object pool. See {@link PooledObject#release} for
-    * more information.
-    */
-   release: function() {
-      this.base();
-      this.strokeStyle = "#ffffff";
-      this.lineWidth = 1;
-      this.fillStyle = null;
-      this.points = null;
-      this.bBox = null;
-      this.closedManifold = null;
-   },
+        /**
+         * Release the component back into the object pool. See {@link PooledObject#release} for
+         * more information.
+         */
+        release:function () {
+            this.base();
+            this.strokeStyle = "#ffffff";
+            this.lineWidth = 1;
+            this.fillStyle = null;
+            this.points = null;
+            this.bBox = null;
+            this.closedManifold = null;
+        },
 
-   /**
-    * Calculate the bounding box from the set of
-    * points which comprise the shape to be rendered.
-    * @private
-    */
-   calculateBoundingBox: function() {
-      R.math.Math2D.getBoundingBox(this.points, this.bBox);
-   },
+        /**
+         * Calculate the bounding box from the set of
+         * points which comprise the shape to be rendered.
+         * @private
+         */
+        calculateBoundingBox:function () {
+            R.math.Math2D.getBoundingBox(this.points, this.bBox);
+        },
 
-   /**
-    * Set the points which comprise the shape of the object to
-    * be rendered to the context.
-    *
-    * @param pointArray {Array} An array of <tt>Point2D</tt> instances
-    * @param noOffset {Boolean} If <code>true</code>, does not offset the points relative to
-    *        their center.  For objects not drawn around a center point, this allows you to
-    *        pass the points literally without translation.
-    */
-   setPoints: function(pointArray, noOffset) {
-		var pc = [];
-		for (var p in pointArray) {
-			pc.push(R.math.Point2D.create(pointArray[p]));
-		}
-      this.points = pc;
-      this.renderState = null;
-      this.calculateBoundingBox();
-		
-		// Get the center of the bounding box and move all of the points so none are negative
-      if (!noOffset) {
-         var hP = R.math.Point2D.create(this.bBox.getHalfWidth(), this.bBox.getHalfHeight());
-         for (p in this.points) {
-            this.points[p].add(hP);
-         }
-         this.calculateBoundingBox();
-      }
+        /**
+         * Set the points which comprise the shape of the object to
+         * be rendered to the context.
+         *
+         * @param pointArray {Array} An array of <tt>Point2D</tt> instances
+         * @param noOffset {Boolean} If <code>true</code>, does not offset the points relative to
+         *        their center.  For objects not drawn around a center point, this allows you to
+         *        pass the points literally without translation.
+         */
+        setPoints:function (pointArray, noOffset) {
+            var pc = [];
+            for (var p in pointArray) {
+                pc.push(R.math.Point2D.create(pointArray[p]));
+            }
+            this.points = pc;
+            this.renderState = null;
+            this.calculateBoundingBox();
 
-		this.getGameObject().markDirty();
-   },
-	
-	/**
-	 * Transform all of the points by the given matrix
-	 * @param matrix {Matrix}
-	 */
-	transformPoints: function(matrix) {
-		for (var c=0; c < this.points.length; c++) {
-			this.points[c].transform(matrix);
-		}
-		this.calculateBoundingBox();
-		this.getGameObject().markDirty();
-	},
+            // Get the center of the bounding box and move all of the points so none are negative
+            if (!noOffset) {
+                var hP = R.math.Point2D.create(this.bBox.getHalfWidth(), this.bBox.getHalfHeight());
+                for (p in this.points) {
+                    this.points[p].add(hP);
+                }
+                this.calculateBoundingBox();
+            }
 
-	/**
-	 * Get the box which would enclose the shape
-	 * @return {R.math.Rectangle2D}
-	 */
-	getBoundingBox: function() {
-		return this.bBox;
-	},
+            this.getGameObject().markDirty();
+        },
 
-	/**
-	 * Get the center point from all of the points
-	 * @return {R.math.Point2D}
-	 */ 
-	getCenter: function() {
-		return R.math.Math2D.getCenterOfPoints(this.points);
-	},
+        /**
+         * Transform all of the points by the given matrix
+         * @param matrix {Matrix}
+         */
+        transformPoints:function (matrix) {
+            for (var c = 0; c < this.points.length; c++) {
+                this.points[c].transform(matrix);
+            }
+            this.calculateBoundingBox();
+            this.getGameObject().markDirty();
+        },
 
-	/**
-	 * Get a convex hull that would enclose the points.  The the LOD isn't
-	 * specified, it will be assumed to be 4.
-	 * @param [lod] {Number} The level of detail for the hull.
-	 * @return {R.collision.ConvexHull} A convex hull
-	 */
-	getConvexHull: function(lod) {
-		return R.collision.ConvexHull.create(this.points, lod || this.points.length - 1);
-	},
-	
-	/**
-	 * Get an Object Bounding Box (OBB) convex hull.
-	 * @return {R.collision.OBBHull} A convex hull
-	 */
-	getOBBHull: function() {
-		return R.collision.OBBHull.create(this.getBoundingBox());
-	},
-	
-	/**
-	 * Get a circular convex hull which encloses the points.
-	 * @param radiusPct {Number} A percentage of the calculated radius of the points, or <tt>null</tt>
-	 * @return {R.collision.CircleHull} A convex hull
-	 */
-	getCircleHull: function(radiusPct) {
-		return R.collision.CircleHull.create(this.points, radiusPct);
-	},
+        /**
+         * Get the box which would enclose the shape
+         * @return {R.math.Rectangle2D}
+         */
+        getBoundingBox:function () {
+            return this.bBox;
+        },
 
-   /**
-    * Set the color of the lines to be drawn for this shape.
-    *
-    * @param strokeStyle {String} The HTML color of the stroke (lines) of the shape
-    */
-   setLineStyle: function(strokeStyle) {
-      this.strokeStyle = strokeStyle;
-		this.getGameObject().markDirty();
-   },
+        /**
+         * Get the center point from all of the points
+         * @return {R.math.Point2D}
+         */
+        getCenter:function () {
+            return R.math.Math2D.getCenterOfPoints(this.points);
+        },
 
-   /**
-    * Returns the line style that will be used to draw this shape.
-    * @return {String}
-    */
-   getLineStyle: function() {
-      return this.strokeStyle;
-   },
+        /**
+         * Get a convex hull that would enclose the points.  The the LOD isn't
+         * specified, it will be assumed to be 4.
+         * @param [lod] {Number} The level of detail for the hull.
+         * @return {R.collision.ConvexHull} A convex hull
+         */
+        getConvexHull:function (lod) {
+            return R.collision.ConvexHull.create(this.points, lod || this.points.length - 1);
+        },
 
-   /**
-    * Set the width of lines used to draw this shape.
-    *
-    * @param lineWidth {Number} The width of lines in the shape
-    */
-   setLineWidth: function(lineWidth) {
-      this.lineWidth = lineWidth;
-		this.getGameObject().markDirty();
-   },
+        /**
+         * Get an Object Bounding Box (OBB) convex hull.
+         * @return {R.collision.OBBHull} A convex hull
+         */
+        getOBBHull:function () {
+            return R.collision.OBBHull.create(this.getBoundingBox());
+        },
 
-   /**
-    * Returns the width of the lines used to draw the shape.
-    * @return {Number}
-    */
-   getLineWidth: function() {
-      return this.lineWidth;
-   },
+        /**
+         * Get a circular convex hull which encloses the points.
+         * @param radiusPct {Number} A percentage of the calculated radius of the points, or <tt>null</tt>
+         * @return {R.collision.CircleHull} A convex hull
+         */
+        getCircleHull:function (radiusPct) {
+            return R.collision.CircleHull.create(this.points, radiusPct);
+        },
 
-   /**
-    * Set the color used to fill the shape.
-    *
-    * @param fillStyle {String} The HTML color used to fill the shape.
-    */
-   setFillStyle: function(fillStyle) {
-      this.fillStyle = fillStyle;
-		this.getGameObject().markDirty();
-   },
+        /**
+         * Set the color of the lines to be drawn for this shape.
+         *
+         * @param strokeStyle {String} The HTML color of the stroke (lines) of the shape
+         */
+        setLineStyle:function (strokeStyle) {
+            this.strokeStyle = strokeStyle;
+            this.getGameObject().markDirty();
+        },
 
-   /**
-    * Returns the fill style of the shape.
-    * @return {String}
-    */
-   getFillStyle: function() {
-      return this.fillStyle;
-   },
+        /**
+         * Returns the line style that will be used to draw this shape.
+         * @return {String}
+         */
+        getLineStyle:function () {
+            return this.strokeStyle;
+        },
 
-   /**
-    * Set whether or not we draw a polygon or polyline.  <tt>true</tt>
-    * to draw a polygon (the path formed by the points is a closed loop.
-    *
-    * @param closed {Boolean}
-    */
-   setClosed: function(closed) {
-      this.closedManifold = closed;
-		this.getGameObject().markDirty();
-   },
+        /**
+         * Set the width of lines used to draw this shape.
+         *
+         * @param lineWidth {Number} The width of lines in the shape
+         */
+        setLineWidth:function (lineWidth) {
+            this.lineWidth = lineWidth;
+            this.getGameObject().markDirty();
+        },
 
-   /**
-    * Draw the shape, defined by the points, to the rendering context
-    * using the specified line style and fill style.
-    *
-    * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render to
-    * @param time {Number} The engine time in milliseconds
-    * @param dt {Number} The delta between the world time and the last time the world was updated
-    *          in milliseconds.
-    */
-   execute: function(renderContext, time, dt) {
-      if (!(this.points && this.base(renderContext, time, dt))) {
-         return;
-      }
+        /**
+         * Returns the width of the lines used to draw the shape.
+         * @return {Number}
+         */
+        getLineWidth:function () {
+            return this.lineWidth;
+        },
 
-      // Set the stroke and fill styles
-      if (this.getLineStyle() != null) {
-         renderContext.setLineStyle(this.strokeStyle);
-      }
+        /**
+         * Set the color used to fill the shape.
+         *
+         * @param fillStyle {String} The HTML color used to fill the shape.
+         */
+        setFillStyle:function (fillStyle) {
+            this.fillStyle = fillStyle;
+            this.getGameObject().markDirty();
+        },
 
-      renderContext.setLineWidth(this.lineWidth);
+        /**
+         * Returns the fill style of the shape.
+         * @return {String}
+         */
+        getFillStyle:function () {
+            return this.fillStyle;
+        },
 
-      if (this.getFillStyle() != null) {
-         renderContext.setFillStyle(this.fillStyle);
-      }
+        /**
+         * Set whether or not we draw a polygon or polyline.  <tt>true</tt>
+         * to draw a polygon (the path formed by the points is a closed loop.
+         *
+         * @param closed {Boolean}
+         */
+        setClosed:function (closed) {
+            this.closedManifold = closed;
+            this.getGameObject().markDirty();
+        },
 
-		this.transformOrigin(renderContext, true);
+        /**
+         * Draw the shape, defined by the points, to the rendering context
+         * using the specified line style and fill style.
+         *
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render to
+         * @param time {Number} The engine time in milliseconds
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (renderContext, time, dt) {
+            if (!(this.points && this.base(renderContext, time, dt))) {
+                return;
+            }
 
-      // Render out the points
-      if (this.closedManifold) {
-         renderContext.drawPolygon(this.points);
-      } else {
-         renderContext.drawPolyline(this.points);
-      }
+            // Set the stroke and fill styles
+            if (this.getLineStyle() != null) {
+                renderContext.setLineStyle(this.strokeStyle);
+            }
 
-      if (this.fillStyle) {
-         renderContext.drawFilledPolygon(this.points);
-      }
+            renderContext.setLineWidth(this.lineWidth);
 
-		this.transformOrigin(renderContext, false);
+            if (this.getFillStyle() != null) {
+                renderContext.setFillStyle(this.fillStyle);
+            }
 
-   }
-}, /** @scope R.components.render.Vector2D.prototype */{
-   /**
-    * Get the class name of this object
-    *
-    * @return {String} "R.components.render.Vector2D"
-    */
-   getClassName: function() {
-      return "R.components.render.Vector2D";
-   }
-});
+            this.transformOrigin(renderContext, true);
+
+            // Render out the points
+            if (this.closedManifold) {
+                renderContext.drawPolygon(this.points);
+            } else {
+                renderContext.drawPolyline(this.points);
+            }
+
+            if (this.fillStyle) {
+                renderContext.drawFilledPolygon(this.points);
+            }
+
+            this.transformOrigin(renderContext, false);
+
+        }
+    }, /** @scope R.components.render.Vector2D.prototype */{
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.render.Vector2D"
+         */
+        getClassName:function () {
+            return "R.components.render.Vector2D";
+        }
+    });
 }

@@ -33,12 +33,12 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.physics.MouseJoint",
-   "requires": [
-      "R.components.physics.BaseJoint",
-      "R.physics.Simulation",
-      "R.math.Math2D"
-   ]
+    "class":"R.components.physics.MouseJoint",
+    "requires":[
+        "R.components.physics.BaseJoint",
+        "R.physics.Simulation",
+        "R.math.Math2D"
+    ]
 });
 
 /**
@@ -59,147 +59,147 @@ R.Engine.define({
  *              with a maximum force. This allows the constraint to stretch and without applying
  *              huge forces.
  */
-R.components.physics.MouseJoint = function() {
-   return R.components.physics.BaseJoint.extend(/** @scope R.components.physics.MouseJoint.prototype */{
+R.components.physics.MouseJoint = function () {
+    return R.components.physics.BaseJoint.extend(/** @scope R.components.physics.MouseJoint.prototype */{
 
-      mousePos: null,
+        mousePos:null,
 
-      /**
-       * @private
-       */
-      constructor: function(name, body, simulation) {
-         var jointDef = new Box2D.Dynamics.Joints.b2MouseJointDef();
-         this.base(name || "MouseJoint", simulation.getGroundBody(), body, jointDef);
-         this.mousePos = new Box2D.Common.Math.b2Vec2(0,0);
-      },
+        /**
+         * @private
+         */
+        constructor:function (name, body, simulation) {
+            var jointDef = new Box2D.Dynamics.Joints.b2MouseJointDef();
+            this.base(name || "MouseJoint", simulation.getGroundBody(), body, jointDef);
+            this.mousePos = new Box2D.Common.Math.b2Vec2(0, 0);
+        },
 
-      /**
-       * Release the object back into the pool.
-       */
-      release: function() {
-         this.base();
-         this.mousePos = null;
-      },
+        /**
+         * Release the object back into the pool.
+         */
+        release:function () {
+            this.base();
+            this.mousePos = null;
+        },
 
-      /**
-       * When simulation starts set the anchor points to the position of each rigid body.
-       * @private
-       */
-      startSimulation: function() {
-         if (!this.getSimulation()) {
-            // The initial target is important, otherwise it's assumed to be 0,0
-            this.getJointDef().target = this.getBody().getBody().GetPosition();
-            this.getJointDef().maxForce = this.getBody().getMass() * R.components.physics.MouseJoint.FORCE_FACTOR;
-            this.setCollideBodies(true);
-         }
-         this.base();
-      },
+        /**
+         * When simulation starts set the anchor points to the position of each rigid body.
+         * @private
+         */
+        startSimulation:function () {
+            if (!this.getSimulation()) {
+                // The initial target is important, otherwise it's assumed to be 0,0
+                this.getJointDef().target = this.getBody().getBody().GetPosition();
+                this.getJointDef().maxForce = this.getBody().getMass() * R.components.physics.MouseJoint.FORCE_FACTOR;
+                this.setCollideBodies(true);
+            }
+            this.base();
+        },
 
-      /**
-       * Set the body component which will be affected by the mouse.  This should
-       * be called when the joint is not being simulated.
-       * @param body {R.components.physics.BaseBody} The body component
-       */
-      setBody: function(body) {
-         this.setBody2(body);
-      },
+        /**
+         * Set the body component which will be affected by the mouse.  This should
+         * be called when the joint is not being simulated.
+         * @param body {R.components.physics.BaseBody} The body component
+         */
+        setBody:function (body) {
+            this.setBody2(body);
+        },
 
-      /**
-       * Get the body component linked to this joint.
-       * @return {R.components.physics.BaseBody}
-       */
-      getBody: function() {
-         return this.getBody2();
-      },
+        /**
+         * Get the body component linked to this joint.
+         * @return {R.components.physics.BaseBody}
+         */
+        getBody:function () {
+            return this.getBody2();
+        },
 
-      /**
-       * Set the frequency which is used to determine joint softness.  According to
-       * Box2d documentation the frequency should be less than half of the time step
-       * used for the simulation.  In the engine, the frequency of the time step is
-       * the frame rate.
-       *
-       * @param hz {Number} The frequency in Hertz.
-       */
-      setFrequency: function(hz) {
-         this.getJointDef().frequencyHz = hz;
-      },
+        /**
+         * Set the frequency which is used to determine joint softness.  According to
+         * Box2d documentation the frequency should be less than half of the time step
+         * used for the simulation.  In the engine, the frequency of the time step is
+         * the frame rate.
+         *
+         * @param hz {Number} The frequency in Hertz.
+         */
+        setFrequency:function (hz) {
+            this.getJointDef().frequencyHz = hz;
+        },
 
-      /**
-       * Get the frequency from the joint definition.
-       * @return {Number}
-       */
-      getFrequency: function() {
-         return this.getJointDef().frequencyHz;
-      },
+        /**
+         * Get the frequency from the joint definition.
+         * @return {Number}
+         */
+        getFrequency:function () {
+            return this.getJointDef().frequencyHz;
+        },
 
-      /**
-       * Set the damping ratio which is used to determine joint softness.  The value
-       * should be between 0.0 and 1.0, with 1.0 being extremely rigid.
-       *
-       * @param dampingRatio {Number} A value between 0.0 and 1.0
-       */
-      setDampingRatio: function(dampingRatio) {
-         this.getJointDef().dampingRatio = dampingRatio;
-      },
+        /**
+         * Set the damping ratio which is used to determine joint softness.  The value
+         * should be between 0.0 and 1.0, with 1.0 being extremely rigid.
+         *
+         * @param dampingRatio {Number} A value between 0.0 and 1.0
+         */
+        setDampingRatio:function (dampingRatio) {
+            this.getJointDef().dampingRatio = dampingRatio;
+        },
 
-      /**
-       * Get the damping ratio from the joint definition.
-       * @return {Number}
-       */
-      getDampingRatio: function() {
-         return this.getJointDef().dampingRatio;
-      },
+        /**
+         * Get the damping ratio from the joint definition.
+         * @return {Number}
+         */
+        getDampingRatio:function () {
+            return this.getJointDef().dampingRatio;
+        },
 
-      /**
-       * Set the maximum force to apply to the body when the mouse moves.
-       * @param force {Number} The force to apply
-       */
-      setMaxForce: function(force) {
-         this.getJointDef().maxForce = force;
-      },
+        /**
+         * Set the maximum force to apply to the body when the mouse moves.
+         * @param force {Number} The force to apply
+         */
+        setMaxForce:function (force) {
+            this.getJointDef().maxForce = force;
+        },
 
-      /**
-       * Get the maximum force being applied when the mouse moves.
-       * @return {Number}
-       */
-      getMaxForce: function() {
-         return this.getJointDef().maxForce;
-      },
+        /**
+         * Get the maximum force being applied when the mouse moves.
+         * @return {Number}
+         */
+        getMaxForce:function () {
+            return this.getJointDef().maxForce;
+        },
 
-      /**
-       * Updates the target position with the mouse location.
-       * @private
-       */
-      execute: function(renderContext, time, dt) {
-         // Get the mouse info from the context
-         var mouseInfo = renderContext.getMouseInfo();
-         if (!mouseInfo) {
-            AssertWarn("No mouse info on render context for MouseJoint");
-            return;
-         }
+        /**
+         * Updates the target position with the mouse location.
+         * @private
+         */
+        execute:function (renderContext, time, dt) {
+            // Get the mouse info from the context
+            var mouseInfo = renderContext.getMouseInfo();
+            if (!mouseInfo) {
+                AssertWarn("No mouse info on render context for MouseJoint");
+                return;
+            }
 
-         if (this.getSimulation()) {
-            var p = R.clone(mouseInfo.position).div(R.physics.Simulation.WORLD_SIZE);
-            this.mousePos.Set(p.x, p.y);
-            this.getJoint().SetTarget(this.mousePos);
-            p.destroy();
-         }
+            if (this.getSimulation()) {
+                var p = R.clone(mouseInfo.position).div(R.physics.Simulation.WORLD_SIZE);
+                this.mousePos.Set(p.x, p.y);
+                this.getJoint().SetTarget(this.mousePos);
+                p.destroy();
+            }
 
-         this.base(renderContext, time, dt);
-      }
+            this.base(renderContext, time, dt);
+        }
 
-   }, { /** @scope R.components.physics.MouseJoint.prototype */
+    }, { /** @scope R.components.physics.MouseJoint.prototype */
 
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.physics.MouseJoint"
-       */
-      getClassName: function() {
-         return "R.components.physics.MouseJoint";
-      },
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.physics.MouseJoint"
+         */
+        getClassName:function () {
+            return "R.components.physics.MouseJoint";
+        },
 
-      /** @private */
-      FORCE_FACTOR: 300
-   });
+        /** @private */
+        FORCE_FACTOR:300
+    });
 }

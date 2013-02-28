@@ -8,12 +8,12 @@ R.Engine.define({
 
 	// Game class dependencies
 	"depends": [
-		"GameObject"
+		"BlockPlayer"
 	]
 });
 
-// Load the game object
-R.engine.Game.load("/gameObject.js");
+// Load the game object class file which satisfies the dependency above for "GameObject"
+R.engine.Game.load("/blockPlayer.js");
 
 /**
  * @class Tutorial Two.  Generate a simple box and
@@ -39,7 +39,7 @@ var Tutorial2 = function() {
 
          // Create the game object and add it to the render context.
          // It'll start animating immediately.
-         this.renderContext.add(GameObject.create());
+         this.renderContext.add(BlockPlayer.create());
       },
 
       /**

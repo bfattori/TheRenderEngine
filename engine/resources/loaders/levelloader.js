@@ -32,12 +32,12 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.resources.loaders.LevelLoader",
-	"requires": [
-		"R.math.Math2D",
-		"R.resources.loaders.ObjectLoader",
-		"R.resources.types.Level"
-	]
+    "class":"R.resources.loaders.LevelLoader",
+    "requires":[
+        "R.math.Math2D",
+        "R.resources.loaders.ObjectLoader",
+        "R.resources.types.Level"
+    ]
 });
 
 /**
@@ -49,93 +49,93 @@ R.Engine.define({
  * @param name {String=LevelLoader} The name of the resource loader
  * @extends R.resources.loaders.ObjectLoader
  */
-R.resources.loaders.LevelLoader = function(){
-	return R.resources.loaders.ObjectLoader.extend(/** @scope R.resources.loaders.LevelLoader.prototype */{
+R.resources.loaders.LevelLoader = function () {
+    return R.resources.loaders.ObjectLoader.extend(/** @scope R.resources.loaders.LevelLoader.prototype */{
 
-      tileLoader: null,
-      queuedLevels: 0,
-      levels: {},
+        tileLoader:null,
+        queuedLevels:0,
+        levels:{},
 
-		/** @private */
-		constructor: function(name){
-			this.base(name || "LevelLoader");
-         this.queuedLevels = 0;
-         this.levels = {};
-		},
+        /** @private */
+        constructor:function (name) {
+            this.base(name || "LevelLoader");
+            this.queuedLevels = 0;
+            this.levels = {};
+        },
 
-      /**
-       * Load a level object from a URL.
-       *
-       * @param name {String} The name of the level
-       * @param url {String} The URL where the resource is located
-       */
-      load: function(name, url /*, obj */){
-         this.base(name, url, arguments[2]);
-         if (arguments[2] === undefined) {
-            this.queuedLevels++;
-         }
-      },
-
-      /**
-       * @private
-       */
-      afterLoad: function(name, obj) {
-         // We need to mark this as "not ready" since we'll be loading tiles
-         // and other things before this object is actually ready
-         this.setReady(name, false);
-
-         // Levels actually deserialize themselves, so we just wire to the level's "loaded" event
-         var self = this;
-         this.levels[name] = R.resources.types.Level.deserialize(obj);
-         this.levels[name].addEvent(this, "loaded", function() {
-            self.queuedLevels--;
-            self.setReady(name, true);
-         });
-      },
-
-		/**
-		 * Creates a {@link R.resources.types.Level} object representing the named level.
-		 *
-		 * @param level {String} A loaded level name
-		 * @returns {R.resources.types.Level} A {@link R.resources.types.Level} object
-		 */
-		getLevel: function(level){
-			return this.levels[level];
-		},
-
-      /**
-       * Export all of the levels, as a JavaScript object, with the
-       * level name as the key and the corresponding {@link R.resources.types.Level} as the value.
-       * @param [levelNames] {Array} An optional array of levels to export, by name,
-       * 		or <code>null</tt> to export all levels
-       */
-      exportAll: function(levelNames){
-         var o = {};
-         var levels = this.getResources();
-         for (var i in levels) {
-            if (!levelNames || R.engine.Support.indexOf(levelNames, levels[i]) != -1) {
-               o[levels[i]] = this.getLevel(i);
+        /**
+         * Load a level object from a URL.
+         *
+         * @param name {String} The name of the level
+         * @param url {String} The URL where the resource is located
+         */
+        load:function (name, url /*, obj */) {
+            this.base(name, url, arguments[2]);
+            if (arguments[2] === undefined) {
+                this.queuedLevels++;
             }
-         }
-         return o;
-      },
+        },
 
-		/**
-		 * The name of the resource this loader will get.
-		 * @returns {String} The string "level"
-		 */
-		getResourceType: function(){
-			return "level";
-		}
-		
-	}, /** @scope R.resources.loaders.LevelLoader.prototype */ {
-		/**
-		 * Get the class name of this object.
-		 * @return {String} The string "R.resources.loaders.LevelLoader"
-		 */
-		getClassName: function(){
-			return "R.resources.loaders.LevelLoader";
-		}
-	});
-	
+        /**
+         * @private
+         */
+        afterLoad:function (name, obj) {
+            // We need to mark this as "not ready" since we'll be loading tiles
+            // and other things before this object is actually ready
+            this.setReady(name, false);
+
+            // Levels actually deserialize themselves, so we just wire to the level's "loaded" event
+            var self = this;
+            this.levels[name] = R.resources.types.Level.deserialize(obj);
+            this.levels[name].addEvent(this, "loaded", function () {
+                self.queuedLevels--;
+                self.setReady(name, true);
+            });
+        },
+
+        /**
+         * Creates a {@link R.resources.types.Level} object representing the named level.
+         *
+         * @param level {String} A loaded level name
+         * @returns {R.resources.types.Level} A {@link R.resources.types.Level} object
+         */
+        getLevel:function (level) {
+            return this.levels[level];
+        },
+
+        /**
+         * Export all of the levels, as a JavaScript object, with the
+         * level name as the key and the corresponding {@link R.resources.types.Level} as the value.
+         * @param [levelNames] {Array} An optional array of levels to export, by name,
+         *         or <code>null</tt> to export all levels
+         */
+        exportAll:function (levelNames) {
+            var o = {};
+            var levels = this.getResources();
+            for (var i in levels) {
+                if (!levelNames || R.engine.Support.indexOf(levelNames, levels[i]) != -1) {
+                    o[levels[i]] = this.getLevel(i);
+                }
+            }
+            return o;
+        },
+
+        /**
+         * The name of the resource this loader will get.
+         * @returns {String} The string "level"
+         */
+        getResourceType:function () {
+            return "level";
+        }
+
+    }, /** @scope R.resources.loaders.LevelLoader.prototype */ {
+        /**
+         * Get the class name of this object.
+         * @return {String} The string "R.resources.loaders.LevelLoader"
+         */
+        getClassName:function () {
+            return "R.resources.loaders.LevelLoader";
+        }
+    });
+
 }

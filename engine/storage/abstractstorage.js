@@ -32,10 +32,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.storage.AbstractStorage",
-	"requires": [
-		"R.engine.PooledObject"
-	]
+    "class":"R.storage.AbstractStorage",
+    "requires":[
+        "R.engine.PooledObject"
+    ]
 });
 
 /**
@@ -45,93 +45,93 @@ R.Engine.define({
  * @extends R.engine.PooledObject
  * @constructor
  * @description This base class is considered abstract and should not be
- *              instantiated directly.  See {@link R.storage.TransientStorage}, 
+ *              instantiated directly.  See {@link R.storage.TransientStorage},
  *              {@link R.storage.PersistentStorage}, or {@link R.storage.IndexedStorage} for
  *              implementations.
  */
-R.storage.AbstractStorage = function(){
-	return R.engine.PooledObject.extend(/** @scope R.storage.AbstractStorage.prototype */{
-	
-		storageObject: null,
+R.storage.AbstractStorage = function () {
+    return R.engine.PooledObject.extend(/** @scope R.storage.AbstractStorage.prototype */{
 
-		/** @private */
-		constructor: function(name){
-			this.base(name || "AbstractStorage");
-			this.storageObject = this.initStorageObject();
-		},
-		
-		/**
-		 * Destroy the object, cleaning up any events that have been
-		 * attached to this object.
-		 */
-		destroy: function(){
-			this.storageObject.flush();
-			this.base();
-		},
-		
-		/**
-		 * Release the object back into the object pool.
-		 */
-		release: function(){
-			this.base();
-			this.storageObject = null;
-		},
-		
-		/**
-		 * [ABSTRACT] Initialize the storage object which holds the data
-		 * @return {Object} The storage object
-		 */
-		initStorageObject: function(){
-			return null;
-		},
-		
-		/**
-		 * Get the storage object
-		 * @return {Object} The DOM object being used to store data
-		 */
-		getStorageObject: function(){
-			return this.storageObject;
-		},
-		
-		/**
-		 * Set the storage object
-		 *
-		 * @param storageObject {Object} The DOM object to use to store data
-		 */
-		setStorageObject: function(storageObject){
-			this.storageObject = storageObject;
-		},
+        storageObject:null,
 
-		/**
-		 * [ABSTRACT] Finalize any pending storage requests.
-		 */
-		flush: function(){
-		},
+        /** @private */
+        constructor:function (name) {
+            this.base(name || "AbstractStorage");
+            this.storageObject = this.initStorageObject();
+        },
 
-      /**
-       * [ABSTRACT] Save the data to the storage object
-       */
-      saveData: function(data) {
-      },
+        /**
+         * Destroy the object, cleaning up any events that have been
+         * attached to this object.
+         */
+        destroy:function () {
+            this.storageObject.flush();
+            this.base();
+        },
 
-      /**
-       * [ABSTRACT] Load data from the storage object.
-       */
-      loadData: function() {
-         return null;
-      }
+        /**
+         * Release the object back into the object pool.
+         */
+        release:function () {
+            this.base();
+            this.storageObject = null;
+        },
 
-	}, /** @scope R.storage.AbstractStorage.prototype */ {
-	
-		/**
-		 * Get the class name of this object
-		 *
-		 * @return {String} "R.storage.AbstractStorage"
-		 */
-		getClassName: function(){
-			return "R.storage.AbstractStorage";
-		}
-		
-	});
-	
+        /**
+         * [ABSTRACT] Initialize the storage object which holds the data
+         * @return {Object} The storage object
+         */
+        initStorageObject:function () {
+            return null;
+        },
+
+        /**
+         * Get the storage object
+         * @return {Object} The DOM object being used to store data
+         */
+        getStorageObject:function () {
+            return this.storageObject;
+        },
+
+        /**
+         * Set the storage object
+         *
+         * @param storageObject {Object} The DOM object to use to store data
+         */
+        setStorageObject:function (storageObject) {
+            this.storageObject = storageObject;
+        },
+
+        /**
+         * [ABSTRACT] Finalize any pending storage requests.
+         */
+        flush:function () {
+        },
+
+        /**
+         * [ABSTRACT] Save the data to the storage object
+         */
+        saveData:function (data) {
+        },
+
+        /**
+         * [ABSTRACT] Load data from the storage object.
+         */
+        loadData:function () {
+            return null;
+        }
+
+    }, /** @scope R.storage.AbstractStorage.prototype */ {
+
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.storage.AbstractStorage"
+         */
+        getClassName:function () {
+            return "R.storage.AbstractStorage";
+        }
+
+    });
+
 };

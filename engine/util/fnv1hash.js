@@ -31,10 +31,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.util.FNV1Hash",
-   "requires": [
-      "R.engine.PooledObject"
-   ]
+    "class":"R.util.FNV1Hash",
+    "requires":[
+        "R.engine.PooledObject"
+    ]
 });
 
 /*
@@ -67,52 +67,52 @@ R.Engine.define({
  * @author Brett Fattori &lt;bfattori AT gmail DOT com&gt;
  * @private
  */
-R.util.FNV1 = function(algo) {
+R.util.FNV1 = function (algo) {
 
-   // Create the linkage to the hashing algorithm
-   var fnv = algo.fnv;
-   var getHashValue = algo.getHash || function(h) {
-      return Number(h).toString(16);
-   };
-   var INIT = algo.INIT;
+    // Create the linkage to the hashing algorithm
+    var fnv = algo.fnv;
+    var getHashValue = algo.getHash || function (h) {
+        return Number(h).toString(16);
+    };
+    var INIT = algo.INIT;
 
-   return {
+    return {
 
-      /**
-       * Initialize this hash instance. Any previous state is reset, and the new
-       * hash value is computed.
-       */
-      init: function(buf, offset, len) {
-         if (typeof buf == "string") {
-            buf = buf.split("");
-            offset = 0;
-            len = buf.length;
-         }
-         return fnv(buf, offset, len, INIT);
-      },
+        /**
+         * Initialize this hash instance. Any previous state is reset, and the new
+         * hash value is computed.
+         */
+        init:function (buf, offset, len) {
+            if (typeof buf == "string") {
+                buf = buf.split("");
+                offset = 0;
+                len = buf.length;
+            }
+            return fnv(buf, offset, len, INIT);
+        },
 
-      /**
-       * Update the hash value. Repeated calls to this method update the hash
-       * value accordingly, and they are equivalent to calling the <code>init(...)</code>
-       * method once with a concatenated value of all parameters.
-       */
-      update: function(hash, buf, offset, len) {
-         if (typeof buf == "string") {
-            buf = buf.split("");
-            offset = 0;
-            len = buf.length;
-         }
-         hash = fnv(buf, offset, len, hash);
-      },
+        /**
+         * Update the hash value. Repeated calls to this method update the hash
+         * value accordingly, and they are equivalent to calling the <code>init(...)</code>
+         * method once with a concatenated value of all parameters.
+         */
+        update:function (hash, buf, offset, len) {
+            if (typeof buf == "string") {
+                buf = buf.split("");
+                offset = 0;
+                len = buf.length;
+            }
+            hash = fnv(buf, offset, len, hash);
+        },
 
-      /**
-       * Retrieve the hash value
-       * @return hash value
-       */
-      getHash: function() {
-         return getHashValue(hash);
-      }
-   };
+        /**
+         * Retrieve the hash value
+         * @return hash value
+         */
+        getHash:function () {
+            return getHashValue(hash);
+        }
+    };
 };
 
 /**
@@ -123,18 +123,18 @@ R.util.FNV1 = function(algo) {
  *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
-R.util.FNV132 = (function() {
-   return {
-      fnv: function(buf, offset, len, seed) {
-         for (var i = offset; i < offset + len; i++) {
-            seed += (seed << 1) + (seed << 4) + (seed << 7) + (seed << 8) + (seed << 24);
-            seed ^= String(buf[i]).charCodeAt(0);
-         }
-         return seed;
-      },
+R.util.FNV132 = (function () {
+    return {
+        fnv:function (buf, offset, len, seed) {
+            for (var i = offset; i < offset + len; i++) {
+                seed += (seed << 1) + (seed << 4) + (seed << 7) + (seed << 8) + (seed << 24);
+                seed ^= String(buf[i]).charCodeAt(0);
+            }
+            return seed;
+        },
 
-      INIT: 0x811c9dc5
-   };
+        INIT:0x811c9dc5
+    };
 })();
 
 /**
@@ -146,18 +146,18 @@ R.util.FNV132 = (function() {
  *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
-R.util.FNV1a32 = (function() {
-   return {
-      fnv: function(buf, offset, len, seed) {
-         for (var i = offset; i < offset + len; i++) {
-            seed ^= String(buf[i]).charCodeAt(0);
-            seed += (seed << 1) + (seed << 4) + (seed << 7) + (seed << 8) + (seed << 24);
-         }
-         return seed;
-      },
+R.util.FNV1a32 = (function () {
+    return {
+        fnv:function (buf, offset, len, seed) {
+            for (var i = offset; i < offset + len; i++) {
+                seed ^= String(buf[i]).charCodeAt(0);
+                seed += (seed << 1) + (seed << 4) + (seed << 7) + (seed << 8) + (seed << 24);
+            }
+            return seed;
+        },
 
-      INIT: 0x811c9dc5
-   };
+        INIT:0x811c9dc5
+    };
 })();
 
 /**
@@ -171,71 +171,71 @@ R.util.FNV1a32 = (function() {
  * @param [hashRoutine=R.lang.FNV1a32] {FNV1} The hash routine to use.
  * @extends R.engine.PooledObject
  */
-R.util.FNV1Hash = function() {
-   return R.engine.PooledObject.extend(/** @scope R.util.FNV1Hash.prototype */{
+R.util.FNV1Hash = function () {
+    return R.engine.PooledObject.extend(/** @scope R.util.FNV1Hash.prototype */{
 
-      fnv: null,
-      gotten: null,
-      lastHash: 0,
+        fnv:null,
+        gotten:null,
+        lastHash:0,
 
-      /** @private */
-      constructor: function(hashRoutine) {
-         this.base("FNV1Hash");
-         this.fnv = new R.util.FNV1(hashRoutine || R.util.FNV1a32);
-         this.gotten = false;
-         this.lastHash = 0;
-      },
+        /** @private */
+        constructor:function (hashRoutine) {
+            this.base("FNV1Hash");
+            this.fnv = new R.util.FNV1(hashRoutine || R.util.FNV1a32);
+            this.gotten = false;
+            this.lastHash = 0;
+        },
 
-      /**
-       * Release the hash back into the pool for later use.
-       */
-      release: function() {
-         this.base();
-         this.fnv = null;
-         this.gotten = null;
-         this.lastHash = 0;
-      },
+        /**
+         * Release the hash back into the pool for later use.
+         */
+        release:function () {
+            this.base();
+            this.fnv = null;
+            this.gotten = null;
+            this.lastHash = 0;
+        },
 
-      /**
-       * Initialize the hasher with the provided string.  To instead evolve the hash
-       * use the {@link #updateHash} to update the hash with new data.
-       *
-       * @param str {String} The value to get the hash for
-       * @return {String} A hexadecimal hash value
-       */
-      getHash: function(str) {
-         this.gotten = true;
-         this.lastHash = this.fnv.init(str);
-         return this.getLastHash();
-      },
-
-      /**
-       * Get the last returned hash value without evolving the hash.
-       * @return {String} A hexadecimal hash value
-       */
-      getLastHash: function() {
-         return Number(this.lastHash).toString(16);
-      },
-
-      /**
-       * Evolves the existing hash.
-       * @param str {String} The value to get the hash for
-       * @return {String} A hexadecimal hash value
-       */
-      updateHash: function(str) {
-         if (this.gotten) {
-            this.lastHash = this.fnv.update(this.lastHash, str);
+        /**
+         * Initialize the hasher with the provided string.  To instead evolve the hash
+         * use the {@link #updateHash} to update the hash with new data.
+         *
+         * @param str {String} The value to get the hash for
+         * @return {String} A hexadecimal hash value
+         */
+        getHash:function (str) {
+            this.gotten = true;
+            this.lastHash = this.fnv.init(str);
             return this.getLastHash();
-         } else {
-            return this.getHash(str);
-         }
-      }
+        },
 
-   }, /** @scope R.util.FNV1Hash.prototype */{
+        /**
+         * Get the last returned hash value without evolving the hash.
+         * @return {String} A hexadecimal hash value
+         */
+        getLastHash:function () {
+            return Number(this.lastHash).toString(16);
+        },
 
-      getClassName: function() {
-         return "R.util.FNV1Hash";
-      }
-   });
+        /**
+         * Evolves the existing hash.
+         * @param str {String} The value to get the hash for
+         * @return {String} A hexadecimal hash value
+         */
+        updateHash:function (str) {
+            if (this.gotten) {
+                this.lastHash = this.fnv.update(this.lastHash, str);
+                return this.getLastHash();
+            } else {
+                return this.getHash(str);
+            }
+        }
+
+    }, /** @scope R.util.FNV1Hash.prototype */{
+
+        getClassName:function () {
+            return "R.util.FNV1Hash";
+        }
+    });
 
 };

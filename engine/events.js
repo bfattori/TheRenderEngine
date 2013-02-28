@@ -31,11 +31,12 @@
  * THE SOFTWARE.
  *
  */
+"use strict";
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.engine.Events",
-	"requires": []
+    "class":"R.engine.Events",
+    "requires":[]
 });
 
 /**
@@ -61,236 +62,236 @@ R.Engine.define({
  */
 R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
 
-	/** @private */
-   constructor: null,
+    /** @private */
+    constructor:null,
 
-   /**
-    * Set an event handler on a target.  The handler function will
-    * be called whenever the event occurs.
-    *
-    * @param target {String/jQuery} The target for the event.  This should either be a
-    *                               CSS selector, or a jQuery object.
-    * @param [data] {Array} Optional data to pass to the handler when it is invoked.
-    * @param name {String} The event to handle.  ie: "click" or "mouseover"
-    * @param handler {Function} The handler function to assign to the target
-    * @memberOf R.engine.Events
-    */
-   setHandler: function(target, data, name, handler) {
-      if (typeof data == "string") {
-         handler = name;
-         name = data;
-         data = null;
-      }
+    /**
+     * Set an event handler on a target.  The handler function will
+     * be called whenever the event occurs.
+     *
+     * @param target {String/jQuery} The target for the event.  This should either be a
+     *                               CSS selector, or a jQuery object.
+     * @param [data] {Array} Optional data to pass to the handler when it is invoked.
+     * @param name {String} The event to handle.  ie: "click" or "mouseover"
+     * @param handler {Function} The handler function to assign to the target
+     * @memberOf R.engine.Events
+     */
+    setHandler:function (target, data, name, handler) {
+        if (typeof data == "string") {
+            handler = name;
+            name = data;
+            data = null;
+        }
 
-      if (target == document.body) {
-         target = document;
-      }
+        if (target == document.body) {
+            target = document;
+        }
 
-      jQuery(target).bind(name, data || handler, handler);
-   },
+        jQuery(target).bind(name, data || handler, handler);
+    },
 
-   /**
-    * Clear an event handler that was previously assigned to the target.  If no
-    * specific handler is assigned, all event handlers will be removed from the target.
-    *
-    * @param target {String/jQuery} The target for the event.  This should either be a
-    *                               CSS selector, or a jQuery object.
-    * @param name {String} The event to handle.  ie: "click" or "mouseover"
-    * @param handler {Function} The handler function to unassign from the target
-    * @memberOf R.engine.Events
-    */
-   clearHandler: function(target, name, handler) {
-      if (target == document.body) {
-         target = document;
-      }
-      jQuery(target).unbind(name, handler);
-   },
-   
-   /**
-    * Get the key code for the provided character.  The value returned
-    * will be for the uppercase key value, unless the second argument is
-    * set to <code>true</code> which will return the exact key code for the
-    * provided character.
-    * @param charStr {String} A single character to get the key code for
-    * @param [literal] {Boolean} <code>true</code> to return the literal code without
-    *        first converting the character to lower case.
-    * @return {Number} The key code for the given character
-    * @memberOf R.engine.Events
-    */
-   keyCodeForChar: function(charStr, literal) {
-      return (literal ? charStr : charStr.toUpperCase()).charCodeAt(0);
-   },
+    /**
+     * Clear an event handler that was previously assigned to the target.  If no
+     * specific handler is assigned, all event handlers will be removed from the target.
+     *
+     * @param target {String/jQuery} The target for the event.  This should either be a
+     *                               CSS selector, or a jQuery object.
+     * @param name {String} The event to handle.  ie: "click" or "mouseover"
+     * @param handler {Function} The handler function to unassign from the target
+     * @memberOf R.engine.Events
+     */
+    clearHandler:function (target, name, handler) {
+        if (target == document.body) {
+            target = document;
+        }
+        jQuery(target).unbind(name, handler);
+    },
 
-   /**
-    * Returns true if the key pressed is either the lower or upper case version of
-    * the key specified in "keyStr".
-    * @param eventObj
-    * @param keyStr
-    */
-   isKey: function(eventObj, keyStr) {
-      return (eventObj.which == R.engine.Events.keyCodeForChar(keyStr) ||
-              eventObj.which == R.engine.Events.keyCodeForChar(keyStr, true));
-   },
+    /**
+     * Get the key code for the provided character.  The value returned
+     * will be for the uppercase key value, unless the second argument is
+     * set to <code>true</code> which will return the exact key code for the
+     * provided character.
+     * @param charStr {String} A single character to get the key code for
+     * @param [literal] {Boolean} <code>true</code> to return the literal code without
+     *        first converting the character to lower case.
+     * @return {Number} The key code for the given character
+     * @memberOf R.engine.Events
+     */
+    keyCodeForChar:function (charStr, literal) {
+        return (literal ? charStr : charStr.toUpperCase()).charCodeAt(0);
+    },
 
-   //====================================================================================================================
-   // MOUSE BUTTON CONSTANTS
+    /**
+     * Returns true if the key pressed is either the lower or upper case version of
+     * the key specified in "keyStr".
+     * @param eventObj
+     * @param keyStr
+     */
+    isKey:function (eventObj, keyStr) {
+        return (eventObj.which == R.engine.Events.keyCodeForChar(keyStr) ||
+            eventObj.which == R.engine.Events.keyCodeForChar(keyStr, true));
+    },
 
-   /** No mouse button pressed. 
-    * @type {Number}
-    */
-   MOUSE_NO_BUTTON: -1,
+    //====================================================================================================================
+    // MOUSE BUTTON CONSTANTS
 
-   /** Left mouse button.
-    * @type {Number}
-    */
-   MOUSE_LEFT_BUTTON: 1,
+    /** No mouse button pressed.
+     * @type {Number}
+     */
+    MOUSE_NO_BUTTON:-1,
 
-   /** Right mouse button.
-    * @type {Number}
-    */
-   MOUSE_RIGHT_BUTTON: 3,
+    /** Left mouse button.
+     * @type {Number}
+     */
+    MOUSE_LEFT_BUTTON:1,
 
-   /** Middle mouse button.
-    * @type {Number}
-    */
-   MOUSE_MIDDLE_BUTTON: 2,
+    /** Right mouse button.
+     * @type {Number}
+     */
+    MOUSE_RIGHT_BUTTON:3,
 
-   //====================================================================================================================
-   // KEY CODE CONSTANTS
+    /** Middle mouse button.
+     * @type {Number}
+     */
+    MOUSE_MIDDLE_BUTTON:2,
 
-   /** Constant for the "Tab" key
-    * @type {Number}
-    */
-   KEYCODE_TAB: 9,
+    //====================================================================================================================
+    // KEY CODE CONSTANTS
 
-   /** Constant for the "Enter" key
-    * @type {Number}
-    */
-   KEYCODE_ENTER: 13,
+    /** Constant for the "Tab" key
+     * @type {Number}
+     */
+    KEYCODE_TAB:9,
 
-   /** Constant for the "Delete" key
-    * @type {Number}
-    */
-   KEYCODE_DELETE: 46,
+    /** Constant for the "Enter" key
+     * @type {Number}
+     */
+    KEYCODE_ENTER:13,
 
-   /** Constant for the "Space" key
-    * @type {Number}
-    */
-   KEYCODE_SPACE: 32,
+    /** Constant for the "Delete" key
+     * @type {Number}
+     */
+    KEYCODE_DELETE:46,
 
-   /** Constant for the "Backspace"
-    * @type {Number}
-    */
-   KEYCODE_BACKSPACE: 8,
+    /** Constant for the "Space" key
+     * @type {Number}
+     */
+    KEYCODE_SPACE:32,
 
-   /** Constant for the "Up" key
-    * @type {Number}
-    */
-   KEYCODE_UP_ARROW: 38,
+    /** Constant for the "Backspace"
+     * @type {Number}
+     */
+    KEYCODE_BACKSPACE:8,
 
-   /** Constant for the "Down" key
-    * @type {Number}
-    */
-   KEYCODE_DOWN_ARROW: 40,
+    /** Constant for the "Up" key
+     * @type {Number}
+     */
+    KEYCODE_UP_ARROW:38,
 
-   /** Constant for the "Left" key
-    * @type {Number}
-    */
-   KEYCODE_LEFT_ARROW: 37,
+    /** Constant for the "Down" key
+     * @type {Number}
+     */
+    KEYCODE_DOWN_ARROW:40,
 
-   /** Constant for the "RIGHT" key
-    * @type {Number}
-    */
-   KEYCODE_RIGHT_ARROW: 39,
+    /** Constant for the "Left" key
+     * @type {Number}
+     */
+    KEYCODE_LEFT_ARROW:37,
 
-   /** Constant for the "Plus" key
-    * @type {Number}
-    */
-   KEYCODE_KEYPAD_PLUS: 61,
+    /** Constant for the "RIGHT" key
+     * @type {Number}
+     */
+    KEYCODE_RIGHT_ARROW:39,
 
-   /** Constant for the "Minus" key
-    * @type {Number}
-    */
-   KEYCODE_KEYPAD_MINUS: 109,
+    /** Constant for the "Plus" key
+     * @type {Number}
+     */
+    KEYCODE_KEYPAD_PLUS:61,
 
-   /** Constant for the "Home" key
-    * @type {Number}
-    */
-   KEYCODE_HOME: 36,
+    /** Constant for the "Minus" key
+     * @type {Number}
+     */
+    KEYCODE_KEYPAD_MINUS:109,
 
-   /** Constant for the "End" key
-    * @type {Number}
-    */
-   KEYCODE_END: 35,
+    /** Constant for the "Home" key
+     * @type {Number}
+     */
+    KEYCODE_HOME:36,
 
-   /** Constant for the "F1" key
-    * @type {Number}
-    */
-   KEYCODE_F1: 112,
+    /** Constant for the "End" key
+     * @type {Number}
+     */
+    KEYCODE_END:35,
 
-   /** Constant for the "F2" key
-    * @type {Number}
-    */
-   KEYCODE_F2: 113,
+    /** Constant for the "F1" key
+     * @type {Number}
+     */
+    KEYCODE_F1:112,
 
-   /** Constant for the "F3" key
-    * @type {Number}
-    */
-   KEYCODE_F3: 114,
+    /** Constant for the "F2" key
+     * @type {Number}
+     */
+    KEYCODE_F2:113,
 
-   /** Constant for the "F4" key
-    * @type {Number}
-    */
-   KEYCODE_F4: 115,
+    /** Constant for the "F3" key
+     * @type {Number}
+     */
+    KEYCODE_F3:114,
 
-   /** Constant for the "F5" key
-    * @type {Number}
-    */
-   KEYCODE_F5: 116,
+    /** Constant for the "F4" key
+     * @type {Number}
+     */
+    KEYCODE_F4:115,
 
-   /** Constant for the "F6" key
-    * @type {Number}
-    */
-   KEYCODE_F6: 117,
+    /** Constant for the "F5" key
+     * @type {Number}
+     */
+    KEYCODE_F5:116,
 
-   /** Constant for the "F7" key
-    * @type {Number}
-    */
-   KEYCODE_F7: 118,
+    /** Constant for the "F6" key
+     * @type {Number}
+     */
+    KEYCODE_F6:117,
 
-   /** Constant for the "F8" key
-    * @type {Number}
-    */
-   KEYCODE_F8: 119,
+    /** Constant for the "F7" key
+     * @type {Number}
+     */
+    KEYCODE_F7:118,
 
-   /** Constant for the "F9" key
-    * @type {Number}
-    */
-   KEYCODE_F9: 120,
+    /** Constant for the "F8" key
+     * @type {Number}
+     */
+    KEYCODE_F8:119,
 
-   /** Constant for the "F10" key
-    * @type {Number}
-    */
-   KEYCODE_F10: 121,
+    /** Constant for the "F9" key
+     * @type {Number}
+     */
+    KEYCODE_F9:120,
 
-   /** Constant for the "F11" key
-    * @type {Number}
-    */
-   KEYCODE_F11: 122,
+    /** Constant for the "F10" key
+     * @type {Number}
+     */
+    KEYCODE_F10:121,
 
-   /** Constant for the "F12" key
-    * @type {Number}
-    */
-   KEYCODE_F12: 123,
+    /** Constant for the "F11" key
+     * @type {Number}
+     */
+    KEYCODE_F11:122,
 
-   /** Constant for the "Context Menu" key (Windows)
-    * @type {Number}
-    */
-   KEYCODE_MENU: 93,
+    /** Constant for the "F12" key
+     * @type {Number}
+     */
+    KEYCODE_F12:123,
 
-   /** Constant for the "Windows" key (Windows)
-    * @type {Number}
-    */
-   KEYCODE_WINDOW: 91
+    /** Constant for the "Context Menu" key (Windows)
+     * @type {Number}
+     */
+    KEYCODE_MENU:93,
+
+    /** Constant for the "Windows" key (Windows)
+     * @type {Number}
+     */
+    KEYCODE_WINDOW:91
 
 });

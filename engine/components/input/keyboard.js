@@ -33,11 +33,11 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.input.Keyboard",
-   "requires": [
-      "R.components.Input",
-      "R.engine.Events"
-   ]
+    "class":"R.components.input.Keyboard",
+    "requires":[
+        "R.components.Input",
+        "R.engine.Events"
+    ]
 });
 
 /**
@@ -62,94 +62,95 @@ R.Engine.define({
  * @constructor
  * @description Create an instance of a keyboard input component.
  */
-R.components.input.Keyboard = function() {
-   return R.components.Input.extend(/** @scope R.components.input.Keyboard.prototype */{
+R.components.input.Keyboard = function () {
+    "use strict";
+    return R.components.Input.extend(/** @scope R.components.input.Keyboard.prototype */{
 
-      /**
-       * @private
-       */
-      constructor: function(name, priority) {
-         this.base(name, priority);
+        /**
+         * @private
+         */
+        constructor:function (name, priority) {
+            this.base(name, priority);
 
-         // Add the event handlers
-         var ctx = R.Engine.getDefaultContext(), self = this;
-         ctx.addEvent("keydown", function(evt) {
-            return self._keyDownListener(evt);
-         });
+            // Add the event handlers
+            var ctx = R.Engine.getDefaultContext(), self = this;
+            ctx.addEvent("keydown", function (evt) {
+                return self._keyDownListener(evt);
+            });
 
-         ctx.addEvent("keyup", function(evt) {
-            return self._keyUpListener(evt);
-         });
+            ctx.addEvent("keyup", function (evt) {
+                return self._keyUpListener(evt);
+            });
 
-         ctx.addEvent("keypress", function(evt) {
-            return self._keyPressListener(evt);
-         });
-      },
+            ctx.addEvent("keypress", function (evt) {
+                return self._keyPressListener(evt);
+            });
+        },
 
-      /**
-       * Destroy this instance and remove all references.
-       * @private
-       */
-      destroy: function() {
-         var ctx = R.Engine.getDefaultContext();
+        /**
+         * Destroy this instance and remove all references.
+         * @private
+         */
+        destroy:function () {
+            var ctx = R.Engine.getDefaultContext();
 
-         // Clean up event handlers
-         ctx.removeEvent("keydown");
-         ctx.removeEvent("keyup");
-         ctx.removeEvent("keypress");
+            // Clean up event handlers
+            ctx.removeEvent("keydown");
+            ctx.removeEvent("keyup");
+            ctx.removeEvent("keypress");
 
-         this.base();
-      },
+            this.base();
+        },
 
-      release: function() {
-         this.base();
-         this.hasInputMethods = null;
-      },
+        release:function () {
+            this.base();
+            this.hasInputMethods = null;
+        },
 
-      /**
-       * Deprecated in favor of {@link #setGameObject}
-       * @deprecated
-       */
-      setHostObject: function(hostObj) {
-         this.setGameObject(hostObj);
-      },
+        /**
+         * Deprecated in favor of {@link #setGameObject}
+         * @deprecated
+         */
+        setHostObject:function (hostObj) {
+            this.setGameObject(hostObj);
+        },
 
-      /** @private */
-      playEvent: function(e) {
-         var evt = document.createEvent("KeyboardEvent");
-         evt.initKeyEvent(e.type, true, false, null, e.ctrlKey, false, e.shiftKey, false, e.keyCode, 0);
-         R.Engine.getDefaultContext().getSurface().dispatchEvent(evt);
-      },
+        /** @private */
+        playEvent:function (e) {
+            var evt = document.createEvent("KeyboardEvent");
+            evt.initKeyEvent(e.type, true, false, null, e.ctrlKey, false, e.shiftKey, false, e.keyCode, 0);
+            R.Engine.getDefaultContext().getSurface().dispatchEvent(evt);
+        },
 
-      /** @private */
-      _keyDownListener: function(eventObj) {
-         this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
-         return this.getGameObject().triggerEvent("keydown", eventObj, [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey]);
-      },
+        /** @private */
+        _keyDownListener:function (eventObj) {
+            this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
+            return this.getGameObject().triggerEvent("keydown", eventObj, [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey]);
+        },
 
-      /** @private */
-      _keyUpListener: function(eventObj) {
-         this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
-         return this.getGameObject().triggerEvent("keyup", eventObj, [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey]);
-      },
+        /** @private */
+        _keyUpListener:function (eventObj) {
+            this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
+            return this.getGameObject().triggerEvent("keyup", eventObj, [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey]);
+        },
 
-      /** @private */
-      _keyPressListener: function(eventObj) {
-         this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
-         return this.getGameObject().triggerEvent("keypress", eventObj, [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey]);
-      }
+        /** @private */
+        _keyPressListener:function (eventObj) {
+            this.record(eventObj, R.components.input.Keyboard.RECORD_PART);
+            return this.getGameObject().triggerEvent("keypress", eventObj, [eventObj.which, eventObj.keyCode, eventObj.ctrlKey, eventObj.altKey, eventObj.shiftKey]);
+        }
 
-   }, /** @scope R.components.input.Keyboard.prototype */{
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.input.Keyboard"
-       */
-      getClassName: function() {
-         return "R.components.input.Keyboard";
-      },
+    }, /** @scope R.components.input.Keyboard.prototype */{
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.input.Keyboard"
+         */
+        getClassName:function () {
+            return "R.components.input.Keyboard";
+        },
 
-      /** @private */
-      RECORD_PART: ["shiftKey","ctrlKey","altKey","keyCode"]
-   });
+        /** @private */
+        RECORD_PART:["shiftKey", "ctrlKey", "altKey", "keyCode"]
+    });
 };

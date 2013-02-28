@@ -33,20 +33,20 @@
 
 // Load all required engine components
 R.Engine.define({
-   "class": "R.components.logic.behaviors.Arrival",
-   "requires": [
-      "R.components.logic.behaviors.BaseBehavior"
-   ]
+    "class":"R.components.logic.behaviors.Arrival",
+    "requires":[
+        "R.components.logic.behaviors.BaseBehavior"
+    ]
 });
 
-   // Add behavior options
-   if (R.Engine.options.behaviors === undefined) {
-      R.Engine.options.behaviors = {};
-   }
+// Add behavior options
+if (R.Engine.options.behaviors === undefined) {
+    R.Engine.options.behaviors = {};
+}
 
-   $.extend(R.Engine.options.behaviors, {
-      "arrivalSlowingDistance": 50
-   });
+$.extend(R.Engine.options.behaviors, {
+    "arrivalSlowingDistance":50
+});
 
 
 /**
@@ -59,99 +59,100 @@ R.Engine.define({
  * @extends R.components.logic.behaviors.BaseBehavior
  * @constructor
  */
-R.components.logic.behaviors.Arrival = function() {
-   return R.components.logic.behaviors.BaseBehavior.extend(/** @scope R.components.logic.behaviors.Arrival.prototype */{
+R.components.logic.behaviors.Arrival = function () {
+    "use strict";
+    return R.components.logic.behaviors.BaseBehavior.extend(/** @scope R.components.logic.behaviors.Arrival.prototype */{
 
-      slowDist: 0,
-      arrived: false,
-      target: null,
+        slowDist:0,
+        arrived:false,
+        target:null,
 
-      /** @private */
-      constructor: function(target, slowingDistance) {
-         this.base("arrival");
-         this.arrived = false;
-         this.setTarget(target);
-         this.slowDist = slowingDistance || R.Engine.options.behaviors.arrivalSlowingDistance;
-      },
+        /** @private */
+        constructor:function (target, slowingDistance) {
+            this.base("arrival");
+            this.arrived = false;
+            this.setTarget(target);
+            this.slowDist = slowingDistance || R.Engine.options.behaviors.arrivalSlowingDistance;
+        },
 
-      destroy: function() {
-         this.base();
-         this.destPt.destroy();
-      },
+        destroy:function () {
+            this.base();
+            this.destPt.destroy();
+        },
 
-      reset: function() {
-         this.arrived = false;
-         this.base();
-      },
+        reset:function () {
+            this.arrived = false;
+            this.base();
+        },
 
-      /**
-       * Set the target to seek.
-       * @param target {R.math.Point2D|R.objects.Object2D} The point, or object,
-       *    to seek.
-       */
-      setTarget: function(target) {
-         this.target = target;
-      },
+        /**
+         * Set the target to seek.
+         * @param target {R.math.Point2D|R.objects.Object2D} The point, or object,
+         *    to seek.
+         */
+        setTarget:function (target) {
+            this.target = target;
+        },
 
-      /**
-       * This method is called by the game object to run the component,
-       * updating its state.
-       *
-       * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
-       * @param time {Number} The global engine time
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       */
-      execute: function(time, dt) {
-         var destPt = R.math.Vector2D.create(0,0);
-         if (this.target.__POINT2D) {
-            destPt.set(this.target);
-         } else if (this.target instanceof R.objects.Object2D && !this.target.isDestroyed()) {
-            destPt.set(this.target.getOriginPosition());
-         } else {
-            // Not a point or object, return zero steering
-            return R.math.Vector2D.ZERO;
-         }
-
-         var gO = this.getGameObject(), mC = this.getTransformComponent(), pt = R.clone(gO.getOriginPosition()),
-             offs = R.clone(destPt).sub(pt), distance = offs.len(), steering = R.math.Vector2D.create(0,0);
-
-         if (!this.getGameObject() || this.getGameObject().isDestroyed()) {
-            return steering;
-         }
-
-         if (distance > 5) {
-            offs.normalize();
-
-            if (distance < this.slowDist) {
-               offs.mul(mC.getMaxSpeed() * (distance / this.slowDist));
+        /**
+         * This method is called by the game object to run the component,
+         * updating its state.
+         *
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
+         * @param time {Number} The global engine time
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (time, dt) {
+            var destPt = R.math.Vector2D.create(0, 0);
+            if (this.target.__POINT2D) {
+                destPt.set(this.target);
+            } else if (this.target instanceof R.objects.Object2D && !this.target.isDestroyed()) {
+                destPt.set(this.target.getOriginPosition());
             } else {
-               offs.mul(mC.getMaxSpeed());
+                // Not a point or object, return zero steering
+                return R.math.Vector2D.ZERO;
             }
-            steering.set(offs.sub(mC.getVelocity()));
-         } else {
-            steering.set(R.math.Vector2D.ZERO);
-            this.arrived = true;
-         }
 
-         offs.destroy();
-         pt.destroy();
-         destPt.destroy();
+            var gO = this.getGameObject(), mC = this.getTransformComponent(), pt = R.clone(gO.getOriginPosition()),
+                offs = R.clone(destPt).sub(pt), distance = offs.len(), steering = R.math.Vector2D.create(0, 0);
 
-         return steering;
-      },
+            if (!this.getGameObject() || this.getGameObject().isDestroyed()) {
+                return steering;
+            }
 
-      /**
-       * True if the vehicle has "arrived" at it's destination
-       * @return {Boolean}
-       */
-      isArrived: function() {
-         return this.arrived;
-      }
+            if (distance > 5) {
+                offs.normalize();
 
-   }, /** @scope R.components.logic.behaviors.Arrival.prototype */{
-      getClassName: function() {
-         return "R.components.logic.behaviors.Arrival";
-      }
-   });
+                if (distance < this.slowDist) {
+                    offs.mul(mC.getMaxSpeed() * (distance / this.slowDist));
+                } else {
+                    offs.mul(mC.getMaxSpeed());
+                }
+                steering.set(offs.sub(mC.getVelocity()));
+            } else {
+                steering.set(R.math.Vector2D.ZERO);
+                this.arrived = true;
+            }
+
+            offs.destroy();
+            pt.destroy();
+            destPt.destroy();
+
+            return steering;
+        },
+
+        /**
+         * True if the vehicle has "arrived" at it's destination
+         * @return {Boolean}
+         */
+        isArrived:function () {
+            return this.arrived;
+        }
+
+    }, /** @scope R.components.logic.behaviors.Arrival.prototype */{
+        getClassName:function () {
+            return "R.components.logic.behaviors.Arrival";
+        }
+    });
 };

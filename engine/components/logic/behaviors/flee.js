@@ -33,20 +33,20 @@
 
 // Load all required engine components
 R.Engine.define({
-   "class": "R.components.logic.behaviors.Flee",
-   "requires": [
-      "R.components.logic.behaviors.BaseBehavior"
-   ]
+    "class":"R.components.logic.behaviors.Flee",
+    "requires":[
+        "R.components.logic.behaviors.BaseBehavior"
+    ]
 });
 
-   // Add behavior options
-   if (R.Engine.options.behaviors === undefined) {
-      R.Engine.options.behaviors = {};
-   }
+// Add behavior options
+if (R.Engine.options.behaviors === undefined) {
+    R.Engine.options.behaviors = {};
+}
 
-   $.extend(R.Engine.options.behaviors, {
-      "fleeMinimumDistance": 350
-   });
+$.extend(R.Engine.options.behaviors, {
+    "fleeMinimumDistance":350
+});
 
 /**
  * @class The flee behavior component.  This is essentially opposite of seeking.  Fleeing
@@ -58,72 +58,73 @@ R.Engine.define({
  * @extends R.components.logic.behaviors.BaseBehavior
  * @constructor
  */
-R.components.logic.behaviors.Flee = function() {
-   return R.components.logic.behaviors.BaseBehavior.extend(/** @scope R.components.logic.behaviors.Flee.prototype */{
+R.components.logic.behaviors.Flee = function () {
+    "use strict";
+    return R.components.logic.behaviors.BaseBehavior.extend(/** @scope R.components.logic.behaviors.Flee.prototype */{
 
-      minDist: 0,
-      target: null,
+        minDist:0,
+        target:null,
 
-      /** @private */
-      constructor: function(target, minDist) {
-         this.base("flee");
-         this.minDist = minDist || R.Engine.options.behaviors.fleeMinimumDistance;
-         this.target = target;
-      },
+        /** @private */
+        constructor:function (target, minDist) {
+            this.base("flee");
+            this.minDist = minDist || R.Engine.options.behaviors.fleeMinimumDistance;
+            this.target = target;
+        },
 
-      /**
-       * Update the object to flee from.
-       * @param target The point or object to flee from
-       */
-      fleeFrom: function(target) {
-         this.target = target;
-      },
+        /**
+         * Update the object to flee from.
+         * @param target The point or object to flee from
+         */
+        fleeFrom:function (target) {
+            this.target = target;
+        },
 
-      /**
-       * This method is called by the game object to run the component,
-       * updating its state.
-       *
-       * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
-       * @param time {Number} The global engine time
-       * @param dt {Number} The delta between the world time and the last time the world was updated
-       *          in milliseconds.
-       */
-      execute: function(time, dt) {
+        /**
+         * This method is called by the game object to run the component,
+         * updating its state.
+         *
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the component will render within.
+         * @param time {Number} The global engine time
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        execute:function (time, dt) {
 
-         if (!this.target || this.target.isDestroyed()) {
-            return R.math.Vector2D.ZERO;
-         }
+            if (!this.target || this.target.isDestroyed()) {
+                return R.math.Vector2D.ZERO;
+            }
 
-         if (!this.getGameObject() || this.getGameObject().isDestroyed()) {
-            return R.math.Vector2D.ZERO;
-         }
+            if (!this.getGameObject() || this.getGameObject().isDestroyed()) {
+                return R.math.Vector2D.ZERO;
+            }
 
-         // Calculate the desired velocity to steer toward the destination
-         var flee;
-         if (this.target.__POINT2D) {
-            flee = R.math.Vector2D.create(this.target);
-         } else {
-            flee = R.math.Vector2D.create(this.target.getOriginPosition());
-         }
+            // Calculate the desired velocity to steer toward the destination
+            var flee;
+            if (this.target.__POINT2D) {
+                flee = R.math.Vector2D.create(this.target);
+            } else {
+                flee = R.math.Vector2D.create(this.target.getOriginPosition());
+            }
 
-         var gO = this.getGameObject(), mC = this.getTransformComponent(), pt = R.clone(gO.getOriginPosition()),
-             offs = R.clone(flee).sub(pt), distance = offs.len(), steering = R.math.Vector2D.create(0,0);
+            var gO = this.getGameObject(), mC = this.getTransformComponent(), pt = R.clone(gO.getOriginPosition()),
+                offs = R.clone(flee).sub(pt), distance = offs.len(), steering = R.math.Vector2D.create(0, 0);
 
-         offs.normalize();
-         if (distance > 0 && distance < this.minDist) {
-            offs.mul(mC.getMaxSpeed());
-            steering.set(offs.sub(mC.getVelocity())).mul(distance / this.minDist);
-         }
+            offs.normalize();
+            if (distance > 0 && distance < this.minDist) {
+                offs.mul(mC.getMaxSpeed());
+                steering.set(offs.sub(mC.getVelocity())).mul(distance / this.minDist);
+            }
 
-         offs.destroy();
-         flee.destroy();
-         pt.destroy();
-         return steering.neg();
-      }
+            offs.destroy();
+            flee.destroy();
+            pt.destroy();
+            return steering.neg();
+        }
 
-   }, /** @scope R.components.logic.behaviors.Flee.prototype */{
-      getClassName: function() {
-         return "R.components.logic.behaviors.Flee";
-      }
-   });
+    }, /** @scope R.components.logic.behaviors.Flee.prototype */{
+        getClassName:function () {
+            return "R.components.logic.behaviors.Flee";
+        }
+    });
 };

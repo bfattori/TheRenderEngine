@@ -32,10 +32,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.components.Input",
-   "requires": [
-      "R.components.Base"
-   ]
+    "class":"R.components.Input",
+    "requires":[
+        "R.components.Base"
+    ]
 });
 
 /**
@@ -48,102 +48,103 @@ R.Engine.define({
  * @constructor
  * @description Create an input component.
  */
-R.components.Input = function() {
-   return R.components.Base.extend(/** @scope R.components.Input.prototype */{
+R.components.Input = function () {
+    "use strict";
+    return R.components.Base.extend(/** @scope R.components.Input.prototype */{
 
-      recording: false,
-      playback: false,
-      script: null,
-      lastInputTime: 0,
+        recording:false,
+        playback:false,
+        script:null,
+        lastInputTime:0,
 
-      /** @private */
-      constructor: function(name, priority) {
-         this.base(name, R.components.Base.TYPE_INPUT, priority || 1.0);
-         this.recording = false;
-         this.playback = false;
-      },
+        /** @private */
+        constructor:function (name, priority) {
+            this.base(name, R.components.Base.TYPE_INPUT, priority || 1.0);
+            this.recording = false;
+            this.playback = false;
+        },
 
-      /** @private */
-      startRecording: function() {
-         R.debug.Console.debug("RECORDING INPUT");
-         this.recording = true;
-         this.lastInputTime = R.Engine.worldTime;
-         this.script = [];
-      },
+        /** @private */
+        startRecording:function () {
+            R.debug.Console.debug("RECORDING INPUT");
+            this.recording = true;
+            this.lastInputTime = R.Engine.worldTime;
+            this.script = [];
+        },
 
-      /** @private */
-      stopRecording: function() {
-         R.debug.Console.debug("RECORDING STOPPED");
-         this.recording = false;
-      },
+        /** @private */
+        stopRecording:function () {
+            R.debug.Console.debug("RECORDING STOPPED");
+            this.recording = false;
+        },
 
-      /** @private */
-      getScript: function() {
-         return this.script;
-      },
+        /** @private */
+        getScript:function () {
+            return this.script;
+        },
 
-      /** @private */
-      setScript: function(script) {
-         this.script = script;
-      },
+        /** @private */
+        setScript:function (script) {
+            this.script = script;
+        },
 
-      /** @private */
-      playEvent: function() {
-         // ABSTRACT
-      },
+        /** @private */
+        playEvent:function () {
+            // ABSTRACT
+        },
 
-      /** @private */
-      playScript: function(script) {
-         this.recording = false;
-         this.playback = true;
-         this.script = script;
+        /** @private */
+        playScript:function (script) {
+            this.recording = false;
+            this.playback = true;
+            this.script = script;
 
-          var scriptObj = {
-              script:script,
-              playEvent:R.Bind(this, this.playEvent),
-              evt:null
-          }, popCall;
+            var scriptObj = {
+                script:script,
+                playEvent:R.Bind(this, this.playEvent),
+                evt:null
+            }, popCall;
 
-          popCall = R.bind(scriptObj, function () {
-              if (this.script.length == 0) {
-                  return;
-              }
-              if (this.evt != null) {
-                  R.debug.Console.log("PLAYBACK:", this.evt.type);
-                  this.playEvent(this.evt);
-              }
-              this.evt = this.script.shift();
-              setTimeout(popCall, this.evt.delay);
-          });
+            popCall = R.bind(scriptObj, function () {
+                if (this.script.length == 0) {
+                    return;
+                }
+                if (this.evt != null) {
+                    R.debug.Console.log("PLAYBACK:", this.evt.type);
+                    this.playEvent(this.evt);
+                }
+                this.evt = this.script.shift();
+                setTimeout(popCall, this.evt.delay);
+            });
 
-          popCall();
-      },
+            popCall();
+        },
 
-      /** @private */
-      record: function(eventObj, parts, time, dt) {
-         // TODO: Now with engine time and delta we should be able
-         // to accurately record and playback demos
-         if (!this.recording) {
-            return;
-         }
-         var evtCall = {};
-         for (var x in parts) {
-            evtCall[parts[x]] = eventObj[parts[x]];
-         }
-         evtCall.delay = R.Engine.worldTime - this.lastInputTime;
-         this.lastInputTime = R.Engine.worldTime;
-         evtCall.type = eventObj.type;
-         this.script.push(evtCall);
-      }
+        /** @private */
+        record:function (eventObj, parts, time, dt) {
+            // TODO: Now with engine time and delta we should be able
+            // to accurately record and playback demos
+            if (!this.recording) {
+                return;
+            }
+            var evtCall = {};
+            for (var x in parts) {
+                evtCall[parts[x]] = eventObj[parts[x]];
+            }
+            evtCall.delay = R.Engine.worldTime - this.lastInputTime;
+            this.lastInputTime = R.Engine.worldTime;
+            evtCall.type = eventObj.type;
+            this.script.push(evtCall);
+        }
 
-   }, /** @scope R.components.Input.prototype */{
-      /**
-       * Get the class name of this object
-       *
-       * @return {String} "R.components.Input"
-       */
-      getClassName: function() {
-         return "R.components.Input";
-      }
-   });
+    }, /** @scope R.components.Input.prototype */{
+        /**
+         * Get the class name of this object
+         *
+         * @return {String} "R.components.Input"
+         */
+        getClassName:function () {
+            return "R.components.Input";
+        }
+    });
 }

@@ -32,10 +32,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.lang.Timeout",
-	"requires": [
-		"R.lang.AbstractTimer"
-	]
+    "class":"R.lang.Timeout",
+    "requires":[
+        "R.lang.AbstractTimer"
+    ]
 });
 
 /**
@@ -48,39 +48,40 @@ R.Engine.define({
  * @constructor
  * @description Create a timeout timer
  */
-R.lang.Timeout = function(){
-	return R.lang.AbstractTimer.extend(/** @scope R.lang.Timeout.prototype */{
-	
-		/**
-		 * Cancel this timeout timer.
-		 */
-		cancel: function(){
-			R.global.clearTimeout(this.getTimer());
-			this.base();
-		},
-		
-		/**
-		 * Cancel and destroy the timeout
-		 */
-		destroy: function(){
-			this.cancel();
-			this.base();
-		},
-		
-		/**
-		 * Restart this timeout timer
-		 */
-		restart: function(){
-			this.setTimer(R.global.setTimeout(this.getCallback(), this.getInterval()));
-		}
-	}, /** @scope R.lang.Timeout.prototype */ {
-		/**
-		 * Get the class name of this object
-		 * @return {String} "R.lang.Timeout"
-		 */
-		getClassName: function(){
-			return "R.lang.Timeout";
-		}
-	});
-	
+R.lang.Timeout = function () {
+    "use strict";
+    return R.lang.AbstractTimer.extend(/** @scope R.lang.Timeout.prototype */{
+
+        /**
+         * Cancel this timeout timer.
+         */
+        cancel:function () {
+            R.global.clearTimeout(this.getTimer());
+            this.base();
+        },
+
+        /**
+         * Cancel and destroy the timeout
+         */
+        destroy:function () {
+            this.cancel();
+            this.base();
+        },
+
+        /**
+         * Restart this timeout timer
+         */
+        restart:function () {
+            this.setTimer(R.global.setTimeout(this.getCallback(), this.getInterval()));
+        }
+    }, /** @scope R.lang.Timeout.prototype */ {
+        /**
+         * Get the class name of this object
+         * @return {String} "R.lang.Timeout"
+         */
+        getClassName:function () {
+            return "R.lang.Timeout";
+        }
+    });
+
 }

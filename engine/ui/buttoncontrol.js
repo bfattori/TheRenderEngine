@@ -33,10 +33,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-   "class": "R.ui.ButtonControl",
-   "requires": [
-      "R.ui.AbstractUIControl"
-   ]
+    "class":"R.ui.ButtonControl",
+    "requires":[
+        "R.ui.AbstractUIControl"
+    ]
 });
 
 /**
@@ -46,143 +46,143 @@ R.Engine.define({
  * @param text {String} The text to display on the button.
  * @extends R.ui.AbstractUIControl
  */
-R.ui.ButtonControl = function() {
-   return R.ui.AbstractUIControl.extend(/** @scope R.ui.ButtonControl.prototype */{
+R.ui.ButtonControl = function () {
+    return R.ui.AbstractUIControl.extend(/** @scope R.ui.ButtonControl.prototype */{
 
-      text: null,
-      isDown: false,
+        text:null,
+        isDown:false,
 
-      /** @private */
-      constructor: function(text, textRenderer) {
-         this.base("Button", textRenderer);
-         this.addClass("buttoncontrol");
-         this.text = text || this.getId();
-         this.isDown = false;
-      },
+        /** @private */
+        constructor:function (text, textRenderer) {
+            this.base("Button", textRenderer);
+            this.addClass("buttoncontrol");
+            this.text = text || this.getId();
+            this.isDown = false;
+        },
 
-      /**
-       * Destroy the text input control, releasing its event handlers.
-       */
-      destroy: function() {
-         this.base();
-      },
+        /**
+         * Destroy the text input control, releasing its event handlers.
+         */
+        destroy:function () {
+            this.base();
+        },
 
-      /**
-       * Releases the object back into the object pool.  See {@link R.engine.PooledObject#release}
-       * for more information.
-       */
-      release: function() {
-         this.base();
-         this.text = "";
-      },
+        /**
+         * Releases the object back into the object pool.  See {@link R.engine.PooledObject#release}
+         * for more information.
+         */
+        release:function () {
+            this.base();
+            this.text = "";
+        },
 
-      /**
-       * Set the value of the input control.
-       * @param text {String} Text
-       */
-      setText: function(text) {
-         this.text = text;
-      },
+        /**
+         * Set the value of the input control.
+         * @param text {String} Text
+         */
+        setText:function (text) {
+            this.text = text;
+        },
 
-      /**
-       * Get the value of the input control.
-       * @return {String}
-       */
-      getText: function() {
-         return this.text;
-      },
+        /**
+         * Get the value of the input control.
+         * @return {String}
+         */
+        getText:function () {
+            return this.text;
+        },
 
-      /**
-       * Calculate and return the width of the control in pixels.
-       * @return {Number}
-       */
-      calcWidth: function(str) {
-         this.getTextRenderer().setText(this.text);
-         return this.getBoundingBox().w;
-      },
+        /**
+         * Calculate and return the width of the control in pixels.
+         * @return {Number}
+         */
+        calcWidth:function (str) {
+            this.getTextRenderer().setText(this.text);
+            return this.getBoundingBox().w;
+        },
 
-      /**
-       * Calculate and return the height of the control in pixels.
-       * @return {Number}
-       */
-      calcHeight: function() {
-         this.getTextRenderer().setText(this.text);
-         return this.getBoundingBox().h;
-      },
+        /**
+         * Calculate and return the height of the control in pixels.
+         * @return {Number}
+         */
+        calcHeight:function () {
+            this.getTextRenderer().setText(this.text);
+            return this.getBoundingBox().h;
+        },
 
-      /**
-       * Draw the input component within the
-       * @param renderContext {R.rendercontexts.RenderContext2D} The render context where the control is
-       *    drawn.
-       * @param worldTime {Number} The current world time, in milliseconds
-       * @param dt {Number} The time since the last frame was drawn by the engine, in milliseconds
-       */
-      drawControl: function(renderContext, worldTime, dt) {
-         // Draw the current input text.  The text baseline is the bottom of the font,
-         // so we need to move that down by the height of the control (with some padding to look right)
-         renderContext.pushTransform();
-         var rect = R.math.Rectangle2D.create(0,0,this.calcWidth(),this.calcHeight()),
-             center = rect.getCenter(), tCent = this.getTextRenderer().getBoundingBox().getCenter();
-         center.x -= tCent.x;
-         center.y += tCent.y / 2;
-         renderContext.setPosition(center);
-         this.getTextRenderer().update(renderContext, worldTime, dt);
-         rect.destroy();
-         center.destroy();
-         tCent.destroy();
-         renderContext.popTransform();
-      },
+        /**
+         * Draw the input component within the
+         * @param renderContext {R.rendercontexts.RenderContext2D} The render context where the control is
+         *    drawn.
+         * @param worldTime {Number} The current world time, in milliseconds
+         * @param dt {Number} The time since the last frame was drawn by the engine, in milliseconds
+         */
+        drawControl:function (renderContext, worldTime, dt) {
+            // Draw the current input text.  The text baseline is the bottom of the font,
+            // so we need to move that down by the height of the control (with some padding to look right)
+            renderContext.pushTransform();
+            var rect = R.math.Rectangle2D.create(0, 0, this.calcWidth(), this.calcHeight()),
+                center = rect.getCenter(), tCent = this.getTextRenderer().getBoundingBox().getCenter();
+            center.x -= tCent.x;
+            center.y += tCent.y / 2;
+            renderContext.setPosition(center);
+            this.getTextRenderer().update(renderContext, worldTime, dt);
+            rect.destroy();
+            center.destroy();
+            tCent.destroy();
+            renderContext.popTransform();
+        },
 
-      /**
-       * Returns a bean which represents the read or read/write properties
-       * of the object.
-       *
-       * @return {Object} The properties object
-       */
-      getProperties: function(){
-         var self = this;
-         var prop = this.base(self);
-         return $.extend(prop, {
-            "Text": [function() {
-               return self.getText();
-            }, function(i) {
-               self.setText(i);
-            }, true]
-         });
-      }
+        /**
+         * Returns a bean which represents the read or read/write properties
+         * of the object.
+         *
+         * @return {Object} The properties object
+         */
+        getProperties:function () {
+            var self = this;
+            var prop = this.base(self);
+            return $.extend(prop, {
+                "Text":[function () {
+                    return self.getText();
+                }, function (i) {
+                    self.setText(i);
+                }, true]
+            });
+        }
 
-   }, /** @scope R.ui.ButtonControl.prototype */{
+    }, /** @scope R.ui.ButtonControl.prototype */{
 
-      /**
-       * Get the class name of this object
-       * @return {String} The string "R.ui.ButtonControl"
-       */
-      getClassName: function() {
-         return "R.ui.ButtonControl";
-      },
+        /**
+         * Get the class name of this object
+         * @return {String} The string "R.ui.ButtonControl"
+         */
+        getClassName:function () {
+            return "R.ui.ButtonControl";
+        },
 
-      /**
-       * Get a properties object with values for the given object.
-       * @param obj {R.ui.ButtonControl} The button control to query
-       * @param [defaults] {Object} Default values that don't need to be serialized unless
-       *    they are different.
-       * @return {Object}
-       */
-      serialize: function(obj, defaults) {
-         return R.ui.AbstractUIControl.serialize(obj, defaults);
-      },
+        /**
+         * Get a properties object with values for the given object.
+         * @param obj {R.ui.ButtonControl} The button control to query
+         * @param [defaults] {Object} Default values that don't need to be serialized unless
+         *    they are different.
+         * @return {Object}
+         */
+        serialize:function (obj, defaults) {
+            return R.ui.AbstractUIControl.serialize(obj, defaults);
+        },
 
-      /**
-       * Deserialize the object back into a button control.
-       * @param obj {Object} The object to deserialize
-       * @param [clazz] {Class} The object class to populate
-       * @return {R.ui.ButtonControl} The object which was deserialized
-       */
-      deserialize: function(obj, clazz) {
-         clazz = clazz || R.ui.ButtonControl.create();
-         R.ui.AbstractUIControl.deserialize(obj, clazz);
-         return clazz;
-      }
-   });
+        /**
+         * Deserialize the object back into a button control.
+         * @param obj {Object} The object to deserialize
+         * @param [clazz] {Class} The object class to populate
+         * @return {R.ui.ButtonControl} The object which was deserialized
+         */
+        deserialize:function (obj, clazz) {
+            clazz = clazz || R.ui.ButtonControl.create();
+            R.ui.AbstractUIControl.deserialize(obj, clazz);
+            return clazz;
+        }
+    });
 
 };

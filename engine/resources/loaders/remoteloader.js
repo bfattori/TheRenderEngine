@@ -33,10 +33,10 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-	"class": "R.resources.loaders.RemoteLoader",
-	"requires": [
-		"R.resources.loaders.AbstractResourceLoader"
-	]
+    "class":"R.resources.loaders.RemoteLoader",
+    "requires":[
+        "R.resources.loaders.AbstractResourceLoader"
+    ]
 });
 
 /**
@@ -47,111 +47,111 @@ R.Engine.define({
  * @param name {String=RemoteLoader} The name of the resource loader
  * @extends R.resources.loaders.AbstractResourceLoader
  */
-R.resources.loaders.RemoteLoader = function(){
-	return R.resources.loaders.AbstractResourceLoader.extend(/** @scope R.resources.loaders.RemoteLoader.prototype */{
+R.resources.loaders.RemoteLoader = function () {
+    return R.resources.loaders.AbstractResourceLoader.extend(/** @scope R.resources.loaders.RemoteLoader.prototype */{
 
-      pathUrls: null,
+        pathUrls:null,
 
-		/** @private */
-		constructor: function(name){
-			this.base(name || "RemoteLoader");
-         this.pathUrls = {};
-		},
-		
-		/**
-		 * Performs a synchronous check for a file on the server.  While this approach will
-		 * work in most cases, there is the possibility that the server will become unavailable
-		 * before the request is made.  In this case, the application will hang until the
-		 * request is satisfied (which may be never).
-		 *
-		 * @param url {String} The URL to check
-		 * @return {Boolean} <tt>true</tt> if the file exists on the server or is in
-		 *          the cache.
-		 */
-		exists: function(url){
-			var stat = jQuery.ajax({
-				type: "GET",
-				url: url,
-				async: false,
-				dataType: "text"
-			}).status;
-			
-			// If it returns OK or Cache not modified...
-			return (stat == R.resources.loaders.RemoteLoader.STATUS_OK || stat == R.resources.loaders.RemoteLoader.STATUS_CACHED);
-		},
-		
-		/**
-		 * The name of the resource this loader will get.
-		 * @returns {String} The string "remote"
-		 */
-		getResourceType: function(){
-			return "remote";
-		},
+        /** @private */
+        constructor:function (name) {
+            this.base(name || "RemoteLoader");
+            this.pathUrls = {};
+        },
 
-      /**
-       * Load an resource from a remote URL.
-       *
-       * @param name {String} The name of the resource
-       * @param url {String} The URL where the resource is located
-       * @param data {Object} The loaded data to cache
-       */
-      load: function(name, url, data, isReady) {
-         this.base(name, data, isReady);
-         this.setPathUrl(name, url);
-      },
+        /**
+         * Performs a synchronous check for a file on the server.  While this approach will
+         * work in most cases, there is the possibility that the server will become unavailable
+         * before the request is made.  In this case, the application will hang until the
+         * request is satisfied (which may be never).
+         *
+         * @param url {String} The URL to check
+         * @return {Boolean} <tt>true</tt> if the file exists on the server or is in
+         *          the cache.
+         */
+        exists:function (url) {
+            var stat = jQuery.ajax({
+                type:"GET",
+                url:url,
+                async:false,
+                dataType:"text"
+            }).status;
 
-      /**
-       * Set the path where a resource is located.
-       * @param name {String} the name of the resource
-       * @param url {String} The URL where the resource is located
-       */
-      setPathUrl: function(name, url) {
-         // If the URL contains the game host or path, remove that
-         url = url.replace(R.Engine.getGame().getGamePath(), "");
-         this.pathUrls[name] = url;
-      },
+            // If it returns OK or Cache not modified...
+            return (stat == R.resources.loaders.RemoteLoader.STATUS_OK || stat == R.resources.loaders.RemoteLoader.STATUS_CACHED);
+        },
 
-      /**
-       * Get the URL where the resource is located.
-       * @param name {String} The name of the resource
-       * @return {String}
-       */
-      getPathUrl: function(name) {
-         return this.pathUrls[name];
-      }
-		
-	}, /** @scope R.resources.loaders.RemoteLoader.prototype */{
-		/**
-		 * Get the class name of this object.
-		 * @return {String} The string "R.resources.loaders.RemoteLoader"
-		 */
-		getClassName: function(){
-			return "R.resources.loaders.RemoteLoader";
-		},
-		
-		/**
-		 * Transmit status ok
-		 * @type {Number}
-		 */
-		STATUS_OK: 200,
-		
-		/**
-		 * Transmit status - Cached
-		 * @type {Number}
-		 */
-		STATUS_CACHED: 304,
-		
-		/**
-		 * Transmit status - Not found
-		 * @type {Number}
-		 */
-		STATUS_NOT_FOUND: 404,
-		
-		/**
-		 * Transmit status - Server error
-		 * @type {Number}
-		 */
-		STATUS_SERVER_ERROR: 500
-	});
-	
+        /**
+         * The name of the resource this loader will get.
+         * @returns {String} The string "remote"
+         */
+        getResourceType:function () {
+            return "remote";
+        },
+
+        /**
+         * Load an resource from a remote URL.
+         *
+         * @param name {String} The name of the resource
+         * @param url {String} The URL where the resource is located
+         * @param data {Object} The loaded data to cache
+         */
+        load:function (name, url, data, isReady) {
+            this.base(name, data, isReady);
+            this.setPathUrl(name, url);
+        },
+
+        /**
+         * Set the path where a resource is located.
+         * @param name {String} the name of the resource
+         * @param url {String} The URL where the resource is located
+         */
+        setPathUrl:function (name, url) {
+            // If the URL contains the game host or path, remove that
+            url = url.replace(R.Engine.getGame().getGamePath(), "");
+            this.pathUrls[name] = url;
+        },
+
+        /**
+         * Get the URL where the resource is located.
+         * @param name {String} The name of the resource
+         * @return {String}
+         */
+        getPathUrl:function (name) {
+            return this.pathUrls[name];
+        }
+
+    }, /** @scope R.resources.loaders.RemoteLoader.prototype */{
+        /**
+         * Get the class name of this object.
+         * @return {String} The string "R.resources.loaders.RemoteLoader"
+         */
+        getClassName:function () {
+            return "R.resources.loaders.RemoteLoader";
+        },
+
+        /**
+         * Transmit status ok
+         * @type {Number}
+         */
+        STATUS_OK:200,
+
+        /**
+         * Transmit status - Cached
+         * @type {Number}
+         */
+        STATUS_CACHED:304,
+
+        /**
+         * Transmit status - Not found
+         * @type {Number}
+         */
+        STATUS_NOT_FOUND:404,
+
+        /**
+         * Transmit status - Server error
+         * @type {Number}
+         */
+        STATUS_SERVER_ERROR:500
+    });
+
 }
