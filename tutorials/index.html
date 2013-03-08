@@ -21,21 +21,35 @@
    <script type="text/javascript" src="../engine/libs/jquery.js"></script>
    <script type="text/javascript">
       $(document).ready(function() {
+
+         var tbl = $("<table border='0' cellspacing='5px'>");
+
          $("ul li").each(function(){
+             var tr = $("<tr>");
+             var td = $("<td>");
             var loc = $(this).attr("loc");
-            var html = "<a href='" + loc + "'>" + $(this).text() + "</a>";
+             td.html("<a href='" + loc + "'>" + $(this).text() + "</a>");
+             tr.append(td);
 
-            var withDebug = "&nbsp;&nbsp;&nbsp;&nbsp;<a href='" + loc + "?debug=true'><img src='../images/debug.png' border='0'/></a>";
-            var withProfile = "&nbsp;&nbsp;&nbsp;&nbsp;<a href='" + loc + "?metrics=true&profile=true'><img src='../images/profile.png' border='0'/></a>"
+             td = $("<td>");
+             td.html("<a href='" + loc + "?debug=true'><img src='../images/debug.png' border='0'/></a>");
+             tr.append(td);
 
-            $(this).html(html + withDebug + withProfile);
+             td = $("<td>");
+             td.html("<a href='" + loc + "?metrics=true&profile=true'><img src='../images/profile.png' border='0'/></a>");
+             tr.append(td);
+
+             tbl.append(tr);
          });
+
+          $("ul").remove();
+          $("body", document).append(tbl);
       });
    </script>
 </head>
 <body>
 <em>The Render Engine</em> Tutorials
-<ul>
+<ul style="display:none;">
    <li loc="tutorial1/index.html">Tutorial 1: Hello World</li>
    <li loc="tutorial2/index.html">Tutorial 2: Canvas Context &amp; Motion</li>
    <li loc="tutorial3/index.html">Tutorial 3: Handling Input with the Keyboard Component</li>
