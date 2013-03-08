@@ -5,13 +5,13 @@
  */
 
 var Base = function () {
-    if (arguments.length) {
-        if (this == window) { // cast an object to this class
-            Base.prototype.extend.call(arguments[0], arguments.callee.prototype);
-        } else {
+//    if (arguments.length) {
+//        if (this == window) { // cast an object to this class
+//            Base.prototype.extend.call(arguments[0], arguments.callee.prototype);
+//        } else {
             this.extend(arguments[0]);
-        }
-    }
+//        }
+//    }
 };
 
 Base.version = "1.0.2";

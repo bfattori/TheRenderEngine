@@ -1,0 +1,12 @@
+server: http://localhost:9876
+
+load:
+  - test/jasmine-1.1.0.js
+  - test/JasmineAdapter-1.1.2.js
+  - engine/runtime/engine.js
+
+test:
+  - test/spec/engineSpec.js
+
+proxy:
+ - {matcher: "test/*", server: "http://localhost/renderengine/"}

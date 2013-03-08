@@ -280,6 +280,7 @@ R.components.Transform2D = function () {
          *          in milliseconds.
          */
         execute:function (renderContext, time, dt) {
+            // TODO: This should really be in a render component only
             renderContext.setPosition(this.getRenderPosition());
             renderContext.setRotation(this.getRenderRotation());
             renderContext.setScale(this.scale.x, this.scale.y);
@@ -306,4 +307,4 @@ R.components.Transform2D = function () {
             return "R.components.Transform2D";
         }
     });
-}
+};

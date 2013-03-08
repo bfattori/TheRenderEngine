@@ -367,8 +367,21 @@ describe("Engine", function() {
    });
 
    it("should start the engine", function() {
-      expect(R.Engine.running).toBeFalsy();
+       runs(function() {
+           expect(R.Engine.running).toBeFalsy();
+       });
+
       R.Engine.startup();
+
+       waitsFor(function() {
+           return true;
+       }, 'The engine classes to load', 3000);
+
+       runs(function() {
+           expect(R.engine.Game).toBeDefined();
+       });
+
+
       expect(R.Engine.started).toBeTruthy();
    });
 

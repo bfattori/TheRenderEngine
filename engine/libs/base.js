@@ -4,7 +4,8 @@
  License: http://creativecommons.org/licenses/LGPL/2.1/
  */
 var Base = function () {
-    arguments.length && (this == window ? Base.prototype.extend.call(arguments[0], arguments.callee.prototype) : this.extend(arguments[0]))
+    //arguments.length && (this == window ? Base.prototype.extend.call(arguments[0], arguments.callee.prototype) : this.extend(arguments[0]))
+    this.extend(arguments[0]);
 };
 Base.version = "1.0.2";
 Base.prototype = {extend:function (b, c) {

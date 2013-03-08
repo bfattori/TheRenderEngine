@@ -58,9 +58,12 @@ R.struct.Container = function () {
         /**
          * @private
          */
-        constructor:function (containerName) {
+        constructor:function (containerName, initial) {
             this.base(containerName || "Container");
             this.objects = [];
+            if (!R.isUndefined(initial)) {
+                this.addAll(initial);
+            }
         },
 
         /**

@@ -169,13 +169,34 @@ R.isNumber = function (obj) {
 };
 
 /**
+ * Check if the given object is undefined.  Cannot check properties
+ * of an object unless the object is known to be defined.
+ * @param obj {Object} The object to test
+ * @returns {boolean}
+ * @memberOf R
+ */
+R.isUndefined = function(obj) {
+    return typeof obj === "undefined";
+};
+
+/**
+ * Check if the given object is null.
+ * @param obj {Object} The object to test
+ * @returns {boolean}
+ * @memberOf R
+ */
+R.isNull = function(obj) {
+    return obj === null;
+};
+
+/**
  * Test if the object is undefined, null, or a string and is empty
  * @param obj {Object} The object to test
  * @return {Boolean}
  * @memberOf R
  */
 R.isEmpty = function (obj) {
-    return typeof obj === "undefined" || obj === null || (R.isString(obj) && $.trim(obj) === "");
+    return R.isUndefined(obj) || R.isNull(obj) || (R.isString(obj) && $.trim(obj) === "");
 };
 
 /**
