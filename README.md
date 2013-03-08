@@ -6,6 +6,8 @@ ground up to be extremely flexible, it boasts an extensive API and uses the newe
 The Render Engine is a framework which is intended to aid in developing your game idea by providing the foundation
 and tools to speed up the process of going from idea to finished product.
 
+Check it out here: http://bfattori.github.com/TheRenderEngine/
+
 The Render Engine supports:
    * Chrome
    * Firefox
