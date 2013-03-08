@@ -169,13 +169,34 @@ R.isNumber = function (obj) {
 };
 
 /**
+ * Check if the given object is undefined.  Cannot check properties
+ * of an object unless the object is known to be defined.
+ * @param obj {Object} The object to test
+ * @returns {boolean}
+ * @memberOf R
+ */
+R.isUndefined = function(obj) {
+    return typeof obj === "undefined";
+};
+
+/**
+ * Check if the given object is null.
+ * @param obj {Object} The object to test
+ * @returns {boolean}
+ * @memberOf R
+ */
+R.isNull = function(obj) {
+    return obj === null;
+};
+
+/**
  * Test if the object is undefined, null, or a string and is empty
  * @param obj {Object} The object to test
  * @return {Boolean}
  * @memberOf R
  */
 R.isEmpty = function (obj) {
-    return typeof obj === "undefined" || obj === null || (R.isString(obj) && $.trim(obj) === "");
+    return R.isUndefined(obj) || R.isNull(obj) || (R.isString(obj) && $.trim(obj) === "");
 };
 
 /**
@@ -2686,27 +2707,28 @@ R.debug.ConsoleRef = Base.extend(/** @scope R.debug.ConsoleRef.prototype */{
         return out;
     },
 
-    cleanup:function (o) {
-        if (typeof o === "undefined") {
+    cleanup:function (sourceObject) {
+        var str, element;
+        if (R.isUndefined(sourceObject)) {
             return "";
-        } else if (o === null) {
+        } else if (R.isNull(sourceObject)) {
             return "null";
-        } else if (typeof o == "function") {
+        } else if (R.isFunction(sourceObject)) {
             return "function";
-        } else if (o.constructor == Array || (o.slice && o.join && o.splice)) { // An array
-            var s = "[";
-            for (var e in o) {
-                s += (s.length > 1 ? "," : "") + this.cleanup(o[e]);
+        } else if (R.isArray(sourceObject)) { // An array
+            str = "[";
+            for (element in sourceObject) {
+                str += (str.length > 1 ? "," : "") + this.cleanup(sourceObject[element]);
             }
-            return s + "]";
-        } else if (typeof o === "object") {
-            var s = "{\n";
-            for (var e in o) {
-                s += e + ": " + this.cleanup(o[e]) + "\n";
+            return str + "]";
+        } else if (typeof sourceObject === "object") {
+            str = "{\n";
+            for (element in sourceObject) {
+                str += element + ": " + this.cleanup(sourceObject[element]) + "\n";
             }
-            return s + "}\n";
+            return str + "}\n";
         } else {
-            return o.toString();
+            return sourceObject.toString();
         }
     },
 
