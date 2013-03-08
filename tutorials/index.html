@@ -25,8 +25,8 @@
             var loc = $(this).attr("loc");
             var html = "<a href='" + loc + "'>" + $(this).text() + "</a>";
 
-            var withDebug = "&nbsp;&nbsp;&nbsp;&nbsp;<a href='" + loc + "?debug=true'>(debug)</a>";
-            var withProfile = "&nbsp;&nbsp;&nbsp;&nbsp;<a href='" + loc + "?profile=true'>(profile graph)</a>"
+            var withDebug = "&nbsp;&nbsp;&nbsp;&nbsp;<a href='" + loc + "?debug=true'><img src='../images/debug.png' border='0'/></a>";
+            var withProfile = "&nbsp;&nbsp;&nbsp;&nbsp;<a href='" + loc + "?metrics=true&profile=true'><img src='../images/profile.png' border='0'/></a>"
 
             $(this).html(html + withDebug + withProfile);
          });
