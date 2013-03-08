@@ -1,0 +1,65 @@
+{
+  "bitmapImage": "pipes.png",
+  "bitmapSize": [
+    32,
+    288
+  ],
+  "version": 2,
+  "assumeOpaque": true,
+  "sprites": {
+    "curveright": [
+      0,
+      0,
+      32,
+      32
+    ],
+    "curveleft": [
+      0,
+      32,
+      32,
+      32
+    ],
+    "piperight": [
+      0,
+      64,
+      32,
+      32
+    ],
+    "pipeleft": [
+      0,
+      96,
+      32,
+      32
+    ],
+    "pipebottom": [
+      0,
+      128,
+      32,
+      32
+    ],
+    "pipetop": [
+      0,
+      160,
+      32,
+      32
+    ],
+    "curvetop": [
+      0,
+      192,
+      32,
+      32
+    ],
+    "curvebottom": [
+      0,
+      224,
+      32,
+      32
+    ],
+    "filler": [
+      0,
+      256,
+      32,
+      32
+    ]
+  }
+}

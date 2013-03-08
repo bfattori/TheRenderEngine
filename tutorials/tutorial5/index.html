@@ -1,0 +1,25 @@
+<!-- ChromeFrame Support -->
+<meta http-equiv="X-UA-Compatible" content="IE=9;chrome=1"/>
+<!doctype html>
+
+<html>
+   <head>
+      <title>Tutorial Five</title>
+
+      <!-- Load the main engine script -->
+      <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
+
+   </head>
+   <body>
+      <script type="text/javascript">
+       	$(document).ready(function() {
+	         // Load the game's script
+	         R.Engine.loadGame('game.js','Tutorial5','Tutorial 5: Broad Phase Collision');
+			});
+      </script>
+      <blockquote>
+         <br/><strong>Use the arrow keys to move the box around. The yellow box turns blue<br/>
+            when it collides with a red box, but not with an orange box.</strong><br/>
+      </blockquote>
+   </body>
+</html>

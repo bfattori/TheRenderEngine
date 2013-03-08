@@ -1,0 +1,30 @@
+// This file is used to define the namespaces available in the R context
+// DO NOT INCLUDE IN COMPILATION OF ENGINE RUNTIME!!
+R.debug = {};
+R.lang = {};
+R.struct = {};
+R.math = {};
+R.engine = {};
+R.collision = {};
+R.collision.broadphase = {};
+R.components = {};
+R.components.input = {};
+R.components.transform = {};
+R.components.logic = {};
+R.components.logic.behaviors = {};
+R.components.collision = {};
+R.components.render = {};
+R.components.physics = {};
+R.objects = {};
+R.particles = {};
+R.physics = {};
+R.rendercontexts = {};
+R.resources = {};
+R.resources.loaders = {};
+R.resources.types = {};
+R.sound = {};
+R.storage = {};
+R.text = {};
+R.ui = {};
+R.util = {};
+R.util.console = {};

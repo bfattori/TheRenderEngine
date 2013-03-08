@@ -1,0 +1,155 @@
+{
+	"restitution": 0,
+	"friction": 1.2,
+	"root": "torso",
+	"scale": 1,
+	"parts": [
+		{
+			"name": "head",
+			"type": "circle",
+			"radius": 31,
+			"position": [210,0],
+			"joint": {
+				"type": "revolute",
+				"linkTo": "torso",
+				"anchor": [0,20],
+            "motorForce": 50,
+            "minAngle": 45,
+            "maxAngle": -45
+			}
+		},
+		{
+			"name": "torso",
+			"type": "box",
+			"extents": [69,94],
+			"position": [200,70]		
+		},
+		{
+			"name": "pelvis",
+			"type": "box",
+			"extents": [67,37],
+			"position": [202,132],
+			"joint": {
+				"type": "weld",
+				"linkFrom": "torso",
+				"anchor": [-10,30]
+			}
+		},
+		{
+			"name": "leftupperarm",
+			"type": "box",
+			"extents": [49,24],
+			"position": [153,43],
+			"joint": {
+				"type": "revolute",
+				"linkTo": "torso",
+				"anchor": [0,0],
+				"minAngle": 0,
+				"maxAngle": 180,
+				"motorForce": 50
+			}
+		},
+		{
+			"name": "leftlowerarm",
+			"type": "box",
+			"extents": [40,20],
+			"position": [113,43],
+			"joint": {
+				"type": "revolute",
+				"linkTo": "leftupperarm",
+				"anchor": [20,10],
+				"minAngle": -45,
+				"maxAngle": 90
+			}
+		},
+		{
+			"name": "rightupperarm",
+			"type": "box",
+			"extents": [49,24],
+			"position": [252,43],
+			"joint": {
+				"type": "revolute",
+				"linkTo": "torso",
+				"anchor": [0,0],
+				"minAngle": 0,
+				"maxAngle": -180,
+				"motorForce": 50
+			}
+		},
+		{
+			"name": "rightlowerarm",
+			"type": "box",
+			"extents": [40,20],
+			"position": [290,43],
+			"joint": {
+				"type": "revolute",
+				"linkTo": "rightupperarm",
+				"anchor": [-20,10],
+				"minAngle": 45,
+				"maxAngle": -90
+			}
+		},
+		{
+			"name": "leftupperleg",
+			"type": "box",
+			"extents": [29,70],
+			"position": [185,180],
+			"joint": {
+				"type": "revolute",
+				"linkTo": "pelvis",
+				"anchor": [0,-70],
+				"minAngle": 135,
+				"maxAngle": 180
+			}
+		},
+		{
+			"name": "leftlowerleg",
+			"type": "box",
+			"extents": [20,52],
+			"position": [185,242],
+			"joint": {
+				"type": "revolute",
+				"linkTo": "leftupperleg",
+				"anchor": [0,-21],
+				"minAngle": 180,
+				"maxAngle": 180
+			}
+		},
+		{
+			"name": "rightupperleg",
+			"type": "box",
+			"extents": [29,70],
+			"position": [220,180],
+			"joint": {
+				"type": "revolute",
+				"linkTo": "pelvis",
+				"anchor": [0,-70],
+				"minAngle": -135,
+				"maxAngle": -180
+			}
+		},
+		{
+			"name": "rightlowerleg",
+			"type": "box",
+			"extents": [20,52],
+			"position": [220,242],
+			"joint": {
+				"type": "revolute",
+				"linkTo": "rightupperleg",
+				"anchor": [0,-21],
+				"minAngle": 180,
+				"maxAngle": 180
+			}
+		},
+      {
+         "name": "tailbone",
+         "type": "box",
+         "extents": [2,2],
+         "position": [200,70],
+         "joint": {
+            "type": "weld",
+            "linkTo": "torso"
+         }
+      }
+	]
+}

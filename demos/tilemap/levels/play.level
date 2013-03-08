@@ -1,0 +1,136 @@
+{
+  "name": "New Level",
+  "version": 1,
+  "width": 100,
+  "height": 100,
+  "resourceURLs": {
+    "sprites": [
+      {
+        "sprites": "resources/smbtiles.sprite"
+      }
+    ],
+    "tiles": [
+      {
+        "tiles": "resources/floor.tile"
+      },
+      {
+        "sprites": "resources/smbtiles.sprite"
+      }
+    ],
+    "sounds": []
+  },
+  "actors": [
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "466.00,320.00",
+      "Sprite": "sprites:goomba",
+      "Collidable": false,
+      "Gravity": true,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0",
+        "onInit": "this.moveRight(0.7);",
+        "onCollideWorld": "if (distance < 2) { this.changeDirection(); }"
+      }
+    },
+    {
+      "Name": "Actor",
+      "ZIndex": 1,
+      "Position": "240.00,447.00",
+      "Sprite": "sprites:green_koopa",
+      "Collidable": false,
+      "Gravity": true,
+      "DTXFM_COMP": "R.components.transform.PlatformMover2D",
+      "DTXFM_NAME": "MOVE",
+      "ACTOR_CONFIG": {
+        "actorId": "",
+        "bitMask": "0",
+        "onInit": "this.moveLeft(1.0);",
+        "onCollideWorld": "this.flipRenderX();\nthis.changeDirection();"
+      }
+    }
+  ],
+  "fixtures": [],
+  "tilemaps": {
+    "background": {
+      "properties": {
+        "Name": "background",
+        "Dimensions": "100.00,100.00",
+        "TileScaleX": 1,
+        "TileScaleY": 1,
+        "Zindex": 0,
+        "Parallax": "1.00,1.00"
+      },
+      "map": [
+        "e:10000"
+      ]
+    },
+    "playfield": {
+      "properties": {
+        "Name": "playfield",
+        "Dimensions": "100.00,100.00",
+        "TileScaleX": 1,
+        "TileScaleY": 1,
+        "Zindex": 1,
+        "Parallax": "1.00,1.00"
+      },
+      "map": [
+        "e:901",
+        "sprites:q_block:2",
+        "e:18",
+        "sprites:q_block:2",
+        "e:78",
+        "tiles:steel:2",
+        "e:18",
+        "tiles:steel:2",
+        "e:78",
+        "tiles:steel:2",
+        "e:8",
+        "tiles:glassLeft:1",
+        "tiles:glassMid:4",
+        "tiles:glassRight:1",
+        "e:4",
+        "tiles:steel:2",
+        "e:78",
+        "tiles:steel:2",
+        "e:18",
+        "tiles:steel:2",
+        "e:78",
+        "tiles:steel:2",
+        "e:18",
+        "tiles:steel:2",
+        "e:78",
+        "tiles:steel:2",
+        "e:18",
+        "tiles:steel:2",
+        "e:77",
+        "tiles:rivets:1",
+        "tiles:steel:2",
+        "e:18",
+        "tiles:steel:2",
+        "tiles:rivets:1",
+        "e:76",
+        "tiles:steel:24",
+        "e:76",
+        "tiles:steel:24",
+        "e:8276"
+      ]
+    },
+    "foreground": {
+      "properties": {
+        "Name": "foreground",
+        "Dimensions": "100.00,100.00",
+        "TileScaleX": 1,
+        "TileScaleY": 1,
+        "Zindex": 2,
+        "Parallax": "1.00,1.00"
+      },
+      "map": [
+        "e:10000"
+      ]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "bitmapImage": "floor.png",
+  "bitmapSize": [
+    448,
+    32
+  ],
+  "version": 2,
+  "assumeOpaque": true,
+  "sprites": {
+    "wires": [0,0,32,32],
+    "glassblock": [32,0,32,32],
+    "glassLeft": [64,0,32,32],
+    "glassMid": [96,0,32,32],
+    "glassRight": [128,0,32,32],
+    "redLeft": [160,0,32,32],
+    "redMid": [192,0,32,32],
+    "redRight": [224,0,32,32],
+    "blueLeft": [256,0,32,32],
+    "blueMid": [288,0,32,32],
+    "blueRight": [320,0,32,32],
+    "steel": [352,0,32,32],
+    "rivets": [384,0,32,32],
+    "vent": [416,0,32,32]
+  }
+}
