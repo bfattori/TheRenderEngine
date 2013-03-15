@@ -18,9 +18,9 @@ R.Engine.define({
 var ExplosionParticle = function() {
    return R.particles.AbstractParticle.extend(/** @scope SimpleParticle.prototype */{
 
-      vec: null,
-      decel: 0,
-      invVel: null,
+      velocityVector: null,
+      decay: 0,
+      inverseVelocity: null,
 
       constructor: function(pos, ttl, decel) {
          this.base(ttl || 2000);
@@ -29,29 +29,29 @@ var ExplosionParticle = function() {
          // Randomly select an angle between 0 and 360 degrees
          // then get a direction vector from the angle
          var a = Math.floor(R.lang.Math2.random() * 360);
-         this.vec = R.math.Math2D.getDirectionVector(R.math.Vector2D.ZERO, R.math.Vector2D.UP, a);
+         this.velocityVector = R.math.Math2D.getDirectionVector(R.math.Vector2D.ZERO, R.math.Vector2D.UP, a);
 
          // Choose a random velocity for the particle and multiply the
          // direction vector by that velocity
          var vel = 1 + (R.lang.Math2.random() * 10);
-         this.vec.mul(vel);
+         this.velocityVector.mul(vel);
 
          // Store the deceleration velocity of the particle
-         this.decel = decel;
-         this.invVel = R.math.Vector2D.create(0, 0);
+         this.decay = decel;
+         this.inverseVelocity = R.math.Vector2D.create(0, 0);
       },
 
       destroy: function() {
-         this.vec.destroy();
-         this.invVel.destroy();
+         this.velocityVector.destroy();
+         this.inverseVelocity.destroy();
          this.base();
       },
 
       release: function() {
          this.base();
-         this.vec = null;
-         this.invVel = null;
-         this.decel = 0;
+         this.velocityVector = null;
+         this.inverseVelocity = null;
+         this.decay = 0;
       },
 
       /**
@@ -66,14 +66,14 @@ var ExplosionParticle = function() {
          // If the particle has an assigned deceleration, determine the
          // inverse velocity (braking velocity) and apply it to the
          // vector of motion
-         if (this.decel > 0 && this.vec.len() > 0) {
-            this.invVel.set(this.vec).neg();
-            this.invVel.mul(this.decel);
-            this.vec.add(this.invVel);
+         if (this.decay > 0 && this.velocityVector.len() > 0) {
+            this.inverseVelocity.set(this.velocityVector).neg();
+            this.inverseVelocity.mul(this.decay);
+            this.velocityVector.add(this.inverseVelocity);
          }
 
          // Add the vector of motion to the particle
-         this.getPosition().add(this.vec);
+         this.getPosition().add(this.velocityVector);
 
          // Randomize the color of the particle so it appears to flicker
          var colr = "#fff";
@@ -120,7 +120,7 @@ R.Engine.define({
 var FuseParticle = function() {
    return R.particles.AbstractParticle.extend(/** @scope SimpleParticle.prototype */{
 
-      vec: null,
+      velocityVector: null,
 
       constructor: function(pos, ttl) {
          this.base(ttl || 500);
@@ -128,9 +128,9 @@ var FuseParticle = function() {
 
          // Set the initial vector of motion and velocity of the particle
          var a = Math.floor(R.lang.Math2.random() * 360);
-         this.vec = R.math.Math2D.getDirectionVector(R.math.Vector2D.ZERO, R.math.Vector2D.UP, a);
+         this.velocityVector = R.math.Math2D.getDirectionVector(R.math.Vector2D.ZERO, R.math.Vector2D.UP, a);
          var vel = 0.3 + R.lang.Math2.random();
-         this.vec.mul(vel);
+         this.velocityVector.mul(vel);
       },
 
       /**
@@ -143,7 +143,7 @@ var FuseParticle = function() {
        *          in milliseconds.
        */
       draw: function(renderContext, time, dt) {
-         this.getPosition().add(this.vec);
+         this.getPosition().add(this.velocityVector);
 
          // Randomize the color a bit to make the particle shimmer
          var colr,rgba;
@@ -176,7 +176,7 @@ var FuseParticle = function() {
 var ShieldParticle = function() {
     return R.particles.AbstractParticle.extend(/** @scope ShieldParticle.prototype */{
 
-        vec: null,
+        velocityVector: null,
 
         constructor: function(pos, ttl) {
             this.base(ttl || 500);
@@ -184,9 +184,9 @@ var ShieldParticle = function() {
 
             // Set the initial vector of motion and velocity of the particle
             var a = Math.floor(R.lang.Math2.random() * 360);
-            this.vec = R.math.Math2D.getDirectionVector(R.math.Vector2D.ZERO, R.math.Vector2D.UP, a);
+            this.velocityVector = R.math.Math2D.getDirectionVector(R.math.Vector2D.ZERO, R.math.Vector2D.UP, a);
             var vel = 0.3 + R.lang.Math2.random();
-            this.vec.mul(vel);
+            this.velocityVector.mul(vel);
         },
 
         /**
@@ -199,7 +199,7 @@ var ShieldParticle = function() {
          *          in milliseconds.
          */
         draw: function(renderContext, time, dt) {
-            this.getPosition().add(this.vec);
+            this.getPosition().add(this.velocityVector);
 
             // Randomize the color a bit to make the particle shimmer
             var colr,rgba;

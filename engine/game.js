@@ -162,5 +162,13 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
         } else {
             return fileName;
         }
+    },
+
+    /**
+     * This method is called just before the next frame is generated.
+     * @param time {Number} The current world time
+     * @param dt {Number} The delta between the last frame time and the world time
+     */
+    tick: function(time, dt) {
     }
 });

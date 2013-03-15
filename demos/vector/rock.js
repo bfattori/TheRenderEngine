@@ -41,7 +41,8 @@ R.Engine.define({
       "R.particles.Emitter",
       "R.objects.Object2D",
       "R.struct.Container",
-      "R.math.Math2D"
+      "R.math.Math2D",
+      "R.particles.effects.Explosion"
    ]
 });
 
@@ -231,13 +232,14 @@ var SpaceroidsRock = function() {
          // Make some particles
          var pCount = Spaceroids.attractMode ? 16 : 8, p;
 
-         p = R.struct.Container.create();
-         for (var x = 0; x < pCount; x++) {
-            var decel = R.lang.Math2.random() * 0.09;
-            var r = Math.floor(R.lang.Math2.random() * 500);
-            p.add(SimpleParticle.create(this.getPosition(), 1100 + r, decel));
-         }
-         Spaceroids.pEngine.addParticles(p);
+          // Create a one-time effect.  It is destroyed after generating the particles
+         Spaceroids.pEngine.addEffect(
+             R.particles.effects.Explosion.create(this.getPosition()).
+                 quantity(pCount).
+                 decay(R.lang.Math2.random(), 0.09).
+                 particleLife(1100, 500).
+                 particle(SimpleParticle)
+         );
 
          Spaceroids.blinkScreen();
          Spaceroids.rocks--;

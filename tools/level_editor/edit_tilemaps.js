@@ -16,6 +16,7 @@ LevelEditor.extend({
    editTileMap: function(mapName) {
       LevelEditor.currentTileMap = LevelEditor.currentLevel.getTileMap(mapName.split("_")[1]);
       LevelEditor.createPropertiesTable(LevelEditor.currentTileMap);
+       LevelEditor.currentTileMap.setAlwaysRender(true);
 
       // Show the tiles that are available
       $("body", document).append($("#TileSelector", LevelEditor.dialogBase));

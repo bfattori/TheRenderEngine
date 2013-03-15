@@ -17,6 +17,7 @@ R.components.render = {};
 R.components.physics = {};
 R.objects = {};
 R.particles = {};
+R.particles.effects = {};
 R.physics = {};
 R.rendercontexts = {};
 R.resources = {};

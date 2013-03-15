@@ -849,12 +849,20 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
             R.Engine.rObjs = 0;
             //R.Engine.pclRebuilds = 0;
 
+
             // Render a frame
             R.Engine.worldTime = R.Engine._stepOne == 1 ? R.Engine._pauseTime : R.now();
             R.Engine.lastTime = R.Engine._stepOne == 1 ? R.Engine.worldTime - R.Engine.fpsClock : R.Engine.lastTime;
 
+            var deltaTime = R.Engine.worldTime - R.Engine.lastTime;
+
+            // Tick the game
+            if (R.Engine.$GAME) {
+                R.Engine.$GAME.tick(R.Engine.worldTime, deltaTime);
+            }
+
             // Pass parent context, world time, delta time
-            R.Engine.getDefaultContext().update(null, R.Engine.worldTime, R.Engine.worldTime - R.Engine.lastTime);
+            R.Engine.getDefaultContext().update(null, R.Engine.worldTime, deltaTime);
             R.Engine.lastTime = R.Engine.worldTime;
             R.Engine.frameTime = R.now() - R.Engine.worldTime;
 

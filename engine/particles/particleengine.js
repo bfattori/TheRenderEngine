@@ -71,6 +71,7 @@ R.particles.ParticleEngine = function () {
     return R.engine.BaseObject.extend(/** @scope R.particles.ParticleEngine.prototype */{
 
         particles:null,
+        particleEffects: null,
         liveParticles:0,
         lastTime:0,
         maximum:0,
@@ -80,6 +81,7 @@ R.particles.ParticleEngine = function () {
         constructor:function () {
             this.base("ParticleEngine");
             this.particles = R.struct.Container.create();
+            this.particleEffects = R.struct.Container.create();
             this.maximum = R.Engine.options["maxParticles"];
             this.liveParticles = 0;
         },
@@ -88,8 +90,9 @@ R.particles.ParticleEngine = function () {
          * Destroy the particle engine and all contained particles
          */
         destroy:function () {
-            this.particles.cleanUp();
+            this.reset();
             this.particles.destroy();
+            this.particleEffects.destroy();
             this.base();
         },
 
@@ -99,6 +102,7 @@ R.particles.ParticleEngine = function () {
         release:function () {
             this.base();
             this.particles = null;
+            this.particleEffects = null;
             this.lastTime = 0;
             this.maximum = 0;
             this.liveParticles = 0;
@@ -221,6 +225,16 @@ R.particles.ParticleEngine = function () {
         },
 
         /**
+         * Run a particle effect
+         * @param particleEffect
+         * @return {R.particles.Effect} The instance of the effect
+         */
+        addEffect: function(particleEffect) {
+            this.particleEffects.add(particleEffect);
+            return particleEffect;
+        },
+
+        /**
          * Update the particles within the render context, and for the specified time.
          *
          * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the particles will be rendered within.
@@ -233,7 +247,18 @@ R.particles.ParticleEngine = function () {
                 return;
             }
 
-            var p = 1;
+            // Run all queued effects
+            var dead = R.struct.Container.create();
+            for (var effectItr = this.particleEffects.iterator(); effectItr.hasNext(); ) {
+                var effect = effectItr.next();
+                if (!effect.hasRun() || effect.getLifespan(dt) > 0) {
+                    effect.runEffect(this, time, dt);
+                } else {
+                    // Dead effect - these are cleaned up later
+                    dead.add(effect);
+                }
+            }
+
             this.lastTime = time;
 
             R.debug.Metrics.add("particles", this.liveParticles, false, "#");
@@ -252,6 +277,13 @@ R.particles.ParticleEngine = function () {
 
             renderContext.popTransform();
             this.liveParticles = this.particles.size();
+
+            // Remove dead effects
+            for (var deadItr = dead.iterator(); deadItr.hasNext(); ) {
+                var deadEffect = deadItr.next();
+                this.particleEffects.remove(deadEffect);
+            }
+            dead.destroy();
         },
 
         /**
@@ -267,8 +299,15 @@ R.particles.ParticleEngine = function () {
                 },
                     null, false]
             });
-        }
+        },
 
+        /**
+         * Reset the particle engine.  Destroys all active particles and effects.
+         */
+        reset: function() {
+            this.particles.cleanUp();
+            this.particleEffects.cleanUp();
+        }
 
     }, /** @scope R.particles.ParticleEngine.prototype */{
         /**

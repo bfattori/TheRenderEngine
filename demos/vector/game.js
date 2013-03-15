@@ -50,7 +50,8 @@ R.Engine.define({
       "R.engine.Events",
       "R.math.Math2D",
       //"R.particles.ParticleEngine"
-      "R.particles.AccumulatorParticleEngine"
+      "R.particles.AccumulatorParticleEngine",
+      "R.particles.effects.Spark"
    ],
 
    // Game class dependencies
@@ -173,6 +174,15 @@ var Spaceroids = function() {
          this.backgroundImage.append($(img.getImage()).clone());
 
          this.pEngine.setFadeRate(0.5);
+
+          this.pEngine.addEffect(R.particles.effects.Spark.create(titlePos).
+              quantity(10).
+              lifespan(Infinity).
+              particle(R.particles.effects.SprayParticle).
+              particleLife(1000).
+              width(10).
+              delay(10000, 2000)
+          );
 
          var pWidth = this.fieldWidth;
          var pHeight = this.fieldHeight;

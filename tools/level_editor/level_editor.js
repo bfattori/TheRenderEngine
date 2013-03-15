@@ -60,7 +60,7 @@ R.Engine.define({
    ],
 
    "includes": [
-      "/../tools/level_editor/jquery-ui-1.8.8.js",
+      "/../tools/level_editor/jquery-ui-1.10.1.js",
       "/../tools/level_editor/jquery.jstree.js",
       "/../tools/level_editor/jquery.cookie.js",
       "/../tools/level_editor/jquery.hotkeys.js",
@@ -220,7 +220,7 @@ var LevelEditor = function() {
          R.engine.Script.loadStylesheet("/../tools/level_editor/css/leveleditor.css", false, true);
 
          // Load the style sheet for jQueryUI
-         R.engine.Script.loadStylesheet("/../tools/level_editor/css/smoothness/jquery-ui-1.8.8.custom.css", false, true);
+         R.engine.Script.loadStylesheet("/../tools/level_editor/css/smoothness/jquery-ui-1.10.1.custom.min.css", false, true);
 
          // Load the style sheets for jdMenu
          R.engine.Script.loadStylesheet("/../tools/level_editor/css/jdMenu.css", false, true);
@@ -492,69 +492,133 @@ var LevelEditor = function() {
 //            $(document.body).append(sb);
 
             // Add an event handler to the context
-            var ctx = game.getRenderContext();
-            ctx.addEvent(LevelEditor, "mousedown", function(evt) {
-               if (!LevelEditor.editingTiles) {
-                  LevelEditor.selectObject(evt.pageX, evt.pageY);
-               }
-               LevelEditor.mouseDown = true;
-               LevelEditor.lastPos.set(evt.pageX, evt.pageY);
-            });
+             var ctx = game.getRenderContext();
 
-            ctx.addEvent(LevelEditor, "mouseup", function() {
-               LevelEditor.mouseDown = false;
-               LevelEditor.createPropertiesTable(LevelEditor.currentSelectedObject);
-            });
+             // Set event handlers
+             ctx.addEvents({
+                 "mousedown": function(evt, which) {
+                     if (!LevelEditor.editingTiles) {
+                         LevelEditor.selectObject(evt.pageX, evt.pageY);
+                     }
+                     LevelEditor.mouseDown = true;
+                     LevelEditor.lastPos.set(evt.pageX, evt.pageY);
+                 },
+                 "mouseup": function(evt, which) {
+                     LevelEditor.mouseDown = false;
+                     LevelEditor.createPropertiesTable(LevelEditor.currentSelectedObject);
+                 },
+                 "mousemove": function(evt, which) {
+                     if (!LevelEditor.editingTiles && LevelEditor.mouseDown) {
+                         if (LevelEditor.currentSelectedObject) {
+                             LevelEditor.moveSelected(evt.pageX, evt.pageY);
+                         } else {
+                             LevelEditor.moveWorld(evt.pageX, evt.pageY);
+                         }
+                     } else if (LevelEditor.editingTiles && LevelEditor.mouseDown) {
+                         LevelEditor.drawTile(evt);
+                     }
+                 },
+                 "keypress": function(evt, which) {
+                     // Toggle Zoom
+                     if (R.engine.Events.isKey(evt, "z")) {
+                         LevelEditor.editToggle.zoom = !LevelEditor.editToggle.zoom;
+                         if (LevelEditor.editToggle.zoom) {
+                             ctx.setWorldScale(0.25,0.25);
+                         } else {
+                             ctx.setWorldScale(1,1);
+                         }
+                     }
 
-            ctx.addEvent(LevelEditor, "mousemove", function(evt) {
-               if (!LevelEditor.editingTiles && LevelEditor.mouseDown) {
-                  if (LevelEditor.currentSelectedObject) {
-                     LevelEditor.moveSelected(evt.pageX, evt.pageY);
-                  } else {
-                     LevelEditor.moveWorld(evt.pageX, evt.pageY);
-                  }
-               } else if (LevelEditor.editingTiles && LevelEditor.mouseDown) {
-                  LevelEditor.drawTile(evt);
-               }
-            });
+                     // Toggle Parallax
+                     if (R.engine.Events.isKey(evt, "a")) {
+                         LevelEditor.editToggle.parallax = !LevelEditor.editToggle.parallax;
+                         var parallax = R.math.Point2D.create(1,1);
+                         if (LevelEditor.editToggle.parallax) {
+                             parallax.set(1.3,1.3);
+                             LevelEditor.currentLevel.getTileMap("background").setParallax(parallax);
+                             parallax.set(0.4,0.4);
+                             LevelEditor.currentLevel.getTileMap("foreground").setParallax(parallax);
+                         } else {
+                             LevelEditor.currentLevel.getTileMap("background").setParallax(parallax);
+                             LevelEditor.currentLevel.getTileMap("foreground").setParallax(parallax);
+                         }
+                         parallax.destroy();
+                     }
 
-            //ctx.jQ().css("border", "1px solid red");
-            ctx.addEvent(null, "keypress", function(evt) {
-               // Toggle Zoom
-               if (R.engine.Events.isKey(evt, "z")) {
-                  LevelEditor.editToggle.zoom = !LevelEditor.editToggle.zoom;
-                  if (LevelEditor.editToggle.zoom) {
-                     ctx.setWorldScale(0.25,0.25);
-                  } else {
-                     ctx.setWorldScale(1,1);
-                  }
-               }
+                     if (R.engine.Events.isKey(evt, "x")) {
+                         LevelEditor.editingTiles = !LevelEditor.editingTiles;
+                         if (LevelEditor.editingTiles) {
+                             $("#TileSelector").css("display", "block");
+                         } else {
+                             $("#TileSelector").css("display", "none");
+                         }
+                     }
+                 }
+             });
 
-               // Toggle Parallax
-               if (R.engine.Events.isKey(evt, "a")) {
-                  LevelEditor.editToggle.parallax = !LevelEditor.editToggle.parallax;
-                  var parallax = R.math.Point2D.create(1,1);
-                  if (LevelEditor.editToggle.parallax) {
-                     parallax.set(1.3,1.3);
-                     LevelEditor.currentLevel.getTileMap("background").setParallax(parallax);
-                     parallax.set(0.4,0.4);
-                     LevelEditor.currentLevel.getTileMap("foreground").setParallax(parallax);
-                  } else {
-                     LevelEditor.currentLevel.getTileMap("background").setParallax(parallax);
-                     LevelEditor.currentLevel.getTileMap("foreground").setParallax(parallax);
-                  }
-                  parallax.destroy();
-               }
 
-               if (R.engine.Events.isKey(evt, "x")) {
-                  LevelEditor.editingTiles = !LevelEditor.editingTiles;
-                  if (LevelEditor.editingTiles) {
-                     $("#TileSelector").css("display", "block");
-                  } else {
-                     $("#TileSelector").css("display", "none");
-                  }
-               }
-            });
+//            ctx.addEvent(LevelEditor, "mousedown", function(evt) {
+//               if (!LevelEditor.editingTiles) {
+//                  LevelEditor.selectObject(evt.pageX, evt.pageY);
+//               }
+//               LevelEditor.mouseDown = true;
+//               LevelEditor.lastPos.set(evt.pageX, evt.pageY);
+//            });
+//
+//            ctx.addEvent(LevelEditor, "mouseup", function() {
+//               LevelEditor.mouseDown = false;
+//               LevelEditor.createPropertiesTable(LevelEditor.currentSelectedObject);
+//            });
+//
+//            ctx.addEvent(LevelEditor, "mousemove", function(evt) {
+//               if (!LevelEditor.editingTiles && LevelEditor.mouseDown) {
+//                  if (LevelEditor.currentSelectedObject) {
+//                     LevelEditor.moveSelected(evt.pageX, evt.pageY);
+//                  } else {
+//                     LevelEditor.moveWorld(evt.pageX, evt.pageY);
+//                  }
+//               } else if (LevelEditor.editingTiles && LevelEditor.mouseDown) {
+//                  LevelEditor.drawTile(evt);
+//               }
+//            });
+//
+//            //ctx.jQ().css("border", "1px solid red");
+//            ctx.addEvent(null, "keypress", function(evt) {
+//               // Toggle Zoom
+//               if (R.engine.Events.isKey(evt, "z")) {
+//                  LevelEditor.editToggle.zoom = !LevelEditor.editToggle.zoom;
+//                  if (LevelEditor.editToggle.zoom) {
+//                     ctx.setWorldScale(0.25,0.25);
+//                  } else {
+//                     ctx.setWorldScale(1,1);
+//                  }
+//               }
+//
+//               // Toggle Parallax
+//               if (R.engine.Events.isKey(evt, "a")) {
+//                  LevelEditor.editToggle.parallax = !LevelEditor.editToggle.parallax;
+//                  var parallax = R.math.Point2D.create(1,1);
+//                  if (LevelEditor.editToggle.parallax) {
+//                     parallax.set(1.3,1.3);
+//                     LevelEditor.currentLevel.getTileMap("background").setParallax(parallax);
+//                     parallax.set(0.4,0.4);
+//                     LevelEditor.currentLevel.getTileMap("foreground").setParallax(parallax);
+//                  } else {
+//                     LevelEditor.currentLevel.getTileMap("background").setParallax(parallax);
+//                     LevelEditor.currentLevel.getTileMap("foreground").setParallax(parallax);
+//                  }
+//                  parallax.destroy();
+//               }
+//
+//               if (R.engine.Events.isKey(evt, "x")) {
+//                  LevelEditor.editingTiles = !LevelEditor.editingTiles;
+//                  if (LevelEditor.editingTiles) {
+//                     $("#TileSelector").css("display", "block");
+//                  } else {
+//                     $("#TileSelector").css("display", "none");
+//                  }
+//               }
+//            });
 
             // Menu across the top
             var mb = {
