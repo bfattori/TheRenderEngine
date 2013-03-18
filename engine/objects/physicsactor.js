@@ -506,7 +506,7 @@ R.objects.PhysicsActor = function () {
 
                 // Position the parts relative to each other, in world coordinates with the
                 // origin at the top left corner of the world
-                if ($.isArray(part.position) && part.position.length == 2) {
+                if (R.isArray(part.position) && part.position.length == 2) {
                     // Set the position of the part in absolute coordinates
                     var pt = toP2d(part.position);
                     pt.mul(def.scale ? def.scale : 1);

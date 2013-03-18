@@ -81,8 +81,6 @@ var PhysicsDemo = function() {
        * the game to its running state.
        */
       setup: function() {
-          R.engine.Script.setUniqueRequest(false);
-          R.Engine.setDebugMode(true);
          PhysicsDemo.spriteLoader = R.resources.loaders.SpriteLoader.create();
 
          // Load the sprites
