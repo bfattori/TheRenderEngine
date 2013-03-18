@@ -104,7 +104,7 @@ R.math.Point2D = function () {
          *                   was a number.
          */
         set:function (x, y) {
-            if (x.length && x.splice && x.shift) {
+            if (R.isArray(x)) {
                 // An array
                 this.x = x[0];
                 this.y = x[1];

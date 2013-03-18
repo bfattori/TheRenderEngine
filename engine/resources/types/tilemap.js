@@ -66,6 +66,8 @@ R.resources.types.TileMap = function () {
         dimensions:null,
         isHTMLContext:false,
         isRendered:false,
+        tilemapImage:null,
+        alwaysRender:false,
 
         /** @private */
         constructor:function (name, width, height) {
@@ -75,6 +77,8 @@ R.resources.types.TileMap = function () {
             this.parallax = R.math.Point2D.create(1, 1);
             this.isHTMLContext = false;
             this.isRendered = false;
+            this.tilemapImage = null;
+            this.alwaysRender = false;
 
             // The tile map is a dense array
             this.tilemap = [];
@@ -214,6 +218,11 @@ R.resources.types.TileMap = function () {
             return tile;
         },
 
+        setAlwaysRender: function(state) {
+            this.alwaysRender = state;
+            this.isRendered = false;
+        },
+
         /**
          * Set the parallax distance of the tile map from the viewer's eye.  Setting the parallax distance
          * can create the illusion of depth when layers move at different rates along the X
@@ -237,6 +246,53 @@ R.resources.types.TileMap = function () {
             return this.parallax;
         },
 
+        renderStaticTiles: function(renderContext, time, dt) {
+            if (this.isHTMLContext) {
+                return;
+            }
+
+            // Render static tiles to an image and set that as the background for the
+            // render context.  First we need to calculate the width and height of the tilemap
+            var baseTileSize = this.baseTile.getBoundingBox(), tileWidth = baseTileSize.w, tileHeight = baseTileSize.h;
+            var renderWidth = tileWidth * this.width, renderHeight = tileHeight * this.height;
+            var tempContext;
+
+            if (!this.alwaysRender) {
+                tempContext = R.util.RenderUtil.getTempContext(R.rendercontexts.CanvasContext, renderWidth, renderHeight);
+            } else {
+                tempContext = renderContext;
+            }
+
+            var tile, t, rect = R.math.Rectangle2D.create(0, 0, 1, 1), topLeft = R.math.Point2D.create(0, 0);
+
+            // Render out all of the tiles
+            for (t = 0; t < this.tilemap.length; t++) {
+                tile = this.tilemap[t];
+                if (!tile)
+                    continue;
+
+                var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
+                rect.set(x, y, tileWidth, tileHeight);
+
+                // Get the frame and draw the tile
+                var f = tile.getFrame(0, 0),
+                    obj = tempContext.drawImage(rect, tile.getSourceImage(), f,
+                        (tile.isAnimation() ? tile : null));
+
+                f.destroy();
+            }
+
+            if (!this.alwaysRender) {
+                renderContext.jQ().css("backgroundImage", "url(" + tempContext.getDataURL('image/png') + ")");
+                tempContext.destroy();
+                tempContext = null;
+                this.isRendered = true;
+            }
+
+            rect.destroy();
+            topLeft.destroy();
+        },
+
         /**
          * Update the tile map, rendering it to the context.
          *
@@ -249,6 +305,10 @@ R.resources.types.TileMap = function () {
             if (this.baseTile == null) {
                 // Nothing to render yet
                 return;
+            }
+
+            if (!this.isRendered) {
+                this.renderStaticTiles(renderContext, time, dt);
             }
 
             renderContext.pushTransform();
@@ -265,40 +325,36 @@ R.resources.types.TileMap = function () {
             // Render out all of the tiles
             for (t = 0; t < this.tilemap.length; t++) {
                 tile = this.tilemap[t];
-                if (!tile)
+                if (!tile || (tile && !tile.isAnimation()))
                     continue;
 
                 // In an HTML context we only want to render static (non-animated) tiles one time.
                 // However, animated tiles will need to animate each frame.  For a graphical context,
                 // we'll render all tiles each frame.
-                if (!this.isHTMLContext || ((tile.isAnimation() || !this.isRendered) && this.isHTMLContext)) {
 
-                    var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
-                    rect.set(x - wp.x, y - wp.y, tileWidth, tileHeight);
+                var x = (t % this.width) * tileWidth, y = Math.floor(t / this.height) * tileHeight;
+                rect.set(x - wp.x, y - wp.y, tileWidth, tileHeight);
 
-                    rect.add(topLeft);
+                rect.add(topLeft);
 
-                    // If the rect isn't visible, skip it
-                    if (!this.isHTMLContext && !rect.isIntersecting(renderContext.getViewport()))
-                        continue;
+                // If the rect isn't visible, skip it
+//                    if (!this.isHTMLContext && !rect.isIntersecting(renderContext.getViewport()))
+//                        continue;
 
-                    // Get the frame and draw the tile
-                    var f = tile.getFrame(time, dt),
-                        obj = renderContext.drawImage(rect, tile.getSourceImage(), f,
-                            (tile.isAnimation() ? tile : null));
+                // Get the frame and draw the tile
+                var f = tile.getFrame(time, dt),
+                    obj = renderContext.drawImage(rect, tile.getSourceImage(), f,
+                        (tile.isAnimation() ? tile : null));
 
-                    if (this.isHTMLContext && !tile.getElement()) {
-                        // In an HTML context, set the element for the tile so animated tiles can be updated
-                        tile.setElement(obj);
-                    }
-
-                    f.destroy();
+                if (this.isHTMLContext && !tile.getElement()) {
+                    // In an HTML context, set the element for the tile so animated tiles can be updated
+                    tile.setElement(obj);
                 }
+
+                f.destroy();
 
             }
 
-            // Mark the tilemap as "rendered to the context"
-            this.isRendered = true;
 
             rect.destroy();
             topLeft.destroy();

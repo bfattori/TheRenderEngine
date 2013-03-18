@@ -1,0 +1,20 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+   <head>
+      <title>The Render Engine - Conway's Game of Life</title>
+
+      <!-- Load the main engine script -->
+      <script type="text/javascript" src="../../engine/runtime/engine.js"></script>
+
+   </head>
+   <body>
+      <script type="text/javascript">
+          // Load the game script
+          $(document).ready(function() {
+              R.loadGame('game.js', 'GameOfLife', 'Conway\'s Game of Life');
+          });
+      </script>
+        <input type="checkbox" class="pause" name="pause" checked="checked"/> Pause Simulation
+        <input type="button" onclick="GameOfLife.step()" value="Step" name="step"/>
+   </body>
+</html>

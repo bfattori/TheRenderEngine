@@ -328,6 +328,7 @@ R.namespace("components.render");
 R.namespace("components.physics");
 R.namespace("objects");
 R.namespace("particles");
+R.namespace("particles.effects");
 R.namespace("physics");
 R.namespace("rendercontexts");
 R.namespace("resources");

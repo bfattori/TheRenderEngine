@@ -137,6 +137,7 @@ R.particles.AccumulatorParticleEngine = function () {
             if (this.accumulator) {
                 this.accumulator.reset();
             }
+            this.base();
         },
 
         /**
