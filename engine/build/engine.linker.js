@@ -372,7 +372,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
         var shortName = clazz.shift(), classObjDef = pkg[shortName];
 
         // We can initialize the class
-        if ($.isFunction(classObjDef)) {
+        if (R.isFunction(classObjDef)) {
             pkg[shortName] = classObjDef();
         } else {
             pkg[shortName] = classObjDef;

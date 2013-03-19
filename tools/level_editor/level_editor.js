@@ -677,7 +677,7 @@ var LevelEditor = function() {
                var topLvl = $("<li>").text(m);
                var sub = $("<ul>");
                for (var n in mb[m]) {
-                  if ($.isFunction(mb[m][n])) {
+                  if (R.isFunction(mb[m][n])) {
                      sub.append($("<li>").append($("<a href='#'>").html(n).click(mb[m][n])));
                   } else {
                      // Separator
@@ -1121,7 +1121,7 @@ var LevelEditor = function() {
 
                   // If it's a function, call it to get the options as: [{ val: "foo", label: "Foo Label" }, ...]
                   // otherwise, treat it as already in array/object notation above
-                  var opts = $.isFunction(bean[p][1].opts) ? bean[p][1].opts() : bean[p][1].opts;
+                  var opts = R.isFunction(bean[p][1].opts) ? bean[p][1].opts() : bean[p][1].opts;
 
                   // Build options
                   $.each(opts, function() {

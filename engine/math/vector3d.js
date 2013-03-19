@@ -142,7 +142,7 @@ R.math.Vector3D = function () {
         /**
          * The "zero" vector. This vector should not be modified.
          * @type {R.math.Vector3D}
-         * @memberOf R.math.Vector3D
+         * @memberof R.math.Vector3D
          */
         ZERO:null
     });

@@ -64,7 +64,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
     /**
      * Toggle the display of the metrics window.  Any metrics
      * that are being tracked will be reported in this window.
-     * @memberOf R.debug.Metrics
+     * @memberof R.debug.Metrics
      */
     toggleMetrics:function () {
         R.debug.Metrics.showMetricsWindow = !R.debug.Metrics.showMetricsWindow;
@@ -72,7 +72,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
 
     /**
      * Show the metrics window
-     * @memberOf R.debug.Metrics
+     * @memberof R.debug.Metrics
      */
     showMetrics:function () {
         R.debug.Metrics.showMetricsWindow = true;
@@ -80,7 +80,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
 
     /**
      * Show a graph of the engine profile
-     * @memberOf R.debug.Metrics
+     * @memberof R.debug.Metrics
      */
     showProfile:function () {
         R.debug.Metrics.showMetricsProfile = true;
@@ -88,7 +88,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
 
     /**
      * Hide the metrics window
-     * @memberOf R.debug.Metrics
+     * @memberof R.debug.Metrics
      */
     hideMetrics:function () {
         R.debug.Metrics.showMetricsWindow = false;
@@ -182,7 +182,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
      * The default is for metrics to be calculated every 10 engine frames.
      *
      * @param sampleRate {Number} The number of ticks between samples
-     * @memberOf R.debug.Metrics
+     * @memberof R.debug.Metrics
      */
     setSampleRate:function (sampleRate) {
         R.debug.Metrics.lastMetricSample = 1;
@@ -202,7 +202,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
      * @param value {String/Number} The value of the metric.
      * @param smoothing {Boolean} <tt>true</tt> to use 3 point average smoothing
      * @param fmt {String} The way the value should be formatted in the display (e.g. "#ms")
-     * @memberOf R.debug.Metrics
+     * @memberof R.debug.Metrics
      */
     add:function (metricName, value, smoothing, fmt) {
         if (smoothing) {
@@ -226,7 +226,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
      * Remove a metric from the display
      *
      * @param metricName {String} The name of the metric to remove
-     * @memberOf R.debug.Metrics
+     * @memberof R.debug.Metrics
      */
     remove:function (metricName) {
         R.debug.Metrics.metrics[metricName] = null;
@@ -236,7 +236,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
     /**
      * Updates the display of the metrics window.
      * @private
-     * @memberOf R.debug.Metrics
+     * @memberof R.debug.Metrics
      */
     update:function () {
         var h = "", ctx;
@@ -311,7 +311,7 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
     /**
      * Run the metrics display.
      * @private
-     * @memberOf R.debug.Metrics
+     * @memberof R.debug.Metrics
      */
     doMetrics:function () {
         // Output any metrics

@@ -114,7 +114,7 @@ R.particles.ParticleEngine = function () {
          * @param particles {Array|R.struct.Container} A container of particles to add at one time
          */
         addParticles:function (particles) {
-            if ($.isArray(particles)) {
+            if (R.isArray(particles)) {
                 // If the particles are an Array, convert to a LinkedList first
                 particles = R.struct.Container.fromArray(particles);
             }

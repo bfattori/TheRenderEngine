@@ -45,7 +45,7 @@ R.debug.Profiler = {
 
 /**
  * Start the profiler.
- * @memberOf R.debug.Profiler
+ * @memberof R.debug.Profiler
  */
 R.debug.Profiler.start = function () {
     R.debug.Profiler.resetProfiles();
@@ -57,7 +57,7 @@ R.debug.Profiler.start = function () {
 
 /**
  * Stop the profiler, dumping whatever was being profiled.
- * @memberOf R.debug.Profiler
+ * @memberof R.debug.Profiler
  */
 R.debug.Profiler.stop = function () {
     R.debug.Profiler.dump();
@@ -82,7 +82,7 @@ R.debug.Profiler.stop = function () {
  </pre>
  *
  * @param prof {String} The name of the profile
- * @memberOf R.debug.Profiler
+ * @memberof R.debug.Profiler
  */
 R.debug.Profiler.enter = function (prof) {
     if (!R.debug.Profiler.running) {
@@ -113,7 +113,7 @@ R.debug.Profiler.enter = function (prof) {
  * you properly balance your profile stack.  Too many "exit" calls
  * will result in a stack underflow. Missing calls to "exit" will
  * result in a stack overflow.
- * @memberOf R.debug.Profiler
+ * @memberof R.debug.Profiler
  */
 R.debug.Profiler.exit = function () {
     if (!R.debug.Profiler.running) {
@@ -141,7 +141,7 @@ R.debug.Profiler.exit = function () {
 
 /**
  * Reset any currently running profiles and clear the stack.
- * @memberOf R.debug.Profiler
+ * @memberof R.debug.Profiler
  */
 R.debug.Profiler.resetProfiles = function () {
     R.debug.Profiler.profileStack = [];
@@ -152,7 +152,7 @@ R.debug.Profiler.resetProfiles = function () {
 /**
  * Dump the profiles that are currently in the stack to a debug window.
  * The profile stack will be cleared after the dump.
- * @memberOf R.debug.Profiler
+ * @memberof R.debug.Profiler
  */
 R.debug.Profiler.dump = function () {
     if (!R.debug.Profiler.running) {
@@ -193,7 +193,7 @@ R.debug.Profiler.dump = function () {
 /**
  * Wire the objects in the array with profiling
  * @param objArray {Array} Object array
- * @memberOf R.debug.Profiler
+ * @memberof R.debug.Profiler
  */
 R.debug.Profiler.wireObjects = function (objArray) {
     for (var obj in objArray) {
