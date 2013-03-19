@@ -200,7 +200,7 @@ R.debug.Profiler.wireObjects = function (objArray) {
 
         for (var o in objArray[obj].prototype) {
             try {
-                if (typeof objArray[obj].prototype[o] == "function" &&
+                if (R.isFunction(objArray[obj].prototype[o]) &&
                     objArray[obj].prototype.hasOwnProperty(o) && o != "constructor") {
                     // wrap it in a function to profile it
                     var f = objArray[obj].prototype[o];

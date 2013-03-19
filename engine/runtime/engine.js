@@ -2687,7 +2687,6 @@ Base.isInstance = function () {
  *
  */
 
-
 /**
  * @class The base class for all console objects. Each type of supported console outputs
  *        its data differently.  This class allows abstraction between the console and the
@@ -2846,25 +2845,7 @@ R.debug.Console = Base.extend(/** @scope R.debug.Console.prototype */{
         R.debug.Console.verbosity = R.debug.Console.DEBUGLEVEL_ERRORS;
         R.debug.Console.enableDebugOutput = false;
 
-//      if (R.engine.Support.checkBooleanParam("debug") && (R.engine.Support.checkBooleanParam("simWii") || R.browser.Wii)) {
-//         R.debug.Console.consoleRef = new R.debug.HTML();
-//      }
-//      else if (typeof firebug !== "undefined" || (typeof console !== "undefined" && console.firebug)) {
-//         // Firebug or firebug lite
-//         R.debug.Console.consoleRef = new R.debug.Firebug();
-//      }
-//      else if (typeof console !== "undefined" && R.browser.msie) {
-//         R.debug.Console.consoleRef = new R.debug.MSIE();
-//      }
-//      else if (R.browser.chrome || R.browser.safari) {
-//         R.debug.Console.consoleRef = new R.debug.Webkit();
-//      }
-//      else if (R.browser.opera) {
-//         R.debug.Console.consoleRef = new R.debug.Opera();
-//      }
-//      else {
         R.debug.Console.consoleRef = new R.debug.ConsoleRef(); // (null console)
-//      }
     },
 
     /**
@@ -4691,6 +4672,22 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
         R.engine.Linker._doLoad("R.lang.OneShotTimeout");
         R.engine.Linker._doLoad("R.lang.OneShotTrigger");
         R.engine.Linker._doLoad("R.lang.Timeout");
+
+        if (R.engine.Support.checkBooleanParam("debug") || R.engine.Support.checkBooleanParam("enableConsole")) {
+            // Load the console abstractions if needed
+            if (typeof firebug !== "undefined" || (typeof console !== "undefined" && console.firebug)) {
+                R.engine.Linker._doLoad("R.util.console.Firebug");
+            }
+            else if (typeof console !== "undefined" && R.browser.msie) {
+                R.engine.Linker._doLoad("R.util.console.MSIE");
+            }
+            else if (R.browser.chrome || R.browser.safari) {
+                R.engine.Linker._doLoad("R.util.console.Webkit");
+            }
+            else if (R.browser.opera) {
+                R.engine.Linker._doLoad("R.util.console.Opera");
+            }
+        }
     },
 
     /**
@@ -5305,7 +5302,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * @memberof R.engine.Script
      */
     loadText:function (path, data, callback) {
-        if (typeof data == "function") {
+        if (R.isFunction(data)) {
             callback = data;
             data = null;
         }
@@ -5324,7 +5321,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * @memberof R.engine.Script
      */
     loadJSON:function (path, data, callback) {
-        if (typeof data == "function") {
+        if (R.isFunction(data)) {
             callback = data;
             data = null;
         }
@@ -5421,7 +5418,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             var scriptPath = R.engine.Script.scriptQueue.shift();
 
             // If the queue element is a function, execute it and return
-            if (typeof scriptPath === "function") {
+            if (R.isFunction(scriptPath)) {
                 scriptPath();
                 R.engine.Script.readyForNextScript = true;
                 return;
@@ -6260,6 +6257,7 @@ R.Engine.defaultOptions = {
 
 // Configure the default options
 R.Engine.options = $.extend({}, R.Engine.defaultOptions);
+
 
 // Set up the engine using whatever query params were passed
 R.Engine.setDebugMode(R.engine.Support.checkBooleanParam("debug"));

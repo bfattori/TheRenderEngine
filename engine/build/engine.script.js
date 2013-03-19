@@ -163,7 +163,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * @memberof R.engine.Script
      */
     loadText:function (path, data, callback) {
-        if (typeof data == "function") {
+        if (R.isFunction(data)) {
             callback = data;
             data = null;
         }
@@ -182,7 +182,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * @memberof R.engine.Script
      */
     loadJSON:function (path, data, callback) {
-        if (typeof data == "function") {
+        if (R.isFunction(data)) {
             callback = data;
             data = null;
         }
@@ -279,7 +279,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             var scriptPath = R.engine.Script.scriptQueue.shift();
 
             // If the queue element is a function, execute it and return
-            if (typeof scriptPath === "function") {
+            if (R.isFunction(scriptPath)) {
                 scriptPath();
                 R.engine.Script.readyForNextScript = true;
                 return;

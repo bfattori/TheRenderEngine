@@ -507,6 +507,22 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
         R.engine.Linker._doLoad("R.lang.OneShotTimeout");
         R.engine.Linker._doLoad("R.lang.OneShotTrigger");
         R.engine.Linker._doLoad("R.lang.Timeout");
+
+        if (R.engine.Support.checkBooleanParam("debug") || R.engine.Support.checkBooleanParam("enableConsole")) {
+            // Load the console abstractions if needed
+            if (typeof firebug !== "undefined" || (typeof console !== "undefined" && console.firebug)) {
+                R.engine.Linker._doLoad("R.util.console.Firebug");
+            }
+            else if (typeof console !== "undefined" && R.browser.msie) {
+                R.engine.Linker._doLoad("R.util.console.MSIE");
+            }
+            else if (R.browser.chrome || R.browser.safari) {
+                R.engine.Linker._doLoad("R.util.console.Webkit");
+            }
+            else if (R.browser.opera) {
+                R.engine.Linker._doLoad("R.util.console.Opera");
+            }
+        }
     },
 
     /**

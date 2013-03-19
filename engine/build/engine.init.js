@@ -61,6 +61,7 @@ R.Engine.defaultOptions = {
 // Configure the default options
 R.Engine.options = $.extend({}, R.Engine.defaultOptions);
 
+
 // Set up the engine using whatever query params were passed
 R.Engine.setDebugMode(R.engine.Support.checkBooleanParam("debug"));
 
