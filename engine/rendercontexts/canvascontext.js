@@ -428,8 +428,21 @@ R.rendercontexts.CanvasContext = function () {
          *          in milliseconds.
          */
         drawSprite:function (sprite, time, dt) {
+            this.drawSpriteAt(sprite, R.math.Point2D.ZERO, time, dt);
+        },
+
+        /**
+         * Draw a sprite on the context at the given position.
+         *
+         * @param sprite {R.resources.types.Sprite} The sprite to draw
+         * @param position {R.math.Point2D} The position
+         * @param time {Number} The current world time
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         */
+        drawSpriteAt:function (sprite, position, time, dt) {
             var f = sprite.getFrame(time, dt);
-            this.get2DContext().drawImage(sprite.getSourceImage(), f.x, f.y, f.w, f.h, 0, 0, f.w, f.h);
+            this.get2DContext().drawImage(sprite.getSourceImage(), f.x, f.y, f.w, f.h, position.x, position.y, f.w, f.h);
             this.base(sprite, time);
             f.destroy();
         },

@@ -3848,12 +3848,12 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
         R.debug.Console.info("R.engine.Linker => Process definition for ", className);
 
         R.engine.Linker.classDefinitions[className] = classDef;
-        var deps = [];
-        if (classDef.requires && classDef.requires.length > 0) deps = deps.concat(classDef.requires);
-        var incs = [];
-        if (classDef.includes && classDef.includes.length > 0) incs = incs.concat(classDef.includes);
+        var dependencies = [];
+        if (classDef.requires && classDef.requires.length > 0) dependencies = dependencies.concat(classDef.requires);
+        var includes = [];
+        if (classDef.includes && classDef.includes.length > 0) includes = includes.concat(classDef.includes);
 
-        if (deps.length == 0 && incs.length == 0) {
+        if (dependencies.length == 0 && includes.length == 0) {
             // This class is ready to go already
             R.engine.Linker._initClass(className);
             return;
@@ -3868,45 +3868,47 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
         }
 
         // Remove any dependencies which are already resolved
-        var unresDeps = [];
-        while (deps.length > 0) {
-            var dep = deps.shift();
-            if (!R.engine.Linker.resolvedClasses[dep]) {
-                unresDeps.push(dep);
+        var unresolvedDependencies = [];
+        var dependency;
+        while (dependencies.length > 0) {
+            dependency = dependencies.shift();
+            if (!R.engine.Linker.resolvedClasses[dependency]) {
+                unresolvedDependencies.push(dependency);
             }
         }
 
         // Remove any includes which are already loaded
-        var unresIncs = [];
-        while (incs.length > 0) {
-            var inc = incs.shift();
-            if (!R.engine.Linker.resolvedFiles[inc]) {
-                unresIncs.push(inc);
+        var unresolvedIncludes = [];
+        var includeFile;
+        while (includes.length > 0) {
+            includeFile = includes.shift();
+            if (!R.engine.Linker.resolvedFiles[includeFile]) {
+                unresolvedIncludes.push(includeFile);
             }
         }
 
         // Load the includes ASAP
-        while (unresIncs.length > 0) {
-            var inc = unresIncs.shift();
+        while (unresolvedIncludes.length > 0) {
+            includeFile = unresolvedIncludes.shift();
 
             // If the include hasn't been processed yet, do it now
-            if (!R.engine.Linker.processed[inc]) {
+            if (!R.engine.Linker.processed[includeFile]) {
                 var cb = function (path, result) {
                     if (result === R.engine.Script.SCRIPT_LOADED) {
                         R.engine.Linker.resolvedFiles[path] = true;
                     }
                 };
-                R.engine.Script.loadNow(inc, cb);
-                R.engine.Linker.processed[inc] = true;
+                R.engine.Script.loadNow(includeFile, cb);
+                R.engine.Linker.processed[includeFile] = true;
             }
         }
 
         // Queue up the classes for processing
-        while (unresDeps.length > 0) {
-            var dep = unresDeps.shift();
-            if (!R.engine.Linker.processed[dep]) {
-                R.engine.Linker.processed[dep] = true;
-                R.engine.Linker.loadClasses.push(dep);
+        while (unresolvedDependencies.length > 0) {
+            dependency = unresolvedDependencies.shift();
+            if (!R.engine.Linker.processed[dependency]) {
+                R.engine.Linker.processed[dependency] = true;
+                R.engine.Linker.loadClasses.push(dependency);
             }
         }
 
@@ -3999,86 +4001,86 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
      */
     _processClasses:function () {
         var inProcess = 0, processed = 0, completed = [];
-        for (var cn in R.engine.Linker.queuedClasses) {
+        for (var className in R.engine.Linker.queuedClasses) {
             inProcess++;
 
             // Get the class definition
-            var def = R.engine.Linker.classDefinitions[cn];
+            var classDef = R.engine.Linker.classDefinitions[className];
 
-            if (!def) {
-                throw new Error("R.engine.Linker => Class '" + cn + "' doesn't have a definition!");
+            if (!classDef) {
+                throw new Error("R.engine.Linker => Class '" + className + "' doesn't have a definition!");
             }
 
             // Check to see if the dependencies exist
-            var missDeps = false, reqs = [], unres = [];
-            if (def.requires && def.requires.length > 0) reqs = reqs.concat(def.requires);
-            while (reqs.length > 0) {
-                var req = reqs.shift();
+            var missingDependencies = false, requiredClasses = [], unresolvedDependencies = [];
+            if (classDef.requires && classDef.requires.length > 0) requiredClasses = requiredClasses.concat(classDef.requires);
+            while (requiredClasses.length > 0) {
+                var req = requiredClasses.shift();
 
                 if (!R.engine.Linker.resolvedClasses[req]) {
                     // Check for A => B  => A
                     // If such a circular reference exists, we can ignore the dependency
-                    var depDef = R.engine.Linker.classDefinitions[req];
-                    if (depDef && depDef.requires) {
-                        if (R.engine.Support.indexOf(depDef.requires, cn) == -1) {
+                    var dependentDefinition = R.engine.Linker.classDefinitions[req];
+                    if (dependentDefinition && dependentDefinition.requires) {
+                        if (R.engine.Support.indexOf(dependentDefinition.requires, className) == -1) {
                             // Not a circular reference
-                            unres.push(req);
+                            unresolvedDependencies.push(req);
                         }
                     } else {
                         // Class not resolved
-                        unres.push(req);
+                        unresolvedDependencies.push(req);
                     }
                 }
             }
 
             // Anything left unresolved means we cannot initialize
-            missDeps = (unres.length > 0);
+            missingDependencies = (unresolvedDependencies.length > 0);
 
             // Check for local dependencies
-            var localDeps = false, lDeps = [], lUnres = [];
-            if (def.depends && def.depends.length > 0) lDeps = lDeps.concat(def.depends);
-            while (lDeps.length > 0) {
-                var lDep = lDeps.shift();
+            var locallyDependent = false, localDependencies = [], localUnresolvedDependencies = [];
+            if (classDef.depends && classDef.depends.length > 0) localDependencies = localDependencies.concat(classDef.depends);
+            while (localDependencies.length > 0) {
+                var localDependency = localDependencies.shift();
 
-                if (!R.engine.Linker.resolvedClasses[lDep]) {
+                if (!R.engine.Linker.resolvedClasses[localDependency]) {
                     // Check for A => B  => A
                     // If such a circular reference exists, we can ignore the dependency
-                    var lDepDef = R.engine.Linker.classDefinitions[lDep];
-                    if (lDepDef && lDepDef.requires) {
-                        if (R.engine.Support.indexOf(lDepDef.requires, cn) == -1) {
+                    var localDependencyDefinition = R.engine.Linker.classDefinitions[localDependency];
+                    if (localDependencyDefinition && localDependencyDefinition.requires) {
+                        if (R.engine.Support.indexOf(localDependencyDefinition.requires, className) == -1) {
                             // Not a circular reference
-                            lUnres.push(lDep);
+                            localUnresolvedDependencies.push(localDependency);
                         }
-                    } else if (lDepDef && lDepDef.depends) {
-                        if (R.engine.Support.indexOf(lDepDef.depends, cn) == -1) {
+                    } else if (localDependencyDefinition && localDependencyDefinition.depends) {
+                        if (R.engine.Support.indexOf(localDependencyDefinition.depends, className) == -1) {
                             // Not a circular reference
-                            lUnres.push(lDep);
+                            localUnresolvedDependencies.push(localDependency);
                         }
                     } else {
                         // Class not resolved
-                        lUnres.push(lDep);
+                        localUnresolvedDependencies.push(localDependency);
                     }
                 }
             }
 
             // Anything left unresolved means we cannot initialize
-            localDeps = (lUnres.length > 0);
+            locallyDependent = (localUnresolvedDependencies.length > 0);
 
             // If all requirements are loaded, check the includes
-            if (!(missDeps || localDeps)) {
-                var missIncs = false, incs = def.includes || [];
-                for (var i = 0; i < incs.length; i++) {
-                    if (!R.engine.Linker.resolvedFiles[incs[i]]) {
-                        missIncs = true;
+            if (!(missingDependencies || locallyDependent)) {
+                var missingIncludes = false, includes = classDef.includes || [];
+                for (var i = 0; i < includes.length; i++) {
+                    if (!R.engine.Linker.resolvedFiles[includes[i]]) {
+                        missingIncludes = true;
                         break;
                     }
                 }
 
-                if (!missIncs) {
-                    R.engine.Linker._initClass(cn);
+                if (!missingIncludes) {
+                    R.engine.Linker._initClass(className);
 
                     // No need to process it again
-                    completed.push(cn);
+                    completed.push(className);
                     processed++;
                 }
             }
@@ -4097,12 +4099,12 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
             }, 10000);
         }
 
-        var newClzz = 0;
+        var newClass = 0;
         for (var j in R.engine.Linker.queuedClasses) {
-            newClzz++;
+            newClass++;
         }
 
-        if (newClzz > 0 || inProcess > processed) {
+        if (newClass > 0 || inProcess > processed) {
             // There are classes waiting for their dependencies, do this again
             R.engine.Linker.classTimer = setTimeout(function () {
                 R.engine.Linker._processClasses();
@@ -4112,6 +4114,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
             clearTimeout(R.engine.Linker.failTimer);
 
             // All classes waiting to be processed have been processed
+            clearTimeout(R.engine.Linker.classTimer);
             R.engine.Linker.classTimer = null;
         }
     },

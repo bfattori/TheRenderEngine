@@ -19,6 +19,7 @@ R.particles.Effect = function() {
         emitFrequency: 0,
         emitFrequencyVariance: 0,
         lastTime: 0,
+        position: null,
 
         constructor: function(origin) {
             this.position = R.math.Point2D.create(origin);

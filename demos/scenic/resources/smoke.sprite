@@ -1,0 +1,11 @@
+{
+   "bitmapImage": "smoke.png",
+   "bitmapSize": [200,50],
+	"version": 2,
+   "sprites": {
+      "smoke1": [0,0,50,50],
+      "smoke2": [50,0,50,50],
+      "smoke3": [100,0,50,50],
+      "smoke4": [150,0,50,50]
+   }
+}
