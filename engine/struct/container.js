@@ -136,7 +136,7 @@ R.struct.Container = function () {
                     this.add(i.next());
                 }
                 i.destroy();
-            } else if ($.isArray(arr)) {
+            } else if (R.isArray(arr)) {
                 for (i in arr) {
                     this.add(arr[i]);
                 }

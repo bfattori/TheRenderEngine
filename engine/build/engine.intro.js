@@ -48,7 +48,7 @@ R._namespaces = {};
 
 /**
  * The global namespace, typically the window object
- * @memberOf R
+ * @memberof R
  * @type {Object}
  */
 R.global = this;
@@ -96,7 +96,7 @@ if (R.browser.firefox) {
  * Declare a new namespace in R.
  * @param ns {String} The namespace to declare
  * @exception Throws an exception if the namespace is already declared
- * @memberOf R
+ * @memberof R
  */
 R.namespace = function (ns) {
     if (R._namespaces[ns]) {
@@ -118,7 +118,7 @@ R.namespace = function (ns) {
  * Throw an "unsupported" exception for the given method in the class.
  * @param method {String} The method name
  * @param clazz {Class} The class object
- * @memberOf R
+ * @memberof R
  * @exception Throws a "[method] is unsupported in [Class]" error
  */
 R._unsupported = function (method, clazz) {
@@ -132,7 +132,7 @@ R.str = Object.prototype.toString;
  * Check if the given object is a function
  * @param obj {Object} The object to test
  * @return {Boolean}
- * @memberOf R
+ * @memberof R
  */
 R.isFunction = function (obj) {
     return (R.str.call(obj) === "[object Function]");
@@ -142,7 +142,7 @@ R.isFunction = function (obj) {
  * Check if the given object is an array
  * @param obj {Object} The object to test
  * @return {Boolean}
- * @memberOf R
+ * @memberof R
  */
 R.isArray = function (obj) {
     return (R.str.call(obj) === "[object Array]");
@@ -152,7 +152,7 @@ R.isArray = function (obj) {
  * Check if the given object is a string
  * @param obj {Object} The object to test
  * @return {Boolean}
- * @memberOf R
+ * @memberof R
  */
 R.isString = function (obj) {
     return (R.str.call(obj) === "[object String]");
@@ -162,7 +162,7 @@ R.isString = function (obj) {
  * Check if the given object is a number
  * @param obj {Object} The object to test
  * @return {Boolean}
- * @memberOf R
+ * @memberof R
  */
 R.isNumber = function (obj) {
     return (R.str.call(obj) === "[object Number]");
@@ -173,7 +173,7 @@ R.isNumber = function (obj) {
  * of an object unless the object is known to be defined.
  * @param obj {Object} The object to test
  * @returns {boolean}
- * @memberOf R
+ * @memberof R
  */
 R.isUndefined = function(obj) {
     return typeof obj === "undefined";
@@ -183,7 +183,7 @@ R.isUndefined = function(obj) {
  * Check if the given object is null.
  * @param obj {Object} The object to test
  * @returns {boolean}
- * @memberOf R
+ * @memberof R
  */
 R.isNull = function(obj) {
     return obj === null;
@@ -193,7 +193,7 @@ R.isNull = function(obj) {
  * Test if the object is undefined, null, or a string and is empty
  * @param obj {Object} The object to test
  * @return {Boolean}
- * @memberOf R
+ * @memberof R
  */
 R.isEmpty = function (obj) {
     return R.isUndefined(obj) || R.isNull(obj) || (R.isString(obj) && $.trim(obj) === "");
@@ -206,7 +206,7 @@ R.isEmpty = function (obj) {
  * @param props {Object} Properties which are available on the object class.  The format is [getterFn, setterFn].  If
  *        either is null, the corresponding property accessor method will not be assigned.
  * @return {Function} A new
- * @memberOf R
+ * @memberof R
  */
 R.make = function (clazz, props) {
     // Get the constructor (if it exists)

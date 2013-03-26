@@ -62,14 +62,14 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 
     /**
      * Status message when a script is not found
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      * @type {Boolean}
      */
     SCRIPT_NOT_FOUND:false,
 
     /**
      * Status message when a script is successfully loaded
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      * @type {Boolean}
      */
     SCRIPT_LOADED:true,
@@ -78,7 +78,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * Include a script file.
      *
      * @param scriptURL {String} The URL of the script file
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     include:function (scriptURL) {
         R.engine.Script.loadNow(scriptURL);
@@ -93,7 +93,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * @param {Function} [cb] The function to call when the script is loaded.
      *                   the path of the script loaded and a status message
      *                   will be passed as the two parameters.
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      * @private
      */
     loadNow:function (scriptPath, cb) {
@@ -107,7 +107,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * queue is processed synchronously.
      *
      * @param scriptPath {String} The URL of a script to load.
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     loadScript:function (scriptPath) {
         // Put script into load queue
@@ -123,7 +123,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * @param path {String} The url to load
      * @param data {Object} Optional arguments to pass to server
      * @param callback {Function} The callback method
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     ajaxLoad:function (path, data, callback) {
         /* pragma:DEBUG_START */
@@ -160,10 +160,10 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * @param data {Object} Optional arguments to pass to server
      * @param callback {Function} The callback method which is passed the
      *        text and status code (a number) of the request.
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     loadText:function (path, data, callback) {
-        if (typeof data == "function") {
+        if (R.isFunction(data)) {
             callback = data;
             data = null;
         }
@@ -179,10 +179,10 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * @param data {Object} Optional arguments to pass to server
      * @param callback {Function} The callback method which is passed the
      *        JSON object and status code (a number) of the request.
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     loadJSON:function (path, data, callback) {
-        if (typeof data == "function") {
+        if (R.isFunction(data)) {
             callback = data;
             data = null;
         }
@@ -204,7 +204,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * Internal method which runs the script queue to handle scripts and functions
      * which are queued to run sequentially.
      * @private
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     runScriptQueue:function () {
         if (!R.engine.Script.scriptQueueTimer) {
@@ -243,7 +243,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * incremental loading.
      *
      * @param cb {Function} A callback to execute
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     setQueueCallback:function (cb) {
         // Put callback into load queue
@@ -259,7 +259,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      *
      * @param state {Boolean} <tt>true</tt> to put the queue processor
      *                        in a paused state.
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     pauseQueue:function (state) {
         R.engine.Script.queuePaused = state;
@@ -268,7 +268,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     /**
      * Process any scripts that are waiting to be loaded.
      * @private
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     processScriptQueue:function () {
         if (R.engine.Script.scriptQueue.length > 0 && R.engine.Script.readyForNextScript) {
@@ -279,7 +279,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             var scriptPath = R.engine.Script.scriptQueue.shift();
 
             // If the queue element is a function, execute it and return
-            if (typeof scriptPath === "function") {
+            if (R.isFunction(scriptPath)) {
                 scriptPath();
                 R.engine.Script.readyForNextScript = true;
                 return;
@@ -292,7 +292,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     /**
      * This method performs the actual script loading.
      * @private
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     doLoad:function (scriptPath, simplePath, cb) {
         if (!R.Engine.started) {
@@ -366,7 +366,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 
                         R.debug.Console.debug("Loaded '" + this.fullPath + "'");
                         R.engine.Script.handleScriptDone();
-                        if ($.isFunction(callBack)) {
+                        if (R.isFunction(callBack)) {
                             R.debug.Console.info("Callback for '" + this.fullPath + "'");
                             callBack(this.simpPath, R.engine.Script.SCRIPT_LOADED);
 
@@ -443,7 +443,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      *                       the framework if ready, the <tt>startup()</tt> method of this
      *                       object will be called.
      * @param [gameDisplayName] {String} An optional string to display in the loading dialog
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     loadGame:function (gameSource, gameObjectName/* , gameDisplayName */) {
         if (!R.Engine.startup()) {
@@ -520,7 +520,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 
     /**
      * Load the engine options object for the current browser and OS
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      * @private
      */
     loadEngineOptions:function () {
@@ -553,7 +553,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     /**
      * Load the the options object for the current game being loaded.
      * @param gameSource {String} The game source file
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      * @private
      */
     loadGameOptions:function (gameSource) {
@@ -597,7 +597,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * {@link #loadScript} and prepends the engine path to the supplied script source.
      *
      * @param scriptSource {String} A URL to load that is relative to the engine path.
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     load:function (scriptSource) {
         R.engine.Script.loadScript(R.Engine.getEnginePath() + scriptSource);
@@ -606,7 +606,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     /**
      * After a script has been loaded, updates the progress
      * @private
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     handleScriptDone:function () {
         R.engine.Script.scriptsProcessed++;
@@ -618,7 +618,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
     /**
      * Updates the progress bar (if available)
      * @private
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     updateProgress:function () {
         var pBar = jQuery("#engine-load-progress");
@@ -657,7 +657,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * @param relative {Boolean} Relative to the current path, or from the engine path
      * @param noInject {Boolean} <code>true</code> to bypass engine path injection and use
      *     a <tt>&lt;link /&gt; tag to load the styles instead.
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     loadStylesheet:function (stylesheetPath, relative, noInject) {
         stylesheetPath = (relative ? "" : R.Engine.getEnginePath()) + stylesheetPath;
@@ -693,7 +693,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 
     /**
      * Output the list of scripts loaded by the Engine to the console.
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     dumpScripts:function () {
         for (var f in this.loadedScripts) {
@@ -706,7 +706,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
      * again.  Use this method with caution, as it is not recommended
      * to load a script if the object is in use.  May cause unexpected
      * results.
-     * @memberOf R.engine.Script
+     * @memberof R.engine.Script
      */
     clearScriptCache:function () {
         R.engine.Script.loadedScripts = {};

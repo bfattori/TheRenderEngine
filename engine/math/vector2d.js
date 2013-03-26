@@ -305,35 +305,35 @@ R.math.Vector2D = function () {
         /**
          * The "zero" vector. This vector should not be modified.
          * @type {R.math.Vector2D}
-         * @memberOf R.math.Vector2D
+         * @memberof R.math.Vector2D
          */
         ZERO:null,
 
         /**
          * The normalized "up" vector. This vector should not be modified.
          * @type {R.math.Vector2D}
-         * @memberOf R.math.Vector2D
+         * @memberof R.math.Vector2D
          */
         UP:null,
 
         /**
          * The normalized "left" vector. This vector should not be modified.
          * @type {R.math.Vector2D}
-         * @memberOf R.math.Vector2D
+         * @memberof R.math.Vector2D
          */
         LEFT:null,
 
         /**
          * The normalized "down" vector. This vector should not be modified.
          * @type {R.math.Vector2D}
-         * @memberOf R.math.Vector2D
+         * @memberof R.math.Vector2D
          */
         DOWN:null,
 
         /**
          * The normalized "right" vector. This vector should not be modified.
          * @type {R.math.Vector2D}
-         * @memberOf R.math.Vector2D
+         * @memberof R.math.Vector2D
          */
         RIGHT:null
     });

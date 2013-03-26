@@ -111,8 +111,8 @@ var TilemapDemo = function() {
 
       run: function() {
          // Create the 2D context
-//         this.renderContext = R.rendercontexts.VirtualCanvasContext.create("playfield", 800, 600, 3200, 3200);
-          this.renderContext = R.rendercontexts.VirtualHTMLDivContext.create("playfield", 800, 600, 3200, 3200);
+         this.renderContext = R.rendercontexts.VirtualCanvasContext.create("playfield", 800, 600, 3200, 3200);
+//          this.renderContext = R.rendercontexts.VirtualHTMLDivContext.create("playfield", 800, 600, 3200, 3200);
          this.renderContext.setWorldScale(this.areaScale);
          R.Engine.getDefaultContext().add(this.renderContext);
          this.renderContext.setBackgroundColor("#0a0a0a");

@@ -114,7 +114,7 @@ R.particles.ParticleEngine = function () {
          * @param particles {Array|R.struct.Container} A container of particles to add at one time
          */
         addParticles:function (particles) {
-            if ($.isArray(particles)) {
+            if (R.isArray(particles)) {
                 // If the particles are an Array, convert to a LinkedList first
                 particles = R.struct.Container.fromArray(particles);
             }
@@ -247,6 +247,8 @@ R.particles.ParticleEngine = function () {
                 return;
             }
 
+            this.lastTime = time;
+
             // Run all queued effects
             var dead = R.struct.Container.create();
             for (var effectItr = this.particleEffects.iterator(); effectItr.hasNext(); ) {
@@ -258,8 +260,6 @@ R.particles.ParticleEngine = function () {
                     dead.add(effect);
                 }
             }
-
-            this.lastTime = time;
 
             R.debug.Metrics.add("particles", this.liveParticles, false, "#");
 

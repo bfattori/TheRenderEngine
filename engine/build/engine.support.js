@@ -48,7 +48,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param array {Array} The array to scan
      * @param obj {Object} The object to find
      * @param [from=0] {Number} The index to start at, defaults to zero.
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     indexOf:function (array, obj, from) {
         return array && R.isArray(array) ? array.indexOf(obj, from) : -1;
@@ -60,7 +60,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param array {Array} The array to modify
      * @param obj {Object} The object to remove
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     arrayRemove:function (array, obj) {
         if (!array || !R.isArray(array)) {
@@ -79,7 +79,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param str {String} The string to test
      * @return {Boolean} <tt>true</tt> if the string is empty or <tt>null</tt>
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     isEmpty:function (str) {
         return R.isEmpty(str);
@@ -100,7 +100,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *                      and the array being traversed.
      * @param [thisp=null] {Object} Used as <tt>this</tt> for each invocation of the
      *                       callback.
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     filter:function (array, fn, thisp) {
         return array && R.isArray(array) ? array.filter(fn, thisp) : undefined;
@@ -114,7 +114,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *                      arguments: The element value, the index of the element,
      *                      and the array being traversed.
      * @param [thisp=null] {Object} An optional "this" pointer to use in the callback
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     forEach:function (array, fn, thisp) {
         return array && R.isArray(array) ? array.forEach(fn, thisp) : undefined;
@@ -128,7 +128,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param {Array} arr The array to fill
      * @param {Number} size The size of the array to fill
      * @param {Object} value The value to put at each index
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     fillArray:function (arr, size, value) {
         for (var i = 0; i < size; i++) {
@@ -142,7 +142,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param url {String} The URL
      * @return {String} The path
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     getPath:function (url) {
         return R.isString(url) ? url.substr(0, url.lastIndexOf("/")) : undefined;
@@ -154,7 +154,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * found.
      *
      * @return {Object} A generic <tt>Object</tt> with a key and value for each query argument.
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     getQueryParams:function () {
         if (!R.engine.Support.parms) {
@@ -177,7 +177,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param paramName {String} The query parameter name
      * @return {Boolean} <tt>true</tt> if the query parameter exists and is one of the specified values.
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     checkBooleanParam:function (paramName) {
         return (R.engine.Support.getQueryParams()[paramName] &&
@@ -192,7 +192,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param paramName {String} The query parameter name
      * @param val {String} The value to check for
      * @return {Boolean} <tt>true</tt> if the query parameter exists and is the value specified
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     checkStringParam:function (paramName, val) {
         return (R.engine.Support.getStringParam(paramName, null) == val);
@@ -205,7 +205,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param paramName {String} The query parameter name
      * @param val {Number} The number to check for
      * @return {Boolean} <tt>true</tt> if the query parameter exists and is the value specified
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     checkNumericParam:function (paramName, val) {
         var num = R.engine.Support.getStringParam(paramName, null);
@@ -219,7 +219,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param paramName {String} The name of the parameter
      * @param defaultVal {Number} The number to return if the parameter doesn't exist
      * @return {Number} The value
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     getNumericParam:function (paramName, defaultVal) {
         return Number(R.engine.Support.getStringParam(paramName, defaultVal));
@@ -232,7 +232,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param paramName {String} The name of the parameter
      * @param defaultVal {String} The string to return if the parameter doesn't exist
      * @return {String} The value
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     getStringParam:function (paramName, defaultVal) {
         return (R.engine.Support.getQueryParams()[paramName] || defaultVal);
@@ -243,7 +243,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param object {Object} Must not be undefined or contain undefined types and variables.
      * @return String
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      * @deprecated Use <tt>JSON.stringify()</tt>
      */
     toJSON:function (o) {
@@ -256,7 +256,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param jsonString
      * @return Object
      * @see http://www.json.org
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      * @deprecated Use <tt>JSON.parse()</tt> instead
      */
     parseJSON:function (jsonString) {
@@ -266,7 +266,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     /**
      * Determine the OS platform from the user agent string, if possible
      * @private
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     checkOS:function () {
         // Scrape the userAgent to get the OS
@@ -335,7 +335,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * </li>
      * </ul>
      * @return {Object} An object with system information
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     sysInfo:function () {
         if (!R.engine.Support._sysInfo) {
@@ -469,7 +469,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * be executed.
      * @param obj {Object} The object to wait for
      * @param fn {Function} The function to execute when the object is ready
-     * @memberOf R.engine.Support
+     * @memberof R.engine.Support
      */
     whenReady:function (obj, fn) {
         var whenObject = {

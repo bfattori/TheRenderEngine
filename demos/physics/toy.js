@@ -68,7 +68,7 @@ var Toy = function() {
          this.base("PhysicsToy");
          this.sprite = null;
          this.mouseButtonDown = false;
-         this.renderScale = (R.lang.Math2.random() * 1) + 0.8;
+         this.renderScale = (R.lang.Math2.random()) + 0.8;
 
          // DOM Context ------------------------------------------------------
 

@@ -59,15 +59,15 @@ var toP2d = function (arr) {
 
 /** @private */
 var getRelativePosition = function (aV, obj) {
-    if ($.isArray(aV) && aV.length == 2) {
+    if (R.isArray(aV) && aV.length == 2) {
         // An absolute position
         return toP2d(aV);
     } else {
         // If the array has 3 values, the third is a relative position string
         // and the first two are an offset from that point.  Otherwise, we assume
         // the value is only the position string
-        var rel = ($.isArray(aV) && aV.length == 3 ? aV[2] : aV);
-        var offs = ($.isArray(aV) && aV.length == 3 ? toP2d(aV) : R.math.Point2D.create(0, 0));
+        var rel = (R.isArray(aV) && aV.length == 3 ? aV[2] : aV);
+        var offs = (R.isArray(aV) && aV.length == 3 ? toP2d(aV) : R.math.Point2D.create(0, 0));
         var rPos = R.math.Point2D.create(0, 0);
 
         // Calculate the anchor, relative to the position of the object provided
@@ -506,7 +506,7 @@ R.objects.PhysicsActor = function () {
 
                 // Position the parts relative to each other, in world coordinates with the
                 // origin at the top left corner of the world
-                if ($.isArray(part.position) && part.position.length == 2) {
+                if (R.isArray(part.position) && part.position.length == 2) {
                     // Set the position of the part in absolute coordinates
                     var pt = toP2d(part.position);
                     pt.mul(def.scale ? def.scale : 1);

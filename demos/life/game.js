@@ -8,6 +8,9 @@ R.Engine.define({
 
 /**
  * @class Game of Life
+ *
+ * Interesting seeds:
+ *      4001389056
  */
 var GameOfLife = function () {
     return R.engine.Game.extend({
@@ -94,11 +97,20 @@ var GameOfLife = function () {
 
             $("body", document).append(world).append($("<div>").html("seed: " + seed));
 
+            world.click(function(ev) {
+                GameOfLife.createCell(ev);
+            });
+
             for (var x = 0; x < 8; x++) {
                 GameOfLife.surroundingCells[x] = R.math.Point2D.create(0,0);
             }
 
 
+        },
+
+        createCell: function(ev) {
+            $(ev.target).addClass("alive").removeClass("dead");
+            GameOfLife.world[$("div.cell").index(ev.target)].nextState = GameOfLife.BORN_CELL;
         },
 
         applyRules: function() {

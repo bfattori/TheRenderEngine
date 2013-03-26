@@ -9044,11 +9044,11 @@
                 hooks = Tween.propHooks[ this.prop ];
 
             if (this.options.duration) {
-                this.pos = eased = jQuery.easing[ this.easing ](
+                this.position = eased = jQuery.easing[ this.easing ](
                     percent, this.options.duration * percent, 0, 1, this.options.duration
                 );
             } else {
-                this.pos = eased = percent;
+                this.position = eased = percent;
             }
             this.now = ( this.end - this.start ) * eased + this.start;
 

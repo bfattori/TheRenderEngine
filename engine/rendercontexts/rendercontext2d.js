@@ -940,6 +940,20 @@ R.rendercontexts.RenderContext2D = function () {
         },
 
         /**
+         * Draw a sprite on the context at the position given.
+         *
+         * @param sprite {R.resources.types.Sprite} The sprite to draw
+         * @param position {R.math.Point2D} The position at which to draw the sprite
+         * @param time {Number} The current world time
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         * @param [ref] {R.engine.GameObject} A reference game object
+         */
+        drawSpriteAt:function (sprite, pos, time, dt /*, ref */) {
+
+        },
+
+        /**
          * Draw an image on the context.
          *
          * @param rect {R.math.Rectangle2D} The rectangle that specifies the position and

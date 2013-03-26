@@ -183,7 +183,7 @@ R.Socket = function (/* ident, host */) {
 
             // Acknowledged
             if (f != -1) {
-                if ($.isFunction(ack[0].cb)) {
+                if (R.isFunction(ack[0].cb)) {
                     ack[0].cb(obj.packetNum);
                 }
 
@@ -230,7 +230,7 @@ R.Socket.prototype.connect = function () {
  * @private
  */
 R.Socket.prototype.notify = function (type, message) {
-    if ($.isFunction(self.listener)) {
+    if (R.isFunction(self.listener)) {
         self.listener(type, message);
     }
 };

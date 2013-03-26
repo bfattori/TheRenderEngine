@@ -87,7 +87,7 @@ R.math.PooledMathObject = function () {
          * <p/>
          * Usage: <tt>var obj = [ObjectClass].create(arg1, arg2, arg3...);</tt>
          *
-         * @memberOf R.math.PooledMathObject
+         * @memberof R.math.PooledMathObject
          */
         create:function () {
             if (R.Engine.options.transientMathObject) {

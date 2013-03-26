@@ -84,7 +84,7 @@ R.lang.Iterator = function () {
             this.base("Iterator");
             this.c = container;
             this.aO = (arguments.length == 2 ? arguments[1] : null);
-            this.arr = $.isArray(container);    // Handle plain Arrays too
+            this.arr = R.isArray(container);    // Handle plain Arrays too
             this.p = this.arr ? 0 : container._head;
             this.r = false;
         },

@@ -74,7 +74,7 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
      * @param [data] {Array} Optional data to pass to the handler when it is invoked.
      * @param name {String} The event to handle.  ie: "click" or "mouseover"
      * @param handler {Function} The handler function to assign to the target
-     * @memberOf R.engine.Events
+     * @memberof R.engine.Events
      */
     setHandler:function (target, data, name, handler) {
         if (typeof data == "string") {
@@ -98,7 +98,7 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
      *                               CSS selector, or a jQuery object.
      * @param name {String} The event to handle.  ie: "click" or "mouseover"
      * @param handler {Function} The handler function to unassign from the target
-     * @memberOf R.engine.Events
+     * @memberof R.engine.Events
      */
     clearHandler:function (target, name, handler) {
         if (target == document.body) {
@@ -116,7 +116,7 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
      * @param [literal] {Boolean} <code>true</code> to return the literal code without
      *        first converting the character to lower case.
      * @return {Number} The key code for the given character
-     * @memberOf R.engine.Events
+     * @memberof R.engine.Events
      */
     keyCodeForChar:function (charStr, literal) {
         return (literal ? charStr : charStr.toUpperCase()).charCodeAt(0);

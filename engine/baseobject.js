@@ -273,7 +273,7 @@ R.engine.BaseObject = function () {
          */
         addEvents:function (handlers) {
             var self = this;
-            if ($.isArray(handlers)) {
+            if (R.isArray(handlers)) {
                 for (var h = 0; h < handlers.length; h++) {
                     var method = this[handlers[h]];
                     this.addEvent(handlers[h].substr(2).toLowerCase(), method);

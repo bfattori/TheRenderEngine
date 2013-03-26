@@ -311,15 +311,26 @@ var SpaceroidsPlayer = function() {
          this.getComponent("draw").setDrawMode(R.components.Render.NO_DRAW);
          Spaceroids.soundLoader.get("thrust").stop();
 
-         // Make some particles
-         var p = R.struct.Container.create();
-         for (var x = 0; x < SpaceroidsPlayer.KILL_PARTICLES; x++) {
-            p.add(TrailParticle.create(this.getPosition(), this.getRotation(), 45, "#ffffaa", 2000));
-            p.add(SimpleParticle.create(this.getPosition(), 3000));
-         }
-         Spaceroids.pEngine.addParticles(p);
+//         // Make some particles
+//         var p = R.struct.Container.create();
+//         for (var x = 0; x < SpaceroidsPlayer.KILL_PARTICLES; x++) {
+//            p.add(TrailParticle.create(this.getPosition(), this.getRotation(), 45, "#ffffaa", 2000));
+//            p.add(SimpleParticle.create(this.getPosition(), 3000));
+//         }
+//         Spaceroids.pEngine.addParticles(p);
 
-         // Reset the player so we can respawn
+          // Create a one-time effect.  It is destroyed after generating the particles
+          Spaceroids.pEngine.addEffect(
+              R.particles.effects.Explosion.create(this.getPosition()).
+                  quantity(SpaceroidsPlayer.KILL_PARTICLES).
+                  particleVelocity(R.lang.Math2.randomRange(1, 3), 0.8).
+                  decay(R.lang.Math2.random(), 0.09).
+                  particleLife(1100, 500).
+                  particle(SimpleParticle)
+          );
+
+
+          // Reset the player so we can respawn
          this.getComponent("move").setVelocity(R.math.Point2D.ZERO);
          this.getComponent("move").setPosition(Spaceroids.renderContext.getBoundingBox().getCenter());
          this.getComponent("move").setRotation(0);

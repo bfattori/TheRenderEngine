@@ -50,7 +50,8 @@ R.Engine.define({
       "R.engine.Events",
       "R.math.Math2D",
       //"R.particles.ParticleEngine"
-      "R.particles.AccumulatorParticleEngine"
+      "R.particles.AccumulatorParticleEngine",
+      "R.particles.effects.Spark"
    ],
 
    // Game class dependencies
@@ -213,10 +214,42 @@ var Spaceroids = function() {
 
          var evolved = R.text.TextRenderer.create(R.text.VectorText.create(), "Evolution", 1);
          evolved.setColor("#ff0000");
-         evolved.setPosition(R.math.Point2D.create(290, 120));
+         var evolvedPos = R.math.Point2D.create(290, 120);
+         evolved.setPosition(evolvedPos);
          this.renderContext.add(evolved);
 
-         Spaceroids.start = R.text.TextRenderer.create(R.text.VectorText.create(), startText, 1);
+          this.pEngine.addEffect(R.particles.effects.Spark.create(R.clone(evolvedPos).add(R.math.Point2D.create(90, -4))).
+              quantity(8).
+              lifespan(Infinity).
+              particleVelocity(0.8, 1.2).
+              particleLife(1000).
+              width(20).
+              rotation(180).
+              delay(2000, 7000)
+          );
+
+          this.pEngine.addEffect(R.particles.effects.Spark.create(evolvedPos).
+              quantity(8).
+              lifespan(Infinity).
+              particleVelocity(0.8, 1.2).
+              particleLife(1000).
+              width(20).
+              rotation(180).
+              delay(2000, 7000)
+          );
+
+          this.pEngine.addEffect(R.particles.effects.Spark.create(R.clone(evolvedPos).add(R.math.Point2D.create(35, -6))).
+              quantity(8).
+              lifespan(Infinity).
+              particleVelocity(0.8, 1.2).
+              particleLife(1000).
+              width(20).
+              rotation(180).
+              delay(2000, 7000)
+          );
+
+
+          Spaceroids.start = R.text.TextRenderer.create(R.text.VectorText.create(), startText, 1);
          Spaceroids.start.setPosition(R.math.Point2D.create(center.x, 450));
          Spaceroids.start.setColor("#ffffff");
          Spaceroids.start.setTextAlignment(R.text.AbstractTextRenderer.ALIGN_CENTER);
@@ -545,11 +578,6 @@ var Spaceroids = function() {
             return;
          }
          */
-
-         // Experimental effect for blurring
-         if (R.engine.Support.checkBooleanParam("blur")) {
-            this.pEngine.setBlur(true);
-         }
 
          // Wait for resources to finish loading before starting
          R.lang.Timeout.create("wait", 150, function() {

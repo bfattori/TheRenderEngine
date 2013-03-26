@@ -54,7 +54,7 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
     /**
      * [ABSTRACT] Initialize the game.  This method will be called automatically by the
      * engine when all dependencies for the game have been resolved.
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     setup:function () {
     },
@@ -62,14 +62,14 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
     /**
      * [ABSTRACT] Shut down the game.  This method will be called if the engine is shut down
      * giving a game time to clean up before it is destroyed.
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     tearDown:function () {
     },
 
     /**
      * Get the display name of the game.
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     getName:function () {
         return "Game";
@@ -82,7 +82,7 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
      * @param scriptSource {String} The relative path to the script to load.
      * @return {String} An Id for the script which is used in the call to {@link #scriptLoaded}
      *                  when the script has completed loading (or errored out)
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     load:function (scriptSource) {
         Assert((scriptSource.indexOf("http") == -1), "Game scripts can only be loaded relative to the game's path");
@@ -98,7 +98,7 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
      * with an absolute URL.
      *
      * @param scriptPath {String} The relative path of the script to load.
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     loadEngineScript:function (scriptPath) {
         R.engine.Script.loadNow(scriptPath, Game.scriptLoaded);
@@ -108,7 +108,7 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
      * [ABSTRACT] Will be called with the path of a loaded script. You can
      * be guaranteed that the script either loaded and is ready or failed to load.
      * @param scriptPath {String} The script path
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     scriptLoaded:function (scriptPath) {
     },
@@ -117,7 +117,7 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
      * Allows a game to inject a function call into the scriping
      * queue to be processed when the queue has an available slot.
      * @param cb {Function} The callback to execute
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     setQueueCallback:function (cb) {
         R.engine.Script.setQueueCallback(cb);
@@ -127,7 +127,7 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
      * Get the number of players the game supports.
      *
      * @return {Number}
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     getPlayers:function () {
         return 1;
@@ -136,7 +136,7 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
     /**
      * Get the path where your game class exists.
      * @return {String}
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     getGamePath:function () {
         var loc = window.location;
@@ -149,7 +149,7 @@ R.engine.Game = Base.extend(/** @scope R.engine.Game.prototype */{
      * Get the path of the specified file, relative to your game class.
      * @param fileName {String} The path to the file
      * @return {String}
-     * @memberOf R.engine.Game
+     * @memberof R.engine.Game
      */
     getFilePath:function (fileName) {
         var loc = window.location;

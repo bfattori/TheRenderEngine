@@ -305,7 +305,7 @@ R.math.Point3D = function () {
         /**
          * The "zero" point
          * @type {R.math.Point3D}
-         * @memberOf R.math.Point3D
+         * @memberof R.math.Point3D
          */
         ZERO:null
     });
