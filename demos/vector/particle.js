@@ -58,23 +58,22 @@ var SimpleParticle = function() {
        * @param dt {Number} The delta between the world time and the last time the world was updated
        *          in milliseconds.
        */
-      renderParticle: function(renderContext, time, dt) {
-         var colr,rgba;
+      draw: function(renderContext, time, dt, remainingTime) {
+         var color, rgba;
          if (!Spaceroids.isAttractMode) {
-            var s = time - this.getBirth();
-            var e = this.getTTL() - this.getBirth();
-            colr = 255 - Math.floor(255 * (s / e));
-            colr += (-10 + (Math.floor(R.lang.Math2.random() * 20)));
-            var fb = (R.lang.Math2.random() * 100);
-            if (fb > 90) {
-               colr = 255;
+            var endLife = this.getTTL() - this.getBirth();
+            color = 255 - Math.floor(255 * (remainingTime / endLife));
+            color += (-10 + (Math.floor(R.lang.Math2.random() * 20)));
+            var flicker = (R.lang.Math2.random() * 100);
+            if (flicker > 90) {
+               color = 255;
             }
 
             if (R.lang.Math2.randomRange(0, 100, true) < 45) {
                // 45% chance to get some red particles in there
-               rgba = "rgb(" + colr + ",0,0)";
+               rgba = "rgb(" + color + ",0,0)";
             } else {
-               rgba = "rgb(" + colr + "," + colr + "," + colr + ")";
+               rgba = "rgb(" + color + "," + color + "," + color + ")";
             }
          } else {
             rgba = "rgb(255,255,255)";
@@ -112,7 +111,7 @@ var TrailParticle = function() {
       clr: null,
 
       constructor: function(pos, rot, spread, color, ttl) {
-         this.base(ttl || 2000);
+         this.base(pos, ttl || 2000, {});
          this.clr = color;
          this.setPosition(pos.x, pos.y);
          var a = rot + Math.floor((180 - (spread / 2)) + (R.lang.Math2.random() * (spread * 2)));
@@ -172,11 +171,6 @@ R.Engine.define({
 var RockTrailParticle = function() {
    return R.particles.AbstractParticle.extend(/** @scope RockTrailParticle.prototype */{
 
-      constructor: function(pos, ttl) {
-         this.base(ttl || 2000);
-         this.setPosition(pos);
-      },
-
       release: function() {
          this.base();
          this.decay = 0;
@@ -192,7 +186,7 @@ var RockTrailParticle = function() {
        *          in milliseconds.
        */
       draw: function(renderContext, time, dt) {
-         var colr,rgba;
+         var colr, rgba;
          var s = time - this.getBirth();
          var e = this.getTTL() - this.getBirth();
          colr = 90 - Math.floor(90 * (s / e));

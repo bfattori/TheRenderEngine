@@ -21,20 +21,27 @@ R.particles.effects.Spark = function() {
             return this;
         },
 
+        /**
+         * The delay between particle emissions.
+         *
+         * @param delay
+         * @param [delayVariance]
+         * @returns {*}
+         */
         delay: function(delay, delayVariance) {
             this._delay = delay;
             this._delayVariance = delayVariance || 0;
             return this;
         },
 
-        generateParticles: function(particles, particleCount, particleLife, time, dt) {
+        generateParticles: function(particles, particleCount, particleLife, options, time, dt) {
 
             if (this._lastDelayTime == 0) {
                 this._lastDelayTime = time + this._delay + R.lang.Math2.randomRange(0, this._delayVariance, true);
             }
 
             if (time > this._lastDelayTime) {
-                this.base(particles, particleCount, particleLife, time, dt);
+                this.base(particles, particleCount, particleLife, options, time, dt);
                 this._lastDelayTime = time + this._delay + R.lang.Math2.randomRange(0, this._delayVariance, true);
             }
 

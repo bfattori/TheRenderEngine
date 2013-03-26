@@ -9,8 +9,8 @@ R.Engine.define({
 var Smoker = function() {
     return R.particles.effects.Spray.extend({
 
-        generateParticles: function(particles, particleCount, particleLife) {
-            this.base(particles, particleCount, particleLife);
+        generateParticles: function(particles, particleCount, particleLife, particleOptions, time, dt) {
+            this.base(particles, particleCount, particleLife, particleOptions, time, dt);
 
             // Set a sprite on the particle
             for (var itr = particles.iterator(); itr.hasNext(); ) {
@@ -40,7 +40,7 @@ var SmokerParticle = function() {
             this.sprite = sprite;
         },
 
-        renderParticle: function(renderContext, time, dt) {
+        draw: function(renderContext, time, dt, remainingTime) {
             if (this.sprite) {
                 renderContext.drawSpriteAt(this.sprite, this.getPosition(), time, dt);
             }

@@ -41,11 +41,19 @@ R.Engine.define({
 });
 
 /**
- * @class Base particle class.  A particle only needs to implement the
+ * @class Base particle class.  A particle only needs to override the
  *        <tt>draw()</tt> method. The remainder of the functionality is
  *        handled by this abstract class.
  *
+ * @param position {R.math.Point2D} The point at which the particle begins its life
  * @param lifetime {Number} The life of the particle, in milliseconds
+ * @param [options] {Object} An options object which can contain the following:
+ *      <ul>
+ *          <li><tt>decay</tt> - The velocity decay rate per frame</li>
+ *          <li><tt>velocity</tt> - The scalar velocity of the particle</li>
+ *          <li><tt>angle</tt> - The degrees around the position at which to emit the particle</li>
+ *          <li><tt>gravity</tt> - A {@link R.math.Vector2D} which indicates the gravity vector</li>
+ *      </ul>
  * @extends R.engine.PooledObject
  * @constructor
  * @description Create a particle
@@ -58,20 +66,49 @@ R.particles.AbstractParticle = function () {
         birth:0,
         dead:false,
         pos:null,
+        options:null,
+        inverseVelocity: null,
+        velocityVector: null,
 
         /** @private */
-        constructor:function (lifetime) {
+        constructor:function (position, lifetime, options) {
             this.base("Particle");
             this.life = lifetime;
             this.birth = 0;
             this.dead = false;
+            this.setPosition(position);
 
-            if (this.pos == null) {
-                // Once a particle has been created, then returned to the pool,
-                // this point will still exist.  Instead of creating a new point
-                // we'll reuse it for the life of the engine.
-                this.pos = R.math.Point2D.create(0, 0);
+            // Handle options
+            if (!this.options) {
+                this.options = {};
             }
+            this.options.decay = options.decay || 0;
+            this.options.velocity = options.velocity || 1;
+            this.options.angle = options.angle || 0;
+            if (this.options.gravity == null) {
+                this.options.gravity = R.math.Vector2D.create(0, 0);
+            } else {
+                this.options.gravity.set(0, 0);
+            }
+
+            if (options.gravity) {
+                this.options.gravity.set(options.gravity);
+            }
+
+            if (this.inverseVelocity == null) {
+                this.inverseVelocity = R.math.Vector2D.create(0, 0);
+            } else {
+                this.inverseVelocity.set(0, 0);
+            }
+
+            if (this.velocityVector == null) {
+                this.velocityVector = R.math.Vector2D.create(0, 0);
+            } else {
+                this.velocityVector.set(0, 0);
+            }
+
+            R.math.Math2D.getDirectionVector(R.math.Point2D.ZERO, R.math.Vector2D.UP, this.options.angle, this.velocityVector);
+            this.velocityVector.mul(this.options.velocity);
         },
 
         /**
@@ -79,6 +116,7 @@ R.particles.AbstractParticle = function () {
          */
         destroy:function () {
             this.base();
+            this.pos.destroy();
         },
 
         /**
@@ -121,7 +159,11 @@ R.particles.AbstractParticle = function () {
          * @param y {Number} Y world coordinate
          */
         setPosition:function (x, y) {
-            this.pos.set(x, y);
+            if (this.pos == null) {
+                this.pos = R.math.Point2D.create(x, y);
+            } else {
+                this.pos.set(x, y);
+            }
         },
 
         /**
@@ -135,7 +177,7 @@ R.particles.AbstractParticle = function () {
             if (time < this.life &&
                 renderContext.getViewport().containsPoint(this.getPosition())) {
                 // if the particle is still alive, and it isn't outside the viewport
-                this.draw(renderContext, time, dt);
+                this.move(renderContext, time, dt, this.life - time);
                 return true;
             }
             else {
@@ -161,14 +203,39 @@ R.particles.AbstractParticle = function () {
 
 
         /**
-         * [ABSTRACT] Draw the particle
+         * Move the particle.  May be overridden to allow different types of movement, rather than the standard
+         * linear movement.
          * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the particle to
          * @param time {Number} The world time, in milliseconds
          * @param dt {Number} The delta between the world time and the last time the world was updated
          *          in milliseconds.
+         * @param remainingTime {Number} The number of milliseconds left in the particle's life
          */
-        draw:function (renderContext, time, dt) {
-            // ABSTRACT
+        move:function (renderContext, time, dt, remainingTime) {
+            // Decay
+            if (this.options.decay > 0 && this.velocityVector.len() > 0) {
+                this.inverseVelocity.set(this.velocityVector).neg();
+                this.inverseVelocity.mul(this.options.decay);
+                this.velocityVector.add(this.inverseVelocity);
+            }
+
+            this.getPosition().add(this.velocityVector);
+            this.draw(renderContext, time, dt, remainingTime);
+        },
+
+        /**
+         * Draw a very basic particle.  Typically, this method would be overridden to handle
+         * a more specific effect for a particle.
+         *
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the particle to
+         * @param time {Number} The world time, in milliseconds
+         * @param dt {Number} The delta between the world time and the last time the world was updated
+         *          in milliseconds.
+         * @param remainingTime {Number} The number of milliseconds left in the particle's life
+         */
+        draw:function(renderContext, time, dt, remainingTime) {
+            renderContext.setFillStyle("#fff");
+            renderContext.drawPoint(this.getPosition());
         }
 
     }, /** @scope R.particles.AbstractParticle.prototype */ {
@@ -182,4 +249,4 @@ R.particles.AbstractParticle = function () {
         }
     });
 
-}
+};

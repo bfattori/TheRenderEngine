@@ -166,18 +166,18 @@ var SpaceroidsRock = function() {
             var rr = R.lang.Math2.randomRange(0,100,true);
             if (rr < 25) {
                // 25% chance a rock will get an emitter
-               var self = this, emitter = R.particles.Emitter.create(function(offset) {
+               var rock = this, emitter = R.particles.Emitter.create(function(offset) {
                   // Create the transformation
                   var pt = R.math.Point2D.create(offset),
-                      rp = R.math.Point2D.create(self.getRenderPosition()),
-                      rMtx = R.math.Math2D.rotationMatrix(self.getRotation());
+                      rp = R.math.Point2D.create(rock.getRenderPosition()),
+                      rMtx = R.math.Math2D.rotationMatrix(rock.getRotation());
 
                   // Transform the position of the particle
                   R.math.Math2D.transformPoints(pt.jitter(4), rMtx);
                   rp.add(pt);
 
                   // Create a particle
-                  var particle = RockTrailParticle.create(rp, 500);
+                  var particle = RockTrailParticle.create(rp, 500, {});
                   pt.destroy();
                   rp.destroy();
                   return particle;
@@ -236,12 +236,12 @@ var SpaceroidsRock = function() {
          Spaceroids.pEngine.addEffect(
              R.particles.effects.Explosion.create(this.getPosition()).
                  quantity(pCount).
+                 particleVelocity(R.lang.Math2.randomRange(0.8, 2), 1).
                  decay(R.lang.Math2.random(), 0.09).
                  particleLife(1100, 500).
                  particle(SimpleParticle)
          );
 
-         Spaceroids.blinkScreen();
          Spaceroids.rocks--;
 
          // Score some points

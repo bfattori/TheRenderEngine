@@ -64,9 +64,9 @@ var ScenicDisplay = function () {
          */
         run: function () {
             this.pEngine.addEffect(Smoker.create(ScenicDisplay.renderContext.getViewport().getCenter()).
-                quantity(1).
-                width(40).
-                rotation(10, 50).
+                quantity(2).
+                width(25, 10).
+                particleVelocity(0.4, 1.2).
                 lifespan(Infinity).
                 frequency(30).
                 particleLife(2500, 800).

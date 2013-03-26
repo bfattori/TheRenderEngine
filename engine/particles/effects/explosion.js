@@ -10,17 +10,22 @@ R.Engine.define({
 R.particles.effects.Explosion = function() {
     return R.particles.Effect.extend({
 
-        decayTime: R.lang.Math2.random() * 0.09,
+        decayRate: 0,
 
-        decay: function(decayTime, variance) {
-            this.decayTime = decayTime * (variance ? R.lang.Math2.random() * variance : 1);
+        constructor: function(origin) {
+            this.base(origin);
+            this.decayRate = R.lang.Math2.random() * 0.09;
             return this;
         },
 
-        generateParticles: function(particles, particleCount, particleLife) {
-            for (var x = 0; x < particleCount; x++) {
-                particles.add(this.particleClass.create(this.position, particleLife, this.decayTime));
-            }
+        decay: function(decayRate, decayRateVariance) {
+            this.decayRate = decayRate * (decayRateVariance ? R.lang.Math2.random() * decayRateVariance : 1);
+            return this;
+        },
+
+        generateParticles: function(particles, particleCount, particleLife, options, time, dt) {
+            options.decay = this.decayRate;
+            this.base(particles, particleCount, particleLife, options, time, dt);
         }
 
     }, {

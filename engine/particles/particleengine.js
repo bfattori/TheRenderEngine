@@ -247,6 +247,8 @@ R.particles.ParticleEngine = function () {
                 return;
             }
 
+            this.lastTime = time;
+
             // Run all queued effects
             var dead = R.struct.Container.create();
             for (var effectItr = this.particleEffects.iterator(); effectItr.hasNext(); ) {
@@ -258,8 +260,6 @@ R.particles.ParticleEngine = function () {
                     dead.add(effect);
                 }
             }
-
-            this.lastTime = time;
 
             R.debug.Metrics.add("particles", this.liveParticles, false, "#");
 

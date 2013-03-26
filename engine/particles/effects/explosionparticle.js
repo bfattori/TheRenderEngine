@@ -1,8 +1,7 @@
 R.Engine.define({
     "class": "R.particles.effects.ExplosionParticle",
     "requires": [
-        "R.particles.AbstractParticle",
-        "R.math.Math2D"
+        "R.particles.AbstractParticle"
     ]
 });
 
@@ -17,63 +16,10 @@ R.Engine.define({
 R.particles.effects.ExplosionParticle = function() {
     return R.particles.AbstractParticle.extend(/** @scope R.particles.effects.ExplosionParticle.prototype */{
 
-        velocityVector: null,
-        decay: 0,
-        inverseVelocity: null,
-
-        constructor: function(position, ttl, decay) {
-            this.base(ttl || 2000);
-            this.setPosition(position.x, position.y);
-
-            var emitAngle = Math.floor(R.lang.Math2.random() * 360);
-
-            if (this.inverseVelocity == null) {
-                // Another situation where it's better to keep this value, rather than destroying
-                // it after use.  Since particles are short-lived, it's better to do this than
-                // create/destroy over and over.
-                this.inverseVelocity = R.math.Vector2D.create(0, 0);
-            }
-
-            if (this.velocityVector == null) {
-                // Same as above to save cycles...
-                this.velocityVector = R.math.Vector2D.create(0, 0);
-            }
-
-            R.math.Math2D.getDirectionVector(R.math.Point2D.ZERO, R.math.Vector2D.UP, emitAngle, this.velocityVector);
-            var vel = 1 + (R.lang.Math2.random() * 5);
-            this.velocityVector.mul(vel);
-            this.decay = decay;
-        },
-
-        release: function() {
-            this.base();
-            this.decay = 0;
-            this.renderFn = null;
-        },
-
-        /**
-         * Called by the particle engine to draw the particle to the rendering
-         * context.
-         *
-         * @param renderContext {RenderContext} The rendering context
-         * @param time {Number} The engine time in milliseconds
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         */
-        draw: function(renderContext, time, dt) {
-            if (this.decay > 0 && this.velocityVector.len() > 0) {
-                this.inverseVelocity.set(this.velocityVector).neg();
-                this.inverseVelocity.mul(this.decay);
-                this.velocityVector.add(this.inverseVelocity);
-            }
-
-            this.getPosition().add(this.velocityVector);
-            this.renderParticle(renderContext, time, dt);
-        },
-
-        renderParticle: function(renderContext, time, dt) {
-            renderContext.setFillStyle("#fff");
-            renderContext.drawPoint(this.getPosition());
+        constructor: function(position, ttl, options) {
+            // Automatically override the angle to generate the explosion
+            options.angle = Math.floor(R.lang.Math2.random() * 360);
+            this.base(position, ttl || 2000, options);
         }
 
     }, {

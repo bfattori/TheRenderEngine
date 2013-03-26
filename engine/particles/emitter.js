@@ -170,4 +170,4 @@ R.particles.Emitter = function () {
         }
     });
 
-}
+};
