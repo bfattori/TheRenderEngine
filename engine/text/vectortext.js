@@ -117,30 +117,6 @@ R.text.VectorText = function () {
         },
 
         /**
-         * Set the text alignment
-         * @param align {Number}
-         */
-        setTextAlignment:function (align) {
-            this.base(align);
-
-            // Adjust the origin, based on the alignment
-            var b = this.getGameObject().getBoundingBox();
-            var c = b.getCenter();
-            var o = R.math.Point2D.create(0, 0);
-            if (align === R.text.AbstractTextRenderer.ALIGN_RIGHT) {
-                o.set(c.x + b.getHalfWidth(), 0);
-            }
-            else if (align === R.text.AbstractTextRenderer.ALIGN_LEFT) {
-                o.set(c.x - b.getHalfWidth(), 0);
-            }
-            else {
-                o.set(c.x, 0);
-            }
-
-            this.getGameObject().setOrigin(o);
-        },
-
-        /**
          * Set the text to render.
          *
          * @param text {String} The text to vectorize

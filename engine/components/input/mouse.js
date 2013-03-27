@@ -40,7 +40,8 @@ R.Engine.define({
         "R.lang.Timeout",
         "R.math.Point2D",
         "R.math.Vector2D",
-        "R.math.Math2D"
+        "R.math.Math2D",
+        "R.struct.MouseInfo"
     ]
 });
 

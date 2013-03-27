@@ -128,6 +128,7 @@ R.math.Point2D = function () {
          */
         setX:function (x) {
             this.x = x;
+            return this;
         },
 
         /**
@@ -137,6 +138,7 @@ R.math.Point2D = function () {
          */
         setY:function (y) {
             this.y = y;
+            return this;
         },
 
         /**

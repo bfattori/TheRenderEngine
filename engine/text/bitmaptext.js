@@ -91,7 +91,6 @@ R.text.BitmapText = function () {
 
                 pc.set(wT * 0.5, 0);
 
-                // 1st pass: The text
                 letter = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? text.length - 1 : 0);
                 lCount = text.length;
 
@@ -159,6 +158,11 @@ R.text.BitmapText = function () {
             }
 
             renderContext.pushTransform();
+            var o = R.math.Point2D.create(this.getGameObject().getOrigin());
+            o.neg();
+            renderContext.setPosition(o);
+            o.destroy();
+
             renderContext.setScale(this.getSize());
 
             var text = this.getText(), lCount = text.length, align = this.getTextAlignment(),
@@ -210,14 +214,12 @@ R.text.BitmapText = function () {
             }
 
             // 2nd pass: The color
-            if (renderContext.get2DContext) {
+            if (renderContext.get2DContext && !R.util.RenderUtil.isWhite(this.getColor())) {
                 renderContext.get2DContext().globalCompositeOperation = "source-atop";
-                var r = R.math.Rectangle2D.create(0, 0, pc.x, cH * (lineCount + this.getLineSpacing()));
                 renderContext.setFillStyle(this.getColor());
-                renderContext.drawFilledRectangle(r);
+                renderContext.drawFilledRectangle(this.getGameObject().getBoundingBox());
                 // Reset the composition operation
                 renderContext.get2DContext().globalCompositeOperation = "source-over";
-                r.destroy();
             }
 
             pc.destroy();

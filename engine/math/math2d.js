@@ -189,7 +189,7 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
         var x = Math.cos(r) * baseVec.x - Math.sin(r) * baseVec.y;
         var y = Math.sin(r) * baseVec.x + Math.cos(r) * baseVec.y;
 
-        var v = vec != null ? vec.set(x, y) : R.math.Vector2D.create(x, y);
+        var v = (vec ? vec.set(x, y) : R.math.Vector2D.create(x, y));
         return v.sub(origin).normalize();
     },
 

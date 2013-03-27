@@ -172,6 +172,21 @@ R.text.AbstractTextRenderer = function () {
          */
         setTextAlignment:function (alignment) {
             this.alignment = alignment;
+            // Adjust the origin, based on the alignment
+            var boundingBox = this.getGameObject().getBoundingBox();
+            var center = boundingBox.getCenter();
+            var textOrigin = R.math.Point2D.create(0, 0);
+            if (this.alignment === R.text.AbstractTextRenderer.ALIGN_RIGHT) {
+                textOrigin.set(center.x + boundingBox.getHalfWidth(), 0);
+            }
+            else if (this.alignment === R.text.AbstractTextRenderer.ALIGN_LEFT) {
+                textOrigin.set(center.x - boundingBox.getHalfWidth(), 0);
+            }
+            else {
+                textOrigin.set(center.x, 0);
+            }
+
+            this.getGameObject().setOrigin(textOrigin);
         },
 
         /**

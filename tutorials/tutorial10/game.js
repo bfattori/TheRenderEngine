@@ -3,13 +3,11 @@ R.Engine.define({
 	"requires": [
 		"R.engine.Game",
 		"R.rendercontexts.CanvasContext",
-		"R.rendercontexts.HTMLDivContext",
 		"R.text.VectorText",
 		"R.text.BitmapText",
 		"R.text.ContextText",
 		"R.text.TextRenderer",
 		"R.resources.loaders.BitmapFontLoader",
-		"R.lang.Timeout",
       "R.math.Rectangle2D",
       "R.math.Point2D"
 	]

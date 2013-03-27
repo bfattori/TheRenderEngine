@@ -254,5 +254,16 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 
         // Extract the data URL
         return ctx.getDataURL("image/png");
+    },
+
+    isWhite: function (color) {
+        color = color.toLowerCase();
+        return color == "#fff" || color == "#ffffff" || color == "white";
+    },
+
+    isBlack: function (color) {
+        color = color.toLowerCase();
+        return color == "#000" || color == "#000000" || color == "black";
     }
+
 };
