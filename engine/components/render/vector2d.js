@@ -115,7 +115,7 @@ R.components.render.Vector2D = function () {
          * be rendered to the context.
          *
          * @param pointArray {Array} An array of <tt>Point2D</tt> instances
-         * @param noOffset {Boolean} If <code>true</code>, does not offset the points relative to
+         * @param [noOffset] {Boolean} If <code>true</code>, does not offset the points relative to
          *        their center.  For objects not drawn around a center point, this allows you to
          *        pass the points literally without translation.
          */
@@ -188,7 +188,7 @@ R.components.render.Vector2D = function () {
 
         /**
          * Get a circular convex hull which encloses the points.
-         * @param radiusPct {Number} A percentage of the calculated radius of the points, or <tt>null</tt>
+         * @param [radiusPct] {Number} A percentage of the calculated radius of the points, or <tt>null</tt>
          * @return {R.collision.CircleHull} A convex hull
          */
         getCircleHull:function (radiusPct) {

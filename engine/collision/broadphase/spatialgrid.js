@@ -127,58 +127,41 @@ R.collision.broadphase.SpatialGrid = function () {
             this.accuracy = 0;
         },
 
-        /*
-         addObject: function(obj, point) {
-         var oldNodes = this.getObjectSpatialData(obj, "nodes"), wb = obj.getWorldBox();
-         if (oldNodes != null) {
-         // See if the object's world box is still in all of the nodes
-         var full = R.math.Rectangle2D.create(oldNodes[0].getRect()), n;
-         for (n = 1; n < oldNodes.length; n++) {
-         full.join(oldNodes[n].getRect());
-         }
-         if (!full.containsRect(wb)) {
-         // The object is not within the same nodes
-         for (n = 0; n < oldNodes.length; n++) {
-         oldNodes.removeObject(obj);
-         }
-         } else {
-         // The object is in the same nodes
-         full.destroy();
-         return;
-         }
-         }
+        addObject: function (obj, point) {
+            var nodes = this.getObjectSpatialData(obj, "nodes"), aabb = obj.getAABB();
+            if (nodes && nodes.length > 0) {
+                for (var nodeIdx = 0; nodeIdx < nodes.length; nodeIdx++) {
+                    nodes[nodeIdx].removeObject(obj);
+                }
+            }
 
-         // Find the nodes which contain the world box
-         var pt = R.math.Point2D.create(0,0), tlNode = this.findNodePoint(pt.set(wb.x, wb.y)),
-         trNode = this.findNodePoint(pt.set(wb.x, wb.r)),
-         blNode = this.findNodePoint(pt.set(wb.x, wb.b)),
-         brNode = this.findNodePoint(pt.set(wb.r, wb.b)), addTo = [];
+            // Find the nodes which contain the world box
+            var grid = this.getRoot(), addTo = [];
+            for (var nodeIndex = 0; nodeIndex < grid.length; nodeIndex++) {
+                var spatialNode = grid[nodeIndex], spatialRect = spatialNode.getRect();
+                if (spatialRect.isIntersecting(aabb)) {
+                    spatialNode.addObject(obj);
+                    addTo.push(spatialNode);
+                }
+            }
 
-         if (tlNode != null) {
-         tlNode.addObject(obj);
-         addTo.push(tlNode);
-         }
-         if (trNode != null) {
-         trNode.addObject(obj);
-         addTo.push(trNode);
-         }
-         if (blNode != null) {
-         blNode.addObject(obj);
-         addTo.push(blNode);
-         }
-         if (brNode != null) {
-         brNode.addObject(obj);
-         addTo.push(brNode);
-         }
+            this.setObjectSpatialData(obj, "nodes", addTo);
+        },
 
-         if (addTo.length != 0) {
-         this.setObjectSpatialData(obj, "nodes", addTo);
-         }
-
-         pt.destroy();
-         full.destroy();
-         },
+        /**
+         * Remove an object from the collision model.
+         *
+         * @param obj {R.engine.BaseObject} The object to remove
          */
+        removeObject:function (obj) {
+            var nodes = this.getObjectSpatialData(obj, "nodes");
+            if (nodes && nodes.length > 0) {
+                for (var nodeIdx = 0; nodeIdx < nodes.length; nodeIdx++) {
+                    nodes[nodeIdx].removeObject(obj);
+                }
+            }
+            this.clearObjectSpatialData(obj);
+        },
 
         /**
          * Set the accuracy of the collision checks to either {@link #GOOD_ACCURACY},
@@ -279,122 +262,136 @@ R.collision.broadphase.SpatialGrid = function () {
          * @param point {R.math.Point2D} The point to begin the search at.
          * @return {R.struct.Container} A container of objects found that could be collision targets
          */
-        getPCL:function (point) {
-            var p = this.normalizePoint(point);
-
-            // Get the root node
-            var x = Math.floor(p.x * this.xLocator);
-            var y = Math.floor(p.y * this.yLocator);
-
-            // Iff the object is inside the grid
-            if (x >= 0 && x <= this.divisions - 1 &&
-                y >= 0 && y <= this.divisions - 1) {
-
-                // Create cache nodes for each normalized point in the grid
-                var id = this.getNodeId(p);
-                if (this.pclCache[id] == null) {
-                    this.pclCache[id] = R.struct.Container.create();
-                }
-
-                var cachedPCL = this.pclCache[id];
-
-                // Build the node set
-                var nodes = [], n;
-
-                // Start with GOOD_ACCURACY
-                this.checkNode(nodes, x, y, id);
-
-                // if our borders cross the margin, we can drop up to two nodes
-                if (this.accuracy >= R.collision.broadphase.SpatialGrid.BETTER_ACCURACY) {
-                    // -- Polar nodes
-                    if (x > 0 && x < this.divisions - 1 && y > 0 && y < this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y, id);
-                        this.checkNode(nodes, x + 1, y, id);
-                        this.checkNode(nodes, x, y - 1, id);
-                        this.checkNode(nodes, x, y + 1, id);
-                    } else if (x == 0 && y > 0 && y < this.divisions - 1) {
-                        this.checkNode(nodes, x + 1, y, id);
-                        this.checkNode(nodes, x, y - 1, id);
-                        this.checkNode(nodes, x, y + 1, id);
-                    } else if (x == this.divisions - 1 && y > 0 && y < this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y, id);
-                        this.checkNode(nodes, x, y - 1, id);
-                        this.checkNode(nodes, x, y + 1, id);
-                    } else if (y == 0 && x > 0 && x < this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y, id);
-                        this.checkNode(nodes, x + 1, y, id);
-                        this.checkNode(nodes, x, y + 1, id);
-                    } else if (y == this.divisions - 1 && x > 0 && x < this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y, id);
-                        this.checkNode(nodes, x + 1, y, id);
-                        this.checkNode(nodes, x, y - 1, id);
-                    } else if (x == 0 && y == 0) {
-                        this.checkNode(nodes, x + 1, y, id);
-                        this.checkNode(nodes, x, y + 1, id);
-                    } else if (x == this.divisions - 1 && y == 0) {
-                        this.checkNode(nodes, x - 1, y, id);
-                        this.checkNode(nodes, x, y + 1, id);
-                    } else if (x == 0 && y == this.divisions - 1) {
-                        this.checkNode(nodes, x + 1, y, id);
-                        this.checkNode(nodes, x, y - 1, id);
-                    } else if (x == this.divisions - 1 && y == this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y, id);
-                        this.checkNode(nodes, x, y - 1, id);
-                    }
-                }
-
-                // For highest number of checks, we'll include all eight surrounding nodes
-                if (this.accuracy == R.collision.broadphase.SpatialGrid.HIGH_ACCURACY) {
-                    // -- Corner nodes
-                    if (x > 0 && x < this.divisions - 1 && y > 0 && y < this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y - 1, id);
-                        this.checkNode(nodes, x + 1, y + 1, id);
-                        this.checkNode(nodes, x - 1, y + 1, id);
-                        this.checkNode(nodes, x + 1, y - 1, id);
-                    } else if (x == 0 && y > 0 && y < this.divisions - 1) {
-                        this.checkNode(nodes, x + 1, y + 1, id);
-                        this.checkNode(nodes, x + 1, y - 1, id);
-                    } else if (x == this.divisions - 1 && y > 0 && y < this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y + 1, id);
-                        this.checkNode(nodes, x - 1, y - 1, id);
-                    } else if (y == 0 && x > 0 && x < this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y + 1, id);
-                        this.checkNode(nodes, x + 1, y + 1, id);
-                    } else if (y == this.divisions - 1 && x > 0 && x < this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y - 1, id);
-                        this.checkNode(nodes, x + 1, y - 1, id);
-                    } else if (x == 0 && y == 0) {
-                        this.checkNode(nodes, x + 1, y + 1, id);
-                    } else if (x == this.divisions - 1 && y == 0) {
-                        this.checkNode(nodes, x - 1, y + 1, id);
-                    } else if (x == 0 && y == this.divisions - 1) {
-                        this.checkNode(nodes, x + 1, y - 1, id);
-                    } else if (x == this.divisions - 1 && y == this.divisions - 1) {
-                        this.checkNode(nodes, x - 1, y - 1, id);
-                    }
-                }
-
-                // If there are any nodes which changed, update the PCL cache
-                if (nodes.length != 0) {
-                    R.Engine.pclRebuilds++;
-
-                    cachedPCL.clear();
-                    for (var d = 0; d < nodes.length; d++) {
-                        nodes[d].clearDirty();
-                        if (nodes[d].getCount() != 0) {
-                            cachedPCL.add(nodes[d]);
-                        }
-                    }
-                }
-
-                return cachedPCL;
+        getPCL:function (object) {
+            var spatialNodes = this.getObjectSpatialData(object, "nodes");
+            if (spatialNodes.length == 0) {
+                // Outside the grid, return the empty container
+                return R.struct.Container.EMPTY;
             }
 
-            p.destroy();
+            var pcl = R.struct.Container.create("pcl");
+            pcl.addAll(spatialNodes);
 
-            // Outside the grid, return the empty container
-            return R.struct.Container.EMPTY;
+            return pcl;
         },
+
+
+//        getPCL:function (point) {
+//            var p = this.normalizePoint(point);
+//
+//            // Get the root node
+//            var x = Math.floor(p.x * this.xLocator);
+//            var y = Math.floor(p.y * this.yLocator);
+//
+//            // Iff the object is inside the grid
+//            if (x >= 0 && x <= this.divisions - 1 &&
+//                y >= 0 && y <= this.divisions - 1) {
+//
+//                // Create cache nodes for each normalized point in the grid
+//                var id = this.getNodeId(p);
+//                if (this.pclCache[id] == null) {
+//                    this.pclCache[id] = R.struct.Container.create();
+//                }
+//
+//                var cachedPCL = this.pclCache[id];
+//
+//                // Build the node set
+//                var nodes = [], n;
+//
+//                // Start with GOOD_ACCURACY
+//                this.checkNode(nodes, x, y, id);
+//
+//                // if our borders cross the margin, we can drop up to two nodes
+//                if (this.accuracy >= R.collision.broadphase.SpatialGrid.BETTER_ACCURACY) {
+//                    // -- Polar nodes
+//                    if (x > 0 && x < this.divisions - 1 && y > 0 && y < this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y, id);
+//                        this.checkNode(nodes, x + 1, y, id);
+//                        this.checkNode(nodes, x, y - 1, id);
+//                        this.checkNode(nodes, x, y + 1, id);
+//                    } else if (x == 0 && y > 0 && y < this.divisions - 1) {
+//                        this.checkNode(nodes, x + 1, y, id);
+//                        this.checkNode(nodes, x, y - 1, id);
+//                        this.checkNode(nodes, x, y + 1, id);
+//                    } else if (x == this.divisions - 1 && y > 0 && y < this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y, id);
+//                        this.checkNode(nodes, x, y - 1, id);
+//                        this.checkNode(nodes, x, y + 1, id);
+//                    } else if (y == 0 && x > 0 && x < this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y, id);
+//                        this.checkNode(nodes, x + 1, y, id);
+//                        this.checkNode(nodes, x, y + 1, id);
+//                    } else if (y == this.divisions - 1 && x > 0 && x < this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y, id);
+//                        this.checkNode(nodes, x + 1, y, id);
+//                        this.checkNode(nodes, x, y - 1, id);
+//                    } else if (x == 0 && y == 0) {
+//                        this.checkNode(nodes, x + 1, y, id);
+//                        this.checkNode(nodes, x, y + 1, id);
+//                    } else if (x == this.divisions - 1 && y == 0) {
+//                        this.checkNode(nodes, x - 1, y, id);
+//                        this.checkNode(nodes, x, y + 1, id);
+//                    } else if (x == 0 && y == this.divisions - 1) {
+//                        this.checkNode(nodes, x + 1, y, id);
+//                        this.checkNode(nodes, x, y - 1, id);
+//                    } else if (x == this.divisions - 1 && y == this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y, id);
+//                        this.checkNode(nodes, x, y - 1, id);
+//                    }
+//                }
+//
+//                // For highest number of checks, we'll include all eight surrounding nodes
+//                if (this.accuracy == R.collision.broadphase.SpatialGrid.HIGH_ACCURACY) {
+//                    // -- Corner nodes
+//                    if (x > 0 && x < this.divisions - 1 && y > 0 && y < this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y - 1, id);
+//                        this.checkNode(nodes, x + 1, y + 1, id);
+//                        this.checkNode(nodes, x - 1, y + 1, id);
+//                        this.checkNode(nodes, x + 1, y - 1, id);
+//                    } else if (x == 0 && y > 0 && y < this.divisions - 1) {
+//                        this.checkNode(nodes, x + 1, y + 1, id);
+//                        this.checkNode(nodes, x + 1, y - 1, id);
+//                    } else if (x == this.divisions - 1 && y > 0 && y < this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y + 1, id);
+//                        this.checkNode(nodes, x - 1, y - 1, id);
+//                    } else if (y == 0 && x > 0 && x < this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y + 1, id);
+//                        this.checkNode(nodes, x + 1, y + 1, id);
+//                    } else if (y == this.divisions - 1 && x > 0 && x < this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y - 1, id);
+//                        this.checkNode(nodes, x + 1, y - 1, id);
+//                    } else if (x == 0 && y == 0) {
+//                        this.checkNode(nodes, x + 1, y + 1, id);
+//                    } else if (x == this.divisions - 1 && y == 0) {
+//                        this.checkNode(nodes, x - 1, y + 1, id);
+//                    } else if (x == 0 && y == this.divisions - 1) {
+//                        this.checkNode(nodes, x + 1, y - 1, id);
+//                    } else if (x == this.divisions - 1 && y == this.divisions - 1) {
+//                        this.checkNode(nodes, x - 1, y - 1, id);
+//                    }
+//                }
+//
+//                // If there are any nodes which changed, update the PCL cache
+//                if (nodes.length != 0) {
+//                    R.Engine.pclRebuilds++;
+//
+//                    cachedPCL.clear();
+//                    for (var d = 0; d < nodes.length; d++) {
+//                        nodes[d].clearDirty();
+//                        if (nodes[d].getCount() != 0) {
+//                            cachedPCL.add(nodes[d]);
+//                        }
+//                    }
+//                }
+//
+//                return cachedPCL;
+//            }
+//
+//            p.destroy();
+//
+//            // Outside the grid, return the empty container
+//            return R.struct.Container.EMPTY;
+//        },
 
         /**
          * Returns all objects within every node of the spatial grid.
@@ -459,11 +456,16 @@ R.collision.broadphase.SpatialGrid = function () {
 
             // Occupied Cells
             for (var c = 0, len = this.getRoot().length; c < len; c++) {
+                var objs = this.getRoot()[c].getObjects();
                 if (this.getRoot()[c].getCount() != 0) {
                     x = (c % this.divisions) * xStep;
                     y = Math.floor(c / this.divisions) * yStep;
                     renderContext.setFillStyle("rgba(192,192,192,0.4)");
                     renderContext.drawFilledRectangle(rect.set(x, y, xStep, yStep));
+                }
+                for (var itr = objs.iterator(); itr.hasNext();) {
+                    renderContext.setLineStyle("cyan");
+                    renderContext.drawRectangle(itr.next().getAABB());
                 }
             }
 

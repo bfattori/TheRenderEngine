@@ -148,18 +148,24 @@ R.components.collision.Box = function () {
                     (c1.y - c2.y) * (c1.y - c2.y);
 
                 if (distSqr < (tRad * tRad)) {
-                    // Collision occurred, how much to separate box1 from box2
+                    // If we got here, there is a possible collision.  However, we still need to
+                    // compare based on the objects bounding boxes.  We will need to see if the bounding boxes
+                    // are indeed colliding. Remember, this happens before rendering so the position
+                    // is probably _ahead_ of the actual rendered position.
                     var diff = tRad - Math.sqrt(distSqr);
 
-                    // If we got here, there is a collision
-                    var sep = R.math.Vector2D.create((c2.x - c1.x) * diff, (c2.y - c1.y) * diff);
-                    this.setCollisionData(R.struct.CollisionData.create(sep.len(),
-                        R.math.Vector2D.create(c2.x - c1.x, c2.y - c1.y).normalize(),
+                    // This normal is from the center points of each object, pointing back at the host
+                    var normalVector = R.math.Vector2D.create(c2.x - c1.x, c2.y - c1.y).normalize();
+                    var separationVector = normalVector.mul(diff);
+                    this.setCollisionData(R.struct.CollisionData.create(
+                        separationVector.len(),
+                        normalVector,
                         host,
                         collisionObj,
-                        sep,
+                        separationVector,
                         time,
-                        dt));
+                        dt
+                    ));
 
                     return this.base(time, dt, collisionObj, objectMask, targetMask);
                 }

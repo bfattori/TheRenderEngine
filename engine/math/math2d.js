@@ -545,11 +545,12 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
      * @param [rect] {R.math.Rectangle2D} Optional rectangle to set to the bounding box
      * @return {R.math.Rectangle2D} The bounding box of the points
      */
-    getBoundingBox:function (points, rect) {
-        var x1 = R.lang.Math2.MAX_INT, x2 = -R.lang.Math2.MAX_INT, y1 = R.lang.Math2.MAX_INT, y2 = -R.lang.Math2.MAX_INT;
+    getBoundingBox:function (points, rect, transformed) {
+        var x1 = points[0].x, x2 = points[0].x, y1 = points[0].y, y2 = points[0].y;
         rect = rect || R.math.Rectangle2D.create(0, 0, 1, 1);
+        transformed = transformed || false;
 
-        for (var p = 0; p < points.length; p++) {
+        for (var p = 1; p < points.length; p++) {
             var pt = points[p];
 
             if (pt.x < x1) {
@@ -565,7 +566,17 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
                 y2 = pt.y;
             }
         }
-        rect.set(0, 0, Math.abs(x1) + x2, Math.abs(y1) + y2);
+
+        var w, h;
+        if (x1 < 0 && x2 >= 0) { w = x2 - x1; }
+        else if (x1 < 0 && x2 < 0) { w = x1 + x2; }
+        else { w = x2 - x1; }
+
+        if (y1 < 0 && y2 >= 0) { h = y2 - y1; }
+        else if (y1 < 0 && y2 < 0) { h = y1 + y2; }
+        else { h = y2 - y1; }
+
+        rect.set(transformed * x1, transformed * y1, w, h);
         return rect;
     },
 
@@ -576,7 +587,7 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
      * @param matrix {Matrix} The matrix to transform the points with
      */
     transformPoints:function (points, matrix) {
-        if (points.length) {
+        if (R.isArray(points)) {
             for (var pt = 0; pt < points.length; pt++) {
                 points[pt].transform(matrix);
             }

@@ -343,6 +343,11 @@ R.components.Collider = function () {
             // Update the collision model
             this.updateModel();
 
+            // No reason to update collisions if the object hasn't changed
+            if (!host.isDirty()) {
+                return;
+            }
+
             // If the host object needs to know about collisions...
             var pclNodes = null;
 
@@ -352,7 +357,7 @@ R.components.Collider = function () {
                 var hostMask = this.collisionModel.getObjectSpatialData(host, "collisionMask");
 
                 // Get the PCL and check for collisions
-                pclNodes = this.getCollisionModel().getPCL(host.getPosition(), time, dt);
+                pclNodes = this.getCollisionModel().getPCL(host, time, dt);
                 var status = R.components.Collider.CONTINUE;
                 var collisionsReported = 0;
 
@@ -419,6 +424,11 @@ R.components.Collider = function () {
             }
 
             var test = this.getGameObject().onCollide(collisionObj, time, dt, targetMask);
+            if (collisionObj.onCollide) {
+                // Tell the object we're colliding with that a collision occurred
+                collisionObj.onCollide(this.getGameObject(), time, dt, targetMask);
+            }
+
             this.didCollide |= (test == R.components.Collider.STOP || R.components.Collider.COLLIDE_AND_CONTINUE);
             return test;
         }

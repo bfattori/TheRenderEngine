@@ -127,7 +127,7 @@ R.math.Rectangle2D = function () {
          * @param height {Number} An optional value to initialize the height of the rectangle
          */
         set:function (x, y, width, height) {
-            if (x.length && x.splice && x.shift) {
+            if (R.isArray(x)) {
                 this.x = x[0];
                 this.y = x[1];
                 this.w = x[2];
@@ -460,23 +460,13 @@ R.math.Rectangle2D = function () {
             var y3 = rect.y;
             var y4 = rect.y + rect.h;
 
-            var x = Math2.MAX_INT, y = x, w = -Math2.MAX_INT, h = w;
-            if (x1 < x) x = x1;
-            if (x2 < x) x = x2;
-            if (x3 < x) x = x3;
-            if (x4 < x) x = x4;
-            if (x1 > w) w = x1;
-            if (x2 > w) w = x2;
-            if (x3 > w) w = x3;
-            if (x4 > w) w = x4;
-            if (y1 < y) y = y1;
-            if (y2 < y) y = y2;
-            if (y3 < y) y = y3;
-            if (y4 < y) y = y4;
-            if (y1 > h) h = y1;
-            if (y2 > h) h = y2;
-            if (y3 > h) h = y3;
-            if (y4 > h) h = y4;
+            var x = x1, w = x2;
+            var y = y1, h = y2;
+
+            if (x3 < x) { x = x3; }
+            if (x4 > w) { w = x4; }
+            if (y3 < y) { y = y3; }
+            if (y4 > h) { h = y4; }
 
             this.x = x;
             this.y = y;
@@ -484,6 +474,15 @@ R.math.Rectangle2D = function () {
             this.h = h - y;
             this._upd();
             return this;
+        },
+
+        /**
+         * Get the rectangle as an array of points.
+         * @returns {Array}
+         */
+        getPoints: function() {
+            return [this.getTopLeft(), R.math.Point2D.create(this.getTopLeft()).setX(this.w),
+                    this.getBottomRight(), R.math.Point2D.create(this.getTopLeft()).setY(this.h)];
         },
 
         /**

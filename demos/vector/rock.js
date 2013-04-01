@@ -289,7 +289,7 @@ var SpaceroidsRock = function() {
             }
          }
 
-         if (Spaceroids.isAttractMode && obj.killTimer < R.Engine.worldTime &&
+         if (Spaceroids.isAttractMode && obj && obj.killTimer < R.Engine.worldTime &&
                mask == SpaceroidsRock.COLLISION_MASK) {
             this.kill();
             obj.kill();

@@ -199,7 +199,7 @@ R.objects.Object2D = function () {
                     [0, sY, 0],
                     [0, 0, 1]
                 ]),
-                txfmMtx = tMtx.multiply(rMtx).multiply(sMtx);
+            txfmMtx = tMtx.multiply(rMtx).multiply(sMtx);
 
             rMtx = null;
             sMtx = null;
@@ -343,26 +343,17 @@ R.objects.Object2D = function () {
          * @return {R.math.Rectangle2D}
          */
         getAABB:function () {
-            // Start with the world bounding box and transform it
-            var bb = R.math.Rectangle2D.create(this.getBoundingBox());
+            if (this.isDirty()) {
+                // Start with the transformed collision
+                var pts = this.getCollisionHull().getVertexes();
 
-            // Transform the world box
-            var txfm = this.getTransformationMatrix();
+                // Now find the bounding box of the transformed points
+                R.math.Math2D.getBoundingBox(pts, this.AABB, true);
 
-            var p1 = bb.getTopLeft();
-            var p2 = R.math.Point2D.create(bb.getTopLeft());
-            p2.x += bb.getDims().x;
-            var p3 = bb.getBottomRight();
-            var p4 = R.math.Point2D.create(bb.getTopLeft());
-            p4.y += bb.getDims().y;
-            var pts = [p1.transform(txfm), p2.transform(txfm), p3.transform(txfm), p4.transform(txfm)];
-
-            // Now find the AABB of the points
-            R.math.Math2D.getBoundingBox(pts, this.AABB);
-
-            bb.destroy();
-            p2.destroy();
-            p3.destroy();
+                for (var i = 0; i < pts.length; i++) {
+                    pts[i].destroy();
+                }
+            }
 
             return this.AABB;
         },
