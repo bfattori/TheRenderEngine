@@ -236,10 +236,10 @@ R.collision.broadphase.AbstractCollisionModel = function () {
          * Returns a potential collision list (PCL) of objects that are contained
          * within the defined sub-space of the container.
          *
-         * @param point {R.math.Point2D} The point to begin the search at.
-         * @return {R.struct.Container} An empty PCL
+         * @param object {R.objects.Object2D} The object
+         * @return {R.struct.Container} A container of {@link R.collision.broadphase.SpatialGridNode} instances
          */
-        getPCL:function (point) {
+        getPCL:function (object) {
             return this.pcl;
         },
 
@@ -333,7 +333,7 @@ R.collision.broadphase.AbstractCollisionModel = function () {
             end.add(dir);
             line = R.math.Math2D.bresenham(begin, end);
 
-            /* pragma:DEBUG_START */
+/*
             if (R.Engine.getDebugMode() && arguments[3]) {
                 var start = R.math.Point2D.create(begin), finish = R.math.Point2D.create(end);
 
@@ -345,8 +345,8 @@ R.collision.broadphase.AbstractCollisionModel = function () {
                     end.destroy();
                 });
             }
-            /* pragma:DEBUG_END */
 
+*/
 
             while (!collision.shape1 && pt < line.length) {
                 test = line[pt++];

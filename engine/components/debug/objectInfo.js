@@ -33,9 +33,9 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-    "class":"R.components.Debug",
+    "class":"R.components.debug.ObjectInfo",
     "requires":[
-        "R.components.Render"
+        "R.components.Debug"
     ]
 });
 
@@ -48,47 +48,35 @@ R.Engine.define({
  * @constructor
  * @description A debugging component.
  */
-R.components.Debug = function () {
+R.components.debug.ObjectInfo = function () {
     "use strict";
-    return R.components.Render.extend(/** @scope R.components.Collider.prototype */{
+    return R.components.Debug.extend(/** @scope R.components.debug.ObjectInfo.prototype */{
+
+        info: null,
 
         /**
          * @private
          */
-        constructor:function (name) {
-            this.base(name, 0.1);
-            this.type = R.components.Base.TYPE_POST;
+        constructor:function (infoOptions) {
+            this.base("ObjectInfoDebug");
+            this.info = "var obj = this; return {";
+
+            this.info += "'id': obj.getId(), ";
+            this.info += "'pos': obj.getRenderPosition() + ' (' + Math.floor(obj.getRotation()) + ')'";
+
+            for (var opt in infoOptions) {
+                if (infoOptions.hasOwnProperty(opt)) {
+                    var v = infoOptions[opt];
+                    this.info += (this.info.length > 0 ? "," : "") + "'" + opt + "': obj." + v;
+                }
+            }
+
+            this.info += " };";
+            this.info = new Function(this.info);
         },
 
         /**
-         * Destroy the component instance.
-         */
-        destroy:function () {
-            this.base();
-        },
-
-        /**
-         * Establishes the link between this component and its game object.
-         * When you assign components to a game object, it will call this method
-         * so that each component can refer to its game object, the same way
-         * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
-         *
-         * @param gameObject {R.engine.GameObject} The object which holds this component
-         */
-        setGameObject:function (gameObject) {
-            this.base(gameObject);
-        },
-
-        /**
-         * Releases the component back into the pool for reuse.  See {@link R.engine.PooledObject#release}
-         * for more information.
-         */
-        release:function () {
-            this.base();
-        },
-
-        /**
-         * Render debug information.
+         * Draws a simple axis marker at the object's origin.
          *
          * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context for the component
          * @param time {Number} The current engine time in milliseconds
@@ -96,18 +84,40 @@ R.components.Debug = function () {
          *          in milliseconds.
          */
         execute:function (renderContext, time, dt) {
+            renderContext.pushTransform();
+
+            var pos = R.math.Point2D.create(this.getGameObject().getRenderPosition());
+            var step = R.math.Point2D.create(0, 12);
+            var info = this.info.call(this.getGameObject());
+            pos.sub(step).sub(step);
+
+
+            renderContext.setFont('Arial');
+            renderContext.setFontSize(10);
+            renderContext.setFillStyle('white');
+            for (var i in info) {
+                var str = info[i];
+                renderContext.drawText(pos, str);
+                pos.add(step);
+            }
+
+            pos.destroy();
+            step.destroy();
+
+            renderContext.popTransform();
         }
 
-    }, /** @scope R.components.Debug.prototype */{ // Statics
+    }, /** @scope R.components.debug.Axis.prototype */{ // Statics
 
         /**
          * Get the class name of this object
          *
-         * @return {String} "R.components.Debug"
+         * @return {String} "R.components.debug.Axis"
          */
         getClassName:function () {
-            return "R.components.Debug";
+            return "R.components.debug.Axis";
         }
 
     });
 }
+

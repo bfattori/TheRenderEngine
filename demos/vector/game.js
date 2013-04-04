@@ -51,7 +51,14 @@ R.Engine.define({
       "R.math.Math2D",
       //"R.particles.ParticleEngine"
       "R.particles.AccumulatorParticleEngine",
-      "R.particles.effects.Spark"
+      "R.particles.effects.Spark",
+
+       "R.components.debug.Axis",
+       "R.components.debug.ObjectInfo",
+       "R.components.debug.WorldBox",
+       "R.components.debug.ConvexHull",
+       "R.components.debug.AABB"
+
    ],
 
    // Game class dependencies
@@ -496,9 +503,6 @@ var Spaceroids = function() {
        * the game to its running state.
        */
       setup: function(options) {
-         //R.Engine.setDebugMode(true);
-         //R.debug.Metrics.showMetrics();
-
          // Handle configuration options
          if (options.disableParticles) {
             R.Engine.options.disableParticleEngine = true;
@@ -535,8 +539,7 @@ var Spaceroids = function() {
          $("body", document).append(this.backgroundImage);
 
          // Use the spatial grid broad-phase collision model
-         this.collisionModel = R.collision.broadphase.SpatialGrid.create(this.fieldWidth, this.fieldHeight, 5);
-         this.collisionModel.setAccuracy(R.collision.broadphase.SpatialGrid.HIGH_ACCURACY);
+         this.collisionModel = R.collision.broadphase.SpatialGrid.create(this.fieldWidth, this.fieldHeight, 8);
 
          // Wire the event handler to start the game
          R.Engine.getDefaultContext().addEvent("keydown", Spaceroids.onKeyPress);

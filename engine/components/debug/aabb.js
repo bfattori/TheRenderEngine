@@ -33,9 +33,9 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-    "class":"R.components.Debug",
+    "class":"R.components.debug.AABB",
     "requires":[
-        "R.components.Render"
+        "R.components.Debug"
     ]
 });
 
@@ -48,47 +48,19 @@ R.Engine.define({
  * @constructor
  * @description A debugging component.
  */
-R.components.Debug = function () {
+R.components.debug.AABB = function () {
     "use strict";
-    return R.components.Render.extend(/** @scope R.components.Collider.prototype */{
+    return R.components.Debug.extend(/** @scope R.components.debug.AABB.prototype */{
 
         /**
          * @private
          */
-        constructor:function (name) {
-            this.base(name, 0.1);
-            this.type = R.components.Base.TYPE_POST;
+        constructor:function () {
+            this.base("AABBDebug");
         },
 
         /**
-         * Destroy the component instance.
-         */
-        destroy:function () {
-            this.base();
-        },
-
-        /**
-         * Establishes the link between this component and its game object.
-         * When you assign components to a game object, it will call this method
-         * so that each component can refer to its game object, the same way
-         * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
-         *
-         * @param gameObject {R.engine.GameObject} The object which holds this component
-         */
-        setGameObject:function (gameObject) {
-            this.base(gameObject);
-        },
-
-        /**
-         * Releases the component back into the pool for reuse.  See {@link R.engine.PooledObject#release}
-         * for more information.
-         */
-        release:function () {
-            this.base();
-        },
-
-        /**
-         * Render debug information.
+         * Draws the axis aligned bounding box of the object
          *
          * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context for the component
          * @param time {Number} The current engine time in milliseconds
@@ -96,18 +68,22 @@ R.components.Debug = function () {
          *          in milliseconds.
          */
         execute:function (renderContext, time, dt) {
+            renderContext.setLineWidth(1);
+            renderContext.setLineStyle("cyan");
+            renderContext.drawRectangle(this.getGameObject().getAABB());
         }
 
-    }, /** @scope R.components.Debug.prototype */{ // Statics
+    }, /** @scope R.components.debug.AABB.prototype */{ // Statics
 
         /**
          * Get the class name of this object
          *
-         * @return {String} "R.components.Debug"
+         * @return {String} "R.components.debug.AABB"
          */
         getClassName:function () {
-            return "R.components.Debug";
+            return "R.components.debug.AABB";
         }
 
     });
 }
+

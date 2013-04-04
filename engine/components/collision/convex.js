@@ -95,14 +95,6 @@ R.components.collision.Convex = function () {
         },
 
         /**
-         * Deprecated in favor of {@link #setGameObject}
-         * @deprecated
-         */
-        setHostObject:function (gameObject) {
-            this.setGameObject(gameObject);
-        },
-
-        /**
          * Establishes the link between this component and its game object.
          * When you assign components to a game object, it will call this method
          * so that each component can refer to its game object, the same way
@@ -181,23 +173,6 @@ R.components.collision.Convex = function () {
             return R.components.Collider.CONTINUE;
         }
 
-        /* pragma:DEBUG_START */, execute:function (renderContext, time, dt) {
-            this.base(renderContext, time, dt);
-            // Debug the collision hull
-            if (R.Engine.getDebugMode() && !this.isDestroyed()) {
-                renderContext.pushTransform();
-                renderContext.setLineStyle("yellow");
-                var cHull = this.getGameObject().getCollisionHull();
-                if (cHull.getType() == R.collision.ConvexHull.CONVEX_NGON) {
-                    renderContext.drawPolygon(cHull.getUntransformedVertexes());
-                } else {
-                    renderContext.drawArc(R.math.Point2D.ZERO, cHull.getRadius(), 0, 359);
-                }
-                renderContext.popTransform();
-            }
-        }
-        /* pragma:DEBUG_END */
-
     }, /** @scope R.components.collision.Convex.prototype */{
 
         /**
@@ -244,14 +219,14 @@ R.components.collision.Convex = function () {
                 // Perform circle-circle test if both shapes are circles
                 // We've passed in the distSqr and tRad from the early-out test, pass it along
                 // so we're not re-running the calculations
-                return R.components.collision.Convex.ccTest(shape1, shape2, time, dt, arguments[4], arguments[5]);
+                return R.components.collision.Convex.circleToCircleTest(shape1, shape2, time, dt, arguments[4], arguments[5]);
             } else if (shape1.getType() != R.collision.ConvexHull.CONVEX_CIRCLE &&
                 shape2.getType() != R.collision.ConvexHull.CONVEX_CIRCLE) {
                 // Perform polygon test if both shapes are NOT circles
-                return R.components.collision.Convex.ppTest(shape1, shape2, time, dt);
+                return R.components.collision.Convex.polyToPolyTest(shape1, shape2, time, dt);
             } else {
                 // One shape is a circle, the other is an polygon, do that test
-                return R.components.collision.Convex.cpTest(shape1, shape2, time, dt);
+                return R.components.collision.Convex.circleToPolyTest(shape1, shape2, time, dt);
             }
         },
 
@@ -259,7 +234,7 @@ R.components.collision.Convex = function () {
          * Circle-circle test
          * @private
          */
-        ccTest:function (shape1, shape2, time, dt, distSqr, tRad) {
+        circleToCircleTest:function (shape1, shape2, time, dt, distSqr, tRad) {
             // If we got here, we've already done 95% of the work in the early-out test above
             var c1 = shape1.getCenter(), c2 = shape2.getCenter();
 
@@ -278,10 +253,20 @@ R.components.collision.Convex = function () {
         },
 
         /**
+         * @private
+         */
+        _findNormalAxis:function (axis, vertices, index) {
+            var vector1 = vertices[index];
+            var vector2 = (index >= vertices.length - 1) ? vertices[0] : vertices[index + 1];
+            axis.set(-(vector2.y - vector1.y), vector2.x - vector1.x);
+            axis.normalize();
+        },
+
+        /**
          * Poly-poly test
          * @private
          */
-        ppTest:function (shape1, shape2, time, dt) {
+        polyToPolyTest:function (shape1, shape2, time, dt) {
             var test1, test2, testNum, min1, min2, max1, max2, offset, temp;
             var axis = R.math.Vector2D.create(0, 0);
             var vectorOffset = R.math.Vector2D.create(0, 0);
@@ -312,7 +297,7 @@ R.components.collision.Convex = function () {
 
             // Loop to begin projection
             for (var i = 0; i < vectors1.length; i++) {
-                R.components.collision.Convex.findNormalAxis(axis, vectors1, i);
+                R.components.collision.Convex._findNormalAxis(axis, vectors1, i);
 
                 // project polygon 1
                 min1 = axis.dot(vectors1[0]);
@@ -379,20 +364,10 @@ R.components.collision.Convex = function () {
         },
 
         /**
-         * @private
-         */
-        findNormalAxis:function (axis, vertices, index) {
-            var vector1 = vertices[index];
-            var vector2 = (index >= vertices.length - 1) ? vertices[0] : vertices[index + 1];
-            axis.set(-(vector2.y - vector1.y), vector2.x - vector1.x);
-            axis.normalize();
-        },
-
-        /**
          * Circle-poly test
          * @private
          */
-        cpTest:function (shape1, shape2, time, dt) {
+        circleToPolyTest:function (shape1, shape2, time, dt) {
             var test1, test2, test, min1, max1, min2, max2, offset, distance, temp;
             var vectorOffset = R.math.Vector2D.create(0, 0);
             var vectors, center, radius, poly;
@@ -486,7 +461,7 @@ R.components.collision.Convex = function () {
 
             // Now project the circle against the polygon
             for (i = 0; i < vectors.length; i++) {
-                R.components.collision.Convex.findNormalAxis(normalAxis, vectors, i);
+                R.components.collision.Convex._findNormalAxis(normalAxis, vectors, i);
                 min1 = normalAxis.dot(vectors[0]);
                 max1 = min1;
 

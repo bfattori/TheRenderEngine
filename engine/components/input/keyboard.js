@@ -107,14 +107,6 @@ R.components.input.Keyboard = function () {
             this.hasInputMethods = null;
         },
 
-        /**
-         * Deprecated in favor of {@link #setGameObject}
-         * @deprecated
-         */
-        setHostObject:function (hostObj) {
-            this.setGameObject(hostObj);
-        },
-
         /** @private */
         playEvent:function (e) {
             var evt = document.createEvent("KeyboardEvent");

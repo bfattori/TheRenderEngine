@@ -319,6 +319,7 @@ R.namespace("engine");
 R.namespace("collision");
 R.namespace("collision.broadphase");
 R.namespace("components");
+R.namespace("components.debug");
 R.namespace("components.input");
 R.namespace("components.transform");
 R.namespace("components.logic");

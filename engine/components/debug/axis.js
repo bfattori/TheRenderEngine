@@ -33,9 +33,9 @@
 
 // The class this file defines and its required classes
 R.Engine.define({
-    "class":"R.components.Debug",
+    "class":"R.components.debug.Axis",
     "requires":[
-        "R.components.Render"
+        "R.components.Debug"
     ]
 });
 
@@ -48,47 +48,31 @@ R.Engine.define({
  * @constructor
  * @description A debugging component.
  */
-R.components.Debug = function () {
+R.components.debug.Axis = function () {
     "use strict";
-    return R.components.Render.extend(/** @scope R.components.Collider.prototype */{
+    return R.components.Debug.extend(/** @scope R.components.debug.Axis.prototype */{
+
+        _up:null,
+        _left:null,
 
         /**
          * @private
          */
-        constructor:function (name) {
-            this.base(name, 0.1);
-            this.type = R.components.Base.TYPE_POST;
+        constructor:function () {
+            this.base("AxisDebug");
+
+            this._up = R.math.Vector2D.create(R.math.Vector2D.UP).mul(50);
+            this._left = R.math.Vector2D.create(R.math.Vector2D.LEFT).mul(50);
         },
 
-        /**
-         * Destroy the component instance.
-         */
-        destroy:function () {
+        destroy: function() {
+            this._up.destroy();
+            this._left.destroy();
             this.base();
         },
 
         /**
-         * Establishes the link between this component and its game object.
-         * When you assign components to a game object, it will call this method
-         * so that each component can refer to its game object, the same way
-         * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
-         *
-         * @param gameObject {R.engine.GameObject} The object which holds this component
-         */
-        setGameObject:function (gameObject) {
-            this.base(gameObject);
-        },
-
-        /**
-         * Releases the component back into the pool for reuse.  See {@link R.engine.PooledObject#release}
-         * for more information.
-         */
-        release:function () {
-            this.base();
-        },
-
-        /**
-         * Render debug information.
+         * Draws a simple axis marker at the object's origin.
          *
          * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context for the component
          * @param time {Number} The current engine time in milliseconds
@@ -96,18 +80,31 @@ R.components.Debug = function () {
          *          in milliseconds.
          */
         execute:function (renderContext, time, dt) {
+
+            var up = R.math.Point2D.create(this.getGameObject().getRenderPosition());
+            var left = R.math.Point2D.create(this.getGameObject().getRenderPosition());
+
+            renderContext.setLineWidth(1.5);
+            renderContext.setLineStyle("#f00");
+            renderContext.drawLine(up, up.add(this._up));
+            renderContext.setLineStyle("#08f");
+            renderContext.drawLine(left, left.add(this._left));
+
+            up.destroy();
+            left.destroy();
         }
 
-    }, /** @scope R.components.Debug.prototype */{ // Statics
+    }, /** @scope R.components.debug.Axis.prototype */{ // Statics
 
         /**
          * Get the class name of this object
          *
-         * @return {String} "R.components.Debug"
+         * @return {String} "R.components.debug.Axis"
          */
         getClassName:function () {
-            return "R.components.Debug";
+            return "R.components.debug.Axis";
         }
 
     });
 }
+

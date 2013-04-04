@@ -85,14 +85,6 @@ R.components.physics.BoxBody = function () {
             this.base();
         },
 
-        /**
-         * Deprecated in favor of {@link #setGameObject}
-         * @deprecated
-         */
-        setHostObject:function (hostObj) {
-            this.setGameObject(hostObj);
-        },
-
         setGameObject:function (gameObject) {
             this.base(gameObject);
 

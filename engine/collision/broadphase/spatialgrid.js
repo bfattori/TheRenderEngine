@@ -50,8 +50,8 @@ R.Engine.define({
  *        perform "broad phase" collision determinations within the space.
  *        After the PCL (potential collision list) is built, a "narrow phase"
  *        collision model would need to be employed to determine accurate collision
- *        response.  Using AABB overlapping for simple true/false determinations is
- *        one method.  Another method would be to use something like GJK to determine
+ *        response.  Using world box overlapping for simple true/false determinations is
+ *        one method.  Another method would be to use something like SAT to determine
  *        by how much two objects' convex hulls are overlapped.
  *        <p/>
  *        A spatial grid is defined by the size of the space and the number of
@@ -77,9 +77,6 @@ R.collision.broadphase.SpatialGrid = function () {
         xLocator:1,
         yLocator:1,
 
-        accuracy:0,
-        pclCache:null,
-
         /** @private */
         constructor:function (width, height, divisions) {
             this.base("SpatialGrid", width, height);
@@ -90,7 +87,6 @@ R.collision.broadphase.SpatialGrid = function () {
             this.divisions = divisions;
             this.xLocator = 1 / gX;
             this.yLocator = 1 / gY;
-            this.accuracy = R.collision.broadphase.SpatialGrid.HIGH_ACCURACY;
 
             var grid = [];
             this.setRoot(grid);
@@ -100,18 +96,6 @@ R.collision.broadphase.SpatialGrid = function () {
                     var rect = R.math.Rectangle2D.create(x * gX, y * gY, gX, gY);
                     grid[x + (y * this.divisions)] = new R.collision.broadphase.SpatialGridNode(rect);
                 }
-            }
-
-            this.pclCache = {};
-        },
-
-        /**
-         * Reset the collision model, removing any references to objects
-         * from all collision nodes.
-         */
-        reset:function () {
-            for (var pcl in this.pclCache) {
-                this.pclCache[pcl].clear();
             }
         },
 
@@ -161,27 +145,6 @@ R.collision.broadphase.SpatialGrid = function () {
                 }
             }
             this.clearObjectSpatialData(obj);
-        },
-
-        /**
-         * Set the accuracy of the collision checks to either {@link #GOOD_ACCURACY},
-         * {@link #BETTER_ACCURACY}, or {@link #HIGH_ACCURACY}.  See {@link #getPCL} for
-         * an explanation of the levels of accuracy.
-         *
-         * @param accuracy {Number} The level of accuracy during PCL generation
-         */
-        setAccuracy:function (accuracy) {
-            this.accuracy = (accuracy > R.collision.broadphase.SpatialGrid.BETTER_ACCURACY ||
-                accuracy < R.collision.broadphase.SpatialGrid.GOOD_ACCURACY) ?
-                R.collision.broadphase.SpatialGrid.BETTER_ACCURACY : accuracy;
-        },
-
-        /**
-         * Get the accuracy level of collision checks.
-         * @return {Number} The accuracy level
-         */
-        getAccuracy:function () {
-            return this.accuracy;
         },
 
         /**
@@ -239,28 +202,12 @@ R.collision.broadphase.SpatialGrid = function () {
         },
 
         /**
-         * Get the list of objects with respect to the point given.  Objects will
-         * be returned from the nodes that make up the grid node containing
-         * the point, and the following adjacent nodes:
-         * <ul>
-         * <li><b>Good Accuracy</b> - Just the node containing the point (G)</li>
-         * <li><b>Better Accuracy</b> - The four polar nodes around the center (G, B)</li>
-         * <li><b>High Accuracy</b> - The eight nodes around the center (G, B, H)</li>
-         * </ul>
-         * For example, if you had a 3x3 grid with the object in the center node, the nodes
-         * marked below would be included in the result set:
-         * <pre>
-         *  +---+---+---+
-         *  | H | B | H |
-         *  +---+---+---+
-         *  | B | G | B |
-         *  +---+---+---+
-         *  | H | B | H |
-         *  +---+---+---+
-         * </pre>
+         * Get the list of collision nodes with respect to the given object.  Nodes which are
+         * intersected by the AABB of the object will be contained in the PCL since only
+         * objects within these nodes could potentially collide.
          *
-         * @param point {R.math.Point2D} The point to begin the search at.
-         * @return {R.struct.Container} A container of objects found that could be collision targets
+         * @param object {R.objects.Object2D} The object
+         * @return {R.struct.Container} A container of {@link R.collision.broadphase.SpatialGridNode} instances
          */
         getPCL:function (object) {
             var spatialNodes = this.getObjectSpatialData(object, "nodes");
@@ -274,124 +221,6 @@ R.collision.broadphase.SpatialGrid = function () {
 
             return pcl;
         },
-
-
-//        getPCL:function (point) {
-//            var p = this.normalizePoint(point);
-//
-//            // Get the root node
-//            var x = Math.floor(p.x * this.xLocator);
-//            var y = Math.floor(p.y * this.yLocator);
-//
-//            // Iff the object is inside the grid
-//            if (x >= 0 && x <= this.divisions - 1 &&
-//                y >= 0 && y <= this.divisions - 1) {
-//
-//                // Create cache nodes for each normalized point in the grid
-//                var id = this.getNodeId(p);
-//                if (this.pclCache[id] == null) {
-//                    this.pclCache[id] = R.struct.Container.create();
-//                }
-//
-//                var cachedPCL = this.pclCache[id];
-//
-//                // Build the node set
-//                var nodes = [], n;
-//
-//                // Start with GOOD_ACCURACY
-//                this.checkNode(nodes, x, y, id);
-//
-//                // if our borders cross the margin, we can drop up to two nodes
-//                if (this.accuracy >= R.collision.broadphase.SpatialGrid.BETTER_ACCURACY) {
-//                    // -- Polar nodes
-//                    if (x > 0 && x < this.divisions - 1 && y > 0 && y < this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y, id);
-//                        this.checkNode(nodes, x + 1, y, id);
-//                        this.checkNode(nodes, x, y - 1, id);
-//                        this.checkNode(nodes, x, y + 1, id);
-//                    } else if (x == 0 && y > 0 && y < this.divisions - 1) {
-//                        this.checkNode(nodes, x + 1, y, id);
-//                        this.checkNode(nodes, x, y - 1, id);
-//                        this.checkNode(nodes, x, y + 1, id);
-//                    } else if (x == this.divisions - 1 && y > 0 && y < this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y, id);
-//                        this.checkNode(nodes, x, y - 1, id);
-//                        this.checkNode(nodes, x, y + 1, id);
-//                    } else if (y == 0 && x > 0 && x < this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y, id);
-//                        this.checkNode(nodes, x + 1, y, id);
-//                        this.checkNode(nodes, x, y + 1, id);
-//                    } else if (y == this.divisions - 1 && x > 0 && x < this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y, id);
-//                        this.checkNode(nodes, x + 1, y, id);
-//                        this.checkNode(nodes, x, y - 1, id);
-//                    } else if (x == 0 && y == 0) {
-//                        this.checkNode(nodes, x + 1, y, id);
-//                        this.checkNode(nodes, x, y + 1, id);
-//                    } else if (x == this.divisions - 1 && y == 0) {
-//                        this.checkNode(nodes, x - 1, y, id);
-//                        this.checkNode(nodes, x, y + 1, id);
-//                    } else if (x == 0 && y == this.divisions - 1) {
-//                        this.checkNode(nodes, x + 1, y, id);
-//                        this.checkNode(nodes, x, y - 1, id);
-//                    } else if (x == this.divisions - 1 && y == this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y, id);
-//                        this.checkNode(nodes, x, y - 1, id);
-//                    }
-//                }
-//
-//                // For highest number of checks, we'll include all eight surrounding nodes
-//                if (this.accuracy == R.collision.broadphase.SpatialGrid.HIGH_ACCURACY) {
-//                    // -- Corner nodes
-//                    if (x > 0 && x < this.divisions - 1 && y > 0 && y < this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y - 1, id);
-//                        this.checkNode(nodes, x + 1, y + 1, id);
-//                        this.checkNode(nodes, x - 1, y + 1, id);
-//                        this.checkNode(nodes, x + 1, y - 1, id);
-//                    } else if (x == 0 && y > 0 && y < this.divisions - 1) {
-//                        this.checkNode(nodes, x + 1, y + 1, id);
-//                        this.checkNode(nodes, x + 1, y - 1, id);
-//                    } else if (x == this.divisions - 1 && y > 0 && y < this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y + 1, id);
-//                        this.checkNode(nodes, x - 1, y - 1, id);
-//                    } else if (y == 0 && x > 0 && x < this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y + 1, id);
-//                        this.checkNode(nodes, x + 1, y + 1, id);
-//                    } else if (y == this.divisions - 1 && x > 0 && x < this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y - 1, id);
-//                        this.checkNode(nodes, x + 1, y - 1, id);
-//                    } else if (x == 0 && y == 0) {
-//                        this.checkNode(nodes, x + 1, y + 1, id);
-//                    } else if (x == this.divisions - 1 && y == 0) {
-//                        this.checkNode(nodes, x - 1, y + 1, id);
-//                    } else if (x == 0 && y == this.divisions - 1) {
-//                        this.checkNode(nodes, x + 1, y - 1, id);
-//                    } else if (x == this.divisions - 1 && y == this.divisions - 1) {
-//                        this.checkNode(nodes, x - 1, y - 1, id);
-//                    }
-//                }
-//
-//                // If there are any nodes which changed, update the PCL cache
-//                if (nodes.length != 0) {
-//                    R.Engine.pclRebuilds++;
-//
-//                    cachedPCL.clear();
-//                    for (var d = 0; d < nodes.length; d++) {
-//                        nodes[d].clearDirty();
-//                        if (nodes[d].getCount() != 0) {
-//                            cachedPCL.add(nodes[d]);
-//                        }
-//                    }
-//                }
-//
-//                return cachedPCL;
-//            }
-//
-//            p.destroy();
-//
-//            // Outside the grid, return the empty container
-//            return R.struct.Container.EMPTY;
-//        },
 
         /**
          * Returns all objects within every node of the spatial grid.
@@ -407,29 +236,7 @@ R.collision.broadphase.SpatialGrid = function () {
 
         /* pragma:DEBUG_START */
 
-        /**
-         * Dump the cached PCLs to the console so they can be inspected.  Passing an
-         * object to the method will return the PCL which contains that object.
-         * @param [obj] {Object} The object to find in the PCL, or <code>null</code> to return
-         *    all caches.
-         */, debugPCLCaches:function (obj) {
-            R.debug.Console.setDebugLevel(R.debug.Console.DEBUGLEVEL_DEBUG);
-            for (var pcl in this.pclCache) {
-                for (var itr = this.pclCache[pcl].iterator(); itr.hasNext();) {
-                    var node = itr.next();
-                    if (obj) {
-                        if (node.getObjects.contains(obj)) {
-                            R.debug.Console.debug(pcl, node.getObjects());
-                            break;
-                        }
-                    } else {
-                        R.debug.Console.debug(pcl, node.getObjects());
-                    }
-                }
-            }
-        },
-
-        update:function (renderContext, time, dt) {
+        ,update:function (renderContext, time, dt) {
             if (!R.Engine.getDebugMode()) {
                 return;
             }
@@ -463,10 +270,6 @@ R.collision.broadphase.SpatialGrid = function () {
                     renderContext.setFillStyle("rgba(192,192,192,0.4)");
                     renderContext.drawFilledRectangle(rect.set(x, y, xStep, yStep));
                 }
-                for (var itr = objs.iterator(); itr.hasNext();) {
-                    renderContext.setLineStyle("cyan");
-                    renderContext.drawRectangle(itr.next().getAABB());
-                }
             }
 
             renderContext.popTransform();
@@ -481,36 +284,7 @@ R.collision.broadphase.SpatialGrid = function () {
          */
         getClassName:function () {
             return "R.collision.broadphase.SpatialGrid";
-        },
-
-        /**
-         * Collision checks are limited to the exact node where the
-         * object being tested resides.
-         * @type {Number}
-         */
-        GOOD_ACCURACY:0,
-
-        /**
-         * Collision checks are performed in the node where the object
-         * being tested resides, and in the four surrounding polar nodes.
-         * @type {Number}
-         * @deprecated
-         */
-        BEST_ACCURACY:1,
-
-        /**
-         * Collision checks are performed in the node where the object
-         * being tested resides, and in the four surrounding polar nodes.
-         * @type {Number}
-         */
-        BETTER_ACCURACY:1,
-
-        /**
-         * Collision checks are performed in the node where the object
-         * being tested resides, and in the eight surrounding nodes.
-         * @type {Number}
-         */
-        HIGH_ACCURACY:2
+        }
     });
 
 };

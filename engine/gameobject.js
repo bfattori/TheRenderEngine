@@ -69,7 +69,8 @@ R.engine.GameObject = function () {
         dirtyFlag:false,
         oldDirty:false,
 
-        prePostComponents:null,
+        preRenderComponents:null,
+        postRenderComponents:null,
         keepAlive:false,
 
         /** @private */
@@ -77,7 +78,8 @@ R.engine.GameObject = function () {
             this.base(name);
             this.dirtyFlag = true;
             this.oldDirty = false;
-            this.prePostComponents = [];
+            this.preRenderComponents = [];
+            this.postRenderComponents = [];
             this.renderContext = null;
             this.keepAlive = false;
         },
@@ -90,7 +92,8 @@ R.engine.GameObject = function () {
             this.renderContext = null;
             this.dirtyFlag = false;
             this.oldDirty = false;
-            this.prePostComponents = null;
+            this.preRenderComponents = null;
+            this.postRenderComponents = null;
             this.keepAlive = false;
         },
 
@@ -103,8 +106,12 @@ R.engine.GameObject = function () {
                 this.getRenderContext().remove(this);
             }
 
-            while (this.prePostComponents.length > 0) {
-                this.prePostComponents.shift().destroy();
+            while (this.preRenderComponents.length > 0) {
+                this.preRenderComponents.shift().destroy();
+            }
+
+            while (this.postRenderComponents.length > 0) {
+                this.postRenderComponents.shift().destroy();
             }
 
             this.cleanUp();
@@ -189,6 +196,23 @@ R.engine.GameObject = function () {
         },
 
         /**
+         * Run pre-render or post-render components.
+         * @param type {Number} The component type
+         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context the object will be rendered within.
+         * @param time {Number} The global time within the engine
+         * @param dt {Number} The delta between the world time and the last time rthe world was updated
+         * @private
+         */
+        runPreOrPostComponents: function(type, renderContext, time, dt) {
+            var components = type === R.components.Base.TYPE_PRE ? this.preRenderComponents : this.postRenderComponents;
+            if (components) {
+                for (var cIdx = 0; cIdx < components.length; cIdx++) {
+                    components[cIdx].execute(renderContext, time, dt);
+                }
+            }
+        },
+
+        /**
          * Keep object alive, even when outside viewport.  Setting an object to the "keep alive"
          * state will keep the object from being put into the render context's inactive bin,
          * even when it is outside of the expanded viewport.  This is good for objects which
@@ -231,7 +255,6 @@ R.engine.GameObject = function () {
             if (component.getType() == R.components.Base.TYPE_PRE ||
                 component.getType() == R.components.Base.TYPE_POST) {
 
-                // Only one of each can be added
                 this.setPreOrPostComponent(component);
                 component.setGameObject(this);
                 return;
@@ -263,10 +286,10 @@ R.engine.GameObject = function () {
          * @private
          */
         setPreOrPostComponent:function (component) {
-            if (component.getType() == R.components.Base.TYPE_PRE) {
-                this.prePostComponents[0] = component;
+            if (component.getType() === R.components.Base.TYPE_PRE) {
+                this.preRenderComponents.push(component);
             } else {
-                this.prePostComponents[1] = component;
+                this.postRenderComponents.push(component);
             }
         },
 

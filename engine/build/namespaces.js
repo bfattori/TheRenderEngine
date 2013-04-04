@@ -8,6 +8,7 @@ R.engine = {};
 R.collision = {};
 R.collision.broadphase = {};
 R.components = {};
+R.components.debug = {};
 R.components.input = {};
 R.components.transform = {};
 R.components.logic = {};

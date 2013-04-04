@@ -116,14 +116,6 @@ R.components.Base = function () {
         },
 
         /**
-         * Deprecated in favor of {@link #setGameObject}
-         * @deprecated
-         */
-        setHostObject:function (hostObject) {
-            this.setGameObject(hostObject);
-        },
-
-        /**
          * Establishes the link between this component and its game object.
          * When you assign components to a game object, it will call this method
          * so that each component can refer to its game object, the same way

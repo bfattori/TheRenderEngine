@@ -61,11 +61,6 @@ R.components.Transform2D = function () {
         lastRenderPosition:null,
         worldPos:null,
 
-        /* pragma:DEBUG_START */
-        _up:null,
-        _left:null,
-        /* pragma:DEBUG_END */
-
         /**
          * @private
          */
@@ -77,12 +72,6 @@ R.components.Transform2D = function () {
             this.lastRenderPosition = R.math.Point2D.create(0, 0);
             this.rotation = 0;
             this.scale = R.math.Vector2D.create(1, 1);
-
-            /* pragma:DEBUG_START */
-            this._up = R.math.Vector2D.create(R.math.Vector2D.UP).mul(10);
-            this._left = R.math.Vector2D.create(R.math.Vector2D.LEFT).mul(10);
-            /* pragma:DEBUG_END */
-
         },
 
         /**
@@ -93,12 +82,6 @@ R.components.Transform2D = function () {
             this.worldPos.destroy();
             this.lastPosition.destroy();
             this.lastRenderPosition.destroy();
-
-            /* pragma:DEBUG_START */
-            this._up.destroy();
-            this._left.destroy();
-            /* pragma:DEBUG_END */
-
             this.base();
         },
 
@@ -284,17 +267,6 @@ R.components.Transform2D = function () {
             renderContext.setPosition(this.getRenderPosition());
             renderContext.setRotation(this.getRenderRotation());
             renderContext.setScale(this.scale.x, this.scale.y);
-
-            /* pragma:DEBUG_START */
-            // Debug the origin
-            if (R.Engine.getDebugMode()) {
-                renderContext.setLineWidth(1);
-                renderContext.setLineStyle("#f00");
-                renderContext.drawLine(R.math.Point2D.ZERO, this._up);
-                renderContext.setLineStyle("#08f");
-                renderContext.drawLine(R.math.Point2D.ZERO, this._left);
-            }
-            /* pragma:DEBUG_END */
         }
 
     }, /** @scope R.components.Transform2D.prototype */{

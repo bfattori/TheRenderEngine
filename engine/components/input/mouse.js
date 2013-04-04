@@ -93,14 +93,6 @@ R.components.input.Mouse = function () {
         },
 
         /**
-         * Deprecated in favor of {@link #setGameObject}
-         * @deprecated
-         */
-        setHostObject:function (hostobj) {
-            this.setGameObject(hostobj);
-        },
-
-        /**
          * Set the game object this component exists within.  Additionally, this component
          * sets some readable flags on the game object and establishes (if not already set)
          * a mouse listener on the render context.

@@ -152,14 +152,6 @@ R.collision.ConvexHull = function () {
         },
 
         /**
-         * Deprecated in favor of {@link #setGameObject}
-         * @deprecated
-         */
-        setHostObject:function (obj) {
-            this.setGameObject(obj);
-        },
-
-        /**
          * Set the object which is using this collision hull.
          *
          * @param hostObj {R.objects.Object2D} The object which is using the hull

@@ -500,7 +500,13 @@ R.rendercontexts.AbstractRenderContext = function () {
          *          in milliseconds.
          */
         renderObject:function (obj, time, dt) {
+            if (obj.runPreOrPostComponents) {
+                obj.runPreOrPostComponents(R.components.Base.TYPE_PRE, this, time, dt);
+            }
             obj.update(this, time, dt);
+            if (obj.runPreOrPostComponents) {
+                obj.runPreOrPostComponents(R.components.Base.TYPE_POST, this, time, dt);
+            }
         },
 
         /**

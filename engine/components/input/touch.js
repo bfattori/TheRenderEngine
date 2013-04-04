@@ -87,14 +87,6 @@ R.components.input.Touch = function () {
         },
 
         /**
-         * Deprecated in favor of {@link #setGameObject}
-         * @deprecated
-         */
-        setHostObject:function (hostObj) {
-            this.setGameObject(hostObj);
-        },
-
-        /**
          * Establishes the link between this component and its host object.
          * When you assign components to a host object, it will call this method
          * so that each component can refer to its host object, the same way
