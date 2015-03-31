@@ -1,6 +1,9 @@
 The Render Engine
 =================
 
+** This project is no longer maintained **
+There are many, more powerful and more up-to-date JavaScript game engines out there. If you're looking to learn JavaScript and gaming, take a look at The Render Engine as it has many useful things already figured out.
+
 The Render Engine is a cross-browser, open source game engine written entirely in JavaScript. Designed from the
 ground up to be extremely flexible, it boasts an extensive API and uses the newest features of today's modern browsers.
 The Render Engine is a framework which is intended to aid in developing your game idea by providing the foundation
