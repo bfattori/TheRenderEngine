@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fbfattori%2FTheRenderEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fbfattori%2FTheRenderEngine?ref=badge_shield)
+
 The Render Engine
 =================
 
@@ -56,3 +58,7 @@ The demos are meant to be more complete examples of different concepts working t
 
 (c)2008-2013 Brett Fattori (bfattori@gmail.com)
 MIT Licensed
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fbfattori%2FTheRenderEngine.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fbfattori%2FTheRenderEngine?ref=badge_large)
