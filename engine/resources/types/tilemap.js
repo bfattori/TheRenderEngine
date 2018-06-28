@@ -100,7 +100,9 @@ R.resources.types.TileMap = function () {
          */
         destroy:function () {
             this.base();
-            this.tilemap = [];
+            this.parallax.destroy();
+            this.dimensions.destroy();
+            this.tileScale.destroy();
         },
 
         /**

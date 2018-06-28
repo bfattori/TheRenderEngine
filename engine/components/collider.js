@@ -382,6 +382,7 @@ R.components.Collider = function () {
                     }
                     itr.destroy();
                 }, this);
+                pclNodes.destroy();
             }
 
             // onCollideEnd

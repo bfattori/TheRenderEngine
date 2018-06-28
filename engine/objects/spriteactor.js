@@ -335,9 +335,11 @@ R.objects.SpriteActor = function () {
             this.base(renderContext, time, dt);
             this.callScriptedEvent("onAfterUpdate", ["worldTime", "delta"], [time, dt]);
 
-            var bBox = this.getBoundingBox(), pos = R.clone(this.getPosition()), moveVec = this.getComponent("move").getMoveVector(),
-                testPt = R.clone(bBox.getCenter()).add(pos), mNormal = R.clone(moveVec).normalize(), rayInfo,
-                dir = R.math.Vector2D.create(0, 0);
+            var bBox = this.getBoundingBox(),
+              pos = R.clone(this.getPosition()), moveVec = this.getComponent("move").getMoveVector(),
+              testPt = R.clone(bBox.getCenter()).add(pos),
+              mNormal = R.clone(moveVec).normalize(), rayInfo,
+              dir = R.math.Vector2D.create(0, 0);
 
             // If movement along the X coordinate isn't zero, we want to test for collisions along the axis.
             // We'll cast a ray in the direction of movement, one tile width long, from the center of the
@@ -352,12 +354,18 @@ R.objects.SpriteActor = function () {
 
                 // There's something in the direction of horizontal movement, call the scripted action for "onCollideWorld"
                 if (rayInfo.shape) {
-                    var dist = R.math.Vector2D.create(rayInfo.impactPoint).sub(testPt).len(),
-                        cResult = this.callScriptedEvent("onCollideWorld", ["tile", "impactPoint", "distance", "worldTime", "delta"], [rayInfo.shape, rayInfo.impactPoint, dist, time, dt]);
+                    var dist = R.math.Vector2D.create(rayInfo.impactPoint).sub(testPt),
+                        cResult = this.callScriptedEvent("onCollideWorld", ["tile", "impactPoint", "distance", "worldTime", "delta"], [rayInfo.shape, rayInfo.impactPoint, dist.len(), time, dt]);
+                    dist.destroy();
                 }
 
                 rayInfo.destroy();
             }
+
+            dir.destroy();
+            pos.destroy();
+            mNormal.destroy();
+            testPt.destroy();
 
             if (this.editing) {
                 renderContext.setLineStyle("white");

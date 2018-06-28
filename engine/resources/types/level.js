@@ -101,10 +101,12 @@ R.resources.types.Level = function () {
                 for (itr = this.actors.iterator(); itr.hasNext();) {
                     this.renderContext.remove(itr.next());
                 }
+                itr.destroy();
 
                 for (itr = this.tilemaps.iterator(); itr.hasNext();) {
                     this.renderContext.remove(itr.next());
                 }
+                itr.destroy();
             }
 
             // Clean up and destroy the actors, fixtures, and tile maps
@@ -325,6 +327,7 @@ R.resources.types.Level = function () {
             for (itr = level.getFixtures().iterator(); itr.hasNext();) {
                 lvl.fixtures.push(R.objects.Object2D.serialize(itr.next()));
             }
+            itr.destroy();
 
             // TILES & TILEMAPS
             $.each(["background", "playfield", "foreground"], function (i, e) {

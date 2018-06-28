@@ -70,7 +70,6 @@ R.struct.Container = function () {
          * Release the object back into the object pool.
          */
         release:function () {
-            this.objects = null;
             this.base();
             this.clear();
         },
@@ -287,7 +286,7 @@ R.struct.Container = function () {
          */
         reduce:function (length) {
             if (length > this.size()) {
-                return R.struct.Container.create();
+                return null;
             }
             var a = this.getAll();
             var sub = this.subset(length, a.length, a);
@@ -374,10 +373,8 @@ R.struct.Container = function () {
          * @return {R.struct.Container}
          */
         filter:function (fn, thisp) {
-            var arr = R.engine.Support.filter(this.getAll(), fn, thisp || this);
-            var c = this.constructor.create();
-            c.objects = arr;
-            return c;
+            this.objects = R.engine.Support.filter(this.objects, fn, thisp || this);
+            return this;
         },
 
         /**
@@ -385,7 +382,7 @@ R.struct.Container = function () {
          * actually destroyed.  Use {@link #cleanUp} to remove and destroy all objects.
          */
         clear:function () {
-            this.objects = [];
+            //this.objects = [];
             this.length = 0;
         },
 
@@ -527,7 +524,7 @@ R.struct.Container = function () {
          * @static
          */
         fromArray:function (array) {
-            var c = R.struct.Container.create();
+            var c = R.struct.Container.create("copy");
             c.addAll(array);
             return c;
         },

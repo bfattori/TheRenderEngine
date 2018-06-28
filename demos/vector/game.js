@@ -513,6 +513,8 @@ var Spaceroids = function() {
             this.fieldHeight *= options.playfieldRatio;
          }
 
+         //R.Engine.setDebugMode(true);
+
          // Create the 2D context
          this.fieldBox = R.math.Rectangle2D.create(0, 0, this.fieldWidth, this.fieldHeight);
          this.centerPoint = this.fieldBox.getCenter();
@@ -584,7 +586,7 @@ var Spaceroids = function() {
 
          // Wait for resources to finish loading before starting
          R.lang.Timeout.create("wait", 150, function() {
-            if (Spaceroids.soundLoader.isReady() &&
+            if (/*Spaceroids.soundLoader.isReady() && */
                 Spaceroids.imageLoader.isReady()) {
                // Go into attract mode as soon as the sounds are loaded
                this.destroy();

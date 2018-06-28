@@ -34,7 +34,7 @@
 R.Engine.define({
     "class":"R.math.Circle2D",
     "requires":[
-        "R.math.PooledMathObject",
+        "R.engine.PooledObject",
         "R.math.Point2D",
         "R.math.Rectangle2D",
         "R.math.Math2D"
@@ -53,7 +53,7 @@ R.Engine.define({
  */
 R.math.Circle2D = function () {
     "use strict";
-    return R.math.PooledMathObject.extend(/** @scope R.math.Circle2D.prototype */{
+    return R.engine.PooledObject.extend(/** @scope R.math.Circle2D.prototype */{
 
         center:null,
         radius:0,

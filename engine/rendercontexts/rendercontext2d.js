@@ -86,7 +86,7 @@ R.rendercontexts.RenderContext2D = function () {
             this.wScale = 1;
             this.zBins = {
                 "0":{
-                    all:R.struct.Container.create(),
+                    all:R.struct.Container.create("zBin"),
                     vis:[]
                 }
             };
@@ -105,6 +105,12 @@ R.rendercontexts.RenderContext2D = function () {
             this.rotation = 0;
             this.scaleX = 1;
             this.scaleY = 1;
+        },
+
+        destroy: function() {
+            this.wPosition.destroy();
+            this.position.destroy();
+            this.base();
         },
 
         /**
@@ -149,7 +155,7 @@ R.rendercontexts.RenderContext2D = function () {
             }
             this.zBins = {
                 "0":{
-                    all:R.struct.Container.create(),
+                    all:R.struct.Container.create("zBin"),
                     vis:[]
                 }
             };
@@ -233,7 +239,7 @@ R.rendercontexts.RenderContext2D = function () {
             zBin = this.zBins[newBin];
             if (!zBin) {
                 this.zBins[newBin] = {
-                    all:R.struct.Container.create(), // List of all objects in the bin
+                    all:R.struct.Container.create("zBin"), // List of all objects in the bin
                     vis:[]                                   // Optimized list of only visible objects
                 };
 

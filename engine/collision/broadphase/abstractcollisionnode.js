@@ -57,8 +57,13 @@ R.collision.broadphase.AbstractCollisionNode = function () {
         /** @private */
         constructor:function () {
             this.idx = R.collision.broadphase.AbstractCollisionNode.NODE_INDEX++;
-            this.objects = R.struct.Container.create();
+            this.objects = R.struct.Container.create("acnObjects");
             this.dirty = true;
+        },
+
+        destroy: function() {
+            this.objects.destroy();
+            this.base();
         },
 
         /**

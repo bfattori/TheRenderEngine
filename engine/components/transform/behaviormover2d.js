@@ -74,7 +74,12 @@ R.components.transform.BehaviorMover2D = function () {
             this.velocity = R.clone(R.math.Vector2D.ZERO);
             this.maxForce = maxForce || R.components.transform.BehaviorMover2D.MAX_FORCE;
             this.maxSpeed = maxSpeed || R.components.transform.BehaviorMover2D.MAX_SPEED;
-            this.behaviors = R.struct.HashContainer.create();
+            this.behaviors = R.struct.HashContainer.create("behaviors");
+        },
+
+        destroy: function() {
+            this.behaviors.destroy();
+            this.base();
         },
 
         /**
@@ -138,6 +143,8 @@ R.components.transform.BehaviorMover2D = function () {
                     bStr.destroy();
                 }
             }
+            itr.destroy();
+            steer.destroy();
             return acc;
         },
 

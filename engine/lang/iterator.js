@@ -126,7 +126,7 @@ R.lang.Iterator = function () {
          */
         next:function () {
             // Make sure the container wasn't destroyed
-            if (this.arr ? (this.aO != null ? this.aO.isDestroyed() : false) : this.c.isDestroyed()) {
+            if (this.arr ? (this.aO != null ? this.aO._destroyed : false) : this.c._destroyed) {
                 throw new Error("Invalid iterator over destroyed container!");
             }
 
@@ -156,11 +156,11 @@ R.lang.Iterator = function () {
          */
         hasNext:function () {
             // As long as the container hasn't been destroyed
-            if (this.arr ? (this.aO != null ? !this.aO.isDestroyed() : true) : !this.c.isDestroyed()) {
+            if (this.arr ? (this.aO != null ? !this.aO._destroyed : true) : !this.c._destroyed) {
                 if (this.arr) {
                     // For arrays (and R.struct.Container)
                     var nxt = this.r ? -1 : 1, n = this.p,
-                        dead = (this.c[n] && this.c[n].isDestroyed && this.c[n].isDestroyed());
+                        dead = (this.c[n] && this.c[n]._destroyed === true);
                     while ((n > -1 && n < this.c.length) && dead) {
                         // Skip dead objects
                         n += nxt;
@@ -169,7 +169,7 @@ R.lang.Iterator = function () {
                     return (n > -1 && n < this.c.length);
                 } else {
                     // If the container hasn't been destroyed
-                    while (this.p != null && this.p.ptr != null && this.p.ptr.isDestroyed()) {
+                    while (this.p != null && this.p.ptr != null && this.p.ptr._destroyed) {
                         // Skip destroyed objects
                         this.p = (this.r ? this.p.prev : this.p.next);
                     }

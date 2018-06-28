@@ -64,14 +64,46 @@ var ScenicDisplay = function () {
          */
         run: function () {
             this.pEngine.addEffect(Smoker.create(ScenicDisplay.renderContext.getViewport().getCenter()).
-                quantity(2).
-                width(25, 10).
-                particleVelocity(0.4, 1.2).
+                quantity(1).
+                width(35, 25).
+                particleVelocity(0.2, 1.2).
                 lifespan(Infinity).
-                frequency(30).
-                particleLife(2500, 800).
+                frequency(5).
+                particleLife(5500, 1500).
                 particle(SmokerParticle)
             );
+
+            this.pEngine.addEffect(Smoker.create(R.math.Point2D.create(30,80)).
+              quantity(1).
+              width(35, 25).
+              particleVelocity(0.2, 1.2).
+              lifespan(Infinity).
+              frequency(130).
+              particleLife(2500, 800).
+              particle(SmokerParticle)
+            );
+
+            this.pEngine.addEffect(Smoker.create(R.math.Point2D.create(350,120)).
+              quantity(1).
+              width(35, 25).
+              particleVelocity(0.02, 0.8).
+              lifespan(Infinity).
+              frequency(90).
+              particleLife(4500, 3000).
+              particle(SmokerParticle)
+            );
+
+            this.pEngine.addEffect(Smoker.create(R.math.Point2D.create(110,220)).
+              quantity(3).
+              width(15, 5).
+              particleVelocity(0.2, 1.2).
+              lifespan(Infinity).
+              frequency(15).
+              particleLife(2500, 800).
+              particle(SmokerParticle)
+            );
+
+
 
         }
 

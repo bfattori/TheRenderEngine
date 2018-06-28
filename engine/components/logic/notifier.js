@@ -117,7 +117,6 @@ R.components.logic.Notifier = function () {
         subscribe:function (type, fn, thisObj) {
             if (this.notifyLists[type] == null) {
                 this.notifyLists[type] = R.struct.HashContainer.create("subscribers");
-                ;
             }
 
             // get a unique subscriber Id

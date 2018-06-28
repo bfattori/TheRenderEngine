@@ -117,7 +117,6 @@ R.rendercontexts.AbstractRenderContext = function () {
         destroy:function () {
             // Destroy all of the objects
             this.cleanUp();
-            this.surface = null;
             this.viewport.destroy();
             this.expViewport.destroy();
             this.worldPosition.destroy();
@@ -315,7 +314,7 @@ R.rendercontexts.AbstractRenderContext = function () {
          * get the world boundaries.
          * @return {R.math.Rectangle2D}
          */
-        getWorldBoundary:function (rect) {
+        getWorldBoundary:function () {
             return this.worldBoundary;
         },
 

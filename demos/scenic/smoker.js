@@ -18,6 +18,7 @@ var Smoker = function() {
                 particle.setSprite(ScenicDisplay.spriteLoader.getSprite("smoke",
                     Smoker.PARTICLE_NAMES[R.lang.Math2.randomRange(0,3,true)]));
             }
+            itr.destroy();
         }
     }, {
         PARTICLE_NAMES: ["smoke1", "smoke2", "smoke3", "smoke4"]

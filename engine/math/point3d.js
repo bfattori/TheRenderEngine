@@ -34,7 +34,7 @@
 R.Engine.define({
     "class":"R.math.Point3D",
     "requires":[
-        "R.math.PooledMathObject",
+        "R.engine.PooledObject",
         "R.math.Math2D",
         "R.math.Point2D"
     ]
@@ -55,7 +55,7 @@ R.Engine.define({
  */
 R.math.Point3D = function () {
     "use strict";
-    return R.math.PooledMathObject.extend(/** @scope R.math.Point3D.prototype */{
+    return R.engine.PooledObject.extend(/** @scope R.math.Point3D.prototype */{
 
         x:0,
         y:0,

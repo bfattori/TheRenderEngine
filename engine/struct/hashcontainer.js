@@ -69,7 +69,7 @@ R.struct.HashContainer = function () {
          */
         release:function () {
             this.base();
-            this.objHash = null;
+            this.clear();
         },
 
         /**
@@ -194,13 +194,25 @@ R.struct.HashContainer = function () {
             }
         },
 
+        filter: function(fn, thisp) {
+            R._unsupported("filter()", this);
+        },
+
         /**
          * Remove all objects from the container.  None of the objects are
          * destroyed.
          */
         clear:function () {
+            var key;
+
             this.base();
-            this.objHash = {};
+
+            for (key in this.objHash) {
+                if (this.objHash.hasOwnProperty(key)) {
+                    this.objHash[key] = undefined;
+                    delete this.objHash[key];
+                }
+            }
         },
 
         /**

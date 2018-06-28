@@ -80,8 +80,8 @@ R.particles.ParticleEngine = function () {
         /** @private */
         constructor:function () {
             this.base("ParticleEngine");
-            this.particles = R.struct.Container.create();
-            this.particleEffects = R.struct.Container.create();
+            this.particles = R.struct.Container.create("particles");
+            this.particleEffects = R.struct.Container.create("particleEffects");
             this.maximum = R.Engine.options["maxParticles"];
             this.liveParticles = 0;
         },
@@ -250,16 +250,13 @@ R.particles.ParticleEngine = function () {
             this.lastTime = time;
 
             // Run all queued effects
-            var dead = R.struct.Container.create();
             for (var effectItr = this.particleEffects.iterator(); effectItr.hasNext(); ) {
                 var effect = effectItr.next();
                 if (!effect.hasRun() || effect.getLifespan(dt) > 0) {
                     effect.runEffect(this, time, dt);
-                } else {
-                    // Dead effect - these are cleaned up later
-                    dead.add(effect);
                 }
             }
+            effectItr.destroy();
 
             R.debug.Metrics.add("particles", this.liveParticles, false, "#");
 
@@ -279,11 +276,13 @@ R.particles.ParticleEngine = function () {
             this.liveParticles = this.particles.size();
 
             // Remove dead effects
-            for (var deadItr = dead.iterator(); deadItr.hasNext(); ) {
-                var deadEffect = deadItr.next();
-                this.particleEffects.remove(deadEffect);
-            }
-            dead.destroy();
+            this.particleEffects.filter(function(pe) {
+                if (pe.hasRun() && pe.getLifespan(dt) <= 0) {
+                    pe.destroy();
+                    return false;
+                }
+                return true;
+            });
         },
 
         /**

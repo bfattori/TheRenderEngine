@@ -101,7 +101,7 @@ R.components.logic.behaviors.Flee = function () {
 
             // Calculate the desired velocity to steer toward the destination
             var flee;
-            if (this.target.__POINT2D) {
+            if (Point2D.__POINT2D) {
                 flee = R.math.Vector2D.create(this.target);
             } else {
                 flee = R.math.Vector2D.create(this.target.getOriginPosition());

@@ -65,6 +65,11 @@ R.text.VectorText = function () {
             this.setTextWeight(1.5);
         },
 
+        destroy: function() {
+            this.clearPoints();
+            this.base();
+        },
+
         /**
          * Release the text renderer back into the pool for reuse
          */
@@ -116,6 +121,15 @@ R.text.VectorText = function () {
             this.calculateBoundingBox();
         },
 
+        clearPoints: function() {
+            while (this.rText.length > 0) {
+                var pt = this.rText.shift();
+                if (pt) {
+                    pt.destroy();
+                }
+            }
+        },
+
         /**
          * Set the text to render.
          *
@@ -126,14 +140,7 @@ R.text.VectorText = function () {
             text = String(text).toUpperCase();
             this.base(text);
 
-            if (this.rText.length > 0) {
-                for (var r in this.rText) {
-                    if (this.rText[r])
-                        this.rText[r].destroy();
-                }
-            }
-
-            this.rText = [];
+            this.clearPoints();
             var spacing = 11.5;
 
             // Replace special chars
@@ -226,6 +233,7 @@ R.text.VectorText = function () {
          * @private
          */
         _precalc:function () {
+            // Pre-render each of the vector characters
             R.text.VectorText.chars = [];
             var lb = function (glyph) {
                 var x1 = R.lang.Math2.MAX_INT;
@@ -259,6 +267,8 @@ R.text.VectorText = function () {
                         glyph[p].add(hP);
                     }
                 }
+                b.destroy();
+                hP.destroy();
             };
 
             // Convert the character set into adjusted points

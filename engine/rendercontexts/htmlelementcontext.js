@@ -102,7 +102,6 @@ R.rendercontexts.HTMLElementContext = function () {
             }
             this.cursorPos.destroy();
             this.getViewport().destroy();
-            this.txfm = null;
 
             this.tmpP1.destroy();
             this.tmpP2.destroy();

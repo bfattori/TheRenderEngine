@@ -34,7 +34,7 @@
 R.Engine.define({
     "class":"R.math.Rectangle2D",
     "requires":[
-        "R.math.PooledMathObject",
+        "R.engine.PooledObject",
         "R.math.Point2D",
         "R.math.Math2D"
     ]
@@ -53,7 +53,7 @@ R.Engine.define({
  */
 R.math.Rectangle2D = function () {
     "use strict";
-    return R.math.PooledMathObject.extend(/** @scope R.math.Rectangle2D.prototype */{
+    return R.engine.PooledObject.extend(/** @scope R.math.Rectangle2D.prototype */{
 
         x:0,
         y:0,
@@ -291,7 +291,7 @@ R.math.Rectangle2D = function () {
          * @param [y] {Number} If the top left isn't a point, this is the Y coordinate
          */
         setDims:function (ptOrX, y) {
-            if (ptOrX.__POINT2D) {
+            if (Point2D.__POINT2D) {
                 this.w = ptOrX.x;
                 this.h = ptOrX.y;
             } else {

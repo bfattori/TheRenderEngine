@@ -98,7 +98,7 @@ R.components.logic.behaviors.Seek = function () {
          */
         execute:function (time, dt) {
             var destPt = R.math.Vector2D.create(0, 0);
-            if (this.target.__POINT2D) {
+            if (Point2D.__POINT2D) {
                 destPt.set(this.target);
             } else if (this.target instanceof R.objects.Object2D && !this.target.isDestroyed()) {
                 destPt.set(this.target.getOriginPosition());

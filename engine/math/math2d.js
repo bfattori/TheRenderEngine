@@ -251,7 +251,7 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
      */
     convexHull:function (pts, k) {
 
-        var points = [];
+        var points = [], cPP, b, i;
         for (var pz = 0; pz < pts.length; pz++) {
             points.push(R.math.Point2D.create(pts[pz]));
         }
@@ -292,9 +292,9 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
         }
 
         if (xmin == xmax) {      // degenerate case: all x-coords == xmin
-            hull[++top] = points[minmin];           // a point, or
+            hull[++top] = R.math.Point2D.create(points[minmin]);           // a point, or
             if (minmax != minmin)           // a nontrivial segment
-                hull[++top] = points[minmax];
+                hull[++top] = R.math.Point2D.create(points[minmax]);
             return hull;                   // one or two points
         }
 
@@ -304,18 +304,19 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
         bin.B[0].max = minmax;        // set bin 0
         bin.B[k + 1].min = maxmin;
         bin.B[k + 1].max = maxmax;      // set bin k+1
-        for (var b = 1; b <= k; b++) { // initially nothing is in the other bins
+        for (b = 1; b <= k; b++) { // initially nothing is in the other bins
             bin.B[b].min = bin.B[b].max = NONE;
         }
 
-        for (var b, i = 0; i < n; i++) {
-            var cPP = points[i];
+        for (b, i = 0; i < n; i++) {
+            cPP = points[i];
             cP = cPP;
             if (cP.x == xmin || cP.x == xmax) // already have bins 0 and k+1
                 continue;
 
             // check if a lower or upper point
-            if (R.math.Math2D.pointLeftOfLine(points[minmin], points[maxmin], cPP) < 0) {  // below lower line
+            var plol = R.math.Math2D.pointLeftOfLine(points[minmin], points[maxmin], cPP);
+            if (plol < 0) {  // below lower line
                 b = Math.floor((k * (cP.x - xmin) / (xmax - xmin) ) + 1);  // bin #
                 if (bin.B[b].min == NONE)       // no min point in this range
                     bin.B[b].min = i;           // first min
@@ -324,24 +325,23 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
                 continue;
             }
 
-            if (R.math.Math2D.pointLeftOfLine(points[minmax], points[maxmax], cPP) > 0) {  // above upper line
+            if (plol > 0) {  // above upper line
                 b = Math.floor((k * (cP.x - xmin) / (xmax - xmin) ) + 1);  // bin #
                 if (bin.B[b].max == NONE)       // no max point in this range
                     bin.B[b].max = i;           // first max
                 else if (cP.y > points[bin.B[b].max].y)
                     bin.B[b].max = i;           // new max
-                continue;
             }
         }
 
         // Now, use the chain algorithm to get the lower and upper hulls
         // the output array hull[] will be used as the stack
         // First, compute the lower hull on the stack hull[]
-        for (var i = 0; i <= k + 1; ++i) {
+        for (i = 0; i <= k + 1; ++i) {
             if (bin.B[i].min == NONE)  // no min point in this range
                 continue;
 
-            var cPP = points[bin.B[i].min];    // select the current min point
+            cPP = points[bin.B[i].min];    // select the current min point
             cP = cPP;
 
             while (top > 0) {        // there are at least 2 points on the stack
@@ -351,19 +351,19 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
                 else
                     top--;         // pop top point off stack
             }
-            hull[++top] = cPP;        // push current point onto stack
+            hull[++top] = R.math.Point2D.create(cPP);        // push current point onto stack
         }
 
         // Next, compute the upper hull on the stack H above the bottom hull
         if (maxmax != maxmin)      // if distinct xmax points
-            hull[++top] = points[maxmax];  // push maxmax point onto stack
+            hull[++top] = R.math.Point2D.create(points[maxmax]);  // push maxmax point onto stack
 
         bot = top;                 // the bottom point of the upper hull stack
-        for (var i = k; i >= 0; --i) {
+        for (i = k; i >= 0; --i) {
             if (bin.B[i].max == NONE)  // no max point in this range
                 continue;
 
-            var cPP = points[bin.B[i].max];   // select the current max point
+            cPP = points[bin.B[i].max];   // select the current max point
             cP = cPP;
 
             while (top > bot) {      // at least 2 points on the upper stack
@@ -373,8 +373,9 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
                 else
                     top--;         // pop top point off stack
             }
-            hull[++top] = cPP;        // push current point onto stack
+            hull[++top] = R.math.Point2D.create(cPP);        // push current point onto stack
         }
+
         //if (minmax != minmin)
         //	hull[++top] = points[minmin];  // push joining endpoint onto stack
 
@@ -383,7 +384,12 @@ R.math.Math2D = /** @scope R.math.Math2D.prototype */{
         // See if the first and last points are identical.  This will cause a problem
         // if the hull is used for SAT collisions.
         if (hull[0].equals(hull[hull.length - 1])) {
-            hull.pop();
+            hull.pop().destroy();
+        }
+
+        // Destroy the copy of the points
+        while (points.length > 0) {
+            points.shift().destroy();
         }
 
         points = null;

@@ -70,8 +70,8 @@ R.components.Transform2D = function () {
             this.worldPos = R.math.Point2D.create(0, 0);
             this.lastPosition = R.math.Point2D.create(0, 0);
             this.lastRenderPosition = R.math.Point2D.create(0, 0);
-            this.rotation = 0;
             this.scale = R.math.Vector2D.create(1, 1);
+            this.rotation = 0;
         },
 
         /**
@@ -82,6 +82,7 @@ R.components.Transform2D = function () {
             this.worldPos.destroy();
             this.lastPosition.destroy();
             this.lastRenderPosition.destroy();
+            this.scale.destroy();
             this.base();
         },
 

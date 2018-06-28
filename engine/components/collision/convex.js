@@ -203,13 +203,17 @@ R.components.collision.Convex = function () {
         test:function (shape1, shape2, time, dt /*, distSqr, tRad */) {
             /* pragma:DEBUG_START */
             if (R.Engine.getDebugMode()) {
-                var rc = shape1.getGameObject().getRenderContext(), c1 = R.math.Point2D.create(shape1.getCenter()), c2 =
-                    R.math.Point2D.create(shape2.getCenter());
+                var rc = shape1.getGameObject().getRenderContext(),
+                  c1 = R.math.Point2D.create(shape1.getCenter()),
+                  c2 = R.math.Point2D.create(shape2.getCenter());
+
                 rc.postRender(function () {
                     this.setLineStyle("yellow");
                     this.setLineWidth(2);
                     this.drawLine(c1, c2);
                 });
+                c1.destroy();
+                c2.destroy();
             }
             /* pragma:DEBUG_END */
 
@@ -344,6 +348,8 @@ R.components.collision.Convex = function () {
 
             if (unitVec == null) {
                 // Something is wrong
+                axis.destroy();
+                vectorOffset.destroy();
                 return null;
             }
 
@@ -515,6 +521,7 @@ R.components.collision.Convex = function () {
             c.destroy();
             vectorOffset.destroy();
             closestVertex.destroy();
+            normalAxis.destroy();
 
             // Return the collision data
             return cData;

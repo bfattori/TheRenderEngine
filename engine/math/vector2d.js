@@ -246,7 +246,7 @@ R.math.Vector2D = function () {
          * Project this vector onto <tt>vector</tt>.
          *
          * @param vector {R.math.Vector2D} The vector to project onto
-         * @return {R.math.Vector2D}
+         * @return {R.math.Vector2D} new vector
          */
         projectOnto:function (vector) {
             Assert(vector != null, "Project onto undefined vector");
@@ -258,7 +258,7 @@ R.math.Vector2D = function () {
         /**
          * Get the right-hand normal of this vector.  The left-hand
          * normal would simply be <tt>this.rightNormal().neg()</tt>.
-         * @return {R.math.Vector2D}
+         * @return {R.math.Vector2D} new vector
          */
         rightNormal:function () {
             return R.math.Vector2D.create(-this.y, this.x).normalize();

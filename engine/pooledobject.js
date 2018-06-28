@@ -88,8 +88,6 @@ R.engine.PooledObject = Base.extend(/** @scope R.engine.PooledObject.prototype *
         R.Engine.destroy(this);
 
         this._destroyed = true;
-        R.engine.PooledObject.returnToPool(this);
-        R.debug.Metrics.add("poolLoad", Math.floor((R.engine.PooledObject.poolSize / R.engine.PooledObject.poolNew) * 100), false, "#%");
 
         // Reset any variables on the object after putting
         // it back in the pool.
@@ -259,9 +257,17 @@ R.engine.PooledObject = Base.extend(/** @scope R.engine.PooledObject.prototype *
      */
     poolSize:0,
 
-    /* pragma:DEBUG_START */
-    classPool:{},
-    /* pragma:DEBUG_END */
+
+    /**
+     * Grow the pool by MAX_POOL_COUNT
+     * @param pool
+     */
+    growPool: function(pool) {
+        var poolIncrement = R.engine.PooledObject.MAX_POOL_COUNT + pool.arr.length;
+        while (pool.arr.length < poolIncrement) {
+            pool.arr[pool.arr.length] = null; // Try creating it empty
+        }
+    },
 
     /**
      * Similar to a constructor, all pooled objects implement this method to create an instance of the object.
@@ -274,72 +280,71 @@ R.engine.PooledObject = Base.extend(/** @scope R.engine.PooledObject.prototype *
      * @static
      */
     create:function () {
-        // Check the pool for the object type
-        if (R.engine.PooledObject.objectPool[this.getClassName()] &&
-            R.engine.PooledObject.objectPool[this.getClassName()].length != 0) {
+        var className, pool, pooledObj, idx, startPoolSize;
 
-            R.engine.PooledObject.poolSize--;
-            R.debug.Metrics.add("poolLoad", Math.floor((R.engine.PooledObject.poolSize / R.engine.PooledObject.poolNew) * 100), false, "#%");
-            var obj = R.engine.PooledObject.objectPool[this.getClassName()].shift();
-            obj.constructor.apply(obj, arguments);
+        className = this.getClassName();
+        pool = R.engine.PooledObject.objectPool[className];
 
-            /* pragma:DEBUG_START */
-            R.engine.PooledObject.classPool[this.getClassName()][1]++;
-            R.engine.PooledObject.classPool[this.getClassName()][2]--;
-            /* pragma:DEBUG_END */
+        if (!pool) {
+            // Create a pool, add an object
+            pool = R.engine.PooledObject.objectPool[className] = {
+                pc: 0,
+                arr: [new this(
+                  arguments[0], arguments[1], arguments[2], arguments[3], arguments[4],
+                  arguments[5], arguments[6], arguments[7], arguments[8], arguments[9],
+                  arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]
+                )]
+            };
 
-            return obj;
+            // Initialize
+            R.engine.PooledObject.growPool(pool, this);
+
+            // Short-circuit for pool creation
+            return pool.arr[0];
+        }
+
+        // Look for a free object in the pool
+        do {
+            pooledObj = pool.arr[pool.pc];
+            if (pooledObj === null || pooledObj._destroyed === true) {
+                break;
+            }
+            pool.pc++;
+        } while (pool.pc < pool.arr.length);
+
+        if (pool.pc === pool.arr.length) {
+
+            // Out of space in the pool
+            R.engine.PooledObject.growPool(pool, this, arguments);
+            pooledObj = null;
+        }
+
+        if (pooledObj === null) {
+
+            // Create new object
+            R.engine.PooledObject.objectPool[className].arr[pool.pc] = new this(
+              arguments[0], arguments[1], arguments[2], arguments[3], arguments[4],
+              arguments[5], arguments[6], arguments[7], arguments[8], arguments[9],
+              arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]
+            );
+
+            pooledObj = R.engine.PooledObject.objectPool[className].arr[pool.pc];
+
         } else {
-            R.engine.PooledObject.poolNew++;
-            R.debug.Metrics.add("poolNew", R.engine.PooledObject.poolNew, false, "#");
 
-            /* pragma:DEBUG_START */
-            if (R.engine.PooledObject.classPool[this.getClassName()]) {
-                R.engine.PooledObject.classPool[this.getClassName()][0]++;
-            } else {
-                // 0: new, 1: in use, 2: pooled
-                R.engine.PooledObject.classPool[this.getClassName()] = [1, 0, 0];
-            }
-            /* pragma:DEBUG_END */
+            // Initialize pooled object
+            pooledObj.constructor.apply(pooledObj, arguments);
 
-            // TODO: Any more than 15 arguments and construction will fail!
-            return new this(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4],
-                arguments[5], arguments[6], arguments[7], arguments[8], arguments[9],
-                arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]);
-        }
-    },
-
-    /**
-     * During object destruction, it needs to return itself to the
-     * pool so it can be used again.  Instead of creating new instances
-     * of each object, we utilize a pooled object so we don't need the
-     * garbage collector to be invoked for removed objects.
-     * @private
-     */
-    returnToPool:function (obj) {
-        // If there is no pool for objects of this type, create one
-        if (!R.engine.PooledObject.objectPool[obj.constructor.getClassName()]) {
-            R.engine.PooledObject.objectPool[obj.constructor.getClassName()] = [];
         }
 
-        // We'll only add elements to the pool if the pool for objects is
-        // smaller than the defined limit per class (MAX_POOL_COUNT)
-        var maxPool = obj.constructor.MAX_POOL_COUNT || R.engine.PooledObject.MAX_POOL_COUNT;
-        if (R.engine.PooledObject.objectPool[obj.constructor.getClassName()].length < maxPool) {
-            // Push this object into the pool
-            R.engine.PooledObject.poolSize++;
-            R.engine.PooledObject.objectPool[obj.constructor.getClassName()].push(obj);
-
-            /* pragma:DEBUG_START */
-            if (R.engine.PooledObject.classPool[obj.constructor.getClassName()][1] != 0) {
-                R.engine.PooledObject.classPool[obj.constructor.getClassName()][1]--;
-            }
-            R.engine.PooledObject.classPool[obj.constructor.getClassName()][2]++;
-            /* pragma:DEBUG_END */
-
-            R.debug.Metrics.add("pooledObjects", R.engine.PooledObject.poolSize, false, "#");
+        // At end of pool? Wrap around
+        pool.pc++;
+        if (pool.pc === pool.arr.length) {
+            pool.pc = 0;
         }
-    },
+
+        return pooledObj;
+   },
 
     /**
      * The pool of all objects, stored by class name.

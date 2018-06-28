@@ -56,7 +56,12 @@ R.collision.OBBHull = function () {
 
         /** @private */
         constructor:function (rect) {
-            var points = [R.math.Point2D.create(0, 0), R.math.Point2D.create(rect.w, 0), R.math.Point2D.create(rect.w, rect.h), R.math.Point2D.create(0, rect.h)];
+            var points = [
+                R.math.Point2D.create(0, 0),
+                R.math.Point2D.create(rect.w, 0),
+                R.math.Point2D.create(rect.w, rect.h),
+                R.math.Point2D.create(0, rect.h)
+            ];
             this.base(points);
         }
 

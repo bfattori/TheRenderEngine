@@ -124,10 +124,16 @@ R.collision.ConvexHull = function () {
             this.center.destroy();
 
             // Destroy the verts
-            for (var v in this.vertexes) {
-                this.vertexes[v].destroy();
-                this.oVerts[v].destroy();
-                this.uVerts[v].destroy();
+            while (this.vertexes.length > 0) {
+                this.vertexes.shift().destroy();
+            }
+
+            while (this.oVerts.length > 0) {
+                this.oVerts.shift().destroy();
+            }
+
+            while (this.uVerts.length > 0) {
+                this.uVerts.shift().destroy();
             }
 
             this.base();

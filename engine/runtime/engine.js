@@ -6243,7 +6243,7 @@ R.Engine.defaultOptions = {
     "useDirtyRectangles":false, // Enable canvas dirty rectangles redraws
     "nativeAnimationFrame":true, // Enable the use of "requestAnimationFrame"
     "disableParticleEngine":false, // Disable particle engines (if used)
-    "maxParticles":250, // Default maximum particles engine will allow
+    "maxParticles":5000, // Default maximum particles engine will allow
     "useVirtualControlPad":false, // Show the virtual d-pad (for touch)
     "virtualPad":{                                          // Virtual d-pad mappings
         "up":"R.engine.Events.KEYCODE_UP_ARROW",

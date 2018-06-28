@@ -117,6 +117,9 @@ R.particles.AbstractParticle = function () {
         destroy:function () {
             this.base();
             this.pos.destroy();
+            this.options.gravity.destroy();
+            this.inverseVelocity.destroy();
+            this.velocityVector.destroy();
         },
 
         /**

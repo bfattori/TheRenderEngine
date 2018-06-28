@@ -77,6 +77,13 @@ R.rendercontexts.VirtualCanvasContext = function () {
             this.duration = 0;
         },
 
+        destroy: function() {
+            this.getWorldBoundary().destroy();
+            this.scrollToPt.destroy();
+            this.scrollFromPt.destroy();
+            this.base();
+        },
+
         /**
          * Set the horizontal world position in pixels.
          *

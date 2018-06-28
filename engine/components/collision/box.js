@@ -122,12 +122,22 @@ R.components.collision.Box = function () {
             // See if a collision will occur
             var linked = this.getLinkedBody(),
                 host = this.getGameObject(),
-                box1 = linked ? R.math.Rectangle2D.create(host.getWorldBox()).offset(R.math.Point2D.create(linked.getLocalOrigin()).neg()) : host.getWorldBox(),
+                box1 = null,
                 box2 = collisionObj.getWorldBox();
+
+            if (linked) {
+                var invOrigin = R.math.Point2D.create(linked.getLocalOrigin()).neg();
+                box1 = R.math.Rectangle2D.create(host.getWorldBox()).offset(invOrigin);
+                invOrigin.destroy();
+            } else {
+                box1 = host.getWorldBox();
+            }
 
             if (this.getTestMode() == R.components.Collider.SIMPLE_TEST) {
                 if (box1.isIntersecting(box2)) {
                     // Intersection test passed
+                    box1.destroy();
+                    box2.destroy();
                     return this.base(time, dt, collisionObj, objectMask, targetMask);
                 }
             } else {
@@ -148,7 +158,7 @@ R.components.collision.Box = function () {
 
                     // This normal is from the center points of each object, pointing back at the host
                     var normalVector = R.math.Vector2D.create(c2.x - c1.x, c2.y - c1.y).normalize();
-                    var separationVector = normalVector.mul(diff);
+                    var separationVector = R.math.Vector2D.create(normalVector).mul(diff);
                     this.setCollisionData(R.struct.CollisionData.create(
                         separationVector.len(),
                         normalVector,
@@ -183,6 +193,7 @@ R.components.collision.Box = function () {
                 });
 
                 origin.destroy();
+                rect.destroy();
             }
         }
         /* pragma:DEBUG_END */

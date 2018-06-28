@@ -66,7 +66,7 @@ R.components.logic.Host = function () {
          */
         constructor:function (name, priority) {
             this.base(name, priority || 1.0);
-            this.objects = R.struct.HashContainer.create();
+            this.objects = R.struct.HashContainer.create("hostObjects");
         },
 
         /**

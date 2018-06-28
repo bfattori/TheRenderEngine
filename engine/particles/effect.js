@@ -45,6 +45,11 @@ R.particles.Effect = function() {
             return this;
         },
 
+        destroy: function() {
+            this.origin.destroy();
+            this.base();
+        },
+
         release: function() {
             this.run = false;
             this.lastTime = 0;
@@ -143,7 +148,7 @@ R.particles.Effect = function() {
          * @private
          */
         runEffect: function(particleEngine, time, dt) {
-            var particles = R.struct.Container.create();
+            var particles = R.struct.Container.create("particles");
             var numParticles = this.particleCount + R.lang.Math2.randomRange(0, this.particleCountVariance, true);
             var particleLife = this.particleLifetime + R.lang.Math2.randomRange(0, this.particleLifetimeVariance, true);
             var emitFreq = this.emitFrequency + R.lang.Math2.randomRange(0, this.emitFrequencyVariance, true);
@@ -185,7 +190,7 @@ R.particles.Effect = function() {
         },
 
         /**
-         * Get the lifespan of the effect relative to the delta time.
+         * Get the remaining lifespan of the effect.
          * @param dt
          * @returns {number}
          */

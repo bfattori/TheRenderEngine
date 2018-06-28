@@ -66,7 +66,7 @@ R.collision.broadphase.AbstractCollisionModel = function () {
             this.base(name || "BroadPhaseCollisionModel");
             this.width = width;
             this.height = height;
-            this.pcl = R.struct.Container.create();
+            this.pcl = R.struct.Container.create("PCL");
         },
 
         /**
@@ -77,6 +77,7 @@ R.collision.broadphase.AbstractCollisionModel = function () {
             this.root = null;
             this.width = 0;
             this.height = 0;
+            this.pcl.destroy();
             this.pcl = null;
         },
 
@@ -248,7 +249,7 @@ R.collision.broadphase.AbstractCollisionModel = function () {
          * @return {R.struct.Container} A container of all objects in the model
          */
         getObjects:function () {
-            return R.struct.Container.create();
+            return R.struct.Container.create("allObjs");
         },
 
         /**
@@ -319,7 +320,7 @@ R.collision.broadphase.AbstractCollisionModel = function () {
             var begin = R.math.Point2D.create(fromPoint), end = R.math.Point2D.create(fromPoint),
                 dir = R.math.Vector2D.create(direction), line,
                 pt = 0, test, node, itr, object, wt = R.Engine.worldTime, dt = R.Engine.lastTime,
-                vec = R.math.Vector2D.create(direction).neg(), did = false;
+                vec = R.math.Vector2D.create(direction).neg(), didIntersect = false;
 
             // Create the collision structure only once
             var collision = R.struct.CollisionData.create(0, vec, null, null, null, wt, dt);
@@ -362,56 +363,52 @@ R.collision.broadphase.AbstractCollisionModel = function () {
                 // Get all of the objects in the node
                 for (itr = node.getObjects().iterator(); itr.hasNext();) {
                     object = itr.next();
-                    did = false;
+                    didIntersect = null;
 
                     // If the object has a collision hull, we'll test against that
                     // otherwise we'll use its world box
                     if (object.getCollisionHull) {
                         var hull = object.getCollisionHull();
-                        if (hull.getType() == R.collision.ConvexHull.CONVEX_CIRCLE) {
-                            // Point to circle hull test
-                            did = R.math.Math2D.pointInCircle(test, hull.getCenter(), hull.getRadius());
-                        } else {
-                            // Point to polygon hull test
-                            did = R.math.Math2D.pointInPoly(test, hull.getVertexes());
-                        }
-                    } else if (object.getWorldBox && object.getWorldBox().containsPoint(test)) {
-                        did = true;
-                    }
 
-                    // If we find a collision, prep collision structure
-                    if (did) {
-                        collision.shape1 = object;
-                        collision.impulseVector = R.math.Vector2D.create(test);
+                        didIntersect = (hull.getType() == R.collision.ConvexHull.CONVEX_CIRCLE) ?
+                          R.math.Math2D.pointInCircle(test, hull.getCenter(), hull.getRadius()) :
+                          R.math.Math2D.pointInPoly(test, hull.getVertexes());
 
-                        if (!testFn) {
-                            // No test function, just return the collision
-                            break;
-                        } else if (testFn(collision.shape1)) {
-                            // Test function returned true, return the collision
-                            break;
-                        } else {
-                            // Test function returned false, move onto another test
-                            collision.shape1 = null;
-                            collision.impulseVector.destroy();
+
+                        if (didIntersect) {
+                            // If we find a collision, prep collision info
+                            didIntersect.destroy();
+                            collision.shape1 = object;
+                            collision.impulseVector = R.math.Vector2D.create(test);
+
+                            if (!testFn || testFn(collision.shape1)) {
+                                // No test function, or the test returned true,
+                                // return the collision
+                                break;
+                            } else {
+                                // Move onto another test
+                                collision.shape1 = null;
+                                collision.impulseVector.destroy();
+                            }
                         }
                     }
                 }
 
-                // Clean up the iterator over the objects in the node
                 itr.destroy();
             }
 
-            // Clean up a bit
+            // Clean up
             begin.destroy();
             end.destroy();
             dir.destroy();
+            vec.destroy();
 
             // Destroy the points in the line
             while (line.length > 0) {
                 line.shift().destroy();
             }
 
+            // Clean up the collision structure if there's no collisions
             if (collision.shape1 == null) {
                 collision.destroy();
                 collision = null;

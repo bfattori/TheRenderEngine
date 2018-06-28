@@ -185,6 +185,7 @@ R.components.collision.Circle = function () {
                 });
 
                 origin.destroy();
+                rect.destroy();
             }
         }
         /* pragma:DEBUG_END */

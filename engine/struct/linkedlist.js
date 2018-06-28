@@ -370,7 +370,7 @@ R.struct.LinkedList = function () {
          */
         reduce:function (length) {
             if (length > this.size()) {
-                return R.struct.Container.create();
+                return null;
             }
             var a = this.getAll();
             var sub = this.subset(length, a.length, a);
@@ -427,7 +427,7 @@ R.struct.LinkedList = function () {
          */
         filter:function (fn, thisp) {
             var arr = R.engine.Support.filter(this.getAll(), fn, thisp || this);
-            var c = R.struct.Container.create();
+            var c = R.struct.Container.create("copy");
             c.addAll(arr);
             return c;
         },

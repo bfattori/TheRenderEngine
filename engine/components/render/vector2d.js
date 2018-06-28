@@ -120,11 +120,14 @@ R.components.render.Vector2D = function () {
          *        pass the points literally without translation.
          */
         setPoints:function (pointArray, noOffset) {
-            var pc = [];
-            for (var p in pointArray) {
-                pc.push(R.math.Point2D.create(pointArray[p]));
+            while (this.points.length > 0) {
+                this.points.shift().destroy();
             }
-            this.points = pc;
+
+            for (var p in pointArray) {
+                this.points.push(pointArray[p]);
+            }
+
             this.renderState = null;
             this.calculateBoundingBox();
 
@@ -134,6 +137,7 @@ R.components.render.Vector2D = function () {
                 for (p in this.points) {
                     this.points[p].add(hP);
                 }
+                hP.destroy();
                 this.calculateBoundingBox();
             }
 

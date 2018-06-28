@@ -73,6 +73,9 @@ R.components.render.ParticleEmitter = function () {
          */
         destroy:function () {
             this.offset.destroy();
+            if (this.emitter) {
+                this.emitter.destroy();
+            }
             this.base();
         },
 

@@ -78,8 +78,8 @@ R.engine.GameObject = function () {
             this.base(name);
             this.dirtyFlag = true;
             this.oldDirty = false;
-            this.preRenderComponents = [];
-            this.postRenderComponents = [];
+            this.preRenderComponents = null;
+            this.postRenderComponents = null;
             this.renderContext = null;
             this.keepAlive = false;
         },
@@ -106,12 +106,16 @@ R.engine.GameObject = function () {
                 this.getRenderContext().remove(this);
             }
 
-            while (this.preRenderComponents.length > 0) {
-                this.preRenderComponents.shift().destroy();
+            if (this.preRenderComponents) {
+                while (this.preRenderComponents.length > 0) {
+                    this.preRenderComponents.shift().destroy();
+                }
             }
 
-            while (this.postRenderComponents.length > 0) {
-                this.postRenderComponents.shift().destroy();
+            if (this.postRenderComponents) {
+                while (this.postRenderComponents.length > 0) {
+                    this.postRenderComponents.shift().destroy();
+                }
             }
 
             this.cleanUp();
@@ -286,11 +290,18 @@ R.engine.GameObject = function () {
          * @private
          */
         setPreOrPostComponent:function (component) {
+            var arr;
             if (component.getType() === R.components.Base.TYPE_PRE) {
-                this.preRenderComponents.push(component);
+                arr = this.preRenderComponents;
             } else {
-                this.postRenderComponents.push(component);
+                arr = this.postRenderComponents;
             }
+
+            if (!arr) {
+                arr = [];
+            }
+
+            arr.push(component);
         },
 
         /**

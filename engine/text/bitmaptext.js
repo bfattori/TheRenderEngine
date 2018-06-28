@@ -83,7 +83,7 @@ R.text.BitmapText = function () {
                 letter = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? text.length - 1 : 0),
                 kern = (align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.kerning : this.font.info.kerning),
                 space = R.math.Point2D.create((align == R.text.AbstractTextRenderer.ALIGN_RIGHT ? -this.font.info.space : this.font.info.space), 0),
-                cW, cH = this.font.info.height, cS = 0, y = 0, pc = R.math.Point2D.create(0, 0);
+                cW, cH = this.font.info.height, cS = 0, y = 0, pc = R.math.Point2D.create(0, 0), kernSize;
 
             // Run the text to get its bounding box
             var weight = this.getTextWeight();
@@ -110,7 +110,9 @@ R.text.BitmapText = function () {
                             // Draw the text
                             cS = this.font.info.letters[glyph - 1];
                             cW = this.font.info.letters[glyph] - cS;
-                            pc.add(R.math.Point2D.create(cW, 0).mul(kern));
+                            kernSize = R.math.Point2D.create(cW, 0).mul(kern);
+                            pc.add(kernSize);
+                            kernSize.destroy();
                         }
                     }
 
@@ -121,6 +123,7 @@ R.text.BitmapText = function () {
             // Set the bounding box
             this.getGameObject().getBoundingBox().set(0, 0, pc.x * this.getSize(), cH * this.getSize());
             pc.destroy();
+            space.destroy();
         },
 
         /**

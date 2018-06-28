@@ -119,21 +119,21 @@ R.objects.Object2D = function () {
          * Destroy the object.
          */
         destroy:function () {
-            this.bBox.destroy();
-            this.wBox.destroy();
-            this.wCircle.destroy();
             this.lastPosition.destroy();
             this.originPos.destroy();
             this.oldRenderPosition.destroy();
             this.oldBbox.destroy();
             this.oldScale.destroy();
+            this.bBox.destroy();
             this.AABB.destroy();
+            this.wBox.destroy();
             this.wCircle.destroy();
             this.origin.destroy();
             this.originNeg.destroy();
             if (this.collisionHull) {
                 this.collisionHull.destroy();
             }
+
             this.base();
         },
 

@@ -99,6 +99,13 @@ R.collision.broadphase.SpatialGrid = function () {
             }
         },
 
+        destroy: function() {
+            var max = this.divisions * this.divisions;
+            for (var i = 0; i < max; i++) {
+                this.getRoot()[i].destroy();
+            }
+        },
+
         /**
          * Releases the spatial grid back into the object pool.  See {@link PooledObject#release}
          * for more information.
@@ -273,6 +280,7 @@ R.collision.broadphase.SpatialGrid = function () {
             }
 
             renderContext.popTransform();
+            rect.destroy();
         }
         /* pragma:DEBUG_END */
 
