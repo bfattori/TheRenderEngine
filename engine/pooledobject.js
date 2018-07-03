@@ -6,10 +6,6 @@
  *               usage down and to minimize the effect of the JavaScript garbage
  *               collector.
  *
- * @author: Brett Fattori (brettf@renderengine.com)
- * @author: $Author: bfattori $
- * @version: $Revision: 1555 $
- *
  * Copyright (c) 2018 Brett Fattori (bfattori@gmail.com)
  *
  */
@@ -34,7 +30,7 @@ class PooledObject {
       dataModel: {},
       destroyed: false,
       name: name,
-      id: R.engine.create(this)   // <-- This seems stupid
+      id: RenderEngine.create(this) // Reference counting
     };
   }
 
@@ -85,7 +81,7 @@ class PooledObject {
     this.opt.destroyed = true;
 
     // Clean up the engine reference to this object
-    R.Engine.destroy(this); // <-- Dumb?
+    RenderEngine.destroy(this); // De-referencing
 
     // Reset any variables on the object after putting
     // it back in the pool.
@@ -235,6 +231,7 @@ class PooledObject {
     this.opt.dataModel = null;
   }
 
+  //noinspection JSMethodCanBeStatic
   /**
    * <tt>true</tt> for all objects within the engine.
    * @type {Boolean}
@@ -243,6 +240,7 @@ class PooledObject {
     return true;
   }
 
+  //noinspection JSMethodCanBeStatic
   /**
    * <tt>true</tt> for all objects that are pooled.
    * @type {Boolean}
