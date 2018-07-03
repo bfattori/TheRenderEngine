@@ -252,12 +252,11 @@ class PooledObject {
   //==================================================================================
 
   /**
-   * The maximum number of objects, per class, that can be pooled.  This value can
-   * be tweaked, per class, which extends from <tt>R.engine.PooledObject</tt>.
+   * The growth rate of a pool.
    * <i>(default: 50)</i>
    * @type {Number}
    */
-  static get MAX_POOL_COUNT() {
+  static get POOL_GROWTH_SIZE() {
     return 50;
   }
 
@@ -278,7 +277,7 @@ class PooledObject {
    * @param pool
    */
   static growPool(pool) {
-    var poolIncrement = PooledObject.MAX_POOL_COUNT + pool.arr.length;
+    var poolIncrement = PooledObject.POOL_GROWTH_SIZE + pool.arr.length;
     while (pool.arr.length < poolIncrement) {
       pool.arr[pool.arr.length] = null; // Try creating it empty
     }
@@ -289,12 +288,12 @@ class PooledObject {
    * The <tt>create()</tt> method will either create a new instance, if no object of the object's
    * class exists within the pool, or will reuse an existing pooled instance of
    * the object.  Either way, the constructor for the object instance is called so that
-   * instance creation can be maintained in the constructor.
+   * instance creation can be maintained by the constructor.
    * <p/>
    * Usage: <tt>var obj = [ObjectClass].create(arg1, arg2, arg3...);</tt>
    * @static
    */
-  create() {
+  create(...args) {
     var className, pool, pooledObj, idx, startPoolSize;
 
     className = this.className;
@@ -304,11 +303,12 @@ class PooledObject {
       // Create a pool, add an object
       pool = PooledObject.objectPool[className] = {
         pc: 0,
-        arr: [new this(
-          arguments[0], arguments[1], arguments[2], arguments[3], arguments[4],
-          arguments[5], arguments[6], arguments[7], arguments[8], arguments[9],
-          arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]
-        )]
+        //arr: [new this(
+        //  arguments[0], arguments[1], arguments[2], arguments[3], arguments[4],
+        //  arguments[5], arguments[6], arguments[7], arguments[8], arguments[9],
+        //  arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]
+        //)]
+        arr: [new this(args)]
       };
 
       // Initialize
@@ -337,11 +337,12 @@ class PooledObject {
     if (pooledObj === null) {
 
       // Create new object
-      PooledObject.objectPool[className].arr[pool.pc] = new this(
-        arguments[0], arguments[1], arguments[2], arguments[3], arguments[4],
-        arguments[5], arguments[6], arguments[7], arguments[8], arguments[9],
-        arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]
-      );
+      //PooledObject.objectPool[className].arr[pool.pc] = new this(
+      //  arguments[0], arguments[1], arguments[2], arguments[3], arguments[4],
+      //  arguments[5], arguments[6], arguments[7], arguments[8], arguments[9],
+      //  arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]
+      //);
+      PooledObject.objectPool[className].arr[pool.pc] = new this(args);
 
       pooledObj = PooledObject.objectPool[className].arr[pool.pc];
 
