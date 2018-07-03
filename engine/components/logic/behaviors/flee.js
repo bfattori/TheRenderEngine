@@ -91,11 +91,11 @@ R.components.logic.behaviors.Flee = function () {
          */
         execute:function (time, dt) {
 
-            if (!this.target || this.target.isDestroyed()) {
+            if (!this.target || this.target._destroyed) {
                 return R.math.Vector2D.ZERO;
             }
 
-            if (!this.getGameObject() || this.getGameObject().isDestroyed()) {
+            if (!this.getGameObject() || this.getGameObject()._destroyed) {
                 return R.math.Vector2D.ZERO;
             }
 

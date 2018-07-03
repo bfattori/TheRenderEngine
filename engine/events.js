@@ -2,42 +2,9 @@
  * The Render Engine
  * Events
  *
- * @fileoverview Methods for handling events (adding & removing) and keycodes for
- *               special keys like the arrows and function keys.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- *
- * @author: $Author: bfattori $
- * @version: $Revision: 1555 $
- *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
+ * Copyright (c) 2018 Brett Fattori (brettf@renderengine.com)
  */
 "use strict";
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.engine.Events",
-    "requires":[]
-});
 
 /**
  * @class A static object for uniformly handling events within all browser
@@ -60,10 +27,7 @@ R.Engine.define({
  * @see R.engine.BaseObject#addEvent
  * @see R.engine.BaseObject#removeEvent
  */
-R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
-
-    /** @private */
-    constructor:null,
+class Events {
 
     /**
      * Set an event handler on a target.  The handler function will
@@ -76,7 +40,7 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
      * @param handler {Function} The handler function to assign to the target
      * @memberof R.engine.Events
      */
-    setHandler:function (target, data, name, handler) {
+    static setHandler(target, data, name, handler) {
         if (typeof data == "string") {
             handler = name;
             name = data;
@@ -88,7 +52,7 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
         }
 
         jQuery(target).bind(name, data || handler, handler);
-    },
+    }
 
     /**
      * Clear an event handler that was previously assigned to the target.  If no
@@ -100,12 +64,12 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
      * @param handler {Function} The handler function to unassign from the target
      * @memberof R.engine.Events
      */
-    clearHandler:function (target, name, handler) {
+    static clearHandler(target, name, handler) {
         if (target == document.body) {
             target = document;
         }
         jQuery(target).unbind(name, handler);
-    },
+    }
 
     /**
      * Get the key code for the provided character.  The value returned
@@ -118,9 +82,9 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
      * @return {Number} The key code for the given character
      * @memberof R.engine.Events
      */
-    keyCodeForChar:function (charStr, literal) {
+    static keyCodeForChar(charStr, literal) {
         return (literal ? charStr : charStr.toUpperCase()).charCodeAt(0);
-    },
+    }
 
     /**
      * Returns true if the key pressed is either the lower or upper case version of
@@ -128,10 +92,10 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
      * @param eventObj
      * @param keyStr
      */
-    isKey:function (eventObj, keyStr) {
+    static isKey(eventObj, keyStr) {
         return (eventObj.which == R.engine.Events.keyCodeForChar(keyStr) ||
             eventObj.which == R.engine.Events.keyCodeForChar(keyStr, true));
-    },
+    }
 
     //====================================================================================================================
     // MOUSE BUTTON CONSTANTS
@@ -139,22 +103,22 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
     /** No mouse button pressed.
      * @type {Number}
      */
-    MOUSE_NO_BUTTON:-1,
+    static MOUSE_NO_BUTTON = -1;
 
     /** Left mouse button.
      * @type {Number}
      */
-    MOUSE_LEFT_BUTTON:1,
+    static MOUSE_LEFT_BUTTON = 1;
 
     /** Right mouse button.
      * @type {Number}
      */
-    MOUSE_RIGHT_BUTTON:3,
+    static MOUSE_RIGHT_BUTTON = 3;
 
     /** Middle mouse button.
      * @type {Number}
      */
-    MOUSE_MIDDLE_BUTTON:2,
+    static MOUSE_MIDDLE_BUTTON = 2;
 
     //====================================================================================================================
     // KEY CODE CONSTANTS
@@ -162,136 +126,136 @@ R.engine.Events = Base.extend(/** @scope R.engine.Events.prototype */{
     /** Constant for the "Tab" key
      * @type {Number}
      */
-    KEYCODE_TAB:9,
+    static KEYCODE_TAB = 9;
 
     /** Constant for the "Enter" key
      * @type {Number}
      */
-    KEYCODE_ENTER:13,
+    static KEYCODE_ENTER = 13;
 
     /** Constant for the "Delete" key
      * @type {Number}
      */
-    KEYCODE_DELETE:46,
+    static KEYCODE_DELETE = 46;
 
     /** Constant for the "Space" key
      * @type {Number}
      */
-    KEYCODE_SPACE:32,
+    static KEYCODE_SPACE = 32;
 
     /** Constant for the "Backspace"
      * @type {Number}
      */
-    KEYCODE_BACKSPACE:8,
+    static KEYCODE_BACKSPACE = 8;
 
     /** Constant for the "Up" key
      * @type {Number}
      */
-    KEYCODE_UP_ARROW:38,
+    static KEYCODE_UP_ARROW = 38;
 
     /** Constant for the "Down" key
      * @type {Number}
      */
-    KEYCODE_DOWN_ARROW:40,
+    static KEYCODE_DOWN_ARROW = 40;
 
     /** Constant for the "Left" key
      * @type {Number}
      */
-    KEYCODE_LEFT_ARROW:37,
+    static KEYCODE_LEFT_ARROW = 37;
 
     /** Constant for the "RIGHT" key
      * @type {Number}
      */
-    KEYCODE_RIGHT_ARROW:39,
+    static KEYCODE_RIGHT_ARROW = 39;
 
     /** Constant for the "Plus" key
      * @type {Number}
      */
-    KEYCODE_KEYPAD_PLUS:61,
+    static KEYCODE_KEYPAD_PLUS = 61;
 
     /** Constant for the "Minus" key
      * @type {Number}
      */
-    KEYCODE_KEYPAD_MINUS:109,
+    static KEYCODE_KEYPAD_MINUS = 109;
 
     /** Constant for the "Home" key
      * @type {Number}
      */
-    KEYCODE_HOME:36,
+    static KEYCODE_HOME = 36;
 
     /** Constant for the "End" key
      * @type {Number}
      */
-    KEYCODE_END:35,
+    static KEYCODE_END = 35;
 
     /** Constant for the "F1" key
      * @type {Number}
      */
-    KEYCODE_F1:112,
+    static KEYCODE_F1 = 112;
 
     /** Constant for the "F2" key
      * @type {Number}
      */
-    KEYCODE_F2:113,
+    static KEYCODE_F2 = 113;
 
     /** Constant for the "F3" key
      * @type {Number}
      */
-    KEYCODE_F3:114,
+    static KEYCODE_F3 = 114;
 
     /** Constant for the "F4" key
      * @type {Number}
      */
-    KEYCODE_F4:115,
+    static KEYCODE_F4 = 115;
 
     /** Constant for the "F5" key
      * @type {Number}
      */
-    KEYCODE_F5:116,
+    static KEYCODE_F5 = 116;
 
     /** Constant for the "F6" key
      * @type {Number}
      */
-    KEYCODE_F6:117,
+    static KEYCODE_F6 = 117;
 
     /** Constant for the "F7" key
      * @type {Number}
      */
-    KEYCODE_F7:118,
+    static KEYCODE_F7 = 118;
 
     /** Constant for the "F8" key
      * @type {Number}
      */
-    KEYCODE_F8:119,
+    static KEYCODE_F8 = 119;
 
     /** Constant for the "F9" key
      * @type {Number}
      */
-    KEYCODE_F9:120,
+    static KEYCODE_F9 = 120;
 
     /** Constant for the "F10" key
      * @type {Number}
      */
-    KEYCODE_F10:121,
+    static KEYCODE_F10 = 121;
 
     /** Constant for the "F11" key
      * @type {Number}
      */
-    KEYCODE_F11:122,
+    static KEYCODE_F11 = 122;
 
     /** Constant for the "F12" key
      * @type {Number}
      */
-    KEYCODE_F12:123,
+    static KEYCODE_F12 = 123;
 
     /** Constant for the "Context Menu" key (Windows)
      * @type {Number}
      */
-    KEYCODE_MENU:93,
+    static KEYCODE_MENU = 93;
 
     /** Constant for the "Windows" key (Windows)
      * @type {Number}
      */
-    KEYCODE_WINDOW:91
+    static KEYCODE_WINDOW = 91
 
-});
+}

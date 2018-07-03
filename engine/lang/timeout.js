@@ -29,59 +29,49 @@
  * THE SOFTWARE.
  *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.lang.Timeout",
-    "requires":[
-        "R.lang.AbstractTimer"
-    ]
-});
+"use strict";
 
 /**
- * @class An extension of {@link R.lang.AbstractTimer} that wraps the <tt>window.setTimeout</tt> method.
+ * @class An extension of {@link AbstractTimer} that wraps the <tt>window.setTimeout</tt> method.
  *
  * @param name {String} The name of the timer
  * @param interval {Number} The interval for the timer, in milliseconds
  * @param callback {Function} The function to call when the interval is reached
- * @extends R.lang.AbstractTimer
+ * @extends AbstractTimer
  * @constructor
  * @description Create a timeout timer
  */
-R.lang.Timeout = function () {
-    "use strict";
-    return R.lang.AbstractTimer.extend(/** @scope R.lang.Timeout.prototype */{
+class Timeout extends AbstractTimer {
 
-        /**
-         * Cancel this timeout timer.
-         */
-        cancel:function () {
-            R.global.clearTimeout(this.getTimer());
-            this.base();
-        },
+  /**
+   * Get the class name of this object
+   * @return {String} "R.lang.Timeout"
+   */
+  get className() {
+    return "Timeout";
+  }
 
-        /**
-         * Cancel and destroy the timeout
-         */
-        destroy:function () {
-            this.cancel();
-            this.base();
-        },
+  /**
+   * Cancel this timeout timer.
+   */
+  cancel() {
+    clearTimeout(this.timer);
+    super.cancel();
+  }
 
-        /**
-         * Restart this timeout timer
-         */
-        restart:function () {
-            this.setTimer(R.global.setTimeout(this.getCallback(), this.getInterval()));
-        }
-    }, /** @scope R.lang.Timeout.prototype */ {
-        /**
-         * Get the class name of this object
-         * @return {String} "R.lang.Timeout"
-         */
-        getClassName:function () {
-            return "R.lang.Timeout";
-        }
-    });
+  /**
+   * Cancel and destroy the timeout
+   */
+  destroy() {
+    this.cancel();
+    super.destroy();
+  }
+
+  /**
+   * Restart this timeout timer
+   */
+  restart() {
+    this.timer = setTimeout(this.callback, this.interval);
+  }
 
 }

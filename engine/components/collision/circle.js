@@ -171,7 +171,7 @@ R.components.collision.Circle = function () {
         /* pragma:DEBUG_START */, execute:function (renderContext, time, dt) {
             this.base(renderContext, time, dt);
             // Debug the collision box
-            if (R.Engine.getDebugMode() && !this.isDestroyed()) {
+            if (R.Engine.getDebugMode() && !this._destroyed) {
                 var linked = this.getLinkedBody(),
                     origin = R.math.Point2D.create(linked ? linked.getLocalOrigin() : R.math.Point2D.ZERO),
                     rect = R.math.Rectangle2D.create(this.getGameObject().getWorldBox());

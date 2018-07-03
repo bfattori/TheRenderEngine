@@ -100,7 +100,7 @@ R.components.logic.behaviors.Seek = function () {
             var destPt = R.math.Vector2D.create(0, 0);
             if (Point2D.__POINT2D) {
                 destPt.set(this.target);
-            } else if (this.target instanceof R.objects.Object2D && !this.target.isDestroyed()) {
+            } else if (this.target instanceof R.objects.Object2D && !this.target._destroyed) {
                 destPt.set(this.target.getOriginPosition());
             } else {
                 // Not a point or object, return zero steering

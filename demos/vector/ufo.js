@@ -151,7 +151,7 @@ var SpaceroidsUFO = function() {
          }
 
          if (cell) {
-            startY = cell.getRect().getCenter().y;
+            startY = cell.rect.center.y;
             var stepX = pick < 50 ? 1 : -1, stepY = pick > 50 ? 1 : -1,
                 spd = (isSmall ? 2 : 1) * stepX,
                 yvel = (isSmall ? 2 : 1) * stepY;

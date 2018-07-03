@@ -29,14 +29,7 @@
  * THE SOFTWARE.
  *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.lang.MultiTimeout",
-    "requires":[
-        "R.lang.Timeout"
-    ]
-});
+"use strict";
 
 /**
  * @class An extension of {@link R.lang.Timeout} that will repeat the specified number of times before
@@ -52,43 +45,39 @@ R.Engine.define({
  * @constructor
  * @description Creat a multi-timeout triggering timer
  */
-R.lang.MultiTimeout = function () {
-    "use strict";
-    return R.lang.Timeout.extend(/** @scope R.lang.MultiTimeout.prototype */{
+class MultiTimeout extends Timeout {
 
-        /** @private */
-        constructor:function (name, reps, interval, callback) {
+  constructor(name, reps, interval, callback) {
 
-            var timerObj = {
-                callback:callback,
-                repetitions:reps,
-                totalReps:0,
-                timer:this
-            };
+    var timerObj = {
+      callback: callback,
+      repetitions: reps,
+      totalReps: 0,
+      timer: this
+    };
 
-            var cb = R.bind(timerObj, function () {
-                if (this.repetitions-- > 0) {
-                    this.callback.call(this.timer, this.totalReps);
-                    this.totalReps++;
-                    this.timer.restart();
-                }
-                else {
-                    this.timer.destroy();
-                }
-            });
+    var cb = function () {
+      if (this.repetitions-- > 0) {
+        this.callback.call(this.timer, this.totalReps);
+        this.totalReps++;
+        this.timer.restart();
+      }
+      else {
+        this.timer.destroy();
+      }
+    }.bind(timerObj);
 
-            this.base(name, interval, cb);
-        }
+    super(name, interval, cb);
+  }
 
-    }, /** @scope R.lang.MultiTimeout.prototype */ {
+  /**
+   * Get the class name of this object
+   * @return {String} "MultiTimeout"
+   */
+  get className() {
+    return "MultiTimeout";
+  }
 
-        /**
-         * Get the class name of this object
-         * @return {String} "R.lang.MultiTimeout"
-         */
-        getClassName:function () {
-            return "R.lang.MultiTimeout";
-        }
-    });
 
 }
+

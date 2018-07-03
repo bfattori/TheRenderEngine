@@ -1,9 +1,4 @@
-R.Engine.define({
-    "class": "R.particles.effects.ExplosionParticle",
-    "requires": [
-        "R.particles.AbstractParticle"
-    ]
-});
+"use strict";
 
 /**
  * @class An explosion particle
@@ -13,18 +8,16 @@ R.Engine.define({
  * @param ttl {Number} Particle lifetime (time to live) in milliseconds
  * @param decay {Number} A floating point which indicates the speed decay
  */
-R.particles.effects.ExplosionParticle = function() {
-    return R.particles.AbstractParticle.extend(/** @scope R.particles.effects.ExplosionParticle.prototype */{
+class ExplosionParticle extends AbstractParticle {
 
-        constructor: function(position, ttl, options) {
-            // Automatically override the angle to generate the explosion
-            options.angle = Math.floor(R.lang.Math2.random() * 360);
-            this.base(position, ttl || 2000, options);
-        }
+  constructor(position, ttl = 2000, options) {
+    // Automatically override the angle to generate the explosion
+    options.angle = Math.floor(Math2.random() * 360);
+    super(position, ttl, options);
+  }
 
-    }, {
-        getClassName: function() {
-            return "R.particles.effects.ExplosionParticle";
-        }
-    });
-};
+  get className() {
+    return "ExplosionParticle";
+  }
+
+}

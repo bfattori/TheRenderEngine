@@ -30,14 +30,7 @@
  * THE SOFTWARE.
  *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.lang.Iterator",
-    "requires":[
-        "R.engine.PooledObject"
-    ]
-});
+"use strict";
 
 /**
  * @class Create an iterator over a {@link R.struct.Container} or <code>Array</code> instance. An
@@ -67,138 +60,125 @@ R.Engine.define({
  * @extends R.engine.PooledObject
  * @description Create an iterator over a collection
  */
-R.lang.Iterator = function () {
-    "use strict";
-    return R.engine.PooledObject.extend(/** @scope R.lang.Iterator.prototype */{
+class Iterator extends PooledObject {
 
-        c:null,
-        aO:null,
-        p:null,
-        r:false,
-        arr:false,
+  constructor(container /*, actualContainerObj */) {
+    super("Iterator");
+    this.c = container;
+    this.aO = (arguments.length == 2 ? arguments[1] : null);
+    this.arr = R.isArray(container);    // Handle plain Arrays too
+    this.p = this.arr ? 0 : container._head;
+    this.r = false;
+  }
 
-        /**
-         * @private
-         */
-        constructor:function (container /*, actualContainerObj */) {
-            this.base("Iterator");
-            this.c = container;
-            this.aO = (arguments.length == 2 ? arguments[1] : null);
-            this.arr = R.isArray(container);    // Handle plain Arrays too
-            this.p = this.arr ? 0 : container._head;
-            this.r = false;
-        },
+  /**
+   * Release the iterator back into the object pool.
+   */
+  release() {
+    super.release();
+    this.c = null;
+    this.aO = null;
+    this.arr = false;
+    this.p = null;
+    this.r = false;
+  }
 
-        /**
-         * Release the iterator back into the object pool.
-         */
-        release:function () {
-            this.base();
-            this.c = null;
-            this.aO = null;
-            this.arr = false;
-            this.p = null;
-            this.r = false;
-        },
+  /**
+   * Get the class name of this object
+   *
+   * @return {String} "Iterator"
+   */
+  get className() {
+    return "Iterator";
+  }
 
-        /**
-         * Reset the iterator to the start of the collection.
-         */
-        reset:function () {
-            this.p = this.arr ? (this.r ? this.c.length - 1 : 0) : (this.r ? this.c._tail : this.c._head);
-        },
 
-        /**
-         * Reverse the order of the elements in the container (non-destructive) before
-         * iterating over them.  You cannot call this method after you have called {@link #next},
-         * otherwise, use {@link #reset} before calling this method.
-         */
-        reverse:function () {
-            Assert((this.arr ? this.p == 0 : this.p === this.c._head), "Cannot reverse Iterator after calling next()");
-            this.r = true;
-            this.p = this.arr ? this.c.length - 1 : this.c._tail;
-        },
+  /**
+   * Reset the iterator to the start of the collection.
+   */
+  reset() {
+    this.p = this.arr ? (this.r ? this.c.length - 1 : 0) : (this.r ? this.c._tail : this.c._head);
+  }
 
-        /**
-         * Get the next element from the iterator.
-         * @return {Object} The next element in the iterator
-         * @throws {Error} An error if called when no more elements are available
-         */
-        next:function () {
-            // Make sure the container wasn't destroyed
-            if (this.arr ? (this.aO != null ? this.aO._destroyed : false) : this.c._destroyed) {
-                throw new Error("Invalid iterator over destroyed container!");
-            }
+  /**
+   * Reverse the order of the elements in the container (non-destructive) before
+   * iterating over them.  You cannot call this method after you have called {@link #next},
+   * otherwise, use {@link #reset} before calling this method.
+   */
+  reverse() {
+    Assert((this.arr ? this.p == 0 : this.p === this.c._head), "Cannot reverse Iterator after calling next()");
+    this.r = true;
+    this.p = this.arr ? this.c.length - 1 : this.c._tail;
+  }
 
-            var o = null;
-            if (this.arr) {
-                // For arrays
-                Assert(this.p > -1 && this.p < this.c.length, "Iterator[" + this.getId() + "] - next() is out of range");
-                o = this.c[this.p];
-                this.p += (this.r ? -1 : 1);
-            } else {
-                // For containers
-                // Get the next and move the pointer
-                o = this.p.ptr;
-                this.p = (this.r ? this.p.prev : this.p.next);
+  /**
+   * Get the next element from the iterator.
+   * @return {Object} The next element in the iterator
+   * @throws {Error} An error if called when no more elements are available
+   */
+  next() {
+    // Make sure the container wasn't destroyed
+    if (this.arr ? (this.aO != null ? this.aO._destroyed : false) : this.c._destroyed) {
+      throw new Error("Invalid iterator over destroyed container!");
+    }
 
-                if (o == null) {
-                    Assert(false, "Iterator[" + this.getId() + "] - next() is out of range");
-                }
-            }
+    var o = null;
+    if (this.arr) {
+      // For arrays
+      Assert(this.p > -1 && this.p < this.c.length, "Iterator[" + this.getId() + "] - next() is out of range");
+      o = this.c[this.p];
+      this.p += (this.r ? -1 : 1);
+    } else {
+      // For containers
+      // Get the next and move the pointer
+      o = this.p.ptr;
+      this.p = (this.r ? this.p.prev : this.p.next);
 
-            return o;
-        },
+      if (o == null) {
+        Assert(false, "Iterator[" + this.getId() + "] - next() is out of range");
+      }
+    }
 
-        /**
-         * Returns <tt>true</tt> if the iterator has more elements.
-         * @return {Boolean}
-         */
-        hasNext:function () {
-            // As long as the container hasn't been destroyed
-            if (this.arr ? (this.aO != null ? !this.aO._destroyed : true) : !this.c._destroyed) {
-                if (this.arr) {
-                    // For arrays (and R.struct.Container)
-                    var nxt = this.r ? -1 : 1, n = this.p,
-                        dead = (this.c[n] && this.c[n]._destroyed === true);
-                    while ((n > -1 && n < this.c.length) && dead) {
-                        // Skip dead objects
-                        n += nxt;
-                        this.p = n;
-                    }
-                    return (n > -1 && n < this.c.length);
-                } else {
-                    // If the container hasn't been destroyed
-                    while (this.p != null && this.p.ptr != null && this.p.ptr._destroyed) {
-                        // Skip destroyed objects
-                        this.p = (this.r ? this.p.prev : this.p.next);
-                    }
-                    return this.p != null;
-                }
-            }
-            return false;
+    return o;
+  }
+
+  /**
+   * Returns <tt>true</tt> if the iterator has more elements.
+   * @return {Boolean}
+   */
+  hasNext() {
+    // As long as the container hasn't been destroyed
+    if (this.arr ? (this.aO != null ? !this.aO._destroyed : true) : !this.c._destroyed) {
+      if (this.arr) {
+        // For arrays (and R.struct.Container)
+        var nxt = this.r ? -1 : 1, n = this.p,
+          dead = (this.c[n] && this.c[n]._destroyed === true);
+        while ((n > -1 && n < this.c.length) && dead) {
+          // Skip dead objects
+          n += nxt;
+          this.p = n;
         }
-
-    }, /** @scope R.lang.Iterator.prototype */{
-        /**
-         * Get the class name of this object
-         *
-         * @return {String} "R.lang.Iterator"
-         */
-        getClassName:function () {
-            return "R.lang.Iterator";
-        },
-
-        /**
-         * Create an instance of an iterator over the given container.
-         * @param container {R.struct.Container|Array} An <code>Array</code> or {@link R.struct.Container}
-         * @return {R.lang.Iterator} An iterator over the container
-         * @static
-         */
-        over:function (container) {
-            return R.lang.Iterator.create(container);
+        return (n > -1 && n < this.c.length);
+      } else {
+        // If the container hasn't been destroyed
+        while (this.p != null && this.p.ptr != null && this.p.ptr._destroyed) {
+          // Skip destroyed objects
+          this.p = (this.r ? this.p.prev : this.p.next);
         }
+        return this.p != null;
+      }
+    }
+    return false;
+  }
 
-    });
+  /**
+   * Create an instance of an iterator over the given container.
+   * @param container {Container|Array} An <code>Array</code> or {@link Container}
+   * @return {Iterator} An iterator over the container
+   */
+  static over(container) {
+    return Iterator.create(container);
+  }
 
-};
+}
+

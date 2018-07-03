@@ -29,59 +29,47 @@
  * THE SOFTWARE.
  *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.lang.IntervalTimer",
-    "requires":[
-        "R.lang.AbstractTimer"
-    ]
-});
+"use strict";
 
 /**
- * @class An extension of {@link R.lang.AbstractTimer} that wraps the <tt>window.setInterval</tt> method.
+ * @class An extension of {@link AbstractTimer} that wraps the <tt>window.setInterval</tt> method.
  * @param name {String} The name of the timer
  * @param interval {Number} The interval for the timer, in milliseconds
  * @param callback {Function} The function to call when the interval is reached
- * @extends R.lang.AbstractTimer
+ * @extends AbstractTimer
  * @constructor
  * @description Create an interval timer
  */
-R.lang.IntervalTimer = function () {
-    "use strict";
-    return R.lang.AbstractTimer.extend(/** @scope R.lang.IntervalTimer.prototype */{
+class IntervalTimer extends AbstractTimer {
 
-        /**
-         * Cancel this interval timer.
-         */
-        cancel:function () {
-            R.global.clearInterval(this.getTimer());
-            this.base();
-        },
+  /**
+   * Get the class name of this object
+   * @return {String} "R.lang.IntervalTimer"
+   */
+  get className() {
+    return "IntervalTimer";
+  }
 
-        /**
-         * Cancel and destroy the interval timer.
-         */
-        destroy:function () {
-            this.cancel();
-            this.base();
-        },
+  /**
+   * Cancel this interval timer.
+   */
+  cancel() {
+    clearInterval(this.timer);
+    super.cancel();
+  }
 
-        /**
-         * Restart this interval timer.
-         */
-        restart:function () {
-            this.setTimer(R.global.setInterval(this.getCallback(), this.getInterval()));
-        }
-    }, /** @scope R.lang.IntervalTimer.prototype */ {
+  /**
+   * Cancel and destroy the interval timer.
+   */
+  destroy() {
+    this.cancel();
+    super.destroy();
+  }
 
-        /**
-         * Get the class name of this object
-         * @return {String} "R.lang.IntervalTimer"
-         */
-        getClassName:function () {
-            return "R.lang.IntervalTimer";
-        }
-    });
-
+  /**
+   * Restart this interval timer.
+   */
+  restart() {
+    this.timer = setInterval(this.callback, this.interval);
+  }
 }

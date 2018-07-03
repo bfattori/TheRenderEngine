@@ -53,45 +53,6 @@ R._namespaces = {};
  */
 R.global = this;
 
-// Mimic the jQuery.browser object
-R.browser = {
-    userAgent:navigator.userAgent.toLowerCase()
-};
-
-var uAMatcher = {
-    webkit:/(webkit)[ \/]([\w.]+)/,
-    opera:/(opera)(?:.*version)?[ \/]([\w.]+)/,
-    msie:/(msie) ([\w.]+)/,
-    mozilla:/(mozilla)(?:.*? rv:([\w.]+))?/,
-    chrome:/(chrome)/,
-    firefox:/(firefox)/,
-    Wii:/nintendo (wii)/,
-    android:/(android).*AppleWebKit/,
-    safariMobile:/(iphone|ipad|ipod)/
-};
-
-for (var ua in uAMatcher)
-    if (uAMatcher.hasOwnProperty(ua)) {
-        var matcher = uAMatcher[ua].exec(R.browser.userAgent), version = matcher ? matcher[2] : null;
-        R.browser[ua] = (matcher && matcher[1] ? true : false);
-        R.browser.version = (version != null);
-    }
-
-R.browser.WiiMote = ((window.opera && window.opera.wiiremote) ? window.opera.wiiremote : null);
-R.browser.WiiScreenWidth = 800;
-R.browser.WiiScreenHeight = 460;
-
-
-// Chrome version
-if (R.browser.chrome) {
-    R.browser.version = /chrome\/([\d\.]*)\b/.exec(R.browser.userAgent)[1];
-}
-
-// Firefox version
-if (R.browser.firefox) {
-    R.browser.version = /firefox\/([\d\.]*)\b/.exec(R.browser.userAgent)[1];
-}
-
 /**
  * Declare a new namespace in R.
  * @param ns {String} The namespace to declare
@@ -117,12 +78,12 @@ R.namespace = function (ns) {
 /**
  * Throw an "unsupported" exception for the given method in the class.
  * @param method {String} The method name
- * @param clazz {Class} The class object
+ * @param clazz {class} The class object
  * @memberof R
  * @exception Throws a "[method] is unsupported in [Class]" error
  */
 R._unsupported = function (method, clazz) {
-    throw new Error(method + " is unsupported in " + clazz.getClassName());
+    throw new Error(method + " is unsupported in " + clazz.className);
 };
 
 /** @private **/
@@ -209,31 +170,32 @@ R.isEmpty = function (obj) {
  * @memberof R
  */
 R.make = function (clazz, props) {
-    // Get the constructor (if it exists)
-    var c = clazz["constructor"] || function () {
-    };
-    if (clazz["constructor"]) {
-        delete clazz["constructor"];
-    }
-
-    // Assign prototype fields and methods
-    for (var fm in clazz) {
-        c.prototype[fm] = clazz[fm];
-    }
-
-    // Set up properties
-    if (props) {
-        for (var p in props) {
-            if (props[p][0]) {
-                c.prototype.__defineGetter__(p, props[p][0]);
-            }
-            if (props[p][1]) {
-                c.prototype.__defineSetter__(p, props[p][1]);
-            }
-        }
-    }
-
-    return c;
+    throw error("R.make is invalid!");
+    //// Get the constructor (if it exists)
+    //var c = clazz["constructor"] || function () {
+    //};
+    //if (clazz["constructor"]) {
+    //    delete clazz["constructor"];
+    //}
+    //
+    //// Assign prototype fields and methods
+    //for (var fm in clazz) {
+    //    c.prototype[fm] = clazz[fm];
+    //}
+    //
+    //// Set up properties
+    //if (props) {
+    //    for (var p in props) {
+    //        if (props[p][0]) {
+    //            c.prototype.__defineGetter__(p, props[p][0]);
+    //        }
+    //        if (props[p][1]) {
+    //            c.prototype.__defineSetter__(p, props[p][1]);
+    //        }
+    //    }
+    //}
+    //
+    //return c;
 };
 
 /**
@@ -243,7 +205,7 @@ R.make = function (clazz, props) {
  * @return {Object} A clone of the object
  */
 R.clone = function (obj) {
-    if (obj instanceof R.engine.PooledObject) {
+    if (obj instanceof PooledObject) {
         var ctor = obj.constructor;
         if (ctor.clone) {
             return ctor.clone(obj);
@@ -302,13 +264,6 @@ R.global.nativeFrame = (function () {
             R.global.setTimeout(callback, 1000 / 60);
         };
 })();
-
-// Instead of arguments.callee
-R.bind = function (obj, fn) {
-    return function () {
-        return fn.apply(obj, arguments);
-    }
-};
 
 // Define the engine's default namespaces
 R.namespace("debug");

@@ -274,8 +274,8 @@ R.components.collision.Convex = function () {
             var test1, test2, testNum, min1, min2, max1, max2, offset, temp;
             var axis = R.math.Vector2D.create(0, 0);
             var vectorOffset = R.math.Vector2D.create(0, 0);
-            var vectors1 = shape1.getVertexes();		// This time we want transformed verts
-            var vectors2 = shape2.getVertexes();
+            var vectors1 = shape1.vertexes;		// This time we want transformed verts
+            var vectors2 = shape2.vertexes;
             var shortestDistance = 0x7FFFFFF;
             var unitVec = null;
             var overlap = 0;

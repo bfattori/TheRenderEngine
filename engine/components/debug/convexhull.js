@@ -68,12 +68,12 @@ R.components.debug.ConvexHull = function () {
          *          in milliseconds.
          */
         execute:function (renderContext, time, dt) {
-            if (!this.isDestroyed()) {
+            if (!this._destroyed) {
                 renderContext.pushTransform();
                 renderContext.setLineStyle("yellow");
                 var cHull = this.getGameObject().getCollisionHull();
                 if (cHull.getType() == R.collision.ConvexHull.CONVEX_NGON) {
-                    renderContext.drawPolygon(cHull.getVertexes());
+                    renderContext.drawPolygon(cHull.vertexes);
                 } else {
                     renderContext.drawArc(this.getGameObject().getRenderPosition(), cHull.getRadius(), 0, 359);
                 }

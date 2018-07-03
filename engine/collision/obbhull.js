@@ -31,48 +31,35 @@
  * THE SOFTWARE.
  *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.collision.OBBHull",
-    "requires":[
-        "R.collision.ConvexHull",
-        "R.math.Point2D"
-    ]
-});
+"use strict";
 
 /**
  * @class A rectangular convex hull.
  *
  * @param boundingBox {Rectangle2D} The object's bounding box
  *
- * @extends R.collision.ConvexHull
+ * @extends ConvexHull
  * @constructor
  * @description Creates an Object Bounding Box hull.
  */
-R.collision.OBBHull = function () {
-    "use strict";
-    return R.collision.ConvexHull.extend(/** @scope R.collision.OBBHull.prototype */{
+class OBBHull extends ConvexHull {
 
-        /** @private */
-        constructor:function (rect) {
-            var points = [
-                R.math.Point2D.create(0, 0),
-                R.math.Point2D.create(rect.w, 0),
-                R.math.Point2D.create(rect.w, rect.h),
-                R.math.Point2D.create(0, rect.h)
-            ];
-            this.base(points);
-        }
+  constructor(rect) {
+    var points = [
+      Point2D.create(0, 0),
+      Point2D.create(rect.w, 0),
+      Point2D.create(rect.w, rect.h),
+      Point2D.create(0, rect.h)
+    ];
+    super(points);
+  }
 
-    }, /** @scope R.collision.OBBHull.prototype */{
-        /**
-         * Get the class name of this object
-         * @return {String} "R.collision.OBBHull"
-         */
-        getClassName:function () {
-            return "R.collision.OBBHull";
-        }
-    });
+  /**
+   * Get the class name of this object
+   * @return {String} "R.collision.OBBHull"
+   */
+  get className() {
+    return "OBBHull";
+  }
 
 }

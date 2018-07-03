@@ -355,7 +355,7 @@ R.components.Collider = function () {
 
                 pclNodes.forEach(function (node) {
                     for (var itr = node.getObjects().iterator(); itr.hasNext();) {
-                        if (this.isDestroyed()) {
+                        if (this._destroyed) {
                             // If the object is destroyed while we're checking collisions against it,
                             // get outta here
                             break;
@@ -386,7 +386,7 @@ R.components.Collider = function () {
             }
 
             // onCollideEnd
-            if (!this.isDestroyed() && this.didCollide && collisionsReported == 0) {
+            if (!this._destroyed && this.didCollide && collisionsReported == 0) {
                 if (this.hasCollideMethods[1]) {
                     host.onCollideEnd(time, dt);
                 }

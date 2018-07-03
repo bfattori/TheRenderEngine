@@ -1,9 +1,4 @@
-R.Engine.define({
-    "class": "R.particles.effects.SprayParticle",
-    "requires": [
-        "R.particles.AbstractParticle"
-    ]
-});
+"use strict";
 
 /**
  * @class A spray particle
@@ -14,12 +9,8 @@ R.Engine.define({
  * @param spread {Number} The spread, or range, about the angle which to emit particles
  * @param ttl {Number} The lifetime of the particle in milliseconds
  */
-R.particles.effects.SprayParticle = function() {
-    return R.particles.AbstractParticle.extend(/** @scope TrailParticle.prototype */{
-
-    }, {
-        getClassName: function() {
-            return "R.particles.effects.SprayParticle";
-        }
-    });
-};
+class SprayParticle extends AbstractParticle {
+  get className() {
+    return "SprayParticle";
+  }
+}

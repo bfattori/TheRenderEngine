@@ -136,7 +136,7 @@ R.components.Render = function () {
          *          in milliseconds.
          */
         execute:function (renderContext, time, dt) {
-            if (this.isDestroyed() || (R.Engine.options.useDirtyRectangles && !this.getGameObject().isDirty())) {
+            if (this._destroyed || (R.Engine.options.useDirtyRectangles && !this.getGameObject().isDirty())) {
                 // Objects that aren't dirty don't need to re-render
                 return false;
             }

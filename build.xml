@@ -852,7 +852,7 @@
 		</antcall>
 
 		<antcall target="${compress.option}">
-			<param name="input.file" value="rendercontexts/context.documentcontext.js"/>
+			<param name="input.file" value="rendercontexts/context.defaultrendercontext.js"/>
 		</antcall>
 
 		<antcall target="${compress.option}">

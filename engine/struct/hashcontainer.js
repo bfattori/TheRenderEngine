@@ -30,14 +30,7 @@
  * THE SOFTWARE.
  *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.struct.HashContainer",
-    "requires":[
-        "R.struct.Container"
-    ]
-});
+"use strict";
 
 /**
  * @class A hash container is a logical collection of objects.  A hash container
@@ -47,192 +40,177 @@ R.Engine.define({
  *        destroy all of the objects in the container.
  *
  * @param containerName {String} The name of the container. Default: Container
- * @extends R.struct.Container
+ * @extends Container
  * @constructor
  * @description Create a hashed container object.
  */
-R.struct.HashContainer = function () {
-    return R.struct.Container.extend(/** @scope R.struct.HashContainer.prototype */{
+class HashContainer extends Container {
 
-        objHash:null,
+  /**
+   * @private
+   */
+  constructor(containerName) {
+    super(containerName || "HashContainer");
+    this.objHash = {};
+  }
 
-        /**
-         * @private
-         */
-        constructor:function (containerName) {
-            this.base(containerName || "HashContainer");
-            this.objHash = {};
-        },
+  /**
+   * Get the class name of this object
+   *
+   * @return {String} "R.struct.HashContainer"
+   */
+  get className() {
+    return "HashContainer";
+  }
 
-        /**
-         * Release the object back into the object pool.
-         */
-        release:function () {
-            this.base();
-            this.clear();
-        },
+  /**
+   * Release the object back into the object pool.
+   */
+  release() {
+    this.clear();
+    super.release();
+  }
 
-        /**
-         * Returns <tt>true</tt> if the object name is already in
-         * the hash.
-         *
-         * @param name {String} The name of the hash to check
-         * @return {Boolean}
-         */
-        isInHash:function (key) {
-            key = (key.charAt(0) === "_" ? key : "_" + String(key));
-            return (this.objHash[key] != null);
-        },
+  /**
+   * Returns <tt>true</tt> if the object name is already in
+   * the hash.
+   *
+   * @param key {String} The name of the hash to check
+   * @return {Boolean}
+   */
+  isInHash(key) {
+    key = (key.charAt(0) === "_" ? key : "_" + String(key));
+    return (this.objHash[key] != null);
+  }
 
-        /**
-         * Add an object to the container.
-         *
-         * @param key {String} The name of the object to store.  Names must be unique
-         *                      or the object with that name will be overwritten.
-         * @param obj {BaseObject} The object to add to the container.
-         */
-        add:function (key, obj) {
-            AssertWarn(!this.isInHash(key), "Object already exists within hash!");
+  /**
+   * Add an object to the container.
+   *
+   * @param key {String} The name of the object to store.  Names must be unique
+   *                      or the object with that name will be overwritten.
+   * @param obj {BaseObject} The object to add to the container.
+   */
+  add(key, obj) {
+    if (this.isInHash(key)) {
+      // Remove the old one first
+      this.removeHash(key);
+    }
 
-            if (this.isInHash(key)) {
-                // Remove the old one first
-                this.removeHash(key);
-            }
+    // Some keys weren't being accepted (like "MOVE") so added
+    // an underscore to prevent keyword collisions
+    this.objHash["_" + String(key)] = obj;
+    super.add(obj);
+    return this.objHash["_" + String(key)];
+  }
 
-            // Some keys weren't being accepted (like "MOVE") so added
-            // an underscore to prevent keyword collisions
-            this.objHash["_" + String(key)] = obj;
-            this.base(obj);
-            return this.objHash["_" + String(key)];
-        },
+  /** @private */
+  addAll() {
+    R._unsupported("addAll()", this);
+  }
 
-        /** @private */
-        addAll:function () {
-            R._unsupported("addAll()", this);
-        },
+  /** @private */
+  clone() {
+    R._unsupported("clone()", this);
+  }
 
-        /** @private */
-        clone:function () {
-            R._unsupported("clone()", this);
-        },
+  /** @private */
+  concat() {
+    R._unsupported("concat()", this);
+  }
 
-        /** @private */
-        concat:function () {
-            R._unsupported("concat()", this);
-        },
+  /** @private */
+  reduce() {
+    R._unsupported("reduce()", this);
+  }
 
-        /** @private */
-        reduce:function () {
-            R._unsupported("reduce()", this);
-        },
+  /**
+   * Remove an object from the container.  The object is
+   * not destroyed when it is removed from the container.
+   *
+   * @param obj {BaseObject} The object to remove from the container.
+   * @return {Object} The object removed from the container
+   */
+  remove(obj) {
+    for (var o in this.objHash) {
+      if (this.objHash[o] === obj) {
+        // removeHash() takes care of removing the actual object, so we don't
+        // call the base class - otherwise we delete the wrong object
+        this.removeHash(o);
+        break;
+      }
+    }
+    return obj;
+  }
 
-        /**
-         * Remove an object from the container.  The object is
-         * not destroyed when it is removed from the container.
-         *
-         * @param obj {BaseObject} The object to remove from the container.
-         * @return {Object} The object removed from the container
-         */
-        remove:function (obj) {
-            for (var o in this.objHash) {
-                if (this.objHash[o] === obj) {
-                    // removeHash() takes care of removing the actual object, so we don't
-                    // call the base class - otherwise we delete the wrong object
-                    this.removeHash(o);
-                    break;
-                }
-            }
-            return obj;
-        },
+  /**
+   * Remove the object with the given key name from the container.
+   *
+   * @param key {String} The object to remove
+   * @return {Object} The object removed
+   */
+  removeHash(key) {
+    key = (key.charAt(0) === "_" ? key : "_" + String(key));
+    var obj = this.objHash[key];
+    R.engine.Support.arrayRemove(this.objects, obj);
+    delete this.objHash[key];
+    return obj;
+  }
 
-        /**
-         * Remove the object with the given key name from the container.
-         *
-         * @param name {String} The object to remove
-         * @return {Object} The object removed
-         */
-        removeHash:function (key) {
-            key = (key.charAt(0) === "_" ? key : "_" + String(key));
-            var obj = this.objHash[key];
-            R.engine.Support.arrayRemove(this.objects, obj);
-            delete this.objHash[key];
-            return obj;
-        },
+  /**
+   * Remove an object from the container at the specified index.
+   * The object is not destroyed when it is removed.
+   *
+   * @param idx {Number} An index between zero and the size of the container minus 1.
+   * @return {Object} The object removed from the container.
+   */
+  removeAtIndex(idx) {
+    var obj = this.base(idx);
+    for (var o in this.objHash) {
+      if (this.objHash[o] === obj) {
+        this.removeHash(o);
+        break;
+      }
+    }
 
-        /**
-         * Remove an object from the container at the specified index.
-         * The object is not destroyed when it is removed.
-         *
-         * @param idx {Number} An index between zero and the size of the container minus 1.
-         * @return {Object} The object removed from the container.
-         */
-        removeAtIndex:function (idx) {
-            var obj = this.base(idx);
-            for (var o in this.objHash) {
-                if (this.objHash[o] === obj) {
-                    this.removeHash(o);
-                    break;
-                }
-            }
+    return obj;
+  }
 
-            return obj;
-        },
+  /**
+   * If a number is provided, the request will be passed to the
+   * base object, otherwise a name is assumed and the hash will
+   * be retrieved.
+   *
+   * @param idx {Number|String} The index or hash of the object to get
+   * @return {Object}
+   */
+  get(idx) {
+    if (idx.substr && idx.toLowerCase) {
+      return this.objHash["_" + idx];
+    } else {
+      return super.get(idx);
+    }
+  }
 
-        /**
-         * If a number is provided, the request will be passed to the
-         * base object, otherwise a name is assumed and the hash will
-         * be retrieved.
-         *
-         * @param idx {Number|String} The index or hash of the object to get
-         * @return {Object}
-         */
-        get:function (idx) {
-            if (idx.substr && idx.toLowerCase) {
-                return this.objHash["_" + idx];
-            } else {
-                return this.base(idx);
-            }
-        },
+  filter(fn, thisp) {
+    R._unsupported("filter()", this);
+  }
 
-        filter: function(fn, thisp) {
-            R._unsupported("filter()", this);
-        },
+  /**
+   * Remove all objects from the container.  None of the objects are
+   * destroyed.
+   */
+  clear() {
+    var key;
 
-        /**
-         * Remove all objects from the container.  None of the objects are
-         * destroyed.
-         */
-        clear:function () {
-            var key;
+    super.clear();
 
-            this.base();
+    for (key in this.objHash) {
+      if (this.objHash.hasOwnProperty(key)) {
+        this.objHash[key] = undefined;
+        delete this.objHash[key];
+      }
+    }
+  }
 
-            for (key in this.objHash) {
-                if (this.objHash.hasOwnProperty(key)) {
-                    this.objHash[key] = undefined;
-                    delete this.objHash[key];
-                }
-            }
-        },
 
-        /**
-         * Cleans up the references to the objects (destroys them) within
-         * the container.
-         */
-        cleanUp:function () {
-            this.base();
-        }
-
-    }, /** @scope R.struct.HashContainer.prototype */ {
-        /**
-         * Get the class name of this object
-         *
-         * @return {String} "R.struct.HashContainer"
-         */
-        getClassName:function () {
-            return "R.struct.HashContainer";
-        }
-
-    });
-
-};
+}

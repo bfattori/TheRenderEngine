@@ -1,9 +1,4 @@
-R.Engine.define({
-    "class": "R.particles.Effect",
-    "requires": [
-        "R.engine.PooledObject"
-    ]
-});
+"use strict";
 
 /**
  * @class The base particle effect class.  All effects derive from this class which provides
@@ -12,204 +7,190 @@ R.Engine.define({
  * @returns {*}
  * @constructor
  */
-R.particles.Effect = function() {
-    return R.engine.PooledObject.extend({
+class ParticleEffect extends PooledObject {
 
-        particleCount: 0,
-        particleCountVariance: 0,
-        particleLifetime: 0,
-        particleLifetimeVariance: 0,
-        origin: null,
-        particleClass: null,
-        ttl: 0,
-        run: false,
-        emitFrequency: 0,
-        emitFrequencyVariance: 0,
-        lastTime: 0,
-        velocity: 0,
-        velocityVariance: 0,
+  constructor(origin) {
+    super("ParticleEffect");
+    this._origin = Point2D.create(origin);
+    this._opts = {
+      run: false,
+      ttl: 0,
+      emitFrequency: 0,
+      emitFrequencyVariance: 0,
+      velocity: 0.2,
+      velocityVariance: 0,
+      particleCount: 10,
+      particleCountVariance: 0,
+      lastTime: 0,
+      particleLifetime: 500,
+      particleLifetimeVariance: 0
+    };
+    return this;
+  }
 
-        constructor: function(origin) {
-            this.origin = R.math.Point2D.create(origin);
-            this.run = false;
-            this.ttl = 0;
-            this.emitFrequency = 0;
-            this.emitFrequencyVariance = 0;
-            this.velocity = 0.2;
-            this.velocityVariance = 0;
-            this.particleCount = 10;
-            this.particleCountVariance = 0;
-            this.lastTime = 0;
-            this.particleLifetime = 500;
-            this.particleLifetimeVariance = 0;
-            return this;
-        },
+  destroy() {
+    this._origin.destroy();
+    super.destroy();
+  }
 
-        destroy: function() {
-            this.origin.destroy();
-            this.base();
-        },
+  release() {
+    super.release();
+    this._opts = null;
+  }
 
-        release: function() {
-            this.run = false;
-            this.lastTime = 0;
-            this.emitFrequency = 0;
-            this.emitFrequencyVariance = 0;
-            this.ttl = 0;
-        },
+  get className() {
+    return "ParticleEffect";
+  }
 
-        /**
-         * Get the origin of the effect
-         * @returns {R.math.Point2D}
-         */
-        getOrigin: function() {
-            return this.origin;
-        },
+  /**
+   * Get the origin of the effect
+   * @returns {Point2D}
+   */
+  get origin() {
+    return this._origin;
+  }
 
-        /**
-         * Set the quantity of particles which will be emitted at each frame rendering.
-         *
-         * @param particleCount
-         * @param [particleCountVariance]
-         * @returns {*}
-         */
-        quantity: function(particleCount, particleCountVariance) {
-            this.particleCount = particleCount;
-            this.particleCountVariance = particleCountVariance || 1;
-            return this;
-        },
+  /**
+   * Set the quantity of particles which will be emitted at each frame rendering.
+   *
+   * @param particleCount
+   * @param [particleCountVariance]
+   * @returns {*}
+   */
+  quantity(particleCount, particleCountVariance = 1) {
+    this._opts.particleCount = particleCount;
+    this._opts.particleCountVariance = particleCountVariance;
+    return this;
+  }
 
-        /**
-         * Set the lifespan of the effect.
-         *
-         * @param ttl
-         * @returns {*}
-         */
-        lifespan: function(ttl) {
-            this.ttl = ttl;
-            return this;
-        },
+  /**
+   * Set the lifespan of the effect.
+   */
+  set lifespan(ttl) {
+    this._opts.ttl = ttl;
+  }
 
-        /**
-         * Set the frequency at which particles will be emitted.
-         *
-         * @param emitFrequency
-         * @param [frequencyVariance]
-         * @returns {*}
-         */
-        frequency: function(emitFrequency, frequencyVariance) {
-            this.emitFrequency = emitFrequency;
-            this.emitFrequencyVariance = frequencyVariance || 0;
-            return this;
-        },
+  get lifespan() {
+    return this._opts.ttl;
+  }
 
-        /**
-         * Set the lifespan of each particle which is emitted.
-         *
-         * @param lifetime
-         * @param [variance]
-         * @returns {*}
-         */
-        particleLife: function(lifetime, variance) {
-            this.particleLifetime = lifetime;
-            this.particleLifetimeVariance = variance || 500;
-            return this;
-        },
+  setLifespan(ttl) {
+    this.lifespan = ttl;
+  }
 
-        /**
-         * Set the particle class which is emitted from the effect.
-         *
-         * @param particleClass
-         * @returns {*}
-         */
-        particle: function(particleClass) {
-            this.particleClass = particleClass;
-            return this;
-        },
+  /**
+   * Get the remaining lifespan of the effect.
+   */
+  getLifespan(dt) {
+    this.lifespan -= dt;
+    return Math.max(this.lifespan, 0);
+  }
 
-        /**
-         * Set the scalar velocity at which particles move after emission.
-         *
-         * @param velocity
-         * @param [velocityVariance]
-         * @returns {*}
-         */
-        particleVelocity: function(velocity, velocityVariance) {
-            this.velocity = velocity;
-            this.velocityVariance = velocityVariance || 0;
-            return this;
-        },
+  /**
+   * A flag indicating if the effect has run yet.
+   * @returns {boolean}
+   */
+  get hasRun() {
+    return this._opts.run;
+  }
 
-        /**
-         * Run the particle effect.
-         * @param particleEngine
-         * @param time
-         * @param dt
-         * @private
-         */
-        runEffect: function(particleEngine, time, dt) {
-            var particles = R.struct.Container.create("particles");
-            var numParticles = this.particleCount + R.lang.Math2.randomRange(0, this.particleCountVariance, true);
-            var particleLife = this.particleLifetime + R.lang.Math2.randomRange(0, this.particleLifetimeVariance, true);
-            var emitFreq = this.emitFrequency + R.lang.Math2.randomRange(0, this.emitFrequencyVariance, true);
+  /**
+   * Set the frequency at which particles will be emitted.
+   *
+   * @param emitFrequency
+   * @param [frequencyVariance]
+   * @returns {*}
+   */
+  frequency(emitFrequency, frequencyVariance = 0) {
+    this._opts.emitFrequency = emitFrequency;
+    this._opts.emitFrequencyVariance = frequencyVariance;
+    return this;
+  }
 
-            if (!this.run || (this.run && time - this.lastTime > emitFreq)) {
-                var options = {};
-                this.generateParticles(particles, numParticles, particleLife, options, time, dt);
-                this.lastTime = time;
-            }
+  /**
+   * Set the lifespan of each particle which is emitted.
+   *
+   * @param lifetime
+   * @param [variance]
+   * @returns {*}
+   */
+  particleLife(lifetime, variance = 500) {
+    this._opts.particleLifetime = lifetime;
+    this._opts.particleLifetimeVariance = variance;
+    return this;
+  }
 
-            particleEngine.addParticles(particles);
-            this.run = true;
-        },
+  /**
+   * Set the particle class which is emitted from the effect.
+   *
+   * @param particleClass
+   * @returns {*}
+   */
+  particle(particleClass) {
+    this._opts.particleClass = particleClass;
+    return this;
+  }
 
-        /**
-         * A method to give an effect the ability to modify a particle's options for each particle generated.
-         * @param particleOptions {Object}
-         * @param [time] {Number} The current world time
-         * @param [dt] {Number} The number of milliseconds since the last rendered frame was generated
-         */
-        modifyParticleOptions: function(particleOptions, time, dt) {
-            particleOptions.velocity = this.velocity + R.lang.Math2.randomRange(0, this.velocityVariance);
-        },
+  /**
+   * Set the scalar velocity at which particles move after emission.
+   *
+   * @param velocity
+   * @param [velocityVariance]
+   * @returns {*}
+   */
+  particleVelocity(velocity, velocityVariance = 0) {
+    this._opts.velocity = velocity;
+    this._opts.velocityVariance = velocityVariance;
+    return this;
+  }
 
-        /**
-         * Generate particles for the effect.
-         * @param particles {R.struct.Container} The list of particles
-         * @param particleCount {Number} The count of particles in the list
-         * @param particleLife {Number} The lifespan of the particles
-         * @param particleOptions {Object} The particle options
-         * @param time {Number} The current world time
-         * @param dt {Number} The time between the last world frame and current time
-         */
-        generateParticles: function(particles, particleCount, particleLife, particleOptions, time, dt) {
-            for (var x = 0; x < particleCount; x++) {
-                this.modifyParticleOptions(particleOptions, time, dt);
-                particles.add(this.particleClass.create(this.origin, particleLife, particleOptions));
-            }
-        },
+  /**
+   * Run the particle effect.
+   * @param particleEngine
+   * @param time
+   * @param dt
+   * @private
+   */
+  runEffect(particleEngine, time, dt) {
+    var particles = Container.create("particles");
+    var numParticles = this._opts.particleCount + Math2.randomRange(0, this._opts.particleCountVariance, true);
+    var particleLife = this._opts.particleLifetime + Math2.randomRange(0, this._opts.particleLifetimeVariance, true);
+    var emitFreq = this._opts.emitFrequency + Math2.randomRange(0, this._opts.emitFrequencyVariance, true);
 
-        /**
-         * Get the remaining lifespan of the effect.
-         * @param dt
-         * @returns {number}
-         */
-        getLifespan: function(dt) {
-            this.ttl -= dt;
-            return Math.max(this.ttl, 0);
-        },
+    if (!this._opts.run || (this._opts.run && time - this._opts.lastTime > emitFreq)) {
+      var options = {};
+      this.generateParticles(particles, numParticles, particleLife, options, time, dt);
+      this.lastTime = time;
+    }
 
-        /**
-         * A flag indicating if the effect has run yet.
-         * @returns {boolean}
-         */
-        hasRun: function() {
-            return this.run;
-        }
+    particleEngine.addParticles(particles);
+    this._opts.run = true;
+  }
 
-    }, {
-        getClassName: function() {
-            return "R.particles.Effect";
-        }
-    });
-};
+  /**
+   * A method to give an effect the ability to modify a particle's options for each particle generated.
+   * @param particleOptions {Object}
+   * @param [time] {Number} The current world time
+   * @param [dt] {Number} The number of milliseconds since the last rendered frame was generated
+   */
+  modifyParticleOptions(particleOptions, time, dt) {
+    particleOptions.velocity = this._opts.velocity + Math2.randomRange(0, this._opts.velocityVariance);
+  }
+
+  /**
+   * Generate particles for the effect.
+   * @param particles {Container} The list of particles
+   * @param particleCount {Number} The count of particles in the list
+   * @param particleLife {Number} The lifespan of the particles
+   * @param particleOptions {Object} The particle options
+   * @param time {Number} The current world time
+   * @param dt {Number} The time between the last world frame and current time
+   */
+  generateParticles(particles, particleCount, particleLife, particleOptions, time, dt) {
+    for (var x = 0; x < particleCount; x++) {
+      this.modifyParticleOptions(particleOptions, time, dt);
+      particles.add(this._opts.particleClass.create(this.origin, particleLife, particleOptions));
+    }
+  }
+
+}

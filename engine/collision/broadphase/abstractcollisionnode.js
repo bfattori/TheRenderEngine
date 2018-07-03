@@ -1,6 +1,6 @@
 /**
  * The Render Engine
- * AbstractSpatialNode
+ * AbstractCollisionNode
  *
  * @fileoverview Abstract node class within a broad-phase collision model.
  *
@@ -30,14 +30,7 @@
  * THE SOFTWARE.
  *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.collision.broadphase.AbstractCollisionNode",
-    "requires":[
-        "R.struct.Container"
-    ]
-});
+"use strict";
 
 /**
  * @class A node within a broad-phase collision model which contains a list of
@@ -46,111 +39,88 @@ R.Engine.define({
  * @constructor
  * @description Abstract class from which broad-phase collision model nodes are derived
  */
-R.collision.broadphase.AbstractCollisionNode = function () {
-    "use strict";
-    return Base.extend(/** @scope R.collision.broadphase.AbstractCollisionNode.prototype */{
+class AbstractCollisionNode {
 
-        idx:0,
-        objects:null,
-        dirty:null,
+  static NODE_INDEX = 1;
 
-        /** @private */
-        constructor:function () {
-            this.idx = R.collision.broadphase.AbstractCollisionNode.NODE_INDEX++;
-            this.objects = R.struct.Container.create("acnObjects");
-            this.dirty = true;
-        },
+  constructor() {
+    this.idx = AbstractCollisionNode.NODE_INDEX++;
+    this.objects = Container.create("acnObjects");
+    this.dirty = true;
+  }
 
-        destroy: function() {
-            this.objects.destroy();
-            this.base();
-        },
+  destroy() {
+    this.objects.destroy();
+    super.destroy();
+  }
 
-        /**
-         * Get the unique index of this node.
-         * @return {Number} The index of this node
-         */
-        getIndex:function () {
-            return this.idx;
-        },
+  /**
+   * Get the class name of this object
+   *
+   * @return {String} "R.collision.broadphase.AbstractCollisionNode"
+   */
+  get className() {
+    return "AbstractCollisionNode";
+  }
 
-        /**
-         * Returns <code>true</code> if the node is dirty (has been modified)
-         * @return {Boolean}
-         */
-        isDirty:function () {
-            return this.dirty;
-        },
+  /**
+   * Get the unique index of this node.
+   * @return {Number} The index of this node
+   */
+  getIndex() {
+    return this.idx;
+  }
 
-        /**
-         * Clear the dirty flag after the node has been processed.
-         */
-        clearDirty:function () {
-            this.dirty = false;
-        },
+  /**
+   * Clear the dirty flag after the node has been processed.
+   */
+  clearDirty() {
+    this.dirty = false;
+  }
 
-        /**
-         * Get a Container which is all objects within this node.
-         * @return {R.struct.Container} Objects in the node
-         */
-        getObjects:function () {
-            return this.objects;
-        },
+  /**
+   * Get a Container which is all objects within this node.
+   * @return {R.struct.Container} Objects in the node
+   */
+  getObjects() {
+    return this.objects;
+  }
 
-        /**
-         * Get the count of objects within the node.
-         * @return {Number}
-         */
-        getCount:function () {
-            return this.objects.size();
-        },
+  /**
+   * Get the count of objects within the node.
+   * @return {Number}
+   */
+  getCount() {
+    return this.objects.size();
+  }
 
-        /**
-         * Add an object to this node.
-         *
-         * @param obj {R.engine.BaseObject} The object to add to this node.
-         */
-        addObject:function (obj) {
-            this.objects.add(obj);
-            this.dirty = true;
-        },
+  /**
+   * Add an object to this node.
+   *
+   * @param obj {BaseObject} The object to add to this node.
+   */
+  addObject(obj) {
+    this.objects.add(obj);
+    this.dirty = true;
+  }
 
-        /**
-         * Remove an object from this node
-         *
-         * @param obj {R.object.BaseObject} The object to remove from this node
-         */
-        removeObject:function (obj) {
-            this.objects.remove(obj);
-            this.dirty = true;
-        },
+  /**
+   * Remove an object from this node
+   *
+   * @param obj {BaseObject} The object to remove from this node
+   */
+  removeObject(obj) {
+    this.objects.remove(obj);
+    this.dirty = true;
+  }
 
-        /**
-         * Returns true if the spatial node contains the point specified.
-         * @param point {R.math.Point2D} The point to check
-         * @return {Boolean}
-         */
-        contains:function (point) {
-            return false;
-        }
+  /**
+   * Returns true if the spatial node contains the point specified.
+   * @param point {Point2D} The point to check
+   * @return {Boolean}
+   */
+  contains(point) {
+    return false;
+  }
 
-    }, /** @scope R.collision.broadphase.AbstractCollisionNode.prototype */ {
-
-        /**
-         * Get the class name of this object
-         *
-         * @return {String} "R.collision.broadphase.AbstractCollisionNode"
-         */
-        getClassName:function () {
-            return "R.collision.broadphase.AbstractCollisionNode";
-        },
-
-        /** @private */
-        resolved:function () {
-            R.collision.broadphase.AbstractCollisionNode.NODE_INDEX = 1;
-        },
-
-        /** @private */
-        NODE_INDEX:null
-    });
 }

@@ -107,7 +107,7 @@ R.components.logic.behaviors.Arrival = function () {
             var destPt = R.math.Vector2D.create(0, 0);
             if (Point2D.__POINT2D) {
                 destPt.set(this.target);
-            } else if (this.target instanceof R.objects.Object2D && !this.target.isDestroyed()) {
+            } else if (this.target instanceof R.objects.Object2D && !this.target._destroyed) {
                 destPt.set(this.target.getOriginPosition());
             } else {
                 // Not a point or object, return zero steering
@@ -117,7 +117,7 @@ R.components.logic.behaviors.Arrival = function () {
             var gO = this.getGameObject(), mC = this.getTransformComponent(), pt = R.clone(gO.getOriginPosition()),
                 offs = R.clone(destPt).sub(pt), distance = offs.len(), steering = R.math.Vector2D.create(0, 0);
 
-            if (!this.getGameObject() || this.getGameObject().isDestroyed()) {
+            if (!this.getGameObject() || this.getGameObject()._destroyed) {
                 return steering;
             }
 

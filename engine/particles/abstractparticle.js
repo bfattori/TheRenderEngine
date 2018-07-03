@@ -2,43 +2,9 @@
  * The Render Engine
  * AbstractParticle
  *
- * @fileoverview The particle engine and base particle class.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- *
- * @author: $Author: bfattori $
- * @version: $Revision: 1555 $
- *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
+ * Copyright (c) 2019 Brett Fattori (bfattori@gmail.com)
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.particles.AbstractParticle",
-    "requires":[
-        "R.engine.PooledObject",
-        "R.math.Point2D"
-    ]
-});
+"use strict";
 
 /**
  * @class Base particle class.  A particle only needs to override the
@@ -58,198 +24,183 @@ R.Engine.define({
  * @constructor
  * @description Create a particle
  */
-R.particles.AbstractParticle = function () {
-    return R.engine.PooledObject.extend(/** @scope R.particles.AbstractParticle.prototype */{
+class AbstractParticle extends PooledObject {
 
-        life:0,
-        engine:null,
-        birth:0,
-        dead:false,
-        pos:null,
-        options:null,
-        inverseVelocity: null,
-        velocityVector: null,
+  constructor(position = Point2D.create(0, 0), lifetime, options = {
+      decay: 0,
+      velocity: 1,
+      angle: 0,
+      gravity: Vector2D.create(0, 0)
+    }) {
+    super("Particle");
+    this._ttl = lifetime;
+    this._birth = 0;
+    this._isDead = false;
+    this._engine = null;
+    this._position = position;
 
-        /** @private */
-        constructor:function (position, lifetime, options) {
-            this.base("Particle");
-            this.life = lifetime;
-            this.birth = 0;
-            this.dead = false;
-            this.setPosition(position);
+    // Handle options
+    if (!this._opts) {
+      this._opts = {};
+    }
 
-            // Handle options
-            if (!this.options) {
-                this.options = {};
-            }
-            this.options.decay = options.decay || 0;
-            this.options.velocity = options.velocity || 1;
-            this.options.angle = options.angle || 0;
-            if (this.options.gravity == null) {
-                this.options.gravity = R.math.Vector2D.create(0, 0);
-            } else {
-                this.options.gravity.set(0, 0);
-            }
+    this._opts = options;
 
-            if (options.gravity) {
-                this.options.gravity.set(options.gravity);
-            }
+    if (this._invVelocity == null) {
+      this._invVelocity = R.math.Vector2D.create(0, 0);
+    } else {
+      this._invVelocity.set(0, 0);
+    }
 
-            if (this.inverseVelocity == null) {
-                this.inverseVelocity = R.math.Vector2D.create(0, 0);
-            } else {
-                this.inverseVelocity.set(0, 0);
-            }
+    if (this._velocityVector == null) {
+      this._velocityVector = R.math.Vector2D.create(0, 0);
+    } else {
+      this._velocityVector.set(0, 0);
+    }
 
-            if (this.velocityVector == null) {
-                this.velocityVector = R.math.Vector2D.create(0, 0);
-            } else {
-                this.velocityVector.set(0, 0);
-            }
+    R.math.Math2D.getDirectionVector(R.math.Point2D.ZERO, R.math.Vector2D.UP, this._opts.angle, this._velocityVector);
+    this._velocityVector.mul(this._opts.velocity);
+  }
 
-            R.math.Math2D.getDirectionVector(R.math.Point2D.ZERO, R.math.Vector2D.UP, this.options.angle, this.velocityVector);
-            this.velocityVector.mul(this.options.velocity);
-        },
+  /**
+   * Destroy the particle
+   */
+  destroy() {
+    this._position.destroy();
+    this._opts.gravity.destroy();
+    this._invVelocity.destroy();
+    this._velocityVector.destroy();
+    super.destroy();
+  }
 
-        /**
-         * Destroy the particle
-         */
-        destroy:function () {
-            this.base();
-            this.pos.destroy();
-            this.options.gravity.destroy();
-            this.inverseVelocity.destroy();
-            this.velocityVector.destroy();
-        },
+  /**
+   * Release the particle back into the pool.
+   */
+  release() {
+    super.release();
+    this._ttl = 0;
+    this._engine = null;
+    this._birth = 0;
+    this._isDead = true;
+  }
 
-        /**
-         * Release the particle back into the pool.
-         */
-        release:function () {
-            this.base();
-            this.life = 0;
-            this.engine = null;
-            this.birth = 0;
-            this.dead = true;
-        },
+  /**
+   * Get the class name of this object
+   *
+   * @return {String} "AbstractParticle"
+   */
+  get className() {
+    return "AbstractParticle";
+  }
 
-        /**
-         * Initializes the particle within the <tt>R.particles.ParticleEngine</tt>
-         * @param pEngine {R.particles.ParticleEngine} The particle engine which owns the particle
-         * @param time {Number} The world time when the particle was created
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         * @private
-         */
-        init:function (pEngine, time, dt) {
-            this.engine = pEngine;
-            this.life += time;
-            this.birth = time;
-            this.dead = false;
-        },
+  /**
+   * Initializes the particle within the <tt>R.particles.ParticleEngine</tt>
+   * @param pEngine {R.particles.ParticleEngine} The particle engine which owns the particle
+   * @param time {Number} The world time when the particle was created
+   * @param dt {Number} The delta between the world time and the last time the world was updated
+   *          in milliseconds.
+   */
+  init(pEngine, time, dt) {
+    this._engine = pEngine;
+    this._ttl += time;
+    this._birth = time;
+    this._isDead = false;
+  }
 
-        /**
-         * Get the current position of the particle
-         * @return {R.math.Point2D}
-         */
-        getPosition:function () {
-            return this.pos;
-        },
+  /**
+   * Get the current position of the particle
+   * @return {R.math.Point2D}
+   */
+  get position() {
+    return this._position;
+  }
 
-        /**
-         * Set the X and Y world coordinates of the particle
-         * @param x {R.math.Point2D|Number} A {@link R.math.Point2D}, or the X world coordinate
-         * @param y {Number} Y world coordinate
-         */
-        setPosition:function (x, y) {
-            if (this.pos == null) {
-                this.pos = R.math.Point2D.create(x, y);
-            } else {
-                this.pos.set(x, y);
-            }
-        },
+  /**
+   * Set the X and Y world coordinates of the particle
+   * @param x {R.math.Point2D|Number} A {@link R.math.Point2D}, or the X world coordinate
+   * @param y {Number} Y world coordinate
+   */
+  setPosition(x, y) {
+    this._position.x = x
+    this._position.y = y;
+  }
 
-        /**
-         * Update the particle in the render context, calling its draw method.
-         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context where the particle is drawn
-         * @param time {Number} The world time, in milliseconds
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         */
-        update:function (renderContext, time, dt) {
-            if (time < this.life &&
-                renderContext.getViewport().containsPoint(this.getPosition())) {
-                // if the particle is still alive, and it isn't outside the viewport
-                this.move(renderContext, time, dt, this.life - time);
-                return true;
-            }
-            else {
-                return false;
-            }
-        },
+  /**
+   * Update the particle in the render context, calling its draw method.
+   * @param renderContext {R.rendercontexts.AbstractRenderContext} The context where the particle is drawn
+   * @param time {Number} The world time, in milliseconds
+   * @param dt {Number} The delta between the world time and the last time the world was updated
+   *          in milliseconds.
+   */
+  update(renderContext, time, dt) {
+    this._isDead = !(time < this._ttl);
 
-        /**
-         * Get the time-to-live for the particle (when it will expire)
-         * @return {Number} milliseconds
-         */
-        getTTL:function () {
-            return this.life;
-        },
+    if (renderContext.viewport.containsPoint(this.position)) {
+      this.move(renderContext, time, dt, this._ttl - time);
+    }
 
-        /**
-         * Get the time at which the particle was created
-         * @return {Number} milliseconds
-         */
-        getBirth:function () {
-            return this.birth;
-        },
+    return !this._isDead;
+  }
 
+  /**
+   * Get the time-to-live for the particle (when it will expire)
+   * @return {Number} milliseconds
+   */
+  get ttl() {
+    return this._ttl;
+  }
 
-        /**
-         * Move the particle.  May be overridden to allow different types of movement, rather than the standard
-         * linear movement.
-         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the particle to
-         * @param time {Number} The world time, in milliseconds
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         * @param remainingTime {Number} The number of milliseconds left in the particle's life
-         */
-        move:function (renderContext, time, dt, remainingTime) {
-            // Decay
-            if (this.options.decay > 0 && this.velocityVector.len() > 0) {
-                this.inverseVelocity.set(this.velocityVector).neg();
-                this.inverseVelocity.mul(this.options.decay);
-                this.velocityVector.add(this.inverseVelocity);
-            }
+  get timeToLive() {
+    return this._ttl;
+  }
 
-            this.getPosition().add(this.velocityVector);
-            this.draw(renderContext, time, dt, remainingTime);
-        },
+  /**
+   * Get the time at which the particle was created
+   * @return {Number} milliseconds
+   */
+  get birth() {
+    return this._birth;
+  }
 
-        /**
-         * Draw a very basic particle.  Typically, this method would be overridden to handle
-         * a more specific effect for a particle.
-         *
-         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the particle to
-         * @param time {Number} The world time, in milliseconds
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         * @param remainingTime {Number} The number of milliseconds left in the particle's life
-         */
-        draw:function(renderContext, time, dt, remainingTime) {
-            renderContext.setFillStyle("#fff");
-            renderContext.drawPoint(this.getPosition());
-        }
+  get dead() {
+    return this._isDead;
+  }
 
-    }, /** @scope R.particles.AbstractParticle.prototype */ {
-        /**
-         * Get the class name of this object
-         *
-         * @return {String} "R.particles.AbstractParticle"
-         */
-        getClassName:function () {
-            return "R.particles.AbstractParticle";
-        }
-    });
+  /**
+   * Move the particle.  May be overridden to allow different types of movement, rather than the standard
+   * linear movement.
+   * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the particle to
+   * @param time {Number} The world time, in milliseconds
+   * @param dt {Number} The delta between the world time and the last time the world was updated
+   *          in milliseconds.
+   * @param remainingTime {Number} The number of milliseconds left in the particle's life
+   */
+  move(renderContext, time, dt, remainingTime) {
+    // Decay
+    if (this._opts.decay > 0 && this._velocityVector.length > 0) {
+      this._invVelocity.x = this._velocityVector.x;
+      this._invVelocity.y = this._velocityVector.y;
+      this._invVelocity.neg().mul(this._opts.decay);
+      this._velocityVector.add(this._invVelocity);
+    }
 
-};
+    this.position.add(this._velocityVector);
+    this.draw(renderContext, time, dt, remainingTime);
+  }
+
+  /**
+   * Draw a very basic particle.  Typically, this method would be overridden to handle
+   * a more specific effect for a particle.
+   *
+   * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the particle to
+   * @param time {Number} The world time, in milliseconds
+   * @param dt {Number} The delta between the world time and the last time the world was updated
+   *          in milliseconds.
+   * @param remainingTime {Number} The number of milliseconds left in the particle's life
+   */
+  draw(renderContext, time, dt, remainingTime) {
+    renderContext.setFillStyle("#fff");
+    renderContext.drawPoint(this.position);
+  }
+
+}

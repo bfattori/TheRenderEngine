@@ -102,7 +102,7 @@ R.components.logic.behaviors.ObstacleAvoidance = function () {
                     continue;
                 }
 
-                if (other.isDestroyed() || this.getGameObject().isDestroyed()) {
+                if (other._destroyed || this.getGameObject()._destroyed) {
                     return R.math.Vector2D.ZERO;
                 }
 
