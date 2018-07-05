@@ -2,48 +2,9 @@
  * The Render Engine
  * CircleColliderComponent
  *
- * @fileoverview A collision component which determines collisions via
- *               bounding circle comparisons.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- *
- * @author: $Author: bfattori $
- * @version: $Revision: 1555 $
- *
  * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.components.collision.Circle",
-    "requires":[
-        "R.components.Collider",
-        "R.math.Point2D",
-        "R.math.Vector2D",
-        "R.math.Rectangle2D",
-        "R.math.Circle2D",
-        "R.struct.CollisionData"
-    ]
-});
+"use strict";
 
 /**
  * @class An extension of the {@link ColliderComponent} which will check if the
@@ -68,138 +29,98 @@ R.Engine.define({
  *              {@link R.objects.Object2D#getCircle} method and return a world-oriented bounding box or
  *              circle, respectively.
  */
-R.components.collision.Circle = function () {
-    "use strict";
-    return R.components.Collider.extend(/** @scope R.components.collision.Circle.prototype */{
+class CircleCollider extends ColliderComponent {
 
-        hasMethods:null,
-        cData:null,
+  /**
+   * Get the class name of this object
+   *
+   * @return {String} "CircleCollider"
+   */
+  get className() {
+    return "CircleCollider";
+  }
 
-        /**
-         * Releases the component back into the pool for reuse.  See {@link R.engine.PooledObject#release}
-         * for more information.
-         */
-        release:function () {
-            this.base();
-            this.hasMethod = null;
-            this.cData = null;
-        },
+  /**
+   * If a collision occurs, calls the game object's <tt>onCollide()</tt> method,
+   * passing the time of the collision, the potential collision object, and the game object
+   * and target's masks.  The return value should either tell the collision tests to continue or stop.
+   *
+   * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
+   * @param dt {Number} The delta between the world time and the last time the world was updated
+   *          in milliseconds.
+   * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
+   * @param objectMask {Number} The collision mask for the game object
+   * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
+   * @return {Number} A status indicating whether to continue checking, or to stop
+   */
+  testCollision(time, dt, collisionObj, objectMask, targetMask) {
+    if (this.collisionData != null) {
+      // Clean up old data first
+      this.collisionData.destroy();
+    }
 
-        /**
-         * Establishes the link between this component and its game object.
-         * When you assign components to a game object, it will call this method
-         * so that each component can refer to its game object, the same way
-         * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
-         *
-         * @param gameObject {R.engine.GameObject} The object which hosts this component
-         */
-        setGameObject:function (gameObject) {
-            this.base(gameObject);
-            this.hasMethods = [gameObject.getWorldCircle != undefined]; // getWorldBox
-            /* pragma:DEBUG_START */
-            // Test if the host has getWorldCircle
-            AssertWarn(this.hasMethods[0], "Object " + gameObject.toString() + " does not have getWorldCircle() method");
-            /* pragma:DEBUG_END */
-        },
+    // See if a collision will occur
+    var linked = this.linkedBody,
+      host = this.gameObject,
+      circle1 = host.worldCircle,
+      circle2 = collisionObj.worldCircle;
 
-        /**
-         * If a collision occurs, calls the game object's <tt>onCollide()</tt> method,
-         * passing the time of the collision, the potential collision object, and the game object
-         * and target's masks.  The return value should either tell the collision tests to continue or stop.
-         *
-         * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
-         * @param objectMask {Number} The collision mask for the game object
-         * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
-         * @return {Number} A status indicating whether to continue checking, or to stop
-         */
-        testCollision:function (time, dt, collisionObj, objectMask, targetMask) {
-            if (this.getCollisionData() != null) {
-                // Clean up old data first
-                this.getCollisionData().destroy();
-                this.setCollisionData(null);
-            }
+    if (this.testMode == ColliderComponent.LOFI &&
+      circle1.isIntersecting(circle2)) {
 
-            // Early out if no method(s)
-            if (!this.hasMethods[0] && !collisionObj.getWorldCircle) {
-                return R.components.Collider.CONTINUE;	// Can't perform test
-            }
+      // Intersection test passed
+      return super.testCollision(time, dt, collisionObj, objectMask, targetMask);
 
-            // See if a collision will occur
-            var linked = this.getLinkedBody(),
-                host = this.getGameObject(),
-                circle1 = host.getWorldCircle(),
-                circle2 = collisionObj.getWorldCircle();
+    } else {
+      var tRad = circle1.radius + circle2.radius,
+        c1 = circle1.center, c2 = circle2.center;
 
-            if (this.getTestMode() == R.components.Collider.SIMPLE_TEST &&
-                circle1.isIntersecting(circle2)) {
+      var distSqr = (c1.x - c2.x) * (c1.x - c2.x) +
+        (c1.y - c2.y) * (c1.y - c2.y);
 
-                // Intersection test passed
-                return this.base(time, dt, collisionObj, objectMask, targetMask);
+      if (distSqr < (tRad * tRad)) {
+        // Collision occurred, how much to separate circle1 from circle2
+        var diff = tRad - Math.sqrt(distSqr);
 
-            } else {
-                var tRad = circle1.getRadius() + circle2.getRadius(),
-                    c1 = circle1.getCenter(), c2 = circle2.getCenter();
+        // If we got here, there is a collision
+        var sep = Vector2D.create((c2.x - c1.x) * diff, (c2.y - c1.y) * diff);
+        this.collisionData = CollisionData.create(
+          sep.length,
+          Vector2D.create(c2.x - c1.x, c2.y - c1.y).normalize(),
+          host,
+          collisionObj,
+          sep,
+          time,
+          dt);
 
-                var distSqr = (c1.x - c2.x) * (c1.x - c2.x) +
-                    (c1.y - c2.y) * (c1.y - c2.y);
+        return super.testCollision(time, collisionObj, objectMask, targetMask);
+      }
+    }
 
-                if (distSqr < (tRad * tRad)) {
-                    // Collision occurred, how much to separate circle1 from circle2
-                    var diff = tRad - Math.sqrt(distSqr);
+    // No collision
+    return ColliderComponent.CONTINUE;
+  }
 
-                    // If we got here, there is a collision
-                    var sep = R.math.Vector2D.create((c2.x - c1.x) * diff, (c2.y - c1.y) * diff);
-                    this.setCollisionData(R.struct.CollisionData.create(sep.len(),
-                        R.math.Vector2D.create(c2.x - c1.x, c2.y - c1.y).normalize(),
-                        host,
-                        collisionObj,
-                        sep,
-                        time,
-                        dt));
+  execute(renderContext, time, dt) {
+    super.execute(renderContext, time, dt);
+    // Debug the collision box
+    if (RenderEngine.debugMode && !this._destroyed) {
+      var linked = this.linkedBody,
+        origin = Point2D.create(linked ? linked.localOrigin : Point2D.ZERO),
+        circle = Circle2D.create(this.gameObject.worldCircle);
 
-                    return this.base(time, collisionObj, objectMask, targetMask);
-                }
-            }
+      circle.offset(origin.neg());
 
-            // No collision
-            return R.components.Collider.CONTINUE;
-        }
+      renderContext.postRender(function () {
+        this.lineStyle = "yellow";
+        this.lineWidth = 1;
+        this.drawCircle(circle.center, circle.radius);
+      });
 
-        /* pragma:DEBUG_START */, execute:function (renderContext, time, dt) {
-            this.base(renderContext, time, dt);
-            // Debug the collision box
-            if (R.Engine.getDebugMode() && !this._destroyed) {
-                var linked = this.getLinkedBody(),
-                    origin = R.math.Point2D.create(linked ? linked.getLocalOrigin() : R.math.Point2D.ZERO),
-                    rect = R.math.Rectangle2D.create(this.getGameObject().getWorldBox());
+      origin.destroy();
+      circle.destroy();
+    }
+  }
 
-                rect.offset(origin.neg());
+}
 
-                renderContext.postRender(function () {
-                    this.setLineStyle("yellow");
-                    this.setLineWidth(1);
-                    this.drawRectangle(rect);
-                });
-
-                origin.destroy();
-                rect.destroy();
-            }
-        }
-        /* pragma:DEBUG_END */
-
-    }, { /** @scope R.components.collision.Circle.prototype */
-
-        /**
-         * Get the class name of this object
-         *
-         * @return {String} The string "R.components.collision.Circle"
-         */
-        getClassName:function () {
-            return "R.components.collision.Circle";
-        }
-
-    });
-};

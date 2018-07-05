@@ -397,6 +397,11 @@ class RenderContext2D extends AbstractRenderContext {
     this.opts.scaleY = scaleY || scaleX;
   }
 
+  set scale(vector) {
+    this.opts.scaleX = vector.x;
+    this.opts.scaleY = vector.y;
+  }
+
   /**
    * Get the X scaling factor of the current transform.
    * @return {Number}
@@ -719,7 +724,7 @@ class RenderContext2D extends AbstractRenderContext {
    * Helper method to draw a circle by calling the {@link #drawArc} method
    * with predefined start and end angle of zero and 6.28 radians.
    *
-   * @param point {R.math.Point2D} The point around which the circle will be drawn
+   * @param point {Point2D} The point around which the circle will be drawn
    * @param radius {Number} The radius of the circle in pixels
    */
   drawCircle(point, radius) {
@@ -730,7 +735,7 @@ class RenderContext2D extends AbstractRenderContext {
    * Helper method to draw a filled circle by calling the {@link #drawFilledArc} method
    * with predefined start and end angle of zero and 6.28 radians.
    *
-   * @param point {R.math.Point2D} The point around which the circle will be drawn
+   * @param point {Point2D} The point around which the circle will be drawn
    * @param radius {Number} The radius of the circle in pixels
    */
   drawFilledCircle(point, radius) {

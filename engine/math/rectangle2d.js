@@ -354,7 +354,7 @@ class Rectangle2D extends PooledObject {
    * @return {R.math.Point2D} The center point of the rectangle
    */
   getCenter() {
-    console.warn("Rectangle2D.deprecated() use property 'center'");
+    console.warn("Rectangle2D.getCenter() use property 'center'");
     return this.center;
   }
 
@@ -362,7 +362,7 @@ class Rectangle2D extends PooledObject {
    * Returns the half length of the width dimension of this rectangle
    * @return {Number} The half-width
    */
-  getHalfWidth() {
+  get halfWidth() {
     return this.len_x() * 0.5;
   }
 
@@ -370,7 +370,7 @@ class Rectangle2D extends PooledObject {
    * Returns the half length of the height dimension of this rectangle
    * @return {Number} The half-height
    */
-  getHalfHeight() {
+  get halfHeight() {
     return this.len_y() * 0.5;
   }
 

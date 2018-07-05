@@ -2,48 +2,15 @@
  * The Render Engine
  * ColliderComponent
  *
- * @fileoverview The base collision component.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- *
- * @author: $Author: bfattori $
- * @version: $Revision: 1555 $
- *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
+ * Copyright (c) 2018 Brett Fattori (bfattori@gmail.com)
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.components.Collider",
-    "requires":[
-        "R.components.Base"
-    ]
-});
+"use strict";
 
 /**
  * @class Creates a collider component which tests the collision model for
  *              potential collisions. Each frame, the component will update a potential
  *              collision list (PCL) using the game objects current position
- *              obtained from {@link R.objects.Object2D#getPosition}. Each object which meets
+ *              obtained from {@link Object2D#getPosition}. Each object which meets
  *              certain criteria will be passed to an <tt>onCollide()</tt> method which
  *              must be implemented by the game object.  By design, an object cannot
  *              collide with itself.  However, this can be changed with the {@link #setCollideSame}
@@ -57,10 +24,10 @@ R.Engine.define({
  *                 onCollide: function(obj, time, dt, targetMask) {
  *                   if (targetMask == SomeObject.COLLISION_MASK) {
  *                      obj.explode();
- *                      return R.components.Collider.STOP;
+ *                      return ColliderComponent.STOP;
  *                   }
  *
- *                   return R.components.Collider.CONTINUE;
+ *                   return ColliderComponent.CONTINUE;
  *                 }
  *              </pre>
  *              The game object must determine if the collision is valid for itself, and then
@@ -75,404 +42,378 @@ R.Engine.define({
  *              the last frame was generated will be the only arguments.
  *
  * @param name {String} Name of the component
- * @param collisionModel {SpatialCollection} The collision model
+ * @param collisionModel {AbstractCollisionModel} The collision model
  * @param priority {Number} Between 0.0 and 1.0, with 1.0 being highest
  *
- * @extends R.components.Base
+ * @extends BaseComponent
  * @constructor
  * @description A collider component is responsible for handling potential collisions by
  *        updating the associated collision model and checking for possible collisions.
  */
-R.components.Collider = function () {
-    "use strict";
-    return R.components.Base.extend(/** @scope R.components.Collider.prototype */{
+class ColliderComponent extends BaseComponent {
 
-        collisionModel:null,
-        collideSame:false,
-        hasCollideMethods:null,
-        didCollide:false,
-        testMode:null,
-        cData:null,
-        physicalBody:null,
+  /**
+   * When <tt>onCollide()</tt> is called on the host object, it should
+   * return this value if there was no collision and the host
+   * wishes to be notified about other potential collisions.
+   * @type {Number}
+   */
+  static CONTINUE = 0;
 
-        /**
-         * @private
-         */
-        constructor:function (name, collisionModel, priority) {
-            this.base(name, R.components.Base.TYPE_COLLIDER, priority || 1.0);
-            this.collisionModel = collisionModel;
-            this.collideSame = false;
-            this.hasCollideMethods = [false, false];	// onCollide, onCollideEnd
-            this.didCollide = false;
-            this.testMode = R.components.Collider.SIMPLE_TEST;
-            this.cData = null;
-            this.physicalBody = null;
-        },
+  /**
+   * When <tt>onCollide()</tt> is called on the host object, it should
+   * return this if a collision occurred and no more collisions should be reported.
+   * @type {Number}
+   */
+  static STOP = 1;
 
-        /**
-         * Destroy the component instance.
-         */
-        destroy:function () {
-            if (this.cData != null) {
-                this.cData.destroy();
-            }
-            this.base();
-        },
+  /**
+   * When <tt>onCollide()</tt> is called on the host object, it should
+   * return this value if a collision occurred and the host wishes to be notified
+   * about other potential collisions.
+   * @type {Number}
+   */
+  static COLLIDE_AND_CONTINUE = 2;
 
-        /**
-         * Establishes the link between this component and its game object.
-         * When you assign components to a game object, it will call this method
-         * so that each component can refer to its game object, the same way
-         * a game object can refer to a component with {@link R.engine.GameObject#getComponent}.
-         *
-         * @param gameObject {R.engine.GameObject} The object which hosts this component
-         */
-        setGameObject:function (gameObject) {
-            this.base(gameObject);
-            this.setCollisionMask(0x7FFFFFFF);
-            this.hasCollideMethods = [gameObject.onCollide != undefined, gameObject.onCollideEnd != undefined];
-        },
+  /**
+   * For box and circle collider components, this will perform a simple
+   * intersection test.
+   * @type {Number}
+   */
+  static LOFI = 1;
 
-        // TODO: Should destroy() remove the object from the collision model??
+  /**
+   * For box and circle collider components, this will perform a more complex
+   * test which will result in a {@link CollisionData} structure.
+   * @type {Number}
+   */
+  static HIFI = 2;
 
-        /**
-         * Releases the component back into the pool for reuse.  See {@link R.engine.PooledObject#release}
-         * for more information.
-         */
-        release:function () {
-            this.base();
-            this.collisionModel = null;
-            this.collideSame = false;
-            this.hasCollideMethods = null;
-            this.didCollide = false;
-            this.testMode = null;
-            this.cData = null;
-            this.physicalBody = null;
-        },
+  /**
+   * @private
+   */
+  constructor(name, collisionModel, priority = 1.0) {
+    super(name, BaseComponent.TYPE_COLLIDER, priority);
+    this.colliderOpts = {
+      collisionModel: collisionModel,
+      collideSame: false,
+      hasCollideMethods: [false, false],	// onCollide, onCollideEnd
+      didCollide: false,
+      testMode: ColliderComponent.LOFI,
+      collisionData: null,
+      physicalBody: null,
+      collideObjectType: null
+    };
+  }
 
-        /**
-         * Set the type of testing to perform when determining collisions.  You can specify
-         * either {@link R.components.Collider#SIMPLE_TEST} or {@link R.components.Collider#DETAILED_TEST}.
-         *
-         * @param mode {Number} The testing mode to use
-         */
-        setTestMode:function (mode) {
-            this.testMode = mode;
-        },
+  /**
+   * Destroy the component instance.
+   */
+  destroy() {
+    if (this.colliderOpts.collisionData != null) {
+      this.colliderOpts.collisionData.destroy();
+    }
+    // TODO: Should destroy() remove the object from the collision model??
+    super.destroy();
+  }
 
-        /**
-         * Determine the type of testing this component will perform. either {@link #SIMPLE_TEST}
-         * or {@link #DETAILED_TEST}
-         * @return {Number}
-         */
-        getTestMode:function () {
-            return this.testMode;
-        },
+  release() {
+    super.release();
+    this.colliderOpts = null;
+  }
 
-        /**
-         * Returns the collision data object, or <code>null</code>.
-         * @return {R.struct.CollisionData}
-         */
-        getCollisionData:function () {
-            return this.cData;
-        },
+  /**
+   * Get the class name of this object
+   *
+   * @return {String} "ColliderComponent"
+   */
+  get className() {
+    return "ColliderComponent";
+  }
 
-        /**
-         * Set the collision data object
-         * @param cData {R.struct.CollisionData} The collision data, or <code>null</code> to clear it
-         */
-        setCollisionData:function (cData) {
-            this.cData = cData;
-        },
+  /**
+   * Establishes the link between this component and its game object.
+   * When you assign components to a game object, it will call this method
+   * so that each component can refer to its game object, the same way
+   * a game object can refer to a component with {@link GameObject#getComponent}.
+   *
+   * @param gameObject {GameObject} The object which hosts this component
+   */
+  set gameObject(gameObject) {
+    super.gameObject = gameObject;
+    this.colliderOpts.collisionMask = 0x7FFFFFFF;
+    this.colliderOpts.hasCollideMethods = [!!gameObject.onCollide, !!gameObject.onCollideEnd];
+  }
 
-        /**
-         * Get the collision model being used by this component.
-         * @return {R.collision.broadphase.AbstractCollisionModel} The collision model
-         */
-        getCollisionModel:function () {
-            return this.collisionModel;
-        },
+  /**
+   * Set the type of testing to perform when determining collisions.  You can specify
+   * either {@link ColliderComponent#LOFI} or {@link ColliderComponent#HIFI}.
+   *
+   * @param mode {Number} The testing mode to use
+   */
+  set testMode(mode) {
+    this.colliderOpts.testMode = mode;
+  }
 
-        /**
-         * Set the collision model which the host object participates in.
-         * @param collisionModel {R.collision.broadphase.AbstractCollisionModel} The collision model, or <tt>null</tt> for none
-         */
-        setCollisionModel:function (collisionModel) {
-            this.collisionModel = collisionModel;
-        },
+  /**
+   * Determine the type of testing this component will perform. either {@link #LOFI}
+   * or {@link #HIFI}
+   * @return {Number}
+   */
+  get testMode() {
+    return this.colliderOpts.testMode;
+  }
 
-        /**
-         * Set whether or not an object can collide with an object with the same mask.  By default,
-         * this is <tt>false</tt>.  If you have objects which should collide, and they have the
-         * same mask, this should be set to <tt>true</tt>.
-         * @param state {Boolean} <tt>true</tt> if an object can collide with objects with the same mask
-         */
-        setCollideSame:function (state) {
-            this.collideSame = state;
-        },
+  /**
+   * Returns the collision data object, or <code>null</code>.
+   * @return {CollisionData}
+   */
+  get collisionData() {
+    return this.colliderOpts.collisionData;
+  }
 
-        /**
-         * Returns <tt>true</tt> if an object can collide with an object with the same mask.
-         * Default: <tt>false</tt>
-         * @return {Boolean}
-         */
-        getCollideSame:function () {
-            return this.collideSame;
-        },
+  /**
+   * Set the collision data object
+   * @param cData {CollisionData} The collision data, or <code>null</code> to clear it
+   */
+  set collisionData(cData) {
+    this.colliderOpts.collisionData = cData;
+  }
 
-        /**
-         * Returns a set of flags which can result in a collision between two objects.
-         * The flags are bits within a 31-bit Integer that correspond to possible collisions.
-         * @return {Number}
-         */
-        getCollisionMask:function () {
-            return this.collisionModel ? this.collisionModel.getObjectSpatialData(this.getGameObject(), "collisionMask") :
-                0;
-        },
+  /**
+   * Get the collision model being used by this component.
+   * @return {AbstractCollisionModel} The collision model
+   */
+  get collisionModel() {
+    return this.colliderOpts.collisionModel;
+  }
 
-        /**
-         * Get the object type that this collider component will respond to.  If
-         * the value is <tt>null</tt>, all objects are potential collision objects.
-         * @return {BaseObject} The only object type to collide with, or <tt>null</tt> for any object
-         * @deprecated see {@link #getCollisionFlags}
-         */
-        getObjectType:function () {
-            return null;
-        },
+  /**
+   * Set the collision model which the host object participates in.
+   * @param collisionModel {AbstractCollisionModel} The collision model, or <tt>null</tt> for none
+   */
+  set collisionModel(collisionModel) {
+    this.colliderOpts.collisionModel = collisionModel;
+  }
 
-        /**
-         * Collision masks allow objects to be considered colliding or not depending on ANDing
-         * the results.  The flags occupy the lowest 31 bits, so there can be a number of
-         * combinations which result in a collision.
-         *
-         * @param collisionMask {Number} A 31-bit integer
-         */
-        setCollisionMask:function (collisionMask) {
-            if (this.collisionModel) {
-                this.collisionModel.setObjectSpatialData(this.getGameObject(), "collisionMask", collisionMask);
-            }
-        },
+  /**
+   * Set whether or not an object can collide with an object with the same mask.  By default,
+   * this is <tt>false</tt>.  If you have objects which should collide, and they have the
+   * same mask, this should be set to <tt>true</tt>.
+   * @param state {Boolean} <tt>true</tt> if an object can collide with objects with the same mask
+   */
+  set collideSame(state) {
+    this.colliderOpts.collideSame = state;
+  }
 
-        /**
-         * Set the object type that this component will respond to.  Setting this to <tt>null</tt>
-         * will trigger a potential collision when <i>any object</i> comes into possible contact
-         * with the component's host based on the collision model.  If the object isn't of this type,
-         * no collision tests will be performed.  This allows the developer to fine tune which
-         * object the collision component is responsible for.  As such, multiple collision components
-         * could be used to handle different types of collisions.
-         *
-         * @param objType {BaseObject} The object type to check for
-         * @deprecated see {@link #setCollisionFlags}
-         */
-        setObjectType:function (objType) {
-        },
+  /**
+   * Returns <tt>true</tt> if an object can collide with an object with the same mask.
+   * Default: <tt>false</tt>
+   * @return {Boolean}
+   */
+  get collideSame() {
+    return this.colliderOpts.collideSame;
+  }
 
-        /**
-         * Link a rigid physical body to the collision component.  When using a physical body to represent
-         * a component, it is oftentimes useful to use the body shape as the collision shape.
-         * @param physicalBody {R.components.physics.BaseBody}
-         */
-        linkPhysicalBody:function (physicalBody) {
-            this.physicalBody = physicalBody;
-        },
+  /**
+   * Returns a set of flags which can result in a collision between two objects.
+   * The flags are bits within a 31-bit Integer that correspond to possible collisions.
+   * @return {Number}
+   */
+  get collisionMask() {
+    return this.colliderOpts.collisionModel ? this.colliderOpts.collisionModel.getObjectSpatialData(this.gameObject, "collisionMask") :
+      0;
+  }
 
-        /**
-         * Get the linked physical body.
-         * @return {R.components.physics.BaseBody}
-         */
-        getLinkedBody:function () {
-            return this.physicalBody;
-        },
+  /**
+   * Collision masks allow objects to be considered colliding or not depending on ANDing
+   * the results.  The flags occupy the lowest 31 bits, so there can be a number of
+   * combinations which result in a collision.
+   *
+   * @param collisionMask {Number} A 31-bit integer
+   */
+  set collisionMask(collisionMask) {
+    if (this.colliderOpts.collisionModel) {
+      this.colliderOpts.collisionModel.setObjectSpatialData(this.gameObject, "collisionMask", collisionMask);
+    }
+  }
 
-        /**
-         * Update the collision model that this component was initialized with.
-         * As objects move about the world, the objects will move to different
-         * areas (or nodes) within the collision model.  It is necessary to
-         * update this model frequently so collisions can be determined.
-         */
-        updateModel:function () {
-            var obj = this.getGameObject();
-            this.getCollisionModel().addObject(obj, obj.getPosition());
-        },
+  /**
+   * Get the object type that this collider component will respond to.  If
+   * the value is <tt>null</tt>, all objects are potential collision objects.
+   * @return {BaseObject} The only object type to collide with, or <tt>null</tt> for any object
+   * @deprecated see {@link #getCollisionFlags}
+   */
+  get objectType() {
+    return this.colliderOpts.collideObjectType;
+  }
 
-        /**
-         * Get the collision node the host object is within, or <tt>null</tt> if it
-         * is not within a node.
-         * @return {R.spatial.AbstractSpatialNode}
-         */
-        getSpatialNode:function () {
-            return this.collisionModel.getObjectSpatialData(this.getGameObject(), "lastNode");
-        },
+  /**
+   * Set the object type that this component will respond to.  Setting this to <tt>null</tt>
+   * will trigger a potential collision when <i>any object</i> comes into possible contact
+   * with the component's host based on the collision model.  If the object isn't of this type,
+   * no collision tests will be performed.  This allows the developer to fine tune which
+   * object the collision component is responsible for.  As such, multiple collision components
+   * could be used to handle different types of collisions.
+   *
+   * @param objType {BaseObject} The object type to check for
+   * @deprecated see {@link #setCollisionFlags}
+   */
+  set objectType(objType) {
+    this.colliderOpts.collideObjectType = objType;
+  }
 
-        /**
-         * Updates the object within the collision model and determines if
-         * the game object should to be alerted whenever a potential collision
-         * has occurred.  If a potential collision occurs, an array (referred to
-         * as a Potential Collision List, or PCL) will be created which
-         * contains objects that might be colliding with the game object.  It
-         * is up to the game object to make the final determination that a
-         * collision has occurred.  If no collisions have occurred, that will be reported
-         * as well.
-         * <p/>
-         * Each object within the PCL will be tested and, if a collision occurs, is
-         * passed to the <tt>onCollide()</tt> method (if declared) of the game object.
-         * If a collision occurred and was handled, the <tt>onCollide()</tt> method should return
-         * {@link CollisionComponent#STOP}, otherwise, it should return {@link CollisionComponent#CONTINUE} to continue
-         * checking objects from the PCL against the game object.
-         *
-         * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context for the component
-         * @param time {Number} The current engine time in milliseconds
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         */
-        execute:function (renderContext, time, dt) {
-            if (!this.collisionModel) {
-                return;
-            }
+  /**
+   * Link a rigid physical body to the collision component.  When using a physical body to represent
+   * a component, it is oftentimes useful to use the body shape as the collision shape.
+   * @param physicalBody {R.components.physics.BaseBody}
+   */
+  set linkedBody(physicalBody) {
+    this.colliderOpts.physicalBody = physicalBody;
+  }
 
-            var host = this.getGameObject();
+  /**
+   * Get the linked physical body.
+   * @return {R.components.physics.BaseBody}
+   */
+  get linkedBody() {
+    return this.colliderOpts.physicalBody;
+  }
 
-            // Update the collision model
-            this.updateModel();
+  /**
+   * Update the collision model that this component was initialized with.
+   * As objects move about the world, the objects will move to different
+   * areas (or nodes) within the collision model.  It is necessary to
+   * update this model frequently so collisions can be determined.
+   */
+  updateModel() {
+    this.colliderOpts.collisionModel.addObject(this.gameObject, this.gameObject.position);
+  }
 
-            // No reason to update collisions if the object hasn't changed
-            if (!host.isDirty()) {
-                return;
-            }
+  /**
+   * Get the collision node the host object is within, or <tt>null</tt> if it
+   * is not within a node.
+   * @return {AbstractCollisionNode}
+   */
+  get spatialNode() {
+    return this.colliderOpts.collisionModel.getObjectSpatialData(this.gameObject, "lastNode");
+  }
 
-            // If the host object needs to know about collisions...
-            var pclNodes = null;
+  /**
+   * Updates the object within the collision model and determines if
+   * the game object should to be alerted whenever a potential collision
+   * has occurred.  If a potential collision occurs, an array (referred to
+   * as a Potential Collision List, or PCL) will be created which
+   * contains objects that might be colliding with the game object.  It
+   * is up to the game object to make the final determination that a
+   * collision has occurred.  If no collisions have occurred, that will be reported
+   * as well.
+   * <p/>
+   * Each object within the PCL will be tested and, if a collision occurs, is
+   * passed to the <tt>onCollide()</tt> method (if declared) of the game object.
+   * If a collision occurred and was handled, the <tt>onCollide()</tt> method should return
+   * {@link CollisionComponent#STOP}, otherwise, it should return {@link CollisionComponent#CONTINUE} to continue
+   * checking objects from the PCL against the game object.
+   *
+   * @param renderContext {AbstractRenderContext} The render context for the component
+   * @param time {Number} The current engine time in milliseconds
+   * @param dt {Number} The delta between the world time and the last time the world was updated
+   *          in milliseconds.
+   */
+  execute(renderContext, time, dt) {
+    if (!this.colliderOpts.collisionModel) {
+      return;
+    }
 
-            // onCollide
-            if (this.hasCollideMethods[0]) {
-                // Get the host's collision mask once
-                var hostMask = this.collisionModel.getObjectSpatialData(host, "collisionMask");
+    // Update the collision model
+    this.updateModel();
 
-                // Get the PCL and check for collisions
-                pclNodes = this.getCollisionModel().getPCL(host, time, dt);
-                var status = R.components.Collider.CONTINUE;
-                var collisionsReported = 0;
+    // No reason to update collisions if the object hasn't changed
+    if (!this.gameObject.dirty) {
+      return;
+    }
 
-                pclNodes.forEach(function (node) {
-                    for (var itr = node.getObjects().iterator(); itr.hasNext();) {
-                        if (this._destroyed) {
-                            // If the object is destroyed while we're checking collisions against it,
-                            // get outta here
-                            break;
-                        }
+    // onCollide
+    var pclNodes = null;
+    if (this.colliderOpts.hasCollideMethods[0]) {
+      // Get the host's collision mask once
+      var hostMask = this.collisionModel.getObjectSpatialData(this.gameObject, "collisionMask");
 
-                        var obj = itr.next(),
-                            targetMask = this.collisionModel.getObjectSpatialData(obj, "collisionMask");
+      // Get the PCL and check for collisions
+      pclNodes = this.collisionModel.getPCL(this.gameObject, time, dt);
+      var status = ColliderComponent.CONTINUE;
+      var collisionsReported = 0;
 
-                        if (obj !== this.getGameObject() && // Cannot collide with itself
-                            (hostMask & targetMask) <= hostMask &&
-                            status == R.components.Collider.CONTINUE ||
-                            status == R.components.Collider.COLLIDE_AND_CONTINUE) {
+      pclNodes.forEach(function (node) {
+        for (var itr = node.objects.iterator(); itr.hasNext();) {
+          if (this._destroyed) {
+            break;
+          }
 
-                            // Test for a collision
-                            status = this.testCollision(time, dt, obj, hostMask, targetMask);
+          var obj = itr.next(),
+            targetMask = this.collisionModel.getObjectSpatialData(obj, "collisionMask");
 
-                            // If they don't return  any value, assume CONTINUE
-                            status = (status == undefined ? R.components.Collider.CONTINUE : status);
+          if (obj !== this.gameObject && // Cannot collide with itself
+            (hostMask & targetMask) <= hostMask &&
+            status == ColliderComponent.CONTINUE ||
+            status == ColliderComponent.COLLIDE_AND_CONTINUE) {
 
-                            // Count actual collisions
-                            collisionsReported += (status == R.components.Collider.STOP ||
-                                status == R.components.Collider.COLLIDE_AND_CONTINUE ? 1 : 0);
-                        }
-                    }
-                    itr.destroy();
-                }, this);
-                pclNodes.destroy();
-            }
+            // Test for a collision
+            status = this.testCollision(time, dt, obj, hostMask, targetMask);
 
-            // onCollideEnd
-            if (!this._destroyed && this.didCollide && collisionsReported == 0) {
-                if (this.hasCollideMethods[1]) {
-                    host.onCollideEnd(time, dt);
-                }
-                this.didCollide = false;
-            }
-        },
+            // If they don't return  any value, assume CONTINUE
+            status = (status == undefined ? ColliderComponent.CONTINUE : status);
 
-        /**
-         * Call the host object's <tt>onCollide()</tt> method, passing the time of the collision,
-         * the delta since the last time the world was updated,
-         * the potential collision object, and the game object and target's masks.  The return value should
-         * indicate if the collision tests should continue or stop.
-         * <p/>
-         *
-         * For <tt>R.components.Collider</tt> the collision test is up to the game object to determine.
-         *
-         * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
-         * @param hostMask {Number} The collision mask for the host object
-         * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
-         * @return {Number} A status indicating whether to continue checking, or to stop
-         */
-        testCollision:function (time, dt, collisionObj, hostMask, targetMask) {
-            if (hostMask == targetMask && !this.collideSame) {
-                return R.components.Collider.CONTINUE;
-            }
-
-            var test = this.getGameObject().onCollide(collisionObj, time, dt, targetMask);
-            if (collisionObj.onCollide) {
-                // Tell the object we're colliding with that a collision occurred
-                collisionObj.onCollide(this.getGameObject(), time, dt, targetMask);
-            }
-
-            this.didCollide |= (test == R.components.Collider.STOP || R.components.Collider.COLLIDE_AND_CONTINUE);
-            return test;
+            // Count actual collisions
+            collisionsReported += (status == ColliderComponent.STOP ||
+            ColliderComponent.COLLIDE_AND_CONTINUE ? 1 : 0);
+          }
         }
+        itr.destroy();
+      }, this);
+      pclNodes.destroy();
+    }
 
-    }, /** @scope R.components.Collider.prototype */{ // Statics
+    // onCollideEnd
+    if (!this._destroyed && this.colliderOpts.didCollide && collisionsReported == 0) {
+      if (this.colliderOpts.hasCollideMethods[1]) {
+        this.gameObject.onCollideEnd(time, dt);
+      }
+      this.colliderOpts.didCollide = false;
+    }
+  }
 
-        /**
-         * Get the class name of this object
-         *
-         * @return {String} "R.components.Collider"
-         */
-        getClassName:function () {
-            return "R.components.Collider";
-        },
+  /**
+   * Call the game object's <tt>onCollide()</tt> method, passing the time of the collision,
+   * the delta since the last time the world was updated,
+   * the potential collision object, and the game object and target's masks.  The return value should
+   * indicate if the collision tests should continue or stop.
+   * <p/>
+   *
+   * For <tt>R.components.Collider</tt> the collision test is up to the game object to determine.
+   *
+   * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
+   * @param dt {Number} The delta between the world time and the last time the world was updated
+   *          in milliseconds.
+   * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
+   * @param hostMask {Number} The collision mask for the host object
+   * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
+   * @return {Number} A status indicating whether to continue checking, or to stop
+   */
+  testCollision(time, dt, collisionObj, hostMask, targetMask) {
+    if (hostMask == targetMask && !this.colliderOpts.collideSame) {
+      return ColliderComponent.CONTINUE;
+    }
 
-        /**
-         * When <tt>onCollide()</tt> is called on the host object, it should
-         * return this value if there was no collision and the host
-         * wishes to be notified about other potential collisions.
-         * @type {Number}
-         */
-        CONTINUE:0,
+    var test = this.gameObject.onCollide(collisionObj, time, dt, targetMask);
+    if (collisionObj.onCollide) {
+      collisionObj.onCollide(this.gameObject, time, dt, targetMask);
+    }
 
-        /**
-         * When <tt>onCollide()</tt> is called on the host object, it should
-         * return this if a collision occurred and no more collisions should be reported.
-         * @type {Number}
-         */
-        STOP:1,
+    this.didCollide |= (test == ColliderComponent.STOP || ColliderComponent.COLLIDE_AND_CONTINUE);
+    return test;
+  }
 
-        /**
-         * When <tt>onCollide()</tt> is called on the host object, it should
-         * return this value if a collision occurred and the host wishes to be notified
-         * about other potential collisions.
-         * @type {Number}
-         */
-        COLLIDE_AND_CONTINUE:2,
+}
 
-        /**
-         * For box and circle collider components, this will perform a simple
-         * intersection test.
-         * @type {Number}
-         */
-        SIMPLE_TEST:1,
 
-        /**
-         * For box and circle collider components, this will perform a more complex
-         * test which will result in a {@link R.struct.CollisionData} structure.
-         * @type {Number}
-         */
-        DETAILED_TEST:2
-
-    });
-};

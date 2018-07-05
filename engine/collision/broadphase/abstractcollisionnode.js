@@ -45,8 +45,8 @@ class AbstractCollisionNode {
 
   constructor() {
     this.idx = AbstractCollisionNode.NODE_INDEX++;
-    this.objects = Container.create("acnObjects");
-    this.dirty = true;
+    this._objects = Container.create("collisionNodeObjects");
+    this._dirty = true;
   }
 
   destroy() {
@@ -67,31 +67,35 @@ class AbstractCollisionNode {
    * Get the unique index of this node.
    * @return {Number} The index of this node
    */
-  getIndex() {
+  get index() {
     return this.idx;
+  }
+
+  get dirty() {
+    return this._dirty;
   }
 
   /**
    * Clear the dirty flag after the node has been processed.
    */
   clearDirty() {
-    this.dirty = false;
+    this._dirty = false;
   }
 
   /**
    * Get a Container which is all objects within this node.
-   * @return {R.struct.Container} Objects in the node
+   * @return {Container} Objects in the node
    */
-  getObjects() {
-    return this.objects;
+  get objects() {
+    return this._objects;
   }
 
   /**
    * Get the count of objects within the node.
    * @return {Number}
    */
-  getCount() {
-    return this.objects.size();
+  get count() {
+    return this._objects.size();
   }
 
   /**
@@ -100,8 +104,8 @@ class AbstractCollisionNode {
    * @param obj {BaseObject} The object to add to this node.
    */
   addObject(obj) {
-    this.objects.add(obj);
-    this.dirty = true;
+    this._objects.add(obj);
+    this._dirty = true;
   }
 
   /**
@@ -110,8 +114,8 @@ class AbstractCollisionNode {
    * @param obj {BaseObject} The object to remove from this node
    */
   removeObject(obj) {
-    this.objects.remove(obj);
-    this.dirty = true;
+    this._objects.remove(obj);
+    this._dirty = true;
   }
 
   /**
