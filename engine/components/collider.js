@@ -312,15 +312,14 @@ class ColliderComponent extends BaseComponent {
    * Each object within the PCL will be tested and, if a collision occurs, is
    * passed to the <tt>onCollide()</tt> method (if declared) of the game object.
    * If a collision occurred and was handled, the <tt>onCollide()</tt> method should return
-   * {@link CollisionComponent#STOP}, otherwise, it should return {@link CollisionComponent#CONTINUE} to continue
+   * {@link ColliderComponent#STOP}, otherwise, it should return {@link ColliderComponent#CONTINUE} to continue
    * checking objects from the PCL against the game object.
    *
-   * @param renderContext {AbstractRenderContext} The render context for the component
    * @param time {Number} The current engine time in milliseconds
    * @param dt {Number} The delta between the world time and the last time the world was updated
    *          in milliseconds.
    */
-  execute(renderContext, time, dt) {
+  execute(time, dt) {
     if (!this.colliderOpts.collisionModel) {
       return;
     }
@@ -345,7 +344,7 @@ class ColliderComponent extends BaseComponent {
       var collisionsReported = 0;
 
       pclNodes.forEach(function (node) {
-        for (var itr = node.objects.iterator(); itr.hasNext();) {
+        for (var itr = node.objects.iterator; itr.hasNext();) {
           if (this._destroyed) {
             break;
           }

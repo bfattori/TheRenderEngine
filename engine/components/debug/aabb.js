@@ -2,42 +2,9 @@
  * The Render Engine
  * DebugComponent
  *
- * @fileoverview A debugging component.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- *
- * @author: $Author: bfattori $
- * @version: $Revision: 1555 $
- *
  * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.components.debug.AABB",
-    "requires":[
-        "R.components.Debug"
-    ]
-});
+"use strict";
 
 /**
  * @class A debugging component to render helpful debug widgets alongside an object.
@@ -48,42 +15,32 @@ R.Engine.define({
  * @constructor
  * @description A debugging component.
  */
-R.components.debug.AABB = function () {
-    "use strict";
-    return R.components.Debug.extend(/** @scope R.components.debug.AABB.prototype */{
+class DebugAABBComponent extends DebugComponent {
 
-        /**
-         * @private
-         */
-        constructor:function () {
-            this.base("AABBDebug");
-        },
+  constructor() {
+    super("AABBDebug");
+  }
 
-        /**
-         * Draws the axis aligned bounding box of the object
-         *
-         * @param renderContext {R.rendercontexts.AbstractRenderContext} The render context for the component
-         * @param time {Number} The current engine time in milliseconds
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         */
-        execute:function (renderContext, time, dt) {
-            renderContext.setLineWidth(1);
-            renderContext.setLineStyle("cyan");
-            renderContext.drawRectangle(this.getGameObject().getAABB());
-        }
+  /**
+   * Get the class name of this object
+   *
+   * @return {String} "R.components.debug.AABB"
+   */
+  get className() {
+    return "DebugAABBComponent";
+  }
 
-    }, /** @scope R.components.debug.AABB.prototype */{ // Statics
+  /**
+   * Draws the axis aligned bounding box of the object
+   *
+   * @param renderContext {RenderContext2D} The render context for the component
+   */
+  render(renderContext) {
+    renderContext.lineWidth = 1;
+    renderContext.lineStyle = "cyan";
+    renderContext.drawRectangle(this.gameObject.AABB);
+  }
 
-        /**
-         * Get the class name of this object
-         *
-         * @return {String} "R.components.debug.AABB"
-         */
-        getClassName:function () {
-            return "R.components.debug.AABB";
-        }
-
-    });
 }
+
 

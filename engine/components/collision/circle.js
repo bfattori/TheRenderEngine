@@ -48,7 +48,7 @@ class CircleCollider extends ColliderComponent {
    * @param time {Number} The engine time (in milliseconds) when the potential collision occurred
    * @param dt {Number} The delta between the world time and the last time the world was updated
    *          in milliseconds.
-   * @param collisionObj {R.engine.GameObject} The game object with which the collision potentially occurs
+   * @param collisionObj {GameObject} The game object with which the collision potentially occurs
    * @param objectMask {Number} The collision mask for the game object
    * @param targetMask {Number} The collision mask for <tt>collisionObj</tt>
    * @return {Number} A status indicating whether to continue checking, or to stop
@@ -101,8 +101,8 @@ class CircleCollider extends ColliderComponent {
     return ColliderComponent.CONTINUE;
   }
 
-  execute(renderContext, time, dt) {
-    super.execute(renderContext, time, dt);
+  render(renderContext) {
+    super.render(renderContext);
     // Debug the collision box
     if (RenderEngine.debugMode && !this._destroyed) {
       var linked = this.linkedBody,

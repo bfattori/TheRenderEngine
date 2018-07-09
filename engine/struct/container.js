@@ -456,7 +456,7 @@ class Container extends BaseObject {
    * Returns an iterator over the collection.
    * @return {Iterator} An iterator
    */
-  iterator() {
+  get iterator() {
     return Iterator.create(this.objects, this);
   }
 

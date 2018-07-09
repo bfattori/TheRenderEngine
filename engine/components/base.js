@@ -125,7 +125,7 @@ class BaseComponent extends BaseObject {
    * within a game object are sorted by type, and then priority.  As such,
    * two components with the same type will be sorted by priority with the
    * higher value executing before the lower value.  This allows you to layer
-   * components like the {@link R.components.Render} component so that one effect
+   * components like the {@link RenderComponent} component so that one effect
    * is drawn before another.
    *
    * @param priority {Number} A value between 0.0 and 1.0
@@ -147,17 +147,23 @@ class BaseComponent extends BaseObject {
   }
 
   /**
-   * [ABSTRACT] This method is called by the game object to run the component,
-   * updating its state.  Not all components will need an execute
-   * method.  However, it is important to include one if you need to
+   * [ABSTRACT] This method is called by the game object to update the component's state
+   * Not all components will need an execute method.  However, it is important to include one if you need to
    * update the state of the component for each engine cycle.
    *
-   * @param renderContext {AbstractRenderContext} The context the component will render within.
    * @param time {Number} The global engine time
    * @param dt {Number} The delta between the world time and the last time the world was updated
    *          in milliseconds.
    */
-  execute(renderContext, time, dt) {
+  execute(time, dt) {
+  }
+
+  /**
+   * [ABSTRACT] This method is called by the game object to render the component.
+   *
+   * @param renderContext {AbstractRenderContext} The context the component will render within.
+   */
+  render(renderContext) {
   }
 
   /**

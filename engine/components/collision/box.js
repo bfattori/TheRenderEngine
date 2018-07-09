@@ -117,8 +117,8 @@ class BoxCollider extends ColliderComponent {
     return ColliderComponent.CONTINUE;
   }
 
-  execute(renderContext, time, dt) {
-    super.execute(renderContext, time, dt);
+  render(renderContext) {
+    super.render(renderContext);
 
     // Debug the collision box
     if (RenderEngine.debugMode && !this._destroyed) {

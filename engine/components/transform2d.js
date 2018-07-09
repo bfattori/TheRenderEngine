@@ -82,7 +82,7 @@ class Transform2DComponent extends BaseComponent {
    * Returns the position of the transformation relative to the viewport.  If the world is
    * comprised of multiple viewports (wide and/or tall) the render position
    * is relative to the current viewport's position.
-   * @return {R.math.Point2D}
+   * @return {Point2D}
    */
   get renderPosition() {
     this.txfmOpts.worldPos.copy(this.txfmOpts.position);
@@ -205,13 +205,9 @@ class Transform2DComponent extends BaseComponent {
    * Set the components of a transformation: position, rotation,
    * and scale, within the rendering context.
    *
-   * @param renderContext {AbstractRenderContext} The rendering context
-   * @param time {Number} The engine time in milliseconds
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
+   * @param renderContext {RenderContext2D} The rendering context
    */
-  execute(renderContext, time, dt) {
-    // TODO: This should really be in a render component only
+  render(renderContext) {
     renderContext.position = this.renderPosition;
     renderContext.rotation = this.renderRotation;
     renderContext.scale = this.scale;

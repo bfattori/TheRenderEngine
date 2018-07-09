@@ -113,30 +113,27 @@ class RenderComponent extends BaseComponent {
   }
 
   /**
-   * Handles whether or not the component should draw to the
-   * render context.
+   * Set up render component prior to rendering pass.
+   * @param time
+   * @param dt
+   */
+  execute(time, dt) {
+  }
+
+  /**
+   * Render the component to the context.
    *
    * @param renderContext {AbstractRenderContext} The rendering context
-   * @param time {Number} The engine time in milliseconds
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
    */
-  execute(renderContext, time, dt) {
+  render(renderContext) {
     if (this._destroyed || (RenderEngine.options.useDirtyRectangles && !this.gameObject.dirty)) {
-      // Objects that aren't dirty don't need to re-render
       return false;
     }
 
-    // Check visibility
-    if ((this.renderOpts.drawMode === RenderComponent.NO_DRAW) ||
-      this.gameObject.worldBox &&
-      (!renderContext.expandedViewport.isIntersecting(this.gameObject.worldBox))) {
-      return false;
-    }
-
-    // The object is visible
-    //RenderEngine.vObj++;
-    return true;
+    // Return visibility
+    return !((this.renderOpts.drawMode === RenderComponent.NO_DRAW) ||
+    this.gameObject.worldBox &&
+    (!renderContext.expandedViewport.isIntersecting(this.gameObject.worldBox)));
   }
 
 }

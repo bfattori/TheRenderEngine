@@ -1,43 +1,10 @@
 /**
  * The Render Engine
- * Sprite
- *
- * @fileoverview A class for working with sprites.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- * @author: $Author: bfattori $
- * @version: $Revision: 1556 $
+ * SpriteResource
  *
  * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.resources.types.Sprite",
-    "requires":[
-        "R.engine.PooledObject",
-        "R.math.Rectangle2D"
-    ]
-});
+"use strict";
 
 /**
  * @class A 2D sprite object.  Sprites are either a single frame, or an animation composed of
@@ -62,430 +29,330 @@ R.Engine.define({
  * @param spriteResource {Object} The sprite resource loaded by the {@link SpriteLoader}
  * @extends R.engine.BaseObject
  */
-R.resources.types.Sprite = function () {
-    return R.engine.BaseObject.extend(/** @scope R.resources.types.Sprite.prototype */{
+class SpriteResource extends BaseObject {
 
-        // The type of sprite: Single or Animation
-        type:-1,
+  static TYPE_SINGLE = 0;
+  static TYPE_ANIMATION = 1;
 
-        // Animation mode: loop or toggle
-        mode:-1,
+  static MODE_LOOP = 0;
+  static MODE_TOGGLE = 1;
+  static MODE_ONCE = 2;
 
-        // Animation frame count
-        count:-1,
+  static INDEX_LEFT = 0;
+  static INDEX_TOP = 1;
+  static INDEX_WIDTH = 2;
+  static INDEX_HEIGHT = 3;
+  static INDEX_COUNT = 4;
+  static INDEX_SPEED = 5;
+  static INDEX_TYPE = 6;
+  static INDEX_SYNC = 7;
 
-        // Animation speed
-        speed:-1,
+  /** @private */
+  constructor(name, spriteObj, spriteResource, fileVersion, spriteLoader) {
+    super(name);
 
-        // The rect which defines the sprite frame
-        frame:null,
+    this.spriteOpts = {
+      finished: false,
+      frameNum: 0,
+      playing: true,
+      type: (spriteObj.length === 4 ? SpriteResource.TYPE_SINGLE : SpriteResource.TYPE_ANIMATION)
+    };
 
-        // The image map that contains the sprite(s)
-        image:null,
+    var s = spriteObj;
 
-        // The bounding box for the sprite
-        bbox:null,
+    if (this.spriteOpts.type === SpriteResource.TYPE_ANIMATION) {
+      switch (s[SpriteResource.INDEX_TYPE]) {
+        case "loop" :
+          this.spriteOpts.mode = SpriteResource.MODE_LOOP;
+          break;
+        case "toggle" :
+          this.spriteOpts.mode = SpriteResource.MODE_TOGGLE;
+          break;
+        case "once" :
+          this.spriteOpts.mode = SpriteResource.MODE_ONCE;
+          break;
+      }
+      if (s.length - 1 == SpriteResource.INDEX_SYNC) {
+        this.spriteOpts.sync = true;
+        this.spriteOpts.lastTime = null;
+        this.spriteOpts.toggleDir = -1;	// Trust me
+      } else {
+        this.spriteOpts.sync = false;
+      }
+      this.spriteOpts.count = s[SpriteResource.INDEX_COUNT];
+      this.spriteOpts.speed = s[SpriteResource.INDEX_SPEED];
+    } else {
+      this.spriteOpts.count = 1;
+      this.spriteOpts.speed = -1;
+    }
 
-        lastTime:null,
-        sync:false,
-        finished:false,
-        toggleDir:null,
-        frameNum:0,
-        playing:false,
-        resource:null,
-        loader:null,
+    this.spriteOpts.resource = spriteResource;
+    this.spriteOpts.loader = spriteLoader;
+    this.spriteOpts.image = spriteResource.image;
+    this.spriteOpts.frame = Rectangle2D.create(s[SpriteResource.INDEX_LEFT], s[SpriteResource.INDEX_TOP], s[SpriteResource.INDEX_WIDTH], s[SpriteResource.INDEX_HEIGHT]);
+    this.spriteOpts.bbox = Rectangle2D.create(0, 0, s[SpriteResource.INDEX_WIDTH], s[SpriteResource.INDEX_HEIGHT]);
+    this.spriteOpts.currentFrame = 0;
+  }
 
-        /** @private */
-        constructor:function (name, spriteObj, spriteResource, fileVersion, spriteLoader) {
-            this.base(name);
-            this.finished = false;
-            this.frameNum = 0;
-            this.playing = true;
+  /**
+   * Destroy the sprite instance
+   */
+  destroy() {
+    this.spriteOpts.bbox.destroy();
+    this.spriteOpts.frame.destroy();
+    super.destroy();
+  }
 
-            if (fileVersion == 1) {
-                this.type = (spriteObj["a"] ? R.resources.types.Sprite.TYPE_ANIMATION : R.resources.types.Sprite.TYPE_SINGLE);
-            } else if (fileVersion == 2) {
-                this.type = (spriteObj.length == 4 ? R.resources.types.Sprite.TYPE_SINGLE : R.resources.types.Sprite.TYPE_ANIMATION);
-            }
+  /**
+   * Release the sprite back into the pool for reuse
+   */
+  release() {
+    super.release();
+    this.spriteOpts = null;
+  }
 
-            var s;
-            if (fileVersion == 1) {
-                s = (this.type == R.resources.types.Sprite.TYPE_ANIMATION ? spriteObj["a"] : spriteObj["f"]);
-            } else if (fileVersion == 2) {
-                s = spriteObj;
-            }
+  /**
+   * Gets the class name of this object.
+   * @return {String} The string "SpriteResource"
+   */
+  get className() {
+    return "SpriteResource";
+  }
 
-            if (this.type == R.resources.types.Sprite.TYPE_ANIMATION) {
-                switch (s[R.resources.types.Sprite.INDEX_TYPE]) {
-                    case "loop" :
-                        this.mode = R.resources.types.Sprite.MODE_LOOP;
-                        break;
-                    case "toggle" :
-                        this.mode = R.resources.types.Sprite.MODE_TOGGLE;
-                        break;
-                    case "once" :
-                        this.mode = R.resources.types.Sprite.MODE_ONCE;
-                        break;
-                }
-                if (s.length - 1 == R.resources.types.Sprite.INDEX_SYNC) {
-                    this.sync = true;
-                    this.lastTime = null;
-                    this.toggleDir = -1;	// Trust me
-                } else {
-                    this.sync = false;
-                }
-                this.count = s[R.resources.types.Sprite.INDEX_COUNT];
-                this.speed = s[R.resources.types.Sprite.INDEX_SPEED];
-            } else {
-                this.count = 1;
-                this.speed = -1;
-            }
 
-            this.resource = spriteResource;
-            this.loader = spriteLoader;
-            this.image = spriteResource.image;
-            this.frame = R.math.Rectangle2D.create(s[R.resources.types.Sprite.INDEX_LEFT], s[R.resources.types.Sprite.INDEX_TOP], s[R.resources.types.Sprite.INDEX_WIDTH], s[R.resources.types.Sprite.INDEX_HEIGHT]);
-            this.bbox = R.math.Rectangle2D.create(0, 0, s[R.resources.types.Sprite.INDEX_WIDTH], s[R.resources.types.Sprite.INDEX_HEIGHT]);
-        },
+  /**
+   * Get the resource this sprite originated from
+   */
+  get spriteResource() {
+    return this.spriteOpts.resource;
+  }
 
-        /**
-         * Destroy the sprite instance
-         */
-        destroy:function () {
-            this.bbox.destroy();
-            this.frame.destroy();
-            this.base();
-        },
+  /**
+   * Get the sprite loader this sprite originated from
+   */
+  get spriteLoader() {
+    return this.spriteOpts.loader;
+  }
 
-        /**
-         * Release the sprite back into the pool for reuse
-         */
-        release:function () {
-            this.base();
-            this.mode = -1;
-            this.type = -1;
-            this.count = -1;
-            this.speed = -1;
-            this.frame = null;
-            this.image = null;
-            this.bbox = null;
-            this.resource = null;
-            this.loader = null;
-        },
+  /**
+   * Returns <tt>true</tt> if the sprite is an animation.
+   */
+  get isAnimation() {
+    return (this.spriteOpts.type == SpriteResource.TYPE_ANIMATION);
+  }
 
-        /**
-         * Get the resource this sprite originated from
-         * @return {Object}
-         */
-        getSpriteResource:function () {
-            return this.resource;
-        },
+  /**
+   * Returns <tt>true</tt> if the sprite is an animation and loops.
+   */
+  get isLoop() {
+    return (this.isAnimation && this.spriteOpts.mode === SpriteResource.MODE_LOOP);
+  }
 
-        /**
-         * Get the sprite loader this sprite originated from
-         * @return {R.resources.loaders.SpriteLoader}
-         */
-        getSpriteLoader:function () {
-            return this.loader;
-        },
+  /**
+   * Returns <tt>true</tt> if the sprite is an animation and toggles.
+   */
+  get isToggle() {
+    return (this.isAnimation && this.spriteOpts.mode === SpriteComponent.MODE_TOGGLE);
+  }
 
-        /**
-         * Returns <tt>true</tt> if the sprite is an animation.
-         * @return {Boolean} <tt>true</tt> if the sprite is an animation
-         */
-        isAnimation:function () {
-            return (this.type == R.resources.types.Sprite.TYPE_ANIMATION);
-        },
+  /**
+   * Returns <tt>true</tt> if the sprite is an animation and plays once.
+   */
+  get isOnce() {
+    return (this.isAnimation && this.spriteOpts.mode === SpriteComponent.MODE_ONCE);
+  }
 
-        /**
-         * Returns <tt>true</tt> if the sprite is an animation and loops.
-         * @return {Boolean} <tt>true</tt> if the sprite is an animation and loops
-         */
-        isLoop:function () {
-            return (this.isAnimation() && this.mode == R.resources.types.Sprite.MODE_LOOP);
-        },
+  /**
+   * Get the number of frames in the sprite.
+   */
+  get frameCount() {
+    return this.spriteOpts.count;
+  }
 
-        /**
-         * Returns <tt>true</tt> if the sprite is an animation and toggles.
-         * @return {Boolean} <tt>true</tt> if the sprite is an animation and toggles
-         */
-        isToggle:function () {
-            return (this.isAnimation() && this.mode == R.resources.types.Sprite.MODE_TOGGLE);
-        },
+  /**
+   * Get the frame speed of the animation in milliseconds, or -1 if it's a single frame.
+   */
+  get frameSpeed() {
+    return this.spriteOpts.speed;
+  }
 
-        /**
-         * Returns <tt>true</tt> if the sprite is an animation and plays once.
-         * @return {Boolean} <tt>true</tt> if the sprite is an animation and plays once
-         */
-        isOnce:function () {
-            return (this.isAnimation() && this.mode == R.resources.types.Sprite.MODE_ONCE);
-        },
+  /**
+   * For animated sprites, play the animation if it is stopped.
+   */
+  play() {
+    this.spriteOpts.playing = true;
+  }
 
-        /**
-         * Get the number of frames in the sprite.
-         * @return {Number}
-         */
-        getFrameCount:function () {
-            return this.count;
-        },
+  /**
+   * For animated sprites, stop the animation if it is playing.
+   */
+  stop() {
+    this.spriteOpts.playing = false;
+  }
 
-        /**
-         * Get the frame speed of the animation in milliseconds, or -1 if it's a single frame.
-         * @return {Number}
-         */
-        getFrameSpeed:function () {
-            return this.speed;
-        },
+  /**
+   * For animated sprites, reset the animation to frame zero.
+   */
+  reset() {
+    this.spriteOpts.frameNum = 0;
+  }
 
-        /**
-         * For animated sprites, play the animation if it is stopped.
-         */
-        play:function () {
-            this.playing = true;
-        },
+  /**
+   * For animated sprites, go to a particular frame number.
+   * @param frameNum {Number} The frame number to jump to
+   */
+  gotoFrame(frameNum) {
+    this.frameNum = (frameNum < 0 ? 0 : (frameNum >= this.spriteOpts.count ? this.spriteOpts.count - 1 : frameNum));
+  }
 
-        /**
-         * For animated sprites, stop the animation if it is playing.
-         */
-        stop:function () {
-            this.playing = false;
-        },
+  /**
+   * Get the bounding box for the sprite.
+   */
+  get boundingBox() {
+    return this.spriteOpts.bbox;
+  }
 
-        /**
-         * For animated sprites, reset the animation to frame zero.
-         */
-        reset:function () {
-            this.frameNum = 0;
-        },
+  /**
+   * Gets the frame of the sprite. The frame is the rectangle defining what
+   * portion of the image map the sprite frame occupies, given the specified time.
+   *
+   * @param time {Number} Current world time
+   * @param dt {Number} The delta between the world time and the last time the world was updated
+   *          in milliseconds.
+   */
+  getFrame(time, dt) {
+    if (!this.isAnimation) {
+      return Rectangle2D.create(this.spriteOpts.frame);
+    } else {
+      var f = Rectangle2D.create(this.spriteOpts.frame);
+      var fn = this.calcFrameNumber(time, dt);
+      return f.offset(f.width * fn, 0);
+    }
+  }
 
-        /**
-         * For animated sprites, go to a particular frame number.
-         * @param frameNum {Number} The frame number to jump to
-         */
-        gotoFrame:function (frameNum) {
-            this.frameNum = (frameNum < 0 ? 0 : (frameNum >= this.count ? this.count - 1 : frameNum));
-        },
+  animate(time, dt) {
+    this.spriteOpts.currentFrame = this.getFrame(time, dt);
+  }
 
-        /**
-         * Get the bounding box for the sprite.
-         * @return {R.math.Rectangle2D} The bounding box which contains the entire sprite
-         */
-        getBoundingBox:function () {
-            return this.bbox;
-        },
+  /**
+   * Calculate the frame number for the type of animation.
+   * @param time {Number} The current world time
+   * @param dt {Number} The delta between the world time and the last time the world was updated
+   *          in milliseconds.
+   * @private
+   */
+  calcFrameNumber(time, dt) {
+    if (!this.spriteOpts.playing) {
+      return this.spriteOpts.frameNum;
+    }
 
-        /**
-         * Gets the frame of the sprite. The frame is the rectangle defining what
-         * portion of the image map the sprite frame occupies, given the specified time.
-         *
-         * @param time {Number} Current world time
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         * @return {R.math.Rectangle2D} A rectangle which defines the frame of the sprite in
-         *         the source image map.
-         */
-        getFrame:function (time, dt) {
-            if (!this.isAnimation()) {
-                return R.math.Rectangle2D.create(this.frame);
-            } else {
-                var f = R.math.Rectangle2D.create(this.frame);
-                var fn = this.calcFrameNumber(time, dt);
-                return f.offset(f.w * fn, 0);
-            }
-        },
+    if (this.spriteOpts.sync) {
+      // Synchronized animations
 
-        /**
-         * Calculate the frame number for the type of animation.
-         * @param time {Number} The current world time
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
-         * @private
-         */
-        calcFrameNumber:function (time, dt) {
-            if (!this.playing) {
-                return this.frameNum;
-            }
+      if (this.spriteOpts.lastTime === null) {
+        // Note the time when the first frame is requested and just return frame zero
+        this.spriteOpts.lastTime = time;
+        return 0;
+      }
 
-            if (this.sync) {
-                // Synchronized animations
+      // How much time has elapsed since the last frame update?
+      if (dt > this.spriteOpts.speed) {
+        // Engine is lagging, skip to correct frame
+        this.spriteOpts.frameNum += (Math.floor(dt / this.spriteOpts.speed) * this.spriteOpts.toggleDir);
+      } else {
+        this.spriteOpts.frameNum += (time - this.spriteOpts.lastTime > this.spriteOpts.speed ? this.spriteOpts.toggleDir : 0);
+      }
 
-                if (this.lastTime === null) {
-                    // Note the time when the first frame is requested and just return frame zero
-                    this.lastTime = time;
-                    return 0;
-                }
-
-                // How much time has elapsed since the last frame update?
-                if (dt > this.speed) {
-                    // Engine is lagging, skip to correct frame
-                    this.frameNum += (Math.floor(dt / this.speed) * this.toggleDir);
-                } else {
-                    this.frameNum += (time - this.lastTime > this.speed ? this.toggleDir : 0);
-                }
-
-                // Modify the frame number for the animation mode
-                if (this.isOnce()) {
-                    // Play animation once from beginning to end
-                    if (this.frameNum >= this.count) {
-                        this.frameNum = this.count - 1;
-                        if (!this.finished) {
-                            // Call event when finished
-                            this.finished = true;
-                            this.triggerEvent("finished");
-                        }
-                    }
-                } else if (this.isLoop()) {
-                    if (this.frameNum > this.count - 1) {
-                        // Call event when loop restarts
-                        this.frameNum = 0;
-                        this.triggerEvent("loopRestarted");
-                    }
-                } else {
-                    if (this.frameNum == this.count - 1 || this.frameNum == 0) {
-                        // Call event when animation toggles
-                        this.toggleDir *= -1;
-                        this.frameNum += this.toggleDir;
-                        this.triggerEvent("toggled");
-                    }
-                }
-
-                // Remember the last time a frame was requested
-                this.lastTime = time;
-
-            } else {
-                // Unsynchronized animations
-                var lastFrame = this.frameNum;
-                if (this.isLoop()) {
-                    this.frameNum = Math.floor(time / this.speed) % this.count;
-                    if (this.frameNum < lastFrame) {
-                        this.triggerEvent("loopRestarted");
-                    }
-                } else if (this.isOnce() && !this.finished) {
-                    this.frameNum = Math.floor(time / this.speed) % this.count;
-                    if (this.frameNum < lastFrame) {
-                        this.finished = true;
-                        this.frameNum = this.count - 1;
-                        this.triggerEvent("finished");
-                    }
-                } else if (this.isToggle()) {
-                    this.frameNum = Math.floor(time / this.speed) % (this.count * 2);
-                    if (this.frameNum > this.count - 1) {
-                        this.frameNum = this.count - (this.frameNum - (this.count - 1));
-                        this.triggerEvent("toggled");
-                    }
-                }
-            }
-
-            return this.frameNum;
-        },
-
-        /**
-         * Set the speed, in milliseconds, that an animation runs at.  If the sprite is
-         * not an animation, this has no effect.
-         *
-         * @param speed {Number} The number of milliseconds per frame of an animation
-         */
-        setSpeed:function (speed) {
-            if (speed >= 0) {
-                this.speed = speed;
-            }
-        },
-
-        /**
-         * Get the number of milliseconds each frame is displayed for an animation
-         * @return {Number} The milliseconds per frame
-         */
-        getSpeed:function () {
-            return this.speed;
-        },
-
-        /**
-         * The source image loaded by the {@link SpriteLoader} when the sprite was
-         * created.
-         * @return {HTMLImage} The source image the sprite is contained within
-         */
-        getSourceImage:function () {
-            return this.image;
-        },
-
-        onSpriteLoopRestart:function () {
+      // Modify the frame number for the animation mode
+      if (this.isOnce) {
+        // Play animation once from beginning to end
+        if (this.spriteOpts.frameNum >= this.spriteOpts.count) {
+          this.spriteOpts.frameNum = this.spriteOpts.count - 1;
+          if (!this.spriteOpts.finished) {
+            // Call event when finished
+            this.spriteOpts.finished = true;
+            this.triggerEvent("finished");
+          }
         }
+      } else if (this.isLoop) {
+        if (this.spriteOpts.frameNum > this.spriteOpts.count - 1) {
+          // Call event when loop restarts
+          this.spriteOpts.frameNum = 0;
+          this.triggerEvent("loopRestarted");
+        }
+      } else {
+        if (this.spriteOpts.frameNum === this.spriteOpts.count - 1 || this.spriteOpts.frameNum === 0) {
+          // Call event when animation toggles
+          this.spriteOpts.toggleDir *= -1;
+          this.spriteOpts.frameNum += this.spriteOpts.toggleDir;
+          this.triggerEvent("toggled");
+        }
+      }
 
-    }, /** @scope R.resources.types.Sprite.prototype */{
-        /**
-         * Gets the class name of this object.
-         * @return {String} The string "R.resources.types.Sprite"
-         */
-        getClassName:function () {
-            return "R.resources.types.Sprite";
-        },
+      // Remember the last time a frame was requested
+      this.spriteOpts.lastTime = time;
 
-        /** The sprite animation loops
-         * @type {Number}
-         */
-        MODE_LOOP:0,
+    } else {
+      // Unsynchronized animations
+      var lastFrame = this.spriteOpts.frameNum;
+      if (this.isLoop) {
+        this.spriteOpts.frameNum = Math.floor(time / this.spriteOpts.speed) % this.spriteOpts.count;
+        if (this.spriteOpts.frameNum < lastFrame) {
+          this.triggerEvent("loopRestarted");
+        }
+      } else if (this.isOnce && !this.spriteOpts.finished) {
+        this.spriteOpts.frameNum = Math.floor(time / this.spriteOpts.speed) % this.spriteOpts.count;
+        if (this.spriteOpts.frameNum < lastFrame) {
+          this.spriteOpts.finished = true;
+          this.spriteOpts.frameNum = this.spriteOpts.count - 1;
+          this.triggerEvent("finished");
+        }
+      } else if (this.isToggle) {
+        this.spriteOpts.frameNum = Math.floor(time / this.spriteOpts.speed) % (this.spriteOpts.count * 2);
+        if (this.spriteOpts.frameNum > this.spriteOpts.count - 1) {
+          this.spriteOpts.frameNum = this.spriteOpts.count - (this.spriteOpts.frameNum - (this.spriteOpts.count - 1));
+          this.triggerEvent("toggled");
+        }
+      }
+    }
 
-        /** The sprite animation toggles - Plays from the first to the last frame
-         *  then plays backwards to the first frame and repeats.
-         * @type {Number}
-         */
-        MODE_TOGGLE:1,
+    return this.spriteOpts.frameNum;
+  }
 
-        /** The sprite animation plays once from the beginning then stops at the last frame
-         * @type {Number}
-         */
-        MODE_ONCE:2,
+  /**
+   * Set the speed, in milliseconds, that an animation runs at.  If the sprite is
+   * not an animation, this has no effect.
+   */
+  set speed(speed) {
+    if (speed >= 0) {
+      this.spriteOpts.speed = speed;
+    }
+  }
 
-        /** The sprite is a single frame
-         * @type {Number}
-         */
-        TYPE_SINGLE:0,
+  /**
+   * Get the number of milliseconds each frame is displayed for an animation
+   */
+  get speed() {
+    return this.spriteOpts.speed;
+  }
 
-        /** The sprite is an animation
-         * @type {Number}
-         */
-        TYPE_ANIMATION:1,
+  /**
+   * The source image loaded by the {@link SpriteLoader} when the sprite was
+   * created.
+   * @return {HTMLImage} The source image the sprite is contained within
+   */
+  get sourceImage() {
+    return this.spriteOpts.image;
+  }
 
-        /** The field in the sprite definition file for the left pixel of the sprite frame
-         * @private
-         */
-        INDEX_LEFT:0,
+  /**
+   * @returns {Rectangle2D}
+   */
+  get currentFrame() {
+    return this.spriteOpts.currentFrame;
+  }
 
-        /** The field in the sprite definition file for the top pixel of the sprite frame
-         * @private
-         */
-        INDEX_TOP:1,
+  onSpriteLoopRestart() {
+  }
 
-        /** The field in the sprite definition file for the width of the sprite frame
-         * @private
-         */
-        INDEX_WIDTH:2,
-
-        /** The field in the sprite definition file for the height of the sprite frame
-         * @private
-         */
-        INDEX_HEIGHT:3,
-
-        /** The field in the sprite definition file for the count of frames in the sprite
-         * @private
-         */
-        INDEX_COUNT:4,
-
-        /** The field in the sprite definition file for the speed in milliseconds that the sprite animates
-         * @private
-         */
-        INDEX_SPEED:5,
-
-        /** The field in the sprite definition file for the type of sprite animation
-         * @private
-         */
-        INDEX_TYPE:6,
-
-        /**
-         * Use synchronized frame starts and no skipping.
-         * @private
-         */
-        INDEX_SYNC:7
-
-    });
-};
+}

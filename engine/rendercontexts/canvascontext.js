@@ -388,31 +388,26 @@ class CanvasContext extends RenderContext2D {
   }
 
   /**
-   * Draw a sprite on the context.
+   * Draw a sprite on the context at the current render position.
    *
-   * @param sprite {R.resources.types.Sprite} The sprite to draw
-   * @param time {Number} The current world time
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
+   * @param sprite {SpriteResource} The sprite to draw
    */
-  drawSprite(sprite, time, dt) {
-    this.drawSpriteAt(sprite, Point2D.ZERO, time, dt);
+  drawSprite(sprite) {
+    this.drawSpriteAt(sprite, Point2D.ZERO);
   }
 
   /**
    * Draw a sprite on the context at the given position.
    *
-   * @param sprite {Sprite} The sprite to draw
+   * @param sprite {SpriteResource} The sprite to draw
    * @param position {Point2D} The position
-   * @param time {Number} The current world time
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
    */
-  drawSpriteAt(sprite, position, time, dt) {
-    var f = sprite.getFrame(time, dt);
-    this.context2D.drawImage(sprite.sourceImage, f.x, f.y, f.width, f.height, position.x, position.y, f.width, f.height);
+  drawSpriteAt(sprite, position) {
+    this.context2D.drawImage(
+      sprite.sourceImage,
+      sprite.currentFrame.x, sprite.currentFrame.y, sprite.currentFrame.width, sprite.currentFrame.height,
+      position.x, position.y, sprite.currentFrame.width, sprite.currentFrame.height);
     super.drawSpriteAt(sprite, time);
-    f.destroy();
   }
 
   /**

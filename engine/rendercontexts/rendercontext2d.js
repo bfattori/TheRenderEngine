@@ -856,31 +856,26 @@ class RenderContext2D extends AbstractRenderContext {
    * Draw a point on the context.
    *
    * @param point {Point2D} The position to draw the point
+   * @param size {Number}
    */
-  drawPoint(point) {
+  drawPoint(point, size) {
   }
 
   /**
    * Draw a sprite on the context.
    *
-   * @param sprite {Sprite} The sprite to draw
-   * @param time {Number} The current world time
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
+   * @param sprite {SpriteResource} The sprite to draw
    */
-  drawSprite(sprite, time, dt) {
+  drawSprite(sprite) {
   }
 
   /**
    * Draw a sprite on the context at the position given.
    *
-   * @param sprite {R.resources.types.Sprite} The sprite to draw
+   * @param sprite {SpriteResource} The sprite to draw
    * @param position {Point2D} The position at which to draw the sprite
-   * @param time {Number} The current world time
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
    */
-  drawSpriteAt(sprite, position, time, dt) {
+  drawSpriteAt(sprite, position) {
   }
 
   /**

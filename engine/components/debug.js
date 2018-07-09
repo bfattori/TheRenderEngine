@@ -32,16 +32,5 @@ class DebugComponent extends RenderComponent {
     return "DebugComponent";
   }
 
-  /**
-   * Render debug information.
-   *
-   * @param renderContext {AbstractRenderContext} The render context for the component
-   * @param time {Number} The current engine time in milliseconds
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
-   */
-  execute(renderContext, time, dt) {
-  }
-
 }
 

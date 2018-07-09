@@ -64,6 +64,8 @@ class GameObject extends HashContainer {
     this.postRenderComponents = null;
     this.renderContext = null;
     this.keepAlive = false;
+    this.componentProps = {};
+    this.componentEvents = {};
   }
 
   /**
@@ -77,6 +79,8 @@ class GameObject extends HashContainer {
     this._preRenderComponents = null;
     this._postRenderComponents = null;
     this._keepAlive = false;
+    this.componentProps = null;
+    this.componentEvents = null;
   }
 
   /**
@@ -185,7 +189,6 @@ class GameObject extends HashContainer {
     return ((component1.type - component2.type) +
     ((1 / component1.priority) - (1 / component2.priority)));
   }
-
 
   /**
    * Update this object within the render context, at the specified timeslice.
@@ -345,6 +348,22 @@ class GameObject extends HashContainer {
       }
     }
     return null;
+  }
+
+  addComponentProperty(name, accessor) {
+    // Add a property to the game object directly from the component
+    this.componentProps[name] = accessor;
+    Object.defineProperty(this, "$"+name, {
+      get() { return accessor; },
+      enumerable: false,
+      writeable: false
+    });
+  }
+
+  addComponentEvent(name, handler) {
+    // Add a default handler so we don't have to perform checks
+    this.componentEvents[name] = handler;
+    this["on"+name] = handler;
   }
 
   /**

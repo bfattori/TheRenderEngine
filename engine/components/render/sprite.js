@@ -2,42 +2,9 @@
  * The Render Engine
  * SpriteComponent
  *
- * @fileoverview An extension of the render component which handles sprite
- *               resource rendering.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- * @author: $Author: bfattori $
- * @version: $Revision: 1555 $
- *
  * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.components.render.Sprite",
-    "requires":[
-        "R.components.Render"
-    ]
-});
+"use strict";
 
 /**
  * @class A render component that renders its contents from a {@link R.resources.types.Sprite}.  Sprites
@@ -46,104 +13,83 @@ R.Engine.define({
  *
  * @param name {String} The component name
  * @param [priority=0.1] {Number} The render priority
- * @param sprite {R.resources.types.Sprite} The sprite to render
- * @extends R.components.Render
+ * @param sprite {SpriteResource} The sprite to render
+ * @extends RenderComponent
  * @constructor
  * @description Create a sprite component.
  */
-R.components.render.Sprite = function () {
-    "use strict";
-    return R.components.Render.extend(/** @scope R.components.render.Sprite.prototype */{
-
-        currentSprite:null,
+class SpriteComponent extends RenderComponent {
 
         /**
          * @private
          */
-        constructor:function (name, priority, sprite) {
-            if (priority instanceof R.resources.types.Sprite) {
-                sprite = priority;
-                priority = 0.1;
-            }
-            this.base(name, priority);
-            this.currentSprite = sprite;
-        },
-
-        /**
-         * Releases the component back into the object pool. See {@link R.engine.PooledObject#release} for
-         * more information.
-         */
-        release:function () {
-            this.base();
+        constructor(name, priority = 0.1) {
+            super(name, priority);
             this.currentSprite = null;
-        },
+        }
 
-        /**
+        release() {
+            super.release();
+            this.currentSprite = null;
+        }
+
+    /**
+     * Get the class name of this object
+     *
+     * @return {String} "SpriteComponent"
+     */
+    get className() {
+    return "SpriteComponent";
+}
+
+    /**
          * Calculate the bounding box from the set of
          * points which comprise the shape to be rendered.
          * @private
          */
-        calculateBoundingBox:function () {
-            return this.currentSprite.getBoundingBox();
-        },
+        calculateBoundingBox() {
+            return this.currentSprite.boundingBox;
+        }
 
         /**
          * Set the sprite the component will render.
-         *
-         * @param sprite {R.resources.types.Sprite} The sprite to render
+         * @param sprite {SpriteResource}
          */
-        setSprite:function (sprite) {
+        set sprite(sprite) {
             this.currentSprite = sprite;
-
-            if (this.getGameObject().jQ()) {
-                this.getGameObject().jQ().css({
-                    width:sprite.getBoundingBox().len_x(),
-                    height:sprite.getBoundingBox().len_y(),
-                    background:"url('" + sprite.getSourceImage().src + "') no-repeat"
-                });
-            }
-            this.getGameObject().markDirty();
-        },
+            this.gameObject.markDirty();
+        }
 
         /**
          * Get the sprite the component is rendering.
          *
-         * @return {R.resources.types.Sprite} A <tt>R.resources.types.Sprite</tt> instance
+         * @return {SpriteResource} A <tt>SpriteResource</tt> instance
          */
-        getSprite:function () {
+        get sprite() {
             return this.currentSprite;
-        },
+        }
+
+        execute(time, dt) {
+            this.currentSprite.animate(time, dt);
+        }
 
         /**
          * Draw the sprite to the render context.  The frame, for animated
          * sprites, will be automatically determined based on the current
          * time passed as the second argument.
          *
-         * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render to
-         * @param time {Number} The engine time in milliseconds
-         * @param dt {Number} The delta between the world time and the last time the world was updated
-         *          in milliseconds.
+         * @param renderContext {RenderContext2D} The context to render to
          */
-        execute:function (renderContext, time, dt) {
+        render(renderContext) {
 
-            if (!this.base(renderContext, time, dt)) {
+            if (!super.render(renderContext)) {
                 return;
             }
 
             if (this.currentSprite) {
                 this.transformOrigin(renderContext, true);
-                renderContext.drawSprite(this.currentSprite, time, dt, this.getGameObject());
+                renderContext.drawSprite(this.currentSprite);
                 this.transformOrigin(renderContext, false);
             }
         }
-    }, /** @scope R.components.render.Sprite.prototype */{
-        /**
-         * Get the class name of this object
-         *
-         * @return {String} "R.components.render.Sprite"
-         */
-        getClassName:function () {
-            return "R.components.render.Sprite";
-        }
-    });
-};
+    }
