@@ -85,29 +85,26 @@ R.util.RenderUtil = /** @scope R.util.RenderUtil.prototype */ {
 
     /**
      * Perform a single execution of a rendering component.
-     * @param contextType {R.rendercontexts.RenderContext2D} The type of context to render to
-     * @param renderComponent {R.components.Render} The component to render
+     * @param contextType {RenderContext2D} The type of context to render to
+     * @param renderComponent {RenderComponent} The component to render
      * @param width {Number} The width of the temporary context
      * @param height {Number} The height of the temporary context
-     * @param time {Number} The time in milliseconds, or <code>null</code> to use the current engine time
-     * @param offset {R.math.Point2D} The offset for the rendering position
+     * @param offset {Point2D} The offset for the rendering position
      * @return {String} The data URL of the rendered image
      */
-    renderComponentToImage:function (contextType, renderComponent, width, height, time, offset) {
+    renderComponentToImage:function (contextType, renderComponent, width, height, offset) {
         // Get the temporary context
         var ctx = R.util.RenderUtil.getTempContext(contextType, width, height);
-
-        time = time || R.Engine.worldTime;
 
         // The position to render to in the context
         offset = offset || Point2D.ZERO;
 
         // Render the component
-        var p = R.math.Point2D.create(0, 0);
+        var p = Point2D.create(0, 0);
         p.add(offset);
         ctx.setPosition(p);
         p.destroy();
-        renderComponent.execute(ctx, time, 1);
+        renderComponent.render(ctx);
 
         // Extract the rendered image
         return ctx.getDataURL();

@@ -30,10 +30,10 @@ class DefaultRenderContext extends AbstractRenderContext {
   /**
    * Get the class name of this object
    *
-   * @return {String} "R.rendercontexts.DocumentContext"
+   * @return {String} "DefaultRenderContext"
    */
   get className() {
-    return "DefaultContext";
+    return "DefaultRenderContext";
   }
 
   /**

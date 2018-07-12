@@ -169,7 +169,7 @@ class AbstractParticle extends PooledObject {
   /**
    * Move the particle.  May be overridden to allow different types of movement, rather than the standard
    * linear movement.
-   * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the particle to
+   * @param renderContext {RenderContext2D} The context to render the particle to
    * @param time {Number} The world time, in milliseconds
    * @param dt {Number} The delta between the world time and the last time the world was updated
    *          in milliseconds.
@@ -192,7 +192,7 @@ class AbstractParticle extends PooledObject {
    * Draw a very basic particle.  Typically, this method would be overridden to handle
    * a more specific effect for a particle.
    *
-   * @param renderContext {R.rendercontexts.AbstractRenderContext} The context to render the particle to
+   * @param renderContext {RenderContext2D} The context to render the particle to
    * @param time {Number} The world time, in milliseconds
    * @param dt {Number} The delta between the world time and the last time the world was updated
    *          in milliseconds.

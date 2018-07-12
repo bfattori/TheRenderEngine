@@ -203,27 +203,25 @@ class RenderContext2D extends AbstractRenderContext {
 
   /**
    * Called to render all of the objects to the context.
-   *
-   * @param time {Number} The current render time in milliseconds from the engine.
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
    */
-  render(time, dt) {
+  render() {
     // Push the world transform
     this.pushTransform();
 
-    this.setupWorld(time, dt);
+    this.setupWorld();
 
     // Run the objects in each bin
-    for (var zbin in this.zBins.activeBins) {
-      var bin = this.zBins[this.zBins.activeBins[zbin]];
+    for (var zBin in this.zBins.activeBins) {
+      if (this.zBins.activeBins.hasOwnProperty(zBin)) {
+        var bin = this.zBins[this.zBins.activeBins[zBin]];
 
-      // Don't want to push the entire bin onto the stack
-      this.processBin(this.zBins.activeBins[zbin]);
-      //R.Engine.rObjs += bin.vis.length;
+        // Don't want to push the entire bin onto the stack
+        this.processBin(this.zBins.activeBins[zBin]);
+        //R.Engine.rObjs += bin.vis.length;
 
-      var objs = bin.vis;
-      this.renderBin(zbin, objs, time, dt);
+        var gameObjects = bin.vis;
+        this.renderBin(zBin, gameObjects);
+      }
     }
 
     // Restore the world transform
@@ -290,8 +288,8 @@ class RenderContext2D extends AbstractRenderContext {
    *          in milliseconds.
    */
   renderBin(bin, objs, time, dt) {
-    R.engine.Support.forEach(objs, function (e) {
-      this.renderObject(e, time, dt);
+    R.engine.Support.forEach(objs, function (gameObject) {
+      gameObject.render(this);
     }, this);
   }
 

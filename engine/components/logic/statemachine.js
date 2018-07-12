@@ -89,7 +89,7 @@ class StateMachineComponent extends LogicComponent {
       state = state.tick();
       this._lastUpdate = time;
     }
-    super.execute(renderContext, time, dt);
+    super.execute(time, dt);
   }
 
 }

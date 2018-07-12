@@ -49,23 +49,28 @@
  *        components already exist in the engine, but you are only limited by your imagination
  *        when it comes to developing new components.
  *
- * @extends R.struct.HashContainer
+ * @extends BaseObject
  * @constructor
  * @description Create a game object.
  */
-class GameObject extends HashContainer {
+class GameObject extends BaseObject {
 
   /** @private */
   constructor(name) {
     super(name);
     this.dirtyFlag = true;
     this.oldDirty = false;
-    this.preRenderComponents = null;
-    this.postRenderComponents = null;
     this.renderContext = null;
     this.keepAlive = false;
     this.componentProps = {};
     this.componentEvents = {};
+
+    this._preRenderComponents = HashContainer.create("preRenderComponents");
+    this._postRenderComponents = HashContainer.create("postRenderComponents");
+    this._components = HashContainer.create("nonRenderComponents");
+    this._renderComponents = HashContainer.create("renderComponents");
+
+    this._allObjects = null;
   }
 
   /**
@@ -76,11 +81,15 @@ class GameObject extends HashContainer {
     this._renderContext = null;
     this._dirtyFlag = false;
     this._oldDirty = false;
-    this._preRenderComponents = null;
-    this._postRenderComponents = null;
     this._keepAlive = false;
     this.componentProps = null;
     this.componentEvents = null;
+
+    this._preRenderComponents = null;
+    this._postRenderComponents = null;
+    this._components = null;
+    this._renderComponents = null;
+    this._allObjects = null;
   }
 
   /**
@@ -93,19 +102,14 @@ class GameObject extends HashContainer {
       this._renderContext.remove(this);
     }
 
-    if (this._preRenderComponents) {
-      while (this._preRenderComponents.length > 0) {
-        this._preRenderComponents.shift().destroy();
-      }
+    this._preRenderComponents.destroy();
+    this._postRenderComponents.destroy();
+    this._components.destroy();
+    this._renderComponents.destroy();
+    if (this._allObjects) {
+      this._allObjects.destroy();
     }
 
-    if (this._postRenderComponents) {
-      while (this._postRenderComponents.length > 0) {
-        this._postRenderComponents.shift().destroy();
-      }
-    }
-
-    this.cleanUp();
     super.destroy();
   }
 
@@ -191,42 +195,52 @@ class GameObject extends HashContainer {
   }
 
   /**
-   * Update this object within the render context, at the specified timeslice.
+   * Update the object in the world.
    *
-   * @param renderContext {AbstractRenderContext} The context the object will be rendered within.
    * @param time {Number} The global time within the engine.
    * @param dt {Number} The delta between the world time and the last time the world was updated
    *          in milliseconds.
    */
-  update(renderContext, time, dt) {
-
-    // Run the components
-    var components = this.iterator();
-
+  update(time, dt) {
+    // Update pre-render components
+    var components = this.all.iterator;
     while (components.hasNext()) {
-      components.next().execute(renderContext, time, dt);
+      components.next().execute(time, dt);
     }
-
     components.destroy();
+
+    super.update(time, dt);
+  }
+
+  /**
+   * Render this object to the output context.
+   * @param renderContext {RenderContext2D}
+   */
+  render(renderContext) {
+    // Run the render components
+    var components = this._renderComponents.iterator;
+    while (components.hasNext()) {
+      components.next().render(this._renderContext);
+    }
+    components.destroy();
+
     this._oldDirty = this.dirtyFlag;
     this._dirtyFlag = false;
 
-    super.update(renderContext, time, dt);
+    super.render();
   }
 
   /**
    * Run pre-render or post-render components.
    * @param type {Number} The component type
    * @param renderContext {AbstractRenderContext} The context the object will be rendered within.
-   * @param time {Number} The global time within the engine
-   * @param dt {Number} The delta between the world time and the last time rthe world was updated
    * @private
    */
-  runPreOrPostComponents(type, renderContext, time, dt) {
+  runPreOrPostComponents(type, renderContext) {
     var components = type === BaseComponent.TYPE_PRE ? this._preRenderComponents : this._postRenderComponents;
     if (components !== null) {
       for (var cIdx = 0; cIdx < components.length; cIdx++) {
-        components[cIdx].execute(renderContext, time, dt);
+        components[cIdx].render(renderContext);
       }
     }
   }
@@ -268,72 +282,73 @@ class GameObject extends HashContainer {
   add(component) {
 
     Assert((BaseComponent.isInstance(component)), "Cannot add a non-component to a GameObject");
-    Assert(!this.isInHash(component.name), "Components must have a unique name within the host");
 
-    // Special handling for pre and post processing components
-    if (component.type == BaseComponent.TYPE_PRE ||
-      component.type == BaseComponent.TYPE_POST) {
-
-      this.setPreOrPostComponent(component);
-      component.gameObject = this;
-      return;
+    // Put the components into the right container
+    var container = this._components;
+    if (component.type === BaseComponent.TYPE_PRE) {
+      container = this._preRenderComponents;
+    } else if (component.type === BaseComponent.TYPE_POST) {
+      container = this._postRenderComponents;
+    } else if (component.type === BaseComponent.TYPE_RENDERING) {
+      container = this._renderComponents;
     }
-
-    super.add(component.name, component);
 
     component.gameObject = this;
-    if (this.getObjects().length > 1) {
-      this.sort(GameObject.componentSort);
-    }
+    container.add(component.name, component);
+    container.sort(GameObject.componentSort);
+
+    // Force update
+    GameObject.allObjects = null;
+
     this.markDirty();
   }
 
   /**
    * Remove the component from the game object
-   * @param component {String|R.components.Base} The component to remove, or the name of the component to remove
-   * @return {R.components.Base} The component which was removed
+   * @param component {BaseComponent} The component to remove, or the name of the component to remove
    */
   remove(component) {
-    var c = typeof component === "string" ? this.get(component.toUpperCase()) : component;
-    return super.remove(c);
+    var container = this._components;
+    if (component.type === BaseComponent.TYPE_PRE) {
+      container = this._preRenderComponents;
+    } else if (component.type === BaseComponent.TYPE_POST) {
+      container = this._postRenderComponents;
+    } else if (component.type === BaseComponent.TYPE_RENDERING) {
+      container = this._renderComponents;
+    }
+
+    return container.remove(c);
   }
 
-  /**
-   * Setting up pre- or post-process components.  Only one of each can be assigned.
-   * This is intended to be used internally as the components are processed externally
-   * to the normal component handling.
-   * @private
-   */
-  setPreOrPostComponent(component) {
-    var arr;
-    if (component.type === BaseComponent.TYPE_PRE) {
-      arr = this._preRenderComponents;
-    } else {
-      arr = this._postRenderComponents;
+  _searchContainers(name) {
+    var component = this._components.get(name.toUpperCase());
+    if (!component) {
+      component = this._renderComponents.get(name.toUpperCase());
     }
-
-    if (!arr) {
-      return;
+    if (!component) {
+      component = this._preRenderComponents.get(name.toUpperCase());
     }
-
-    arr.push(component);
+    if (!component) {
+      component = this._postRenderComponents.get(name.toUpperCase());
+    }
+    return component;
   }
 
   /**
    * Get the component with the specified name from this object.
    *
    * @param name {String} The unique name of the component to get
-   * @return {R.components.Base}
+   * @return {BaseComponent}
    */
   getComponent(name) {
-    return this.get(name.toUpperCase());
+    return this._searchContainers(name);
   }
 
   /**
    * Get a component by class name.  If there is more than one component with the given
    * class, returns the first occurrence.
    * @param className {String} The class name
-   * @return {R.components.Base} The component, or <code>null</code> if not found
+   * @return {BaseComponent} The component, or <code>null</code> if not found
    */
   getComponentByClass(className) {
     var clazz = R.getClassForName(className);
@@ -343,18 +358,43 @@ class GameObject extends HashContainer {
 
     var c = this.getAll();
     for (var i in c) {
-      if (c[i] instanceof clazz) {
+      if (c.hasOwnProperty(i) && c[i] instanceof clazz) {
         return c[i];
       }
     }
     return null;
   }
 
+  getAll() {
+    var arr = [];
+    arr.concat(
+      this._components.getAll(),
+      this._renderComponents.getAll(),
+      this._preRenderComponents.getAll(),
+      this._postRenderComponents.getAll()
+    );
+    return arr;
+  }
+
+
+  get all() {
+    if (this._allObjects === null) {
+      this._allObjects = HashContainer.create("allComponents");
+      this._allObjects.addAll(this._components);
+      this._allObjects.addAll(this._renderComponents);
+      this._allObjects.addAll(this._preRenderComponents);
+      this._allObjects.addAll(this._postRenderComponents);
+    }
+
+    return this._allObjects;
+  }
+
   addComponentProperty(name, accessor) {
     // Add a property to the game object directly from the component
     this.componentProps[name] = accessor;
     Object.defineProperty(this, "$"+name, {
-      get() { return accessor; },
+      get() { return accessor.get(); },
+      set(val) { accessor.set(val); },
       enumerable: false,
       writeable: false
     });

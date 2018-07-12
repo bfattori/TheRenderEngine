@@ -92,12 +92,11 @@ class Mover2DComponent extends Transform2DComponent {
    * updates so that lag between frames doesn't affect the relative
    * position or rotation.
    *
-   * @param renderContext {AbstractRenderContext} The render context for the component
    * @param time {Number} The engine time in milliseconds
    * @param dt {Number} The delta between the world time and the last time the world was updated
    *          in milliseconds.
    */
-  execute(renderContext, time, dt) {
+  execute(time, dt) {
     if (!this.isResting()) {
       this.moveOpts.lPos.copy(this.position);
       var rot = this.rotation;
@@ -138,7 +137,7 @@ class Mover2DComponent extends Transform2DComponent {
     }
 
     this.moveOpts.firstFrame = false;
-    super.execute(renderContext, time, dt);
+    super.execute(time, dt);
   }
 
   /**

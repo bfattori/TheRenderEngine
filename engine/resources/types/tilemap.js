@@ -493,48 +493,48 @@ R.resources.types.TileMap = function () {
 
         /**
          * Cast a ray through the tile map, looking for collisions along the
-         * ray.  If a collision is found, a {@link R.struct.CollisionData} object
+         * ray.  If a collision is found, a {@link CollisionData} object
          * will be returned or <code>null</code> if otherwise.
          * <p/>
-         * If a collision occurs, the value stored in {@link R.struct.CollisionData#shape1}
-         * is the tile which was collided with.  The value in {@link R.struct.CollisionData#impulseVector}
+         * If a collision occurs, the value stored in {@link CollisionData#shape1}
+         * is the tile which was collided with.  The value in {@link CollisionData#impulseVector}
          * is a vector to separate the game object from the tile.
          *
-         * @param tileMap {R.resources.types.TileMap} The tile map to test against
-         * @param rayInfo {R.start.rayInfo} The ray info structure that defines the ray to test
-         * @return {R.struct.rayInfo} The ray info structure passed into the cast method.  If
+         * @param tileMap {TileMap} The tile map to test against
+         * @param rayInfo {RayInfo} The ray info structure that defines the ray to test
+         * @return {RayInfo} The ray info structure passed into the cast method.  If
          *    a collision occurred, the shape and impact point will be set.
          */
         castRay:function (tileMap, rayInfo) {
             // Get all of the points along the line and test them against the
             // collision model.  At the first collision, we stop performing any more checks.
-            var begin = R.math.Point2D.create(rayInfo.startPoint), end = R.math.Point2D.create(rayInfo.startPoint),
-                line, pt = 0, tile, test = R.math.Vector2D.create(0, 0);
+            var begin = Point2D.create(rayInfo.startPoint), end = Point2D.create(rayInfo.startPoint),
+                line, pt = 0, tile, test = Vector2D.create(0, 0);
 
 
             // Make sure the length isn't greater than the max
-            if (rayInfo.direction.len() > R.resources.types.TileMap.MAX_RAY_LENGTH) {
-                rayInfo.direction.normalize().mul(R.resources.types.TileMap.MAX_RAY_LENGTH);
+            if (rayInfo.direction.length > TileMap.MAX_RAY_LENGTH) {
+                rayInfo.direction.normalize().mul(TileMap.MAX_RAY_LENGTH);
             }
 
             end.add(rayInfo.direction);
 
             /* pragma:DEBUG_START */
-            if (R.Engine.getDebugMode() && arguments[2]) {
-                var f = R.clone(begin), t = R.clone(end);
-
-                arguments[2].postRender(function () {
-                    this.setLineStyle("orange");
-                    this.setLineWidth(2);
-                    this.drawLine(f, t);
-                    f.destroy();
-                    t.destroy();
-                });
-            }
+            //if (R.Engine.getDebugMode() && arguments[2]) {
+            //    var f = R.clone(begin), t = R.clone(end);
+            //
+            //    arguments[2].postRender(function () {
+            //        this.setLineStyle("orange");
+            //        this.setLineWidth(2);
+            //        this.drawLine(f, t);
+            //        f.destroy();
+            //        t.destroy();
+            //    });
+            //}
             /* pragma:DEBUG_END */
 
             // Use Bresenham's algorithm to calculate the points along the line
-            line = R.math.Math2D.bresenham(begin, end);
+            line = Math2D.bresenham(begin, end);
 
             while (!tile && pt < line.length) {
                 test.set(line[pt]);

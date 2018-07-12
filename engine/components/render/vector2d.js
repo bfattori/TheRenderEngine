@@ -241,14 +241,12 @@ class Vector2DComponent extends RenderComponent {
    * Draw the shape, defined by the points, to the rendering context
    * using the specified line style and fill style.
    *
-   * @param renderContext {AbstractRenderContext} The context to render to
+   * @param renderContext {RenderContext2D} The context to render to
    */
   render(renderContext) {
     if (!(this.vectorOpts.points && super.render(renderContext))) {
       return;
     }
-
-    // Set the stroke and fill styles
 
     if (this.vectorOpts.lineStyle != null) {
       renderContext.lineStyle = this.vectorOpts.strokeStyle;

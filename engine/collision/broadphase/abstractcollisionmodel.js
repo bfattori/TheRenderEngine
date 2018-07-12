@@ -216,7 +216,7 @@ class AbstractCollisionModel extends BaseObject {
    * Returns a potential collision list (PCL) of objects that are contained
    * within the defined sub-space of the container.
    *
-   * @return {R.struct.Container} A container of {@link R.collision.broadphase.SpatialGridNode} instances
+   * @return {Container} A container of {@link SpatialGridNode} instances
    */
   getPCL() {
     return this.opts.pcl;
@@ -224,7 +224,7 @@ class AbstractCollisionModel extends BaseObject {
 
   /**
    * Returns all objects within the collision model.
-   * @return {R.struct.Container} A container of all objects in the model
+   * @return {Container} A container of all objects in the model
    */
   getObjects() {
     return Container.create("allObjs");
@@ -297,14 +297,14 @@ class AbstractCollisionModel extends BaseObject {
     // collision model.  At the first collision, we stop performing any more checks.
     var begin = Point2D.create(fromPoint), end = Point2D.create(fromPoint),
       dir = Vector2D.create(direction), line,
-      pt = 0, test, node, itr, object, wt = R.Engine.worldTime, dt = R.Engine.lastTime,
+      pt = 0, test, node, itr, object,
       vec = Vector2D.create(direction).neg(), didIntersect = false;
 
     // Create the collision structure only once
-    var collision = CollisionData.create(0, vec, null, null, null, wt, dt);
+    var collision = CollisionData.create(0, vec, null, null, null, RenderEngine.worldTime, RenderEngine.deltaTime);
 
     // Make sure the length isn't greater than the max
-    if (dir.len() > AbstractCollisionModel.MAX_RAY_LENGTH) {
+    if (dir.length > AbstractCollisionModel.MAX_RAY_LENGTH) {
       dir.normalize().mul(AbstractCollisionModel.MAX_RAY_LENGTH);
     }
 

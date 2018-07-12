@@ -214,7 +214,7 @@ class ParticleEngine extends BaseObject {
    *          in milliseconds.
    */
   update(renderContext, time, dt) {
-    if (R.Engine.options.disableParticleEngine) {
+    if (RenderEngine.options.disableParticleEngine) {
       return;
     }
 

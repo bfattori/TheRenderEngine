@@ -79,7 +79,7 @@ class ImageComponent extends RenderComponent {
 
     if (this.currentImage) {
       this.transformOrigin(renderContext, true);
-      renderContext.drawImage(this.currentImage.boundingBox, this.currentImage.image, null, this.gameObject);
+      renderContext.drawImage(this.currentImage.boundingBox, this.currentImage.image);
       this.transformOrigin(renderContext, false);
     }
   }

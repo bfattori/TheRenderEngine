@@ -51,7 +51,8 @@ class RenderEngine {
      */
     static _fpsClock = 16; // The clock rate (ms)
     static _FPS = undefined; // Calculated frames per second
-    static _frameTime = 0; // Amount of time taken to render a frame
+    static _updateTime = 0; // Time (ms) to update for next frame
+    static _frameTime = 0; // Time (ms) to render a frame
     static _engineLocation = null; // URI of engine
     static _defaultContext = null; // The default rendering context
     static _debugMode = false; // Global debug flag
@@ -77,6 +78,10 @@ class RenderEngine {
 
     static get lastTime() {
         return LAST_WORLD_TIME;
+    }
+
+    static get deltaTime() {
+        return WORLD_TIME - LAST_WORLD_TIME;
     }
 
     static get liveTime() {
@@ -253,18 +258,17 @@ class RenderEngine {
      * Increment the reference counter and return a unique Id
      */
     static create(obj) {
-        if (R.Engine.shuttingDown === true) {
+        if (RenderEngine.shuttingDown === true) {
             console.warn("Engine shutting down, '" + obj + "' destroyed because it would create an orphaned reference.");
             obj.destroy();
             return null;
         }
 
-        Assert((R.Engine.started === true), "Creating an object when the engine is stopped!", obj);
+        Assert((RenderEngine.started === true), "Creating an object when the engine is stopped!", obj);
 
-        R.Engine.idRef++;
-        var objId = obj.name + R.Engine.idRef;
+        var objId = obj.name + RenderEngine.idRef++;
         //console.info("CREATED Object ", objId, "[", obj, "]");
-        RenderEngine._livingObjects++;
+        RenderEngine.livingObjects++;
 
         return objId;
     }
@@ -279,7 +283,7 @@ class RenderEngine {
         }
 
         //console.info("DESTROYED Object ", obj.id, "[", obj, "]");
-        R.Engine.livingObjects--;
+        RenderEngine.livingObjects--;
     }
 
     /**
@@ -643,19 +647,21 @@ class RenderEngine {
             RenderEngine.rObjs = 0;
 
             // Render a frame, adjusting for a paused engine
-            WORLD_TIME = R.Engine._stepOne == 1 ? R.Engine._pauseTime : R.now();
-            LAST_WORLD_TIME = R.Engine._stepOne == 1 ? WORLD_TIME - RenderEngine._fpsClock : LAST_WORLD_TIME;
-
-            var deltaTime = WORLD_TIME - LAST_WORLD_TIME;
+            WORLD_TIME = RenderEngine._stepOne == 1 ? RenderEngine._pauseTime : R.now();
+            LAST_WORLD_TIME = RenderEngine._stepOne == 1 ? WORLD_TIME - RenderEngine._fpsClock : LAST_WORLD_TIME;
 
             // Tick the game
             if (RenderEngine.$GAME) {
-                RenderEngine.$GAME.tick(WORLD_TIME, deltaTime);
+                RenderEngine.$GAME.tick(WORLD_TIME, RenderEngine.deltaTime);
             }
 
-            // Pass parent context, world time, delta time
-            RenderEngine.defaultContext.update(null, WORLD_TIME, deltaTime);
-            RenderEngine._frameTime = R.now() - WORLD_TIME;
+            // Pass world time, delta time
+            RenderEngine.defaultContext.update(WORLD_TIME, RenderEngine.deltaTime);
+            RenderEngine._updateTime = R.now() - WORLD_TIME;
+
+            // Render a frame
+            RenderEngine.defaultContext.render();
+            RenderEngine._frameTime = R.now() - RenderEngine._updateTime;
 
             LAST_WORLD_TIME = WORLD_TIME;
 
@@ -679,7 +685,7 @@ class RenderEngine {
         }
 
         // When the process is done, start all over again
-        R.engine.nativeFrame(RenderEngine.engineTimer);
+        RenderEngine.nativeFrame(RenderEngine.engineTimer);
     }
 
     // ======================================================

@@ -2,147 +2,113 @@
  * The Render Engine
  * MouseInfo
  *
- * @fileoverview Data object which holds mouse information.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- *
- * @author: $Author: bfattori $
- * @version: $Revision: 1555 $
- *
  * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.struct.MouseInfo",
-    "requires":[
-        "R.engine.PooledObject",
-        "R.math.Point2D",
-        "R.math.Vector2D",
-        "R.engine.Events"
-    ]
-});
+"use strict";
 
 /**
  * @class An object which contains information about the mouse in relation to
  *        a rendering context.
  *
- * @extends R.engine.PooledObject
+ * @extends PooledObject
  * @constructor
  * @description Creates a mouse data structure.
  */
-R.struct.MouseInfo = function () {
-    return R.engine.PooledObject.extend(/** @scope R.struct.MouseInfo.prototype */{
+class MouseInfo extends PooledObject {
 
-        /**
-         * The current mouse position
-         * @type {R.math.Point2D}
-         */
-        position:null,
+  constructor(name = "MouseInfo") {
+    this.mouse = {
+      position: Point2D.create(0, 0),
+      lastPosition: Point2D.create(0, 0),
+      downPosition: Point2D.create(0, 0),
+      button: Events.MOUSE_NO_BUTTON,
+      moveVec: Vector2D.create(0, 0),
+      dragVec: Vector2D.create(0, 0),
+      lastOver: null,
+      moveTimer: null
+    };
+    super(name);
+  }
 
-        /**
-         * The last mouse position
-         * @type {R.math.Point2D}
-         */
-        lastPosition:null,
+  destroy() {
+    this.mouse.position.destroy();
+    this.mouse.lastPosition.destroy();
+    this.mouse.downPosition.destroy();
+    this.mouse.moveVec.destroy();
+    this.mouse.dragVec.destroy();
+    super.destroy();
+  }
 
-        /**
-         * The position at which a mouse button was pressed
-         * @type {R.math.Point2D}
-         */
-        downPosition:null,
+  release() {
+    super.release();
+    this.mouse = null;
+  }
 
-        /**
-         * The currently pressed mouse button.  See {@link R.engine.Events}
-         * @type {Number}
-         */
-        button:-1,
+  get className() {
+    return "MouseInfo";
+  }
 
-        /**
-         * A vector indicating the direction and amount of mouse movement.
-         * @type {R.math.Vector2D}
-         */
-        moveVec:null,
+  get position() {
+    return this.mouse.position;
+  }
 
-        /**
-         * A normalized vector indicating the direction of mouse movement after a
-         * button was pressed and held.
-         * @type {R.math.Vector2D}
-         */
-        dragVec:null,
+  set position(p) {
+    this.mouse.position = p;
+  }
 
-        /**
-         * The game object the mouse is currently over
-         * @type {R.engine.GameObject}
-         */
-        lastOver:null,
+  get lastPosition() {
+    return this.mouse.lastPosition;
+  }
 
-        /** @private */
-        moveTimer:null,
+  set lastPosition(l) {
+    this.mouse.lastPosition = l;
+  }
 
-        /** @private */
-        constructor:function () {
-            this.position = R.math.Point2D.create(0, 0);
-            this.lastPosition = R.math.Point2D.create(0, 0);
-            this.downPosition = R.math.Point2D.create(0, 0);
-            this.button = R.engine.Events.MOUSE_NO_BUTTON;
-            this.moveVec = R.math.Vector2D.create(0, 0);
-            this.dragVec = R.math.Vector2D.create(0, 0);
-            this.lastOver = null;
-            this.moveTimer = null;
-            this.base(arguments[0] || "MouseInfo");
-        },
+  get downPosition() {
+    return this.mouse.downPosition;
+  }
 
-        /**
-         * Destroy the collision data object.
-         */
-        destroy:function () {
-            this.position.destroy();
-            this.lastPosition.destroy();
-            this.downPosition.destroy();
-            this.moveVec.destroy();
-            this.dragVec.destroy();
-            this.base();
-        },
+  set downPosition(d) {
+    this.mouse.downPosition = d;
+  }
 
-        /**
-         * Release the collision data object back into the pool for reuse.
-         */
-        release:function () {
-            this.base();
-            this.position = null;
-            this.lastPosition = null;
-            this.downPosition = null;
-            this.button = -1
-            this.moveVec = null;
-            this.dragVec = null;
-            this.lastOver = null;
-            this.moveTimer = null;
-        }
+  get button() {
+    return this.mouse.button;
+  }
 
-    }, {
-        getClassName:function () {
-            return "R.struct.MouseInfo";
-        }
-    });
-};
+  set button(b) {
+    this.mouse.button = b;
+  }
 
+  get moveVec() {
+    return this.mouse.moveVec;
+  }
+
+  set moveVec(m) {
+    this.mouse.moveVec = m;
+  }
+
+  get dragVec() {
+    return this.mouse.dragVec;
+  }
+
+  set dragVec(d) {
+    this.mouse.dragVec = d;
+  }
+
+  get lastOver() {
+    return this.mouse.lastOver;
+  }
+
+  set lastOver(l) {
+    this.mouse.lastOver = l;
+  }
+
+  get moveTimer() {
+    return this.mouse.moveTimer;
+  }
+
+  set moveTimer(m) {
+    this.mouse.moveTimer = m;
+  }
+}

@@ -108,6 +108,26 @@ class Billboard2DComponent extends RenderComponent {
     return this._mode;
   }
 
+  update(time, dt) {
+    // Get the host object's bounding box
+    var hostBox = this.gameObject.boundingBox;
+
+    if (this._mode == Billboard2DComponent.REDRAW) {
+      // We'll match the type of context the component is rendering to
+      //var ctx = this.getGameObject().getRenderContext().constructor;
+
+      if (!this._billboard) {
+        this._billboard = document.createElement("img");
+      }
+
+      this._billboard.setAttribute("src", RenderUtil.renderComponentToImage(CanvasContext, this.renderComponent, hostBox.width, hostBox.height, this.gameObject.origin));
+      this._billboard.setAttribute("width", hostBox.width);
+      this._billboard.setAttribute("height", hostBox.height);
+      this._mode = Billboard2DComponent.DRAWN;
+    }
+  }
+
+
   /**
    * Draws the contents of the billboard to the render context.  This
    * component operates in one of two modes.  When the contents of the
@@ -124,25 +144,6 @@ class Billboard2DComponent extends RenderComponent {
       return;
     }
 
-    // Get the host object's bounding box
-    var hostBox = this.gameObject.boundingBox;
-    var origin = Point2D.create(this.gameObject.origin);
-
-    if (this._mode == Billboard2DComponent.REDRAW) {
-      // We'll match the type of context the component is rendering to
-      //var ctx = this.getGameObject().getRenderContext().constructor;
-
-      if (!this._billboard) {
-        // Due to pooling, we don't need to recreate this each time
-        this._billboard = document.createElement("img");
-      }
-
-      this._billboard.setAttribute("src", RenderUtil.renderComponentToImage(CanvasContext, this.renderComponent, hostBox.width, hostBox.height, null, origin));
-      this._billboard.setAttribute("width", hostBox.width);
-      this._billboard.setAttribute("height", hostBox.height);
-      this._mode = Billboard2DComponent.DRAWN;
-    }
-
     // Render the billboard.  If the bounding box's origin is negative in
     // either X or Y, we'll need to move the transformation there before rendering the object
     this.transformOrigin(renderContext, true);
@@ -155,7 +156,6 @@ class Billboard2DComponent extends RenderComponent {
     }
 
     this.transformOrigin(renderContext, false);
-    origin.destroy();
   }
 
 }

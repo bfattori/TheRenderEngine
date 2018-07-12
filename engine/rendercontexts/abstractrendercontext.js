@@ -384,41 +384,36 @@ class AbstractRenderContext extends Container {
    * render yourself.  This can be an effective way to handle redrawing the world
    * only as needed.
    *
-   * @param parentContext {R.rendercontexts.AbstractRenderContext} A parent context, or <tt>null</tt>
    * @param time {Number} The current render time in milliseconds from the engine.
    * @param dt {Number} The delta between the world time and the last time the world was updated
    *          in milliseconds.
    */
-  update(parentContext, time, dt) {
-    if (!this._staticCtx) {
-      // Clear and render world
-      this.reset();
-      this.render(time, dt);
+  update(time, dt) {
+    var itr = this.iterator;
+    while (itr.hasNext()) {
+      itr.next().update(time, dt);
     }
+    itr.destroy();
   }
 
   /**
-   * Called to render all of the objects to the context.
-   *
-   * @param time {Number} The current world time in milliseconds from the engine.
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
+   * Render all of the objects to the world.
    */
-  render(time, dt) {
-    // Push the world transform
-    this.pushTransform();
-
-    this.setupWorld(time, dt);
-
-    // Run the objects through their components
-    var objs = this.iterator();
-    while (objs.hasNext()) {
-      this.renderObject(objs.next(), time, dt);
+  render(renderContext) {
+    if (this._staticCtx) {
+      return;
     }
 
-    objs.destroy();
+    this.reset();
+    this.pushTransform();
+    this.setupWorld();
 
-    // Restore the world transform
+    var itr = this.iterator;
+    while (itr.hasNext()) {
+      itr.next().render(this);
+    }
+    itr.destroy();
+
     this.popTransform();
 
     // Safely remove any objects that were removed from
@@ -427,31 +422,11 @@ class AbstractRenderContext extends Container {
   }
 
   /**
-   * Render a single object into the world for the given time.
-   * @param obj {R.engine.BaseObject} An object to render
-   * @param time {Number} The world time, in milliseconds
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
-   */
-  renderObject(obj, time, dt) {
-    //if (obj.runPreOrPostComponents) {
-    //    obj.runPreOrPostComponents(R.components.Base.TYPE_PRE, this, time, dt);
-    //}
-    obj.update(this, time, dt);
-    //if (obj.runPreOrPostComponents) {
-    //    obj.runPreOrPostComponents(R.components.Base.TYPE_POST, this, time, dt);
-    //}
-  }
-
-  /**
    * [ABSTRACT] Gives the render context a chance to initialize the world.
    * Use this method to change the world position, rotation, scale, etc.
    *
-   * @param time {Number} The current world time
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
    */
-  setupWorld(time, dt) {
+  setupWorld() {
   }
 
   /**

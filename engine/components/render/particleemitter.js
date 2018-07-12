@@ -104,7 +104,7 @@ class ParticleEmitterComponent extends RenderComponent {
 
     if (this.emitter) {
       this.transformOrigin(renderContext, true);
-      this.emitter.emit(this.getOffset(), time, dt);
+      this.emitter.emit(this.offset, RenderEngine.worldTime, RenderEngine.deltaTime);
       this.transformOrigin(renderContext, false);
     }
   }
