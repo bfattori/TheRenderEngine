@@ -1,19 +1,10 @@
-// Load all required engine components
-R.Engine.define({
-    "class": "GameOfLife",
-    "requires": [
-        "R.engine.Game"
-    ]
-});
-
 /**
  * @class Game of Life
  *
  * Interesting seeds:
  *      4001389056
  */
-var GameOfLife = function () {
-    return R.engine.Game.extend({
+class GameOfLife extends Game {
 
         world: null,
 
@@ -48,16 +39,16 @@ var GameOfLife = function () {
          * Called to set up the game, download any resources, and initialize
          * the game to its running state.
          */
-        setup: function () {
-            GameOfLife.seedWorld(R.engine.Support.getNumericParam('width', 30),
-                R.engine.Support.getNumericParam('height', 30),
-                R.engine.Support.getNumericParam('seed', R.lang.Math2.randomInt()));
+        setup() {
+            GameOfLife.seedWorld(RenderEngine.Support.getNumericParam('width', 30),
+                RenderEngine.Support.getNumericParam('height', 30),
+                RenderEngine.Support.getNumericParam('seed', Math2.randomInt()));
 
             GameOfLife.checkbox = $("input.pause");
-        },
+        }
 
-        seedWorld: function(worldWidth, worldHeight, seed) {
-            R.lang.Math2.seed(seed);
+        seedWorld(worldWidth, worldHeight, seed) {
+            Math2.seed(seed);
 
             GameOfLife.cellWidth = Math.floor(GameOfLife.playWidth / worldWidth);
             GameOfLife.cellHeight = Math.floor(GameOfLife.playHeight / worldHeight);

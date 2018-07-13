@@ -6,17 +6,14 @@
  */
 
 // Default engine options
-R.Engine.defaultOptions = {
+RenderEngine.defaultOptions = {
     "skipFrames":true, // Skip frames which cannot be rendered without impacting framerate
     "billboards":true, // Use billboards to speed up rendering
-    "textUseBillboards":true, // Text will use billboards unless platform doesn't support it
-    "hardwareAccel":false, // Hardware acceleration supported flag (deprecated)
     "pointAsArc":true, // Draw points as arcs or rectangles (dot or rect)
-    "transientMathObject":false, // Transient (non-pooled) MathObjects
     "useDirtyRectangles":false, // Enable canvas dirty rectangles redraws
     "nativeAnimationFrame":true, // Enable the use of "requestAnimationFrame"
     "disableParticleEngine":false, // Disable particle engines (if used)
-    "maxParticles":250, // Default maximum particles engine will allow
+    "maxParticles":10000, // Default maximum particles engine will allow
     "useVirtualControlPad":false, // Show the virtual d-pad (for touch)
     "virtualPad":{                                          // Virtual d-pad mappings
         "up":"Events.KEYCODE_UP_ARROW",
@@ -32,10 +29,7 @@ R.Engine.defaultOptions = {
 };
 
 // Configure the default options
-R.Engine.options = $.extend({}, R.Engine.defaultOptions);
+RenderEngine.options = _.extend({}, RenderEngine.defaultOptions);
 
 // Set up the engine using whatever query params were passed
-R.Engine.setDebugMode(R.engine.Support.checkBooleanParam("debug"));
-
-// Local mode keeps loaded script source available
-R.Engine.localMode = R.engine.Support.checkBooleanParam("local");
+RenderEngine.debugMode = RenderEngine.Support.checkBooleanParam("debug");

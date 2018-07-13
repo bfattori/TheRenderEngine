@@ -106,7 +106,7 @@
 			<fileset dir="${engine.src}" includes="engine.intro.js" />
             <fileset dir="${lib.src}" includes="base.js" />
             <fileset dir="${lib.src}" includes="jquery.js" />
-			<fileset dir="${engine.src}" includes="debug.console.js" />
+			<fileset dir="${engine.src}" includes="debug.assert.js" />
 			<!--<fileset dir="${engine.src}" includes="debug.profiler.js" />-->
 			<fileset dir="${engine.src}" includes="lang.math2.js" />
 			<fileset dir="${engine.src}" includes="engine.support.js" />

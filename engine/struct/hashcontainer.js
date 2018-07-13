@@ -2,7 +2,7 @@
  * The Render Engine
  * HashContainer
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  */
 "use strict";
 
@@ -125,7 +125,7 @@ class HashContainer extends Container {
   removeHash(key) {
     key = (key.charAt(0) === "_" ? key : "_" + String(key));
     var obj = this.objHash[key];
-    R.engine.Support.arrayRemove(this.objects, obj);
+    RenderEngine.Support.arrayRemove(this.objects, obj);
     delete this.objHash[key];
     return obj;
   }

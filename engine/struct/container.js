@@ -1,7 +1,7 @@
 /**
  * The Render Engine
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  */
 "use strict";
 
@@ -97,7 +97,7 @@ class Container extends BaseObject {
    * @return {Boolean}
    */
   contains(obj) {
-    return (R.engine.Support.indexOf(this.objects, obj) != -1);
+    return (RenderEngine.Support.indexOf(this.objects, obj) != -1);
   }
 
   /**
@@ -211,7 +211,7 @@ class Container extends BaseObject {
    * @return {Object} The object which was replaced
    */
   replace(oldObj, newObj) {
-    var i = R.engine.Support.indexOf(this.objects, oldObj);
+    var i = RenderEngine.Support.indexOf(this.objects, oldObj);
     this.objects[i] = newObj;
     return oldObj;
   }
@@ -241,7 +241,7 @@ class Container extends BaseObject {
    * @return {Object} The object that was removed
    */
   remove(obj) {
-    var r = this.objects.splice(R.engine.Support.indexOf(this.objects, obj), 1);
+    var r = this.objects.splice(RenderEngine.Support.indexOf(this.objects, obj), 1);
     return obj;
   }
 
@@ -334,7 +334,7 @@ class Container extends BaseObject {
    * @return {Container}
    */
   filter(fn, thisp) {
-    this.objects = R.engine.Support.filter(this.objects, fn, thisp || this);
+    this.objects = RenderEngine.Support.filter(this.objects, fn, thisp || this);
     return this;
   }
 
@@ -391,7 +391,7 @@ class Container extends BaseObject {
   getObjects(filterFn) {
     var a = this.getAll();
     if (filterFn) {
-      return R.engine.Support.filter(a, filterFn);
+      return RenderEngine.Support.filter(a, filterFn);
     } else {
       return a;
     }

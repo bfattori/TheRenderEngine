@@ -8,7 +8,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -164,8 +164,8 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
             R.debug.Metrics.lastMetricSample = R.debug.Metrics.metricSampleRate;
         }
 
-        if (R.debug.Metrics.showMetricsProfile && R.engine.Support.sysInfo().browser == "msie" &&
-            parseFloat(R.engine.Support.sysInfo().version) < 9) {
+        if (R.debug.Metrics.showMetricsProfile && RenderEngine.Support.sysInfo().browser == "msie" &&
+            parseFloat(RenderEngine.Support.sysInfo().version) < 9) {
             // Profiler not supported in IE
             R.debug.Metrics.showMetricsProfile = false;
         }
@@ -325,11 +325,11 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
 
 });
 
-if (R.engine.Support.checkBooleanParam("metrics")) {
+if (RenderEngine.Support.checkBooleanParam("metrics")) {
     R.debug.Metrics.showMetrics();
 }
 
-if (R.engine.Support.checkBooleanParam("profile")) {
+if (RenderEngine.Support.checkBooleanParam("profile")) {
     R.debug.Metrics.showProfile();
 }
 

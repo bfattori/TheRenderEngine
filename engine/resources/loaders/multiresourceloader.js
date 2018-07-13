@@ -10,7 +10,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -191,7 +191,7 @@ R.resources.loaders.MultiResourceLoader = function () {
          */
         removeLoader:function (loaderType) {
             Assert((this.loaderMappings[loaderType] != null), "The specified resource loader type is unsupported!");
-            this.loaders = R.engine.Support.filter(this.loaders, function (obj) {
+            this.loaders = RenderEngine.Support.filter(this.loaders, function (obj) {
                 return obj !== loaderType;
             });
         },
@@ -274,7 +274,7 @@ R.resources.loaders.MultiResourceLoader = function () {
                         }
 
                         // Clear out processed deferments
-                        self.deferments = R.engine.Support.filter(self.deferments, function (obj) {
+                        self.deferments = RenderEngine.Support.filter(self.deferments, function (obj) {
                             var found = false;
                             for (var p in processed) {
                                 if (processed[p] === obj) {

@@ -8,7 +8,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -64,7 +64,7 @@ R.sound.HTML5 = function () {
             this.base();
 
             // Check for audio support on this browser before doing anything more
-            if (!R.engine.Support.sysInfo().support.audio) {
+            if (!RenderEngine.Support.sysInfo().support.audio) {
                 this.supported = false;
                 return;
             }

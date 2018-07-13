@@ -1,7 +1,7 @@
 /**
  * The Render Engine
  * StateMachine component
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  */
 "use strict";
 

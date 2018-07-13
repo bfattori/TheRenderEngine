@@ -1,6 +1,6 @@
 /**
  * The Render Engine
- * Console
+ * Asserts
  *
  * Copyright (c) 2018 Brett Fattori (bfattori@gmail.com)
  */
@@ -42,7 +42,7 @@ var Assert = function (test, error) {
  * Assert that a condition is <tt>true</tt>, reporting a warning if the test fails.
  *
  * @param test {Boolean} A simple test that should evaluate to <tt>true</tt>
- * @param error {String} The warning to display if the test fails
+ * @param warning {String} The warning to display if the test fails
  */
 var AssertWarn = function (test, warning) {
     try {

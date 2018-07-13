@@ -119,12 +119,12 @@ class RenderEngine {
         if (opts["versions"]) {
             var versionDefaults = {};
             for (var v in opts["versions"]) {
-                if (R.engine.Support.sysInfo().version == v) {
+                if (RenderEngine.Support.sysInfo().version == v) {
                     // Add version specific matches
-                    versionDefaults = $.extend(versionDefaults, opts["versions"][v]);
+                    versionDefaults = _.extend(versionDefaults, opts["versions"][v]);
                 }
 
-                if (parseFloat(R.engine.Support.sysInfo().version) >= parseFloat(v)) {
+                if (parseFloat(RenderEngine.Support.sysInfo().version) >= parseFloat(v)) {
                     // Add version match options
                     versionDefaults = $.extend(versionDefaults, opts["versions"][v]);
                 }
@@ -132,6 +132,10 @@ class RenderEngine {
         }
 
         $.extend(R.Engine.options, configOpts, versionDefaults);
+    }
+
+    static set options(opts) {
+        this.setOptions(opts);
     }
 
     static get options() {

@@ -9,7 +9,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1556 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -220,7 +220,7 @@ R.resources.loaders.SpriteLoader = function () {
             var o = {};
             var sprites = this.getSpriteNames(resource);
             for (var i in sprites) {
-                if (!spriteNames || R.engine.Support.indexOf(spriteNames, sprites[i]) != -1) {
+                if (!spriteNames || RenderEngine.Support.indexOf(spriteNames, sprites[i]) != -1) {
                     o[sprites[i]] = this.getSprite(resource, sprites[i]);
                 }
             }

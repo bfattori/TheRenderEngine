@@ -2666,7 +2666,7 @@ Base.isInstance = function () {
  * @author: $Author: bfattori@gmail.com $
  * @version: $Revision: 1562 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3044,7 +3044,7 @@ var AssertWarn = function (test, warning) {
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3187,7 +3187,7 @@ R.lang.Math2.seed();
  * @author: $Author: bfattori@gmail.com $
  * @version: $Revision: 1569 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3217,7 +3217,7 @@ R.lang.Math2.seed();
  *        used to query the environment for support of features.
  * @static
  */
-R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
+RenderEngine.Support = Base.extend(/** @scope RenderEngine.Support.prototype */{
     constructor:null,
 
     /**
@@ -3226,7 +3226,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param array {Array} The array to scan
      * @param obj {Object} The object to find
      * @param [from=0] {Number} The index to start at, defaults to zero.
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     indexOf:function (array, obj, from) {
         return array && R.isArray(array) ? array.indexOf(obj, from) : -1;
@@ -3238,14 +3238,14 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param array {Array} The array to modify
      * @param obj {Object} The object to remove
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     arrayRemove:function (array, obj) {
         if (!array || !R.isArray(array)) {
             return;
         }
 
-        var idx = R.engine.Support.indexOf(array, obj);
+        var idx = RenderEngine.Support.indexOf(array, obj);
         if (idx != -1) {
             array.splice(idx, 1);
         }
@@ -3257,7 +3257,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param str {String} The string to test
      * @return {Boolean} <tt>true</tt> if the string is empty or <tt>null</tt>
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     isEmpty:function (str) {
         return R.isEmpty(str);
@@ -3278,7 +3278,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *                      and the array being traversed.
      * @param [thisp=null] {Object} Used as <tt>this</tt> for each invocation of the
      *                       callback.
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     filter:function (array, fn, thisp) {
         return array && R.isArray(array) ? array.filter(fn, thisp) : undefined;
@@ -3292,7 +3292,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *                      arguments: The element value, the index of the element,
      *                      and the array being traversed.
      * @param [thisp=null] {Object} An optional "this" pointer to use in the callback
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     forEach:function (array, fn, thisp) {
         return array && R.isArray(array) ? array.forEach(fn, thisp) : undefined;
@@ -3306,7 +3306,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param {Array} arr The array to fill
      * @param {Number} size The size of the array to fill
      * @param {Object} value The value to put at each index
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     fillArray:function (arr, size, value) {
         for (var i = 0; i < size; i++) {
@@ -3320,7 +3320,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param url {String} The URL
      * @return {String} The path
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     getPath:function (url) {
         return R.isString(url) ? url.substr(0, url.lastIndexOf("/")) : undefined;
@@ -3332,21 +3332,21 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * found.
      *
      * @return {Object} A generic <tt>Object</tt> with a key and value for each query argument.
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     getQueryParams:function () {
-        if (!R.engine.Support.parms) {
-            R.engine.Support.parms = {};
+        if (!RenderEngine.Support.parms) {
+            RenderEngine.Support.parms = {};
             var p = window.location.toString().split("?")[1];
             if (p) {
                 p = p.split("&");
                 for (var x = 0; x < p.length; x++) {
                     var v = p[x].split("=");
-                    R.engine.Support.parms[v[0]] = (v.length > 1 ? v[1] : "");
+                    RenderEngine.Support.parms[v[0]] = (v.length > 1 ? v[1] : "");
                 }
             }
         }
-        return R.engine.Support.parms;
+        return RenderEngine.Support.parms;
     },
 
     /**
@@ -3355,12 +3355,12 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param paramName {String} The query parameter name
      * @return {Boolean} <tt>true</tt> if the query parameter exists and is one of the specified values.
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     checkBooleanParam:function (paramName) {
-        return (R.engine.Support.getQueryParams()[paramName] &&
-            (R.engine.Support.getQueryParams()[paramName].toLowerCase() != "0" ||
-                R.engine.Support.getQueryParams()[paramName].toLowerCase() != "false"));
+        return (RenderEngine.Support.getQueryParams()[paramName] &&
+            (RenderEngine.Support.getQueryParams()[paramName].toLowerCase() != "0" ||
+                RenderEngine.Support.getQueryParams()[paramName].toLowerCase() != "false"));
     },
 
     /**
@@ -3370,10 +3370,10 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param paramName {String} The query parameter name
      * @param val {String} The value to check for
      * @return {Boolean} <tt>true</tt> if the query parameter exists and is the value specified
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     checkStringParam:function (paramName, val) {
-        return (R.engine.Support.getStringParam(paramName, null) == val);
+        return (RenderEngine.Support.getStringParam(paramName, null) == val);
     },
 
     /**
@@ -3383,10 +3383,10 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param paramName {String} The query parameter name
      * @param val {Number} The number to check for
      * @return {Boolean} <tt>true</tt> if the query parameter exists and is the value specified
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     checkNumericParam:function (paramName, val) {
-        var num = R.engine.Support.getStringParam(paramName, null);
+        var num = RenderEngine.Support.getStringParam(paramName, null);
         return (R.isNumber(num) && num == val);
     },
 
@@ -3397,10 +3397,10 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param paramName {String} The name of the parameter
      * @param defaultVal {Number} The number to return if the parameter doesn't exist
      * @return {Number} The value
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     getNumericParam:function (paramName, defaultVal) {
-        return Number(R.engine.Support.getStringParam(paramName, defaultVal));
+        return Number(RenderEngine.Support.getStringParam(paramName, defaultVal));
     },
 
     /**
@@ -3410,10 +3410,10 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param paramName {String} The name of the parameter
      * @param defaultVal {String} The string to return if the parameter doesn't exist
      * @return {String} The value
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     getStringParam:function (paramName, defaultVal) {
-        return (R.engine.Support.getQueryParams()[paramName] || defaultVal);
+        return (RenderEngine.Support.getQueryParams()[paramName] || defaultVal);
     },
 
     /**
@@ -3421,7 +3421,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      *
      * @param object {Object} Must not be undefined or contain undefined types and variables.
      * @return String
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      * @deprecated Use <tt>JSON.stringify()</tt>
      */
     toJSON:function (o) {
@@ -3434,7 +3434,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * @param jsonString
      * @return Object
      * @see http://www.json.org
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      * @deprecated Use <tt>JSON.parse()</tt> instead
      */
     parseJSON:function (jsonString) {
@@ -3444,7 +3444,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
     /**
      * Determine the OS platform from the user agent string, if possible
      * @private
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     checkOS:function () {
         // Scrape the userAgent to get the OS
@@ -3513,10 +3513,10 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * </li>
      * </ul>
      * @return {Object} An object with system information
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     sysInfo:function () {
-        if (!R.engine.Support._sysInfo) {
+        if (!RenderEngine.Support._sysInfo) {
 
             // Canvas and Storage support defaults
             var canvasSupport = {
@@ -3599,7 +3599,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
             }
 
             // Build support object
-            R.engine.Support._sysInfo = {
+            RenderEngine.Support._sysInfo = {
                 "browser":R.browser.chrome ? "chrome" :
                     (R.browser.android ? "android" :
                         (R.browser.Wii ? "wii" :
@@ -3613,7 +3613,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
                 "agent":navigator.userAgent,
                 "platform":navigator.platform,
                 "cpu":navigator.cpuClass || navigator.oscpu,
-                "OS":R.engine.Support.checkOS(),
+                "OS":RenderEngine.Support.checkOS(),
                 "language":navigator.language,
                 "online":navigator.onLine,
                 "fullscreen":window.fullScreen || false,
@@ -3631,7 +3631,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
 
             $(document).ready(function () {
                 // When the document is ready, we'll go ahead and get the width and height added in
-                R.engine.Support._sysInfo = $.extend(R.engine.Support._sysInfo, {
+                RenderEngine.Support._sysInfo = $.extend(RenderEngine.Support._sysInfo, {
                     "width":$(window).width(),
                     "height":$(window).height(),
                     "viewWidth":$(document).width(),
@@ -3639,7 +3639,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
                 });
             });
         }
-        return R.engine.Support._sysInfo;
+        return RenderEngine.Support._sysInfo;
     },
 
     /**
@@ -3647,7 +3647,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
      * be executed.
      * @param obj {Object} The object to wait for
      * @param fn {Function} The function to execute when the object is ready
-     * @memberof R.engine.Support
+     * @memberof RenderEngine.Support
      */
     whenReady:function (obj, fn) {
         var whenObject = {
@@ -3681,7 +3681,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
 
         // Events to track based on platform
         var downEvent, upEvent;
-        switch (R.engine.Support.sysInfo().browser) {
+        switch (RenderEngine.Support.sysInfo().browser) {
             case "safarimobile":
             case "android":
                 downEvent = "touchstart";
@@ -3771,7 +3771,7 @@ R.engine.Support = Base.extend(/** @scope R.engine.Support.prototype */{
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4023,7 +4023,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
                     // If such a circular reference exists, we can ignore the dependency
                     var dependentDefinition = R.engine.Linker.classDefinitions[req];
                     if (dependentDefinition && dependentDefinition.requires) {
-                        if (R.engine.Support.indexOf(dependentDefinition.requires, className) == -1) {
+                        if (RenderEngine.Support.indexOf(dependentDefinition.requires, className) == -1) {
                             // Not a circular reference
                             unresolvedDependencies.push(req);
                         }
@@ -4048,12 +4048,12 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
                     // If such a circular reference exists, we can ignore the dependency
                     var localDependencyDefinition = R.engine.Linker.classDefinitions[localDependency];
                     if (localDependencyDefinition && localDependencyDefinition.requires) {
-                        if (R.engine.Support.indexOf(localDependencyDefinition.requires, className) == -1) {
+                        if (RenderEngine.Support.indexOf(localDependencyDefinition.requires, className) == -1) {
                             // Not a circular reference
                             localUnresolvedDependencies.push(localDependency);
                         }
                     } else if (localDependencyDefinition && localDependencyDefinition.depends) {
-                        if (R.engine.Support.indexOf(localDependencyDefinition.depends, className) == -1) {
+                        if (RenderEngine.Support.indexOf(localDependencyDefinition.depends, className) == -1) {
                             // Not a circular reference
                             localUnresolvedDependencies.push(localDependency);
                         }
@@ -4177,7 +4177,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
  * @author: $Author: bfattori@gmail.com $
  * @version: $Revision: 1557 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -4313,9 +4313,9 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
 
         // See if the OS has a key
         var osOpts, platformDefaults, versionDefaults, platformVersions;
-        if (opts["platforms"] && opts["platforms"][R.engine.Support.sysInfo().OS]) {
+        if (opts["platforms"] && opts["platforms"][RenderEngine.Support.sysInfo().OS]) {
             // Yep, extract that one
-            osOpts = opts["platforms"][R.engine.Support.sysInfo().OS];
+            osOpts = opts["platforms"][RenderEngine.Support.sysInfo().OS];
 
             // Check for platform defaults
             if (osOpts && osOpts["defaults"]) {
@@ -4327,12 +4327,12 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
         if (opts["versions"]) {
             versionDefaults = {};
             for (var v in opts["versions"]) {
-                if (R.engine.Support.sysInfo().version == v) {
+                if (RenderEngine.Support.sysInfo().version == v) {
                     // Add version specific matches
                     versionDefaults = $.extend(versionDefaults, opts["versions"][v]);
                 }
 
-                if (parseFloat(R.engine.Support.sysInfo().version) >= parseFloat(v)) {
+                if (parseFloat(RenderEngine.Support.sysInfo().version) >= parseFloat(v)) {
                     // Add version match options
                     versionDefaults = $.extend(versionDefaults, opts["versions"][v]);
                 }
@@ -4343,12 +4343,12 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
         if (osOpts && osOpts["versions"]) {
             platformVersions = {};
             for (var v in osOpts["versions"]) {
-                if (R.engine.Support.sysInfo().version == v) {
+                if (RenderEngine.Support.sysInfo().version == v) {
                     // Add  version specific options
                     platformVersions = $.extend(platformVersions, osOpts["versions"][v]);
                 }
 
-                if (parseFloat(R.engine.Support.sysInfo().version) >= parseFloat(v)) {
+                if (parseFloat(RenderEngine.Support.sysInfo().version) >= parseFloat(v)) {
                     // Add version match options
                     platformVersions = $.extend(platformVersions, osOpts["versions"][v]);
                 }
@@ -4677,7 +4677,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
         R.engine.Linker._doLoad("R.lang.OneShotTrigger");
         R.engine.Linker._doLoad("R.lang.Timeout");
 
-        if (R.engine.Support.checkBooleanParam("debug") || R.engine.Support.checkBooleanParam("enableConsole")) {
+        if (RenderEngine.Support.checkBooleanParam("debug") || RenderEngine.Support.checkBooleanParam("enableConsole")) {
             // Load the console abstractions if needed
             if (typeof firebug !== "undefined" || (typeof console !== "undefined" && console.firebug)) {
                 R.engine.Linker._doLoad("R.util.console.Firebug");
@@ -4744,7 +4744,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
         R.Engine.running = true;
         R.Engine.shuttingDown = false;
 
-        R.debug.Console.debug(">>> sysinfo: ", R.engine.Support.sysInfo());
+        R.debug.Console.debug(">>> sysinfo: ", RenderEngine.Support.sysInfo());
 
         R.Engine._pauseTime = R.now();
         R.Engine._stepOne = 0;
@@ -4968,10 +4968,10 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
      * @private
      */
     browserSupportCheck:function () {
-        if (R.engine.Support.checkBooleanParam("disableBrowserCheck")) {
+        if (RenderEngine.Support.checkBooleanParam("disableBrowserCheck")) {
             return true;
         }
-        var sInfo = R.engine.Support.sysInfo();
+        var sInfo = RenderEngine.Support.sysInfo();
         var msg = "This browser is not currently supported by <i>" + R.Engine.REF_NAME + "</i>.<br/><br/>";
         msg += "Please go <a href='" + R.Engine.HOME_URL + "' target='_blank'>here</a> for more information.";
         switch (sInfo.browser) {
@@ -5151,7 +5151,7 @@ R.Engine = Base.extend(/** @scope R.Engine.prototype */{
  * @author: $Author$
  * @version: $Revision$
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -5334,7 +5334,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             if (result != 404) {
                 try {
                     // Remove comments
-                    json = R.engine.Support.parseJSON(xhr.responseText);
+                    json = RenderEngine.Support.parseJSON(xhr.responseText);
                 } catch (ex) {
                     R.debug.Console.error("Error parsing JSON at '" + path + "'");
                 }
@@ -5624,7 +5624,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
                 R.rendercontexts.DocumentContext.started) {
 
                 // Show the virtual D-pad if the option is on
-                R.engine.Support.showDPad();
+                RenderEngine.Support.showDPad();
 
                 // Start the engine
                 R.Engine.run();
@@ -5672,13 +5672,13 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 
         // Load the options specific to the browser.  Whether they load, or not,
         // the game will continue to load.
-        R.engine.Script.loadJSON(R.Engine.getEnginePath() + "/configs/" + R.engine.Support.sysInfo().browser + ".config", function (bData, status) {
+        R.engine.Script.loadJSON(R.Engine.getEnginePath() + "/configs/" + RenderEngine.Support.sysInfo().browser + ".config", function (bData, status) {
             if (status == 200 || status == 304) {
-                R.debug.Console.debug("Engine options loaded for: " + R.engine.Support.sysInfo().browser);
+                R.debug.Console.debug("Engine options loaded for: " + RenderEngine.Support.sysInfo().browser);
                 R.Engine.setOptions(bData);
             } else {
                 // Log an error (most likely a 404)
-                R.debug.Console.log("Engine options for: " + R.engine.Support.sysInfo().browser + " responded with " + status);
+                R.debug.Console.log("Engine options for: " + RenderEngine.Support.sysInfo().browser + " responded with " + status);
             }
 
             // Allow a game to override engine options
@@ -5714,7 +5714,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             }
 
             // Now try to load a browser specific object
-            file += "_" + R.engine.Support.sysInfo().browser;
+            file += "_" + RenderEngine.Support.sysInfo().browser;
             R.engine.Script.loadJSON(file + ".config", function (bData, status) {
                 if (status == 200 || status == 304) {
                     R.debug.Console.debug("Browser specific game options loaded from '" + file + ".config'");
@@ -5722,7 +5722,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
                 }
 
                 // Finally try to load a browser and platform specific object
-                file += "_" + R.engine.Support.sysInfo().platform.toLowerCase();
+                file += "_" + RenderEngine.Support.sysInfo().platform.toLowerCase();
                 R.engine.Script.loadJSON(file + ".config", function (bData, status) {
                     if (status == 200 || status == 304) {
                         R.debug.Console.debug("Platform specific game options loaded from '" + file + ".config'");
@@ -5820,7 +5820,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
                     // process the data to replace the "enginePath" variable
                     var epRE = /(\$<enginePath>)/g;
                     data = data.replace(epRE, R.Engine.getEnginePath());
-                    if (R.engine.Support.sysInfo().browser == "msie") {
+                    if (RenderEngine.Support.sysInfo().browser == "msie") {
                         // IE likes it this way...
                         $("head", document).append($("<style type='text/css'>" + data + "</style>"));
                     } else {
@@ -5874,7 +5874,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -6030,8 +6030,8 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
             R.debug.Metrics.lastMetricSample = R.debug.Metrics.metricSampleRate;
         }
 
-        if (R.debug.Metrics.showMetricsProfile && R.engine.Support.sysInfo().browser == "msie" &&
-            parseFloat(R.engine.Support.sysInfo().version) < 9) {
+        if (R.debug.Metrics.showMetricsProfile && RenderEngine.Support.sysInfo().browser == "msie" &&
+            parseFloat(RenderEngine.Support.sysInfo().version) < 9) {
             // Profiler not supported in IE
             R.debug.Metrics.showMetricsProfile = false;
         }
@@ -6191,11 +6191,11 @@ R.debug.Metrics = Base.extend(/** @scope R.debug.Metrics.prototype */{
 
 });
 
-if (R.engine.Support.checkBooleanParam("metrics")) {
+if (RenderEngine.Support.checkBooleanParam("metrics")) {
     R.debug.Metrics.showMetrics();
 }
 
-if (R.engine.Support.checkBooleanParam("profile")) {
+if (RenderEngine.Support.checkBooleanParam("profile")) {
     R.debug.Metrics.showProfile();
 }
 
@@ -6207,7 +6207,7 @@ if (R.engine.Support.checkBooleanParam("profile")) {
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -6264,11 +6264,11 @@ R.Engine.options = $.extend({}, R.Engine.defaultOptions);
 
 
 // Set up the engine using whatever query params were passed
-R.Engine.setDebugMode(R.engine.Support.checkBooleanParam("debug"));
+R.Engine.setDebugMode(RenderEngine.Support.checkBooleanParam("debug"));
 
 if (R.Engine.getDebugMode()) {
-    R.debug.Console.setDebugLevel(R.engine.Support.getNumericParam("debugLevel", R.debug.Console.DEBUGLEVEL_DEBUG));
+    R.debug.Console.setDebugLevel(RenderEngine.Support.getNumericParam("debugLevel", R.debug.Console.DEBUGLEVEL_DEBUG));
 }
 
 // Local mode keeps loaded script source available
-R.Engine.localMode = R.engine.Support.checkBooleanParam("local");
+R.Engine.localMode = RenderEngine.Support.checkBooleanParam("local");

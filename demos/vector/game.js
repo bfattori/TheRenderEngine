@@ -33,46 +33,6 @@
  *
  */
 
-R.Engine.define({
-   "class": "Spaceroids",
-   "requires": [
-      "R.engine.Game",
-      "R.rendercontexts.CanvasContext",
-      "R.collision.broadphase.SpatialGrid",
-      "R.text.TextRenderer",
-      "R.text.AbstractTextRenderer",
-      "R.text.VectorText",
-      "R.resources.loaders.SoundLoader",
-      "R.resources.loaders.ImageLoader",
-      "R.resources.types.Image",
-      "R.sound.SM2",
-      "R.storage.PersistentStorage",
-      "R.engine.Events",
-      "R.math.Math2D",
-      //"R.particles.ParticleEngine"
-      "R.particles.AccumulatorParticleEngine",
-      "R.particles.effects.Spark",
-
-       "R.components.debug.Axis",
-       "R.components.debug.ObjectInfo",
-       "R.components.debug.WorldBox",
-       "R.components.debug.ConvexHull",
-       "R.components.debug.AABB"
-
-   ],
-
-   // Game class dependencies
-   "depends": [
-      "SpaceroidsRock",
-      "SpaceroidsPlayer",
-      "SpaceroidsBullet",
-      "SimpleParticle",
-      "TrailParticle",
-      "RockTrailParticle",
-      "SpaceroidsUFO"
-   ]
-});
-
 // Load game objects
 R.engine.Game.load("/rock.js");
 R.engine.Game.load("/player.js");
@@ -83,11 +43,9 @@ R.engine.Game.load("/ufo.js");
 /**
  * @class The game.
  */
-var Spaceroids = function() {
-   return R.engine.Game.extend({
+class Spaceroids extends Game {
 
-      constructor: null,
-
+/*
       renderContext: null,
       soundLoader: null,
       imageLoader: null,
@@ -125,23 +83,24 @@ var Spaceroids = function() {
 
       pStore: null,
       backgroundImage: null,
+*/
 
       /**
        * Handle the key press which starts the game
        * @param event {Event} The event object
        */
-      onKeyPress: function(event) {
-         if (event.which == R.engine.Events.KEYCODE_ENTER) {
+      onKeyPress(event) {
+         if (event.which === Events.KEYCODE_ENTER) {
             Spaceroids.startGame();
          }
-      },
+      }
 
       /**
        * Clean up the playfield, removing any objects that are
        * currently within the render context.  Used to initialize the game
        * and to handle transitions between attract mode and play mode.
        */
-      cleanupPlayfield: function() {
+      cleanupPlayfield() {
 
          // Detach and reset the collision model & particle engine
          this.renderContext.remove(this.collisionModel);
@@ -162,16 +121,16 @@ var Spaceroids = function() {
          // Re-attach the particle engine and collision model
          this.renderContext.add(this.pEngine);
          this.renderContext.add(this.collisionModel);
-      },
+      }
 
       /**
        * A way to attract players to play the game.
        */
-      attractMode: function() {
-         var center = this.fieldBox.getCenter();
+      attractMode() {
+         var center = this.fieldBox.center;
 
-         var titlePos = R.math.Point2D.create(center.x, 100);
-         var copyPos = R.math.Point2D.create(center.x, 570);
+         var titlePos = Point2D.create(center.x, 100);
+         var copyPos = Point2D.create(center.x, 570);
          this.cleanupPlayfield();
          Spaceroids.isAttractMode = true;
 
@@ -180,7 +139,7 @@ var Spaceroids = function() {
          this.backgroundImage.empty();
          this.backgroundImage.append($(img.getImage()).clone());
 
-         this.pEngine.setFadeRate(0.5);
+         this.pEngine.fadeRate = 0.5;
 
          var pWidth = this.fieldWidth;
          var pHeight = this.fieldHeight;
@@ -194,38 +153,38 @@ var Spaceroids = function() {
          }
 
          // Draw the user interface
-         var title = R.text.TextRenderer.create(R.text.VectorText.create(), "Asteroids", 2);
+         var title = TextRenderer.create(VectorText.create(), "Asteroids", 2);
          title.setPosition(titlePos);
          title.setColor("#ffffff");
-         title.setTextAlignment(R.text.AbstractTextRenderer.ALIGN_CENTER);
+         title.setTextAlignment(AbstractTextRenderer.ALIGN_CENTER);
          this.renderContext.add(title);
 
-         var copy = R.text.TextRenderer.create(R.text.VectorText.create(), "&copy;1979 Atari / &copy;2008-2011 Brett Fattori", 0.6);
+         var copy = TextRenderer.create(VectorText.create(), "&copy;1979 Atari / &copy;2008-2018 Brett Fattori", 0.6);
          copy.setColor("#ffffff");
          copy.setPosition(copyPos);
-         copy.setTextAlignment(R.text.AbstractTextRenderer.ALIGN_CENTER);
+         copy.setTextAlignment(AbstractTextRenderer.ALIGN_CENTER);
          this.renderContext.add(copy);
 
          // Instructions
          var instruct = "left/right arrows to turn\nup arrow to thrust\nZ to fire missile\nA to hyperjump\nENTER to detonate nuke\n";
-         instruct += R.engine.Support.sysInfo().OS + " " + R.engine.Support.sysInfo().browser + " " + R.engine.Support.sysInfo().version;
+         instruct += RenderEngine.Support.sysInfo().OS + " " + RenderEngine.Support.sysInfo().browser + " " + RenderEngine.Support.sysInfo().version;
 
-         var inst = R.text.TextRenderer.create(R.text.VectorText.create(), instruct, 0.8);
+         var inst = TextRenderer.create(VectorText.create(), instruct, 0.8);
          inst.setColor("#00ff00");
-         inst.setPosition(R.math.Point2D.create(center.x, 485));
-         inst.setTextAlignment(R.text.AbstractTextRenderer.ALIGN_CENTER);
+         inst.setPosition(Point2D.create(center.x, 485));
+         inst.setTextAlignment(AbstractTextRenderer.ALIGN_CENTER);
          this.renderContext.add(inst);
 
          var startText;
          startText = "[ Press =Enter= to Start ]";
 
-         var evolved = R.text.TextRenderer.create(R.text.VectorText.create(), "Evolution", 1);
+         var evolved = TextRenderer.create(VectorText.create(), "Evolution", 1);
          evolved.setColor("#ff0000");
-         var evolvedPos = R.math.Point2D.create(290, 120);
+         var evolvedPos = Point2D.create(290, 120);
          evolved.setPosition(evolvedPos);
          this.renderContext.add(evolved);
 
-          this.pEngine.addEffect(R.particles.effects.Spark.create(R.clone(evolvedPos).add(R.math.Point2D.create(90, -4))).
+          this.pEngine.addEffect(ParticleSpark.create(R.clone(evolvedPos).add(Point2D.create(90, -4))).
               quantity(8).
               lifespan(Infinity).
               particleVelocity(0.8, 1.2).
@@ -235,7 +194,7 @@ var Spaceroids = function() {
               delay(2000, 7000)
           );
 
-          this.pEngine.addEffect(R.particles.effects.Spark.create(evolvedPos).
+          this.pEngine.addEffect(ParticleSpark.create(evolvedPos).
               quantity(8).
               lifespan(Infinity).
               particleVelocity(0.8, 1.2).
@@ -245,7 +204,7 @@ var Spaceroids = function() {
               delay(2000, 7000)
           );
 
-          this.pEngine.addEffect(R.particles.effects.Spark.create(R.clone(evolvedPos).add(R.math.Point2D.create(35, -6))).
+          this.pEngine.addEffect(ParticleSpark.create(R.clone(evolvedPos).add(Point2D.create(35, -6))).
               quantity(8).
               lifespan(Infinity).
               particleVelocity(0.8, 1.2).
@@ -256,34 +215,34 @@ var Spaceroids = function() {
           );
 
 
-          Spaceroids.start = R.text.TextRenderer.create(R.text.VectorText.create(), startText, 1);
-         Spaceroids.start.setPosition(R.math.Point2D.create(center.x, 450));
+          Spaceroids.start = TextRenderer.create(VectorText.create(), startText, 1);
+         Spaceroids.start.setPosition(Point2D.create(center.x, 450));
          Spaceroids.start.setColor("#ffffff");
-         Spaceroids.start.setTextAlignment(R.text.AbstractTextRenderer.ALIGN_CENTER);
+         Spaceroids.start.setTextAlignment(AbstractTextRenderer.ALIGN_CENTER);
          Spaceroids.renderContext.add(Spaceroids.start);
 
          var flash = function() {
             if (!Spaceroids.showStart) {
-               Spaceroids.start.setDrawMode(R.text.TextRenderer.DRAW_TEXT);
+               Spaceroids.start.setDrawMode(TextRenderer.DRAW_TEXT);
                Spaceroids.showStart = true;
                Spaceroids.intv.restart();
             }
             else {
-               Spaceroids.start.setDrawMode(R.text.TextRenderer.NO_DRAW);
+               Spaceroids.start.setDrawMode(TextRenderer.NO_DRAW);
                Spaceroids.showStart = false;
                Spaceroids.intv.restart();
             }
          };
 
          // This will cause the "start text" to blink
-         Spaceroids.intv = R.lang.Timeout.create("startkey", 1000, flash);
+         Spaceroids.intv = Timeout.create("startkey", 1000, flash);
 
          // In attract mode, show "GAME OVER" and the high score
          this.addHiScore();
          this.gameOver();
 
          // Create a new asteroid every 20 seconds
-         Spaceroids.attractTimer = R.lang.IntervalTimer.create("attract", 20000,
+         Spaceroids.attractTimer = IntervalTimer.create("attract", 20000,
                function() {
                   var rock = SpaceroidsRock.create(null, null, Spaceroids.fieldWidth, Spaceroids.fieldHeight);
                   Spaceroids.renderContext.add(rock);
@@ -291,7 +250,7 @@ var Spaceroids = function() {
                   rock.killTimer = R.Engine.worldTime + 2000;
                });
 
-      },
+      }
 
       /**
        * Add the highscore object to the playfield.

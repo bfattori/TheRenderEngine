@@ -8,7 +8,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -113,7 +113,7 @@ R.resources.loaders.LevelLoader = function () {
             var o = {};
             var levels = this.getResources();
             for (var i in levels) {
-                if (!levelNames || R.engine.Support.indexOf(levelNames, levels[i]) != -1) {
+                if (!levelNames || RenderEngine.Support.indexOf(levelNames, levels[i]) != -1) {
                     o[levels[i]] = this.getLevel(i);
                 }
             }

@@ -9,7 +9,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1556 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -142,7 +142,7 @@ R.resources.loaders.TileLoader = function () {
             var o = {};
             var tiles = this.getSpriteNames(resource);
             for (var i in tiles) {
-                if (!tileNames || R.engine.Support.indexOf(tileNames, tiles[i]) != -1) {
+                if (!tileNames || RenderEngine.Support.indexOf(tileNames, tiles[i]) != -1) {
                     o[tiles[i]] = this.getTile(resource, tiles[i]);
                 }
             }

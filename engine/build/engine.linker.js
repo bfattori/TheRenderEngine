@@ -8,7 +8,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -260,7 +260,7 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
                     // If such a circular reference exists, we can ignore the dependency
                     var dependentDefinition = R.engine.Linker.classDefinitions[req];
                     if (dependentDefinition && dependentDefinition.requires) {
-                        if (R.engine.Support.indexOf(dependentDefinition.requires, className) == -1) {
+                        if (RenderEngine.Support.indexOf(dependentDefinition.requires, className) == -1) {
                             // Not a circular reference
                             unresolvedDependencies.push(req);
                         }
@@ -285,12 +285,12 @@ R.engine.Linker = Base.extend(/** @scope R.engine.Linker.prototype */{
                     // If such a circular reference exists, we can ignore the dependency
                     var localDependencyDefinition = R.engine.Linker.classDefinitions[localDependency];
                     if (localDependencyDefinition && localDependencyDefinition.requires) {
-                        if (R.engine.Support.indexOf(localDependencyDefinition.requires, className) == -1) {
+                        if (RenderEngine.Support.indexOf(localDependencyDefinition.requires, className) == -1) {
                             // Not a circular reference
                             localUnresolvedDependencies.push(localDependency);
                         }
                     } else if (localDependencyDefinition && localDependencyDefinition.depends) {
-                        if (R.engine.Support.indexOf(localDependencyDefinition.depends, className) == -1) {
+                        if (RenderEngine.Support.indexOf(localDependencyDefinition.depends, className) == -1) {
                             // Not a circular reference
                             localUnresolvedDependencies.push(localDependency);
                         }

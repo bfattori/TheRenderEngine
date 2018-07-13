@@ -9,7 +9,7 @@
  * @author: $Author: bfattori@gmail.com $
  * @version: $Revision: 1567 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,7 +61,7 @@ R.storage.CookieStorage = function () {
 
         /** @private */
         constructor:function (name, options) {
-            this.enabled = R.engine.Support.sysInfo().support.storage.cookie;
+            this.enabled = RenderEngine.Support.sysInfo().support.storage.cookie;
             AssertWarn(this.enabled, "CookieStorage is not supported by browser - DISABLED");
             this.base(name);
             this.cookieName = name;
@@ -167,7 +167,7 @@ R.storage.CookieStorage = function () {
          * @private
          */
         saveData:function (data) {
-            AssertWarn(data.length < R.engine.Support.sysInfo().support.storage.cookie.maxLength,
+            AssertWarn(data.length < RenderEngine.Support.sysInfo().support.storage.cookie.maxLength,
                 "Data to save to cookie is larger than supported size - will be truncated");
 
             var p = "";

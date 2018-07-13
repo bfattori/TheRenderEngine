@@ -10,7 +10,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -163,7 +163,7 @@ R.ui.AbstractUIControl = function () {
         setGroup:function (groupName) {
             if (this.groupName != null) {
                 // Remove it from its old group
-                R.engine.Support.arrayRemove(R.ui.AbstractUIControl.groups[this.groupName], this);
+                RenderEngine.Support.arrayRemove(R.ui.AbstractUIControl.groups[this.groupName], this);
             }
 
             // If group name is null or the empty string, just exit here

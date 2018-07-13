@@ -9,7 +9,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -261,7 +261,7 @@ R.resources.loaders.AbstractResourceLoader = function () {
             var o = {};
             var resources = this.getResources();
             for (var i in resources) {
-                if (!resourceNames || R.engine.Support.indexOf(resourceNames, resources[i]) != -1) {
+                if (!resourceNames || RenderEngine.Support.indexOf(resourceNames, resources[i]) != -1) {
                     o[resources[i]] = this.getResourceObject(resources[i]);
                 }
             }

@@ -8,7 +8,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1556 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -82,7 +82,7 @@ R.resources.types.TileMap = function () {
 
             // The tile map is a dense array
             this.tilemap = [];
-            R.engine.Support.fillArray(this.tilemap, width * height, null);
+            RenderEngine.Support.fillArray(this.tilemap, width * height, null);
             this.dimensions = R.math.Point2D.create(width, height);
 
             // A list of tiles which are animated and need to be updated each frame
@@ -126,7 +126,7 @@ R.resources.types.TileMap = function () {
         setDimensions:function (x, y) {
             this.dimensions.set(x, y);
             this.tilemap = [];
-            R.engine.Support.fillArray(this.tilemap, this.dimensions.x * this.dimensions.y, null);
+            RenderEngine.Support.fillArray(this.tilemap, this.dimensions.x * this.dimensions.y, null);
         },
 
         /**

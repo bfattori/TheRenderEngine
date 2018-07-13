@@ -8,7 +8,7 @@
  * @author: $Author: bfattori@gmail.com $
  * @version: $Revision: 1557 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -205,7 +205,7 @@ R.storage.BrowserStorage = function () {
             // Remove it from the overall schema
             var schema = this.getSchema();
             if (schema != null) {
-                R.engine.Support.arrayRemove(schema, name);
+                RenderEngine.Support.arrayRemove(schema, name);
             }
             else {
                 schema = [];

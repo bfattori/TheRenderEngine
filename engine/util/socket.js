@@ -8,7 +8,7 @@
  * @author: $Author: bfattori@gmail.com $
  * @version: $Revision: 1557 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -174,7 +174,7 @@ R.Socket = function (/* ident, host */) {
 
         } else if (obj.type == Socket.MSG_ACK) {
             // An acknowledgement of a previously assured message
-            var f = -1, ack = R.engine.Support.filter(this.awaitingACK, function (a, i) {
+            var f = -1, ack = RenderEngine.Support.filter(this.awaitingACK, function (a, i) {
                 if (a.packetNum == obj.packetNum) {
                     f = i;
                     return true;

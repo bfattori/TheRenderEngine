@@ -36,9 +36,15 @@
 
 /**
  * @namespace
- * The Render Engine namespace
+ * The Render Engine support namespace
  */
 var R = R || {};
+
+/**
+ * @namespace
+ * The Render Engine namespace
+ */
+var RenderEngine = RenderEngine || {};
 
 /**
  * List of namespaces declared in R
@@ -213,7 +219,7 @@ R.clone = function (obj) {
             return ctor.create(obj);
         }
     } else {
-        return $.extend({}, obj);
+        return _.extend({}, obj);
     }
 };
 
@@ -226,7 +232,7 @@ R.classCache = {};
 /**
  * Get the class for the given class name string.
  * @param className {String} The class name string
- * @return {Class} The class object for the given name
+ * @return {class} The class object for the given name
  * @throws ReferenceError if the class is invalid or unknown
  */
 R.getClassForName = function (className) {
@@ -254,16 +260,7 @@ R.getClassForName = function (className) {
  * Method to request an animation frame for timing (alternate loop)
  * framerate fixed at 60fps
  */
-R.global.nativeFrame = (function () {
-    return  R.global.requestAnimationFrame ||
-        R.global.webkitRequestAnimationFrame ||
-        R.global.mozRequestAnimationFrame ||
-        R.global.oRequestAnimationFrame ||
-        R.global.msRequestAnimationFrame ||
-        function (/* function */ callback, /* DOMElement */ element) {
-            R.global.setTimeout(callback, 1000 / 60);
-        };
-})();
+R.global.nativeFrame = R.global.requestAnimationFrame;
 
 // Define the engine's default namespaces
 R.namespace("debug");
@@ -301,29 +298,20 @@ R.namespace("util.console");
  * Return the current time in milliseconds.
  * @return {Number}
  */
-R.now = (function () {
-    return Date.now ? Date.now : function () {
-        return new Date().getTime();
-    };
-})();
+R.now = Date.now;
 
 R.loadGame = function (fileName, className, description) {
-    var gameLoader = {}, cb;
-
-    gameLoader.fileName = fileName;
-    gameLoader.className = className;
-    gameLoader.description = description;
-
-    cb = R.bind(gameLoader, function () {
-        if (typeof R.Engine !== "undefined" && typeof R.Engine.loadGame !== "undefined") {
-            R.Engine.loadGame(this.fileName, this.className, this.description);
+    setTimeout(function () {
+        if (typeof RenderEngine !== "undefined" && typeof RenderEngine.loadGame !== "undefined") {
+            RenderEngine.loadGame(this.fileName, this.className, this.description);
         } else {
             setTimeout(cb, 250);
         }
-    });
-
-
-    setTimeout(cb, 250);
+    }.bind({
+        fileName: fileName,
+        className: className,
+        description: description
+    }), 250);
 };
 
 

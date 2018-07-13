@@ -8,7 +8,7 @@
  * @author: $Author: bfattori $
  * @version: $Revision: 1555 $
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -310,7 +310,7 @@ R.resources.types.Level = function () {
                 obj = itr.next();
                 resourceName = obj.getSprite().getSpriteResource().resourceName;
                 resourceURL = obj.getSprite().getSpriteLoader().getPathUrl(resourceName);
-                if (R.engine.Support.filter(lvl.resourceURLs.sprites,function (e) {
+                if (RenderEngine.Support.filter(lvl.resourceURLs.sprites,function (e) {
                     return (e && e[resourceName]);
                 }).length == 0) {
                     var o = {};
@@ -338,7 +338,7 @@ R.resources.types.Level = function () {
                     if (tile) {
                         resourceName = tile.getTileResource().resourceName;
                         resourceURL = tile.getTileLoader().getPathUrl(resourceName);
-                        if (R.engine.Support.filter(lvl.resourceURLs.tiles,function (e) {
+                        if (RenderEngine.Support.filter(lvl.resourceURLs.tiles,function (e) {
                             return (e && e[resourceName]);
                         }).length == 0) {
                             var o = {};

@@ -8,7 +8,7 @@
  * @author: $Author$
  * @version: $Revision$
  *
- * Copyright (c) 2011 Brett Fattori (brettf@renderengine.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -191,7 +191,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             if (result != 404) {
                 try {
                     // Remove comments
-                    json = R.engine.Support.parseJSON(xhr.responseText);
+                    json = RenderEngine.Support.parseJSON(xhr.responseText);
                 } catch (ex) {
                     R.debug.Console.error("Error parsing JSON at '" + path + "'");
                 }
@@ -481,7 +481,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
                 R.rendercontexts.DocumentContext.started) {
 
                 // Show the virtual D-pad if the option is on
-                R.engine.Support.showDPad();
+                RenderEngine.Support.showDPad();
 
                 // Start the engine
                 R.Engine.run();
@@ -529,13 +529,13 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
 
         // Load the options specific to the browser.  Whether they load, or not,
         // the game will continue to load.
-        R.engine.Script.loadJSON(R.Engine.getEnginePath() + "/configs/" + R.engine.Support.sysInfo().browser + ".config", function (bData, status) {
+        R.engine.Script.loadJSON(R.Engine.getEnginePath() + "/configs/" + RenderEngine.Support.sysInfo().browser + ".config", function (bData, status) {
             if (status == 200 || status == 304) {
-                R.debug.Console.debug("Engine options loaded for: " + R.engine.Support.sysInfo().browser);
+                R.debug.Console.debug("Engine options loaded for: " + RenderEngine.Support.sysInfo().browser);
                 R.Engine.setOptions(bData);
             } else {
                 // Log an error (most likely a 404)
-                R.debug.Console.log("Engine options for: " + R.engine.Support.sysInfo().browser + " responded with " + status);
+                R.debug.Console.log("Engine options for: " + RenderEngine.Support.sysInfo().browser + " responded with " + status);
             }
 
             // Allow a game to override engine options
@@ -571,7 +571,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
             }
 
             // Now try to load a browser specific object
-            file += "_" + R.engine.Support.sysInfo().browser;
+            file += "_" + RenderEngine.Support.sysInfo().browser;
             R.engine.Script.loadJSON(file + ".config", function (bData, status) {
                 if (status == 200 || status == 304) {
                     R.debug.Console.debug("Browser specific game options loaded from '" + file + ".config'");
@@ -579,7 +579,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
                 }
 
                 // Finally try to load a browser and platform specific object
-                file += "_" + R.engine.Support.sysInfo().platform.toLowerCase();
+                file += "_" + RenderEngine.Support.sysInfo().platform.toLowerCase();
                 R.engine.Script.loadJSON(file + ".config", function (bData, status) {
                     if (status == 200 || status == 304) {
                         R.debug.Console.debug("Platform specific game options loaded from '" + file + ".config'");
@@ -677,7 +677,7 @@ R.engine.Script = Base.extend(/** @scope R.engine.Script.prototype */{
                     // process the data to replace the "enginePath" variable
                     var epRE = /(\$<enginePath>)/g;
                     data = data.replace(epRE, R.Engine.getEnginePath());
-                    if (R.engine.Support.sysInfo().browser == "msie") {
+                    if (RenderEngine.Support.sysInfo().browser == "msie") {
                         // IE likes it this way...
                         $("head", document).append($("<style type='text/css'>" + data + "</style>"));
                     } else {

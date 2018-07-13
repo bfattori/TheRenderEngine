@@ -155,10 +155,10 @@ class RenderContext2D extends AbstractRenderContext {
     if (obj.zIndex) {
       var zBin = this.zBins[obj.zIndex];
       zBin.all.remove(obj);
-      R.engine.Support.arrayRemove(zBin.vis, obj);
+      RenderEngine.Support.arrayRemove(zBin.vis, obj);
     } else {
       this.zBins["0"].all.remove(obj);
-      R.engine.Support.arrayRemove(this.zBins["0"].vis, obj);
+      RenderEngine.Support.arrayRemove(this.zBins["0"].vis, obj);
     }
   }
 
@@ -273,7 +273,7 @@ class RenderContext2D extends AbstractRenderContext {
         // The object isn't in the viewport and is marked visible, unmark it and
         // remove from "visibility" list
         contextModel.isVisible = false;
-        R.engine.Support.arrayRemove(bin.vis, obj);
+        RenderEngine.Support.arrayRemove(bin.vis, obj);
       }
     }
     itr.destroy();
@@ -288,7 +288,7 @@ class RenderContext2D extends AbstractRenderContext {
    *          in milliseconds.
    */
   renderBin(bin, objs, time, dt) {
-    R.engine.Support.forEach(objs, function (gameObject) {
+    RenderEngine.Support.forEach(objs, function (gameObject) {
       gameObject.render(this);
     }, this);
   }
