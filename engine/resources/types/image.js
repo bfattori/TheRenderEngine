@@ -29,15 +29,7 @@
  * THE SOFTWARE.
  *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.resources.types.Image",
-    "requires":[
-        "R.engine.PooledObject",
-        "R.math.Rectangle2D"
-    ]
-});
+"use strict";
 
 /**
  * @class A wrapper class for images.  Images contain a reference to their resource
@@ -48,55 +40,48 @@ R.Engine.define({
  * @param name {String} The name of the image object
  * @param imageName {String} The name of the image container in the resource loader
  * @param imageLoader {ImageLoader} The resource loader used to load the image
- * @extends R.engine.PooledObject
+ * @extends PooledObject
  */
-R.resources.types.Image = function () {
-    return R.engine.PooledObject.extend(/** @scope R.resources.types.Image.prototype */{
+class ImageResource extends PooledObject {
 
-        image:null,
+  constructor(name = "ImageResource", imageName, imageLoader) {
+    super(name);
+    this._image = imageLoader.get(imageName);
+    var dims = imageLoader.getDimensions(imageName);
+    this._bbox = Rectangle2D.create(0, 0, dims.x, dims.y);
+  }
 
-        /** @private */
-        constructor:function (name, imageName, imageLoader) {
-            this.base(name || "Image");
-            this.image = imageLoader.get(imageName);
-            var dims = imageLoader.getDimensions(imageName);
-            this.bbox = R.math.Rectangle2D.create(0, 0, dims.x, dims.y);
-        },
+  release() {
+    super.release();
+    this._image = null;
+    this._bbox = null;
+  }
 
-        /**
-         * Release the image back into the pool for reuse
-         */
-        release:function () {
-            this.base();
-            this.image = null;
-            this.bbox = null;
-        },
+  destroy() {
+    this._bbox.destroy();
+    super.destroy();
+  }
 
-        /**
-         * Get the bounding box for the image.
-         * @return {R.math.Rectangle2D} The bounding box which contains the entire image
-         */
-        getBoundingBox:function () {
-            return this.bbox;
-        },
+  /**
+   * Gets the class name of this object.
+   * @return {String} The string "ImageResource"
+   */
+  get className() {
+    return "ImageResource";
+  }
 
-        /**
-         * Get the HTML image object which contains the image.
-         * @return {HTMLImage}
-         */
-        getImage:function () {
-            return this.image;
-        }
+  /**
+   * Get the bounding box for the image.
+   */
+  get boundingBox() {
+    return this._bbox;
+  }
 
-    }, /** @scope R.resources.types.Image.prototype */{
-        /**
-         * Gets the class name of this object.
-         * @return {String} The string "R.resources.types.Image"
-         */
-        getClassName:function () {
-            return "R.resources.types.Image";
-        }
-
-    });
+  /**
+   * Get the HTML image object which contains the image.
+   */
+  get image() {
+    return this._image;
+  }
 
 }

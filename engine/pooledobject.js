@@ -50,6 +50,10 @@ class PooledObject {
     return this.opt.name;
   }
 
+  set name(name) {
+    this.opt.name = name;
+  }
+
   /**
    * Get the class name of this object
    *

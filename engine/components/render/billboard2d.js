@@ -108,7 +108,7 @@ class Billboard2DComponent extends RenderComponent {
     return this._mode;
   }
 
-  update(time, dt) {
+  execute(time, dt) {
     // Get the host object's bounding box
     var hostBox = this.gameObject.boundingBox;
 

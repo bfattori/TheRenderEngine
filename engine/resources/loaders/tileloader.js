@@ -2,43 +2,9 @@
  * The Render Engine
  * TileLoader
  *
- * @fileoverview An extension of the sprite resource loader for handling
- *               tiles.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- * @author: $Author: bfattori $
- * @version: $Revision: 1556 $
- *
  * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
  */
-
-// The class this file defines and its required classes
-R.Engine.define({
-    "class":"R.resources.loaders.TileLoader",
-    "requires":[
-        "R.resources.loaders.SpriteLoader",
-        "R.resources.types.Tile"
-    ]
-});
+"use strict";
 
 /**
  * @class Loads tile resources and makes them available to the system.  Tiles are
@@ -81,122 +47,113 @@ R.Engine.define({
  *    }
  * }
  * </pre>
- *        <i>Note:</i> The new file structure is a bit more compact, and is indicated with
- *        the "version" key in the file, set to the value 2.  Version 1 will be deprecated
- *        and will not be supported in a future release of The Render Engine.
  *
  * @constructor
  * @param name {String=TileLoader} The name of the resource loader
- * @extends R.resources.loaders.SpriteLoader
+ * @extends SpriteLoader
  */
-R.resources.loaders.TileLoader = function () {
-    return R.resources.loaders.SpriteLoader.extend(/** @scope R.resources.loaders.TileLoader.prototype */{
+class TileLoader extends SpriteLoader {
 
-        tiles:null,
+  constructor(name = "TileLoader") {
+    super(name);
+    this._tiles = {};
+  }
 
-        /** @private */
-        constructor:function (name) {
-            this.base(name || "TileLoader");
-            this.tiles = {};
-        },
+  /**
+   * Get the class name of this object.
+   * @return {String} The string "TileLoader"
+   */
+  get className() {
+    return "TileLoader";
+  }
 
-        /**
-         * Called after the data has been loaded, passing along the info object and name
-         * of the sprite resource.
-         * @param name {String} The name of the sprite resource
-         * @param info {Object} The sprite resource definition
-         */
-        afterLoad:function (name, info) {
-            this.base(name, info);
-        },
+  /**
+   * Called after the data has been loaded, passing along the info object and name
+   * of the sprite resource.
+   * @param name {String} The name of the sprite resource
+   * @param info {Object} The sprite resource definition
+   */
+  afterLoad(name, info) {
+    super.afterLoad(name, info);
+  }
 
-        /**
-         * Creates a {@link R.resources.types.Tile} object representing the named tile.
-         *
-         * @param resource {String} The name of a loaded tile resource
-         * @param tile {String} The name of the tile from the resource
-         * @return {R.resources.types.Tile} A {@link R.resources.types.Tile} instance
-         */
-        getTile:function (resource, tile) {
-            var info = this.get(resource).info;
-            if (info != null && info.sprites[tile]) {
-                var aTile = this.tiles[tile];
-                if (!aTile) {
-                    // We want to make sure we only create a tile singleton, not instances for each tile
-                    aTile = this.tiles[tile] = R.resources.types.Tile.create(tile, info.sprites[tile], this.get(resource), this);
-                }
-                return aTile;
-            } else {
-                return null;
-            }
-        },
+  /**
+   * Creates a {@link TileResource} object representing the named tile.
+   *
+   * @param resource {String} The name of a loaded tile resource
+   * @param tile {String} The name of the tile from the resource
+   * @return {TileResource} A {@link TileResource} instance
+   */
+  getTile(resource, tile) {
+    var info = this.get(resource).info;
+    if (info != null && info.sprites[tile]) {
+      var aTile = this._tiles[tile];
+      if (!aTile) {
+        // We want to make sure we only create a tile singleton, not instances for each tile
+        aTile = this._tiles[tile] = TileResource.create(tile, info.sprites[tile], this.get(resource), this);
+      }
+      return aTile;
+    } else {
+      return null;
+    }
+  }
 
-        /**
-         * Export all of the tiles in the specified resource, as a JavaScript object, with the
-         * tile name as the key and the corresponding {@link R.resources.types.Tile} as the value.
-         * @param resource {String} The name of the tile resource
-         * @param [tileNames] {Array} An optional array of tiles to export, by name,
-         *         or <code>null</tt> to export all tiles
-         */
-        exportAll:function (resource, tileNames) {
-            var o = {};
-            var tiles = this.getSpriteNames(resource);
-            for (var i in tiles) {
-                if (!tileNames || RenderEngine.Support.indexOf(tileNames, tiles[i]) != -1) {
-                    o[tiles[i]] = this.getTile(resource, tiles[i]);
-                }
-            }
-            return o;
-        },
+  /**
+   * Export all of the tiles in the specified resource, as a JavaScript object, with the
+   * tile name as the key and the corresponding {@link TileResource} as the value.
+   * @param resource {String} The name of the tile resource
+   * @param [tileNames] {Array} An optional array of tiles to export, by name,
+   *         or <code>null</tt> to export all tiles
+   */
+  exportAll(resource, tileNames) {
+    var o = {};
+    var tiles = this.getSpriteNames(resource);
+    for (var i in tiles) {
+      if (!tileNames || RenderEngine.Support.indexOf(tileNames, tiles[i]) != -1) {
+        o[tiles[i]] = this.getTile(resource, tiles[i]);
+      }
+    }
+    return o;
+  }
 
-        /**
-         * Sparsity is used to reduce the size of the solidity map for each frame of every tile.
-         * The higher the sparsity, the more pixels will be averaged together to get a smaller map.
-         * This has the potential to improve performance when performing ray casting by eliminating
-         * the need to calculate collisions per pixel.
-         * @param resource {String} The name of the tile resource
-         * @return {Number}
-         */
-        getSparsity:function (resource) {
-            return this.get(resource).info.sparsity;
-        },
+  /**
+   * Sparsity is used to reduce the size of the solidity map for each frame of every tile.
+   * The higher the sparsity, the more pixels will be averaged together to get a smaller map.
+   * This has the potential to improve performance when performing ray casting by eliminating
+   * the need to calculate collisions per pixel.
+   * @param resource {String} The name of the tile resource
+   * @return {Number}
+   */
+  getSparsity(resource) {
+    return this.get(resource).info.sparsity;
+  }
 
-        /**
-         * Get the transparency threshold at which pixels are considered to be either transparent or
-         * solid.  Pixel alpha values above the specified threshold will be considered solid when
-         * calculating the solidity map of a tile.
-         * @param resource {String} The name of the tile resource
-         * @return {Number} Value between 0 and 255
-         */
-        getThreshold:function (resource) {
-            return this.get(resource).info.transparencyThreshold;
-        },
+  /**
+   * Get the transparency threshold at which pixels are considered to be either transparent or
+   * solid.  Pixel alpha values above the specified threshold will be considered solid when
+   * calculating the solidity map of a tile.
+   * @param resource {String} The name of the tile resource
+   * @return {Number} Value between 0 and 255
+   */
+  getThreshold(resource) {
+    return this.get(resource).info.transparencyThreshold;
+  }
 
-        /**
-         * Get the state of the flag indicating if all tiles should be considered fully opaque.
-         * @param resource {String} The name of the tile resource
-         * @return {Boolean}
-         */
-        getOpacityFlag:function (resource) {
-            return this.get(resource).info.assumeOpaque;
-        },
+  /**
+   * Get the state of the flag indicating if all tiles should be considered fully opaque.
+   * @param resource {String} The name of the tile resource
+   * @return {Boolean}
+   */
+  getOpacityFlag(resource) {
+    return this.get(resource).info.assumeOpaque;
+  }
 
-        /**
-         * The name of the resource this loader will get.
-         * @returns {String} The string "tile"
-         */
-        getResourceType:function () {
-            return "tile";
-        }
-
-    }, /** @scope R.resources.loaders.TileLoader.prototype */ {
-        /**
-         * Get the class name of this object.
-         * @return {String} The string "R.resources.loaders.TileLoader"
-         */
-        getClassName:function () {
-            return "R.resources.loaders.TileLoader";
-        }
-    });
+  /**
+   * The name of the resource this loader will get.
+   * @returns {String} The string "tile"
+   */
+  get resourceType() {
+    return "tile";
+  }
 
 }

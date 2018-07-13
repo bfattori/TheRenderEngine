@@ -2,33 +2,7 @@
  * The Render Engine
  * Fixture object
  *
- * @fileoverview A fixture is a box which either defines a solid area or a trigger.
- *
- * @author: Brett Fattori (brettf@renderengine.com)
- *
- * @author: $Author: bfattori@gmail.com $
- * @version: $Revision: 1562 $
- *
  * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
  */
 "use strict";
 
@@ -38,7 +12,7 @@
  * @param rect {Rectangle2D} The box which defines the area of the fixture
  *    @param visible {Boolean} <code>true</tt> to render a visible rectangle for the fixture
  * @constructor
- * @extends R.objects.Object2D
+ * @extends Object2D
  */
 class Fixture extends Object2D {
 
@@ -87,7 +61,7 @@ class Fixture extends Object2D {
     props.add("Width",
       [
         function () {
-          return this.boxRect.width;
+          return this._boundingBox.width;
         }.bind(this),
         function (i) {
           this.width = i;
@@ -96,7 +70,7 @@ class Fixture extends Object2D {
     props.add("Height",
       [
         function () {
-          return this.boxRect.height;
+          return this._boundingBox.height;
         }.bind(this),
         function (i) {
           this.height = i;
@@ -107,7 +81,7 @@ class Fixture extends Object2D {
         return this.type == Fixture.TYPE_COLLIDER ? "TYPE_COLLIDER" : "TYPE_TRIGGER";
       }.bind(this),
       function (i) {
-        this.setType(i == "TYPE_COLLIDER" ? Fixture.TYPE_COLLIDER : Fixture.TYPE_TRIGGER);
+        this.type = (i === "TYPE_COLLIDER" ? Fixture.TYPE_COLLIDER : Fixture.TYPE_TRIGGER);
       }.bind(this)
     ]);
     props.add("Action",
@@ -127,25 +101,22 @@ class Fixture extends Object2D {
    * object.  If the player is thrusting, draw the thrust flame
    * under the ship.
    *
-   * @param renderContext {R.rendercontexts.AbstractRenderContext} The rendering context
-   * @param time {Number} The engine time in milliseconds
-   * @param dt {Number} The delta between the world time and the last time the world was updated
-   *          in milliseconds.
+   * @param renderContext {RenderContext2D} The rendering context
    */
-  update(renderContext, time, dt) {
+  render(renderContext) {
     renderContext.pushTransform();
 
     super.update(renderContext, time, dt);
 
     if (this._visible) {
       var color = this.type == Fixture.TYPE_COLLIDER ? "0,255,255" : "255,0,0";
-      renderContext.setFillStyle("rgba(" + color + ",0.4)");
+      renderContext.fillStyle = "rgba(" + color + ",0.4)";
       renderContext.drawFilledRectangle(this.boxRect);
-      renderContext.setLineWidth(1);
+      renderContext.lineWidth = 1;
 
-      renderContext.drawText(this.boxRect.topLeft(), this.type == Fixture.TYPE_COLLIDER ?
+      renderContext.drawText(this._boundingBox.topLeft, this.type == Fixture.TYPE_COLLIDER ?
         "solid" : "trigger");
-      renderContext.drawRectangle(this.boxRect);
+      renderContext.drawRectangle(this._boundingBox);
     }
 
     renderContext.popTransform();
@@ -153,7 +124,6 @@ class Fixture extends Object2D {
 
   /**
    * Get the type of collision box object being represented.
-   * @return {Number}
    */
   get type() {
     return this._type;
@@ -164,7 +134,7 @@ class Fixture extends Object2D {
    */
   set type(type) {
     this._type = type;
-    if (type == CollisionBox.TYPE_TRIGGER) {
+    if (type === CollisionBox.TYPE_TRIGGER) {
       this.name = "TriggerBlock";
     } else {
       this.name = "CollisionBlock";
@@ -184,8 +154,8 @@ class Fixture extends Object2D {
    * @param height {Number} The height of the box in pixels
    */
   setBoxSize(width, height) {
-    this._boxRect.width = width;
-    this._boxRect.height = height;
+    this._boundingBox.width = width;
+    this._boundingBox.height = height;
     this.boundingBox = this._boxRect;
   }
 
@@ -193,16 +163,14 @@ class Fixture extends Object2D {
    * Set the width of the collision box
    */
   set width(width) {
-    this._boxRect.width = width;
-    this.boundingBox = this.boxRect;
+    this._boundingBox.width = width;
   }
 
   /**
    * Set the height of the collision box
    */
   set height(height) {
-    this._boxRect.height = height;
-    this.boundingBox = this.boxRect;
+    this._boundingBox.height = height;
   }
 
   /**

@@ -389,6 +389,10 @@ class GameObject extends BaseObject {
     return this._allObjects;
   }
 
+  get allComponents() {
+    return this.all;
+  }
+
   addComponentProperty(name, accessor) {
     // Add a property to the game object directly from the component
     this.componentProps[name] = accessor;
