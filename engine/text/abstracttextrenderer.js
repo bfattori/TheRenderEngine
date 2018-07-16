@@ -2,7 +2,7 @@
  * The Render Engine
  * AbstractTextRenderer
  *
- * Copyright (c) 2018 Brett Fattori (bfattori@gmail.com)
+ * Copyright (c) 2008-2018 Brett Fattori (bfattori@gmail.com)
  */
 "use strict";
 
@@ -13,234 +13,219 @@
  * @constructor
  * @param componentName {String} The name of the renderer
  * @param priority {Number} The priority of the rendering order. Default: <tt>0.1</tt>
- * @extends R.components.Base
+ * @extends BaseComponent
  */
 class AbstractTextRenderer extends BaseComponent {
 
-        text:null,
-        color:"#000000",
-        alignment:null,
-        weight:null,
-        size:1,
-        font:null,
-        style:null,
-        lineSpacing:7,
+  /**
+   * Align text with the left edge of the string at the point specified.
+   * @type Number
+   */
+  static ALIGN_LEFT = 0;
 
-        /** @private */
-        constructor:function (componentName, priority) {
-            this.base(componentName || "TextRenderObject", R.components.Base.TYPE_RENDERING, priority || 0.1);
+  /**
+   * Align text with the right edge of the string at the point specified
+   * @type Number
+   */
+  static ALIGN_RIGHT = 1;
 
-            this.text = "";
-            this.size = 1;
-            this.weight = 1;
-            this.font = null;
-            this.style = null;
-            this.alignment = R.text.AbstractTextRenderer.ALIGN_LEFT;
-            this.lineSpacing = 7;
-        },
+  /**
+   * Align text with the center of the string at the point specified
+   * @type Number
+   */
+  static ALIGN_CENTER = 2;
 
-        /**
-         * Releases the object back into the object pool.  See {@link R.engine.PooledObject#release}
-         * for more information.
-         */
-        release:function () {
-            this.base();
-            this.text = null;
-            this.color = "#000000";
-            this.size = 1;
-            this.weight = null;
-            this.font = null;
-            this.style = null;
-            this.alignment = null;
-            this.lineSpacing = 7;
-        },
+  constructor(componentName = "AbstractTextRenderer", priority = 0.1) {
+    super(componentName, BaseComponent.TYPE_RENDERING, priority);
 
-        /**
-         * Return <tt>true</tt> if the text renderer is native to the context.
-         * @return {Boolean}
-         */
-        isNative:function () {
-            return false;
-        },
+    this.txtOpts = {
+      text: "",
+      size: 1,
+      weight: 1,
+      font: null,
+      style: null,
+      alignment: AbstractTextRenderer.ALIGN_LEFT,
+      lineSpacing: 7
+    };
+  }
 
-        /**
-         * Get the text being rendered
-         * @return {String} The text this renderer will draw
-         */
-        getText:function () {
-            return this.text;
-        },
+  /**
+   * Get the class name of this object
+   * @return {String} The string "AbstractTextRenderer"
+   */
+  get className() {
+    return "AbstractTextRenderer";
+  }
 
-        /**
-         * Set the text to be rendered
-         *
-         * @param text {String} The text to render
-         */
-        setText:function (text) {
-            this.text = text;
-        },
 
-        /**
-         * Set the font of the text to be renderer
-         * @param font {String} The font name
-         */
-        setTextFont:function (font) {
-            this.font = font;
-        },
+  /**
+   * Releases the object back into the object pool.  See {@link R.engine.PooledObject#release}
+   * for more information.
+   */
+  release() {
+    super.release();
+    this.txtOpts = null;
+  }
 
-        /**
-         * Get the font of the text to be rendered
-         * @return {String} The font name
-         */
-        getTextFont:function () {
-            return this.font;
-        },
+  /**
+   * Return <tt>true</tt> if the text renderer is native to the context.
+   * @return {Boolean}
+   */
+  get native() {
+    return false;
+  }
 
-        /**
-         * Set the weight of the text to render.  Higher weights
-         * are bolder text.
-         *
-         * @param weight {Number} The weight of the text.
-         */
-        setTextWeight:function (weight) {
-            this.weight = weight;
-        },
+  /**
+   * Get the text being rendered
+   * @return {String} The text this renderer will draw
+   */
+  get text() {
+    return this.txtOpts.text;
+  }
 
-        /**
-         * Get the weight of the text to render.
-         * @return {Number} The weight of the text
-         */
-        getTextWeight:function () {
-            return this.weight;
-        },
+  /**
+   * Set the text to be rendered
+   *
+   * @param text {String} The text to render
+   */
+  set text(text) {
+    this.txtOpts.text = text;
+  }
 
-        /**
-         * Set the style of the text, usually italics or normal, for the text renderer.
-         * @param style {Object} The style of the text
-         */
-        setTextStyle:function (style) {
-            this.style = style;
-        },
+  /**
+   * Set the font of the text to be renderer
+   * @param font {String} The font name
+   */
+  set font(font) {
+    this.txtOpts.font = font;
+  }
 
-        /**
-         * Get the style of the text for the renderer.
-         * @return {Object} The style of the text
-         */
-        getTextStyle:function () {
-            return this.style;
-        },
+  /**
+   * Get the font of the text to be rendered
+   * @return {String} The font name
+   */
+  get font() {
+    return this.txtOpts.font;
+  }
 
-        /**
-         * Set the alignment of the text.
-         *
-         * @param alignment {Object} The alignment for the text renderer
-         */
-        setTextAlignment:function (alignment) {
-            this.alignment = alignment;
-            // Adjust the origin, based on the alignment
-            var boundingBox = this.getGameObject().getBoundingBox();
-            var center = boundingBox.getCenter();
-            var textOrigin = R.math.Point2D.create(0, 0);
-            if (this.alignment === R.text.AbstractTextRenderer.ALIGN_RIGHT) {
-                textOrigin.set(center.x + boundingBox.getHalfWidth(), 0);
-            }
-            else if (this.alignment === R.text.AbstractTextRenderer.ALIGN_LEFT) {
-                textOrigin.set(center.x - boundingBox.getHalfWidth(), 0);
-            }
-            else {
-                textOrigin.set(center.x, 0);
-            }
+  /**
+   * Set the weight of the text to render.  Higher weights
+   * are bolder text.
+   *
+   * @param weight {Number} The weight of the text.
+   */
+  set textWeight(weight) {
+    this.txtOpts.weight = weight;
+  }
 
-            this.getGameObject().setOrigin(textOrigin);
-        },
+  /**
+   * Get the weight of the text to render.
+   * @return {Number} The weight of the text
+   */
+  get textWeight() {
+    return this.txtOpts.weight;
+  }
 
-        /**
-         * Get the alignment of the text.
-         * @return {Object} The alignment of the text renderer
-         */
-        getTextAlignment:function () {
-            return this.alignment;
-        },
+  /**
+   * Set the style of the text, usually italics or normal, for the text renderer.
+   * @param style {Object} The style of the text
+   */
+  set style(style) {
+    this.txtOpts.style = style;
+  }
 
-        /**
-         * Set the scaling of the text
-         * @param size {Number}
-         */
-        setSize:function (size) {
-            this.size = size;
-        },
+  /**
+   * Get the style of the text for the renderer.
+   * @return {Object} The style of the text
+   */
+  get style() {
+    return this.txtOpts.style;
+  }
 
-        /**
-         * Get the scaling of the text
-         * @return {Number}
-         */
-        getSize:function () {
-            return this.size;
-        },
+  /**
+   * Set the alignment of the text.
+   *
+   * @param alignment {Object} The alignment for the text renderer
+   */
+  set alignment(alignment) {
+    this.txtOpts.alignment = alignment;
+    // Adjust the origin, based on the alignment
+    var boundingBox = this.gameObject.boundingBox;
+    var center = boundingBox.center;
+    var textOrigin = Point2D.create(0, 0);
+    if (this.txtOpts.alignment === AbstractTextRenderer.ALIGN_RIGHT) {
+      textOrigin.x = center.x + boundingBox.halfWidth;
+    }
+    else if (this.txtOpts.alignment === AbstractTextRenderer.ALIGN_LEFT) {
+      textOrigin.x = center.x - boundingBox.halfWidth;
+    }
+    else {
+      textOrigin.x = center.x;
+    }
 
-        /**
-         * Set the color of the text to render.
-         *
-         * @param color {String} The color of the text to render
-         */
-        setColor:function (color) {
-            this.color = color;
-        },
+    this.gameObject.setOrigin(textOrigin.x, textOrigin.y);
+    textOrigin.destroy();
+  }
 
-        /**
-         * Get the color of the text to render.
-         * @return {String} The text color
-         */
-        getColor:function () {
-            return this.color;
-        },
+  /**
+   * Get the alignment of the text.
+   * @return {Object} The alignment of the text renderer
+   */
+  get alignment() {
+    return this.txtOpts.alignment;
+  }
 
-        /**
-         * Set the line spacing between lines of text in a multi-line text string.
-         * Multi-line text is separated by the carriage return (0xA).
-         *
-         * @param lineSpacing {Number} Line spacing (default: 7)
-         */
-        setLineSpacing:function (lineSpacing) {
-            this.lineSpacing = lineSpacing;
-        },
+  /**
+   * Set the scaling of the text
+   * @param size {Number}
+   */
+  set size(size) {
+    this.txtOpts.size = size;
+  }
 
-        /**
-         * Get the space between lines in multi-line text.
-         * @return {Number}
-         */
-        getLineSpacing:function () {
-            return this.lineSpacing;
-        }
+  /**
+   * Get the scaling of the text
+   * @return {Number}
+   */
+  get size() {
+    return this.txtOpts.size;
+  }
 
-    }, /** @scope R.text.AbstractTextRenderer.prototype */{
+  /**
+   * Set the color of the text to render.
+   *
+   * @param color {String} The color of the text to render
+   */
+  set color(color) {
+    this.txtOpts.color = color;
+  }
 
-        /**
-         * Get the class name of this object
-         * @return {String} The string "R.text.AbstractTextRenderer"
-         */
-        getClassName:function () {
-            return "R.text.AbstractTextRenderer";
-        },
+  /**
+   * Get the color of the text to render.
+   * @return {String} The text color
+   */
+  get color() {
+    return this.txtOpts.color;
+  }
 
-        /**
-         * Align text with the left edge of the string at the point specified.
-         * @type Number
-         */
-        ALIGN_LEFT:0,
+  /**
+   * Set the line spacing between lines of text in a multi-line text string.
+   * Multi-line text is separated by the carriage return (0xA).
+   *
+   * @param lineSpacing {Number} Line spacing (default: 7)
+   */
+  set lineSpacing(lineSpacing) {
+    this.txtOpts.lineSpacing = lineSpacing;
+  }
 
-        /**
-         * Align text with the right edge of the string at the point specified
-         * @type Number
-         */
-        ALIGN_RIGHT:1,
+  /**
+   * Get the space between lines in multi-line text.
+   * @return {Number}
+   */
+  get lineSpacing() {
+    return this.txtOpts.lineSpacing;
+  }
 
-        /**
-         * Align text with the center of the string at the point specified
-         * @type Number
-         */
-        ALIGN_CENTER:2
+}
 
-    });
 
-};
