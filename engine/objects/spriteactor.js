@@ -242,7 +242,7 @@ class SpriteActor extends Object2D {
     // If movement isn't zero, we want to test for collisions along the vector.
     // We'll cast a ray in the direction of movement, one tile width long, from the center of the
     // bounding box (yes, this looks familiar for a reason...)
-    if (moveVec.length != 0) {
+    if (moveVec.length !== 0) {
       // We want to cast a ray along the axis of movement
       testPt.x = testPt.x + (bBox.halfWidth * mNormal.x);
       dir.x = moveVec.x;
@@ -368,12 +368,12 @@ class SpriteActor extends Object2D {
 
   stop() {
     this.variables.lastMVec = R.clone(this.moveVector);
-    this.setMoveVector(0, 0);
+    this.moveVector = Point2D.ZERO;
   }
 
   go() {
     if (this.variables.lastMVec) {
-      this.setMoveVector(this.variables.lastMVec);
+      this.moveVector = this.variables.lastMVec;
       this.variables.lastMVec.destroy();
     }
   }
@@ -383,7 +383,7 @@ class SpriteActor extends Object2D {
   }
 
   set moveVector(pt) {
-    this.getComponent("move").setMoveVector(pt);
+    this.getComponent("move").moveVector = pt;
   }
 
 }
